@@ -359,104 +359,103 @@ footer::before{
   display:flex;align-items:center;justify-content:center;
   transition:all 0.2s;flex-shrink:0;line-height:1;font-family:sans-serif}
 .pm-close:hover{background:rgba(255,255,255,0.16);color:white}
-/* ─── DREAM MODAL — pm-videos ─────────────────────────────── */
+/* ─── MODAL GALLERY — definitive layout ───────────────────── */
 .pm-videos{
-  flex:1;overflow-y:auto;
-  padding:48px 56px 72px;
-  display:flex;flex-direction:column;gap:52px
+  flex:1;overflow-y:auto;scroll-behavior:smooth;
+  padding:40px 40px 64px;
+  display:flex;flex-direction:column;gap:48px
 }
 .pm-videos::-webkit-scrollbar{width:4px}
 .pm-videos::-webkit-scrollbar-track{background:transparent}
-.pm-videos::-webkit-scrollbar-thumb{
-  background:rgba(255,255,255,0.1);border-radius:2px}
+.pm-videos::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
 /* section wrapper */
-.pm-section{display:flex;flex-direction:column;gap:18px}
-/* section header row */
+.pm-section{display:flex;flex-direction:column;gap:20px;width:100%}
+/* section header row — label + dot + count, no line/dash */
 .pm-sec-head{
-  display:flex;align-items:center;gap:14px
+  display:flex;align-items:center;gap:10px;padding:0 2px
 }
 .pm-sec-label{
   font-family:'Assistant',var(--font-display);
   font-size:10px;font-weight:700;letter-spacing:4px;
-  text-transform:uppercase;color:rgba(255,255,255,0.3);
+  text-transform:uppercase;color:rgba(255,255,255,0.35);
   white-space:nowrap
 }
-.pm-sec-line{
-  flex:1;height:1px;
-  background:linear-gradient(90deg,rgba(255,255,255,0.1) 0%,transparent 100%)
+.pm-sec-dot{
+  width:3px;height:3px;border-radius:50%;
+  background:rgba(255,255,255,0.2);flex-shrink:0
 }
 .pm-sec-count{
-  font-size:10px;font-weight:600;letter-spacing:1.5px;
-  color:rgba(255,255,255,0.18);white-space:nowrap
+  font-size:10px;font-weight:500;letter-spacing:1px;
+  color:rgba(255,255,255,0.2);white-space:nowrap
 }
-/* ─── Horizontal grid: 3 cols ─── */
+/* ─── Horizontal (16:9) grid ─── */
 .pm-grid-h{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:20px;width:100%
 }
-/* ─── Vertical grid: 4 cols ─── */
+/* ─── Vertical (9:16) grid ─── */
 .pm-grid-v{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:16px;width:100%
 }
-@media(max-width:1100px){
-  .pm-grid-h{grid-template-columns:repeat(2,1fr)}
-  .pm-grid-v{grid-template-columns:repeat(3,1fr)}
-  .pm-videos{padding:36px 32px 56px}
+@media(max-width:900px){
+  .pm-grid-h{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .pm-grid-v{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+  .pm-videos{padding:28px 24px 48px;gap:36px}
 }
-@media(max-width:700px){
-  .pm-grid-h{grid-template-columns:1fr}
-  .pm-grid-v{grid-template-columns:repeat(2,1fr)}
-  .pm-videos{padding:24px 16px 40px;gap:36px}
+@media(max-width:600px){
+  .pm-grid-h{grid-template-columns:1fr;gap:12px}
+  .pm-grid-v{grid-template-columns:repeat(2,1fr);gap:10px}
+  .pm-videos{padding:20px 16px 36px;gap:28px}
 }
 /* ─── Video items ─── */
 .pv-item{
   position:relative;border-radius:10px;overflow:hidden;
   background:#07070e;cursor:pointer;
-  opacity:0;transform:translateY(10px);
-  animation:pvIn 0.45s cubic-bezier(0.2,0,0.2,1) forwards;
-  transition:transform 0.3s cubic-bezier(0.2,0,0,1),
-    box-shadow 0.3s cubic-bezier(0.2,0,0,1)
+  opacity:0;transform:translateY(12px);
+  animation:pvIn 0.4s cubic-bezier(0.2,0,0.2,1) forwards;
+  transition:transform 0.28s cubic-bezier(0.2,0,0,1),
+    box-shadow 0.28s cubic-bezier(0.2,0,0,1)
 }
 @keyframes pvIn{to{opacity:1;transform:translateY(0)}}
-.pv-item:focus{outline:2px solid rgba(255,255,255,0.5);outline-offset:3px}
-.pv-item.landscape{aspect-ratio:16/9}
-.pv-item.portrait{aspect-ratio:9/16}
+.pv-item:focus{outline:2px solid rgba(255,255,255,0.45);outline-offset:3px}
+.pv-item.landscape{aspect-ratio:16/9;width:100%}
+.pv-item.portrait{aspect-ratio:9/16;width:100%}
 .pv-item iframe{
   position:absolute;inset:0;width:100%;height:100%;
   border:0;pointer-events:none
 }
 /* hover: lift + glow */
 .pv-item:hover{
-  transform:translateY(-3px) scale(1.015);
-  box-shadow:0 16px 48px rgba(0,0,0,0.65),
-    0 0 0 1px rgba(255,255,255,0.07)
+  transform:translateY(-4px) scale(1.012);
+  box-shadow:0 20px 56px rgba(0,0,0,0.7),
+    0 0 0 1px rgba(255,255,255,0.08)
 }
 /* play overlay */
 .pv-play{
   position:absolute;inset:0;z-index:4;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0);transition:background 0.25s
+  background:rgba(0,0,0,0);transition:background 0.22s
 }
 .pv-play svg{
-  width:42px;height:42px;opacity:0;
-  transform:scale(0.75);
-  transition:opacity 0.25s,transform 0.25s;
-  filter:drop-shadow(0 2px 14px rgba(0,0,0,0.95))
+  width:40px;height:40px;opacity:0;
+  transform:scale(0.7);
+  transition:opacity 0.22s,transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  filter:drop-shadow(0 2px 12px rgba(0,0,0,0.9))
 }
-.pv-item:hover .pv-play{background:rgba(0,0,0,0.28)}
+.pv-item:hover .pv-play{background:rgba(0,0,0,0.3)}
 .pv-item:hover .pv-play svg{opacity:1;transform:scale(1)}
 /* shimmer loading state */
 .pv-shimmer{
   position:absolute;inset:0;z-index:1;
   background:linear-gradient(90deg,
     rgba(255,255,255,0) 0%,
-    rgba(255,255,255,0.03) 50%,
+    rgba(255,255,255,0.04) 50%,
     rgba(255,255,255,0) 100%);
   background-size:200% 100%;
-  animation:pvShimmer 1.8s infinite
+  animation:pvShimmer 1.6s ease-in-out infinite
 }
 @keyframes pvShimmer{
   from{background-position:200% 0}
@@ -508,10 +507,7 @@ footer::before{
 @media(max-width:768px){
   .pm-header{padding:14px 16px;gap:12px}
   .pm-title{font-size:16px}
-  .pm-videos{padding:12px 12px 24px;gap:8px}
-  .pv-item.portrait{width:150px;height:267px}
-  .pv-item.landscape{width:100%;height:0;padding-bottom:56.25%;position:relative}
-  .pv-item.landscape iframe{position:absolute;top:0;left:0}
+  .pm-videos{padding:16px 12px 28px;gap:24px}
   .featured-item.portrait{width:120px}
   .featured-item.landscape{width:320px}
   .featured-item{height:214px}
@@ -654,15 +650,7 @@ html{scroll-behavior:smooth}
 .folder-card{transition:transform 0.4s ease,box-shadow 0.4s ease!important}
 .folder-card:hover{transform:translateY(-5px)!important;box-shadow:0 20px 56px rgba(0,0,0,0.5)!important}
 
-/* 16. Modal layout – portrait+landscape organized */
-.pm-videos{
-  display:flex!important;flex-wrap:wrap!important;
-  gap:10px!important;padding:20px 28px 32px!important;
-  justify-content:center!important;align-content:flex-start
-}
-.pv-item{border-radius:10px!important;overflow:hidden;background:#06060e;position:relative}
-.pv-item.portrait{width:195px!important;height:347px!important}
-.pv-item.landscape{width:var(--lw,460px)!important;height:259px!important;flex:0 0 var(--lw,460px)}
+/* 16. Modal layout — handled by definitive CSS above */
 
 /* 17. Modal autoplay indication */
 .pv-loading{
@@ -737,9 +725,7 @@ html{scroll-behavior:smooth}
   .nav-links{display:none}
   .footer{grid-template-columns:1fr;gap:12px;text-align:center;padding:20px 24px}
   .footer-text,.footer-legal,.footer-socials{justify-self:center}
-  .pm-videos{padding:10px 10px 20px!important;gap:8px!important}
-  .pv-item.portrait{width:140px!important;height:249px!important}
-  .pv-item.landscape{--lw:calc(100vw - 28px)!important}
+  .pm-videos{padding:16px 12px 28px!important;gap:24px!important}
   .dream-words{flex-wrap:wrap!important;gap:12px!important}
   .featured-item.portrait{width:120px!important}
   .featured-item.landscape{width:320px!important}
@@ -1094,61 +1080,7 @@ html{scroll-behavior:smooth}
   animation-play-state:paused!important
 }
 
-/* ─── 5. MODAL GRID — smart mixed layout ─────────────────── */
-.pm-videos{
-  display:grid!important;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important;
-  grid-auto-rows:180px!important;
-  grid-auto-flow:dense!important;
-  gap:10px!important;
-  padding:20px 24px 32px!important;
-  overflow-y:auto;
-  align-content:start
-}
-.pv-item{
-  border-radius:10px!important;overflow:hidden;
-  background:#07070f;position:relative;
-  min-height:180px
-}
-/* Portrait spans 2 rows, landscape spans 2 columns */
-.pv-item.portrait{
-  grid-row:span 2!important;
-  grid-column:span 1!important
-}
-.pv-item.landscape{
-  grid-row:span 1!important;
-  grid-column:span 2!important;
-  min-height:180px!important
-}
-.pv-item iframe{
-  position:absolute;top:0;left:0;
-  width:100%;height:100%;border:0
-}
-/* Hover-to-play in modal */
-.pv-item .pv-thumb{
-  position:absolute;inset:0;
-  object-fit:cover;width:100%;height:100%;z-index:1;
-  transition:opacity 0.35s
-}
-.pv-item.playing .pv-thumb{opacity:0;pointer-events:none}
-.pv-item .pv-play-btn{
-  position:absolute;inset:0;z-index:2;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0);transition:background 0.3s
-}
-.pv-item:hover .pv-play-btn{background:rgba(0,0,0,0.3)}
-.pv-item .pv-play-icon{
-  width:48px;height:48px;border-radius:50%;
-  background:rgba(255,255,255,0.12);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  border:1.5px solid rgba(255,255,255,0.3);
-  display:flex;align-items:center;justify-content:center;
-  color:white;font-size:18px;
-  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  transform:scale(0.8);opacity:0.7
-}
-.pv-item:hover .pv-play-icon{transform:scale(1);opacity:1}
-.pv-item.playing .pv-play-btn{display:none}
+/* ─── 5. MODAL GRID — layout defined above, no overrides needed ─ */
 
 /* ─── 6. HIGHLIGHTS TITLE — bold & prominent ─────────────── */
 .featured-section .section-label{
@@ -1314,8 +1246,6 @@ html{scroll-behavior:smooth}
 /* ─── RESPONSIVE ─────────────────────────────────────────── */
 @media(max-width:900px){
   .featured-item.landscape{width:380px!important}
-  .pm-videos{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))!important}
-  .pv-item.landscape{grid-column:span 2!important}
 }
 @media(max-width:600px){
   .featured-item.portrait{width:130px!important}
@@ -1323,12 +1253,6 @@ html{scroll-behavior:smooth}
   .featured-item{height:220px!important}
   .testimonial-card{width:270px!important;min-width:270px!important;height:240px!important;max-height:240px!important}
   .testimonials-header{padding:32px 20px 20px!important}
-  .pm-videos{
-    grid-template-columns:1fr 1fr!important;
-    grid-auto-rows:140px!important
-  }
-  .pv-item.landscape{grid-column:span 2!important;grid-row:span 1!important}
-  .pv-item.portrait{grid-row:span 2!important}
 }
 
 </style>
@@ -1986,8 +1910,8 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
   head.className = 'pm-sec-head';
   head.innerHTML =
     '<span class="pm-sec-label">' + label + '</span>' +
-    '<span class="pm-sec-line"></span>' +
-    '<span class="pm-sec-count">' + videos.length + ' video' + (videos.length > 1 ? 's' : '') + '</span>';
+    '<span class="pm-sec-dot"></span>' +
+    '<span class="pm-sec-count">' + videos.length + (videos.length > 1 ? ' videos' : ' video') + '</span>';
   section.appendChild(head);
 
   // Grid
