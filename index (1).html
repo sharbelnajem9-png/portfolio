@@ -345,24 +345,45 @@ footer::before{
 .pm-header{display:flex;align-items:center;padding:18px 32px;
   border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;gap:20px}
 .pm-logo{height:34px;opacity:0.85;flex-shrink:0}
-.pm-title{font-family:var(--font-display);font-size:20px;font-weight:600;
-  letter-spacing:-0.3px;flex:1;text-align:center}
+.pm-title{font-family:'Assistant',var(--font-display);
+  font-size:clamp(22px,3vw,34px);font-weight:800;
+  letter-spacing:1px;flex:1;text-align:center;
+  background:linear-gradient(135deg,#fff 30%,rgba(255,255,255,0.55) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  text-shadow:none;position:relative}
+.pm-title::after{content:'';display:block;margin:6px auto 0;
+  width:48px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)}
 .pm-close{width:38px;height:38px;border-radius:50%;
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);
   color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   transition:all 0.2s;flex-shrink:0;line-height:1;font-family:sans-serif}
 .pm-close:hover{background:rgba(255,255,255,0.16);color:white}
-.pm-videos{flex:1;overflow-y:auto;padding:24px 32px 36px;
-  display:flex;flex-wrap:wrap;gap:10px;
-  align-content:flex-start;justify-content:center}
+.pm-videos{flex:1;overflow-y:auto;padding:28px 36px 40px}
 .pm-videos::-webkit-scrollbar{width:6px}
 .pm-videos::-webkit-scrollbar-track{background:transparent}
-.pm-videos::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:3px}
-.pv-item{flex-shrink:0;border-radius:10px;overflow:hidden;
+.pm-videos::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:3px}
+/* section labels inside modal */
+.pm-section-label{width:100%;font-family:'Assistant',var(--font-display);
+  font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:rgba(255,255,255,0.35);margin:0 0 14px 2px}
+/* horizontal 16:9 grid */
+.pm-grid-landscape{display:grid;grid-template-columns:repeat(2,1fr);
+  gap:14px;margin-bottom:32px}
+/* vertical 9:16 grid */
+.pm-grid-portrait{display:grid;grid-template-columns:repeat(4,1fr);
+  gap:14px}
+@media(max-width:900px){
+  .pm-grid-landscape{grid-template-columns:1fr}
+  .pm-grid-portrait{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){
+  .pm-grid-portrait{grid-template-columns:repeat(2,1fr)}}
+.pv-item{border-radius:10px;overflow:hidden;
   background:#06060e;position:relative}
-.pv-item.portrait{width:200px;height:356px}
-.pv-item.landscape{width:480px;height:270px}
+.pv-item.landscape{aspect-ratio:16/9;width:100%}
+.pv-item.portrait{aspect-ratio:9/16;width:100%}
 .pv-item iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 .pv-loading{position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;color:rgba(255,255,255,0.15);font-size:30px;
@@ -1532,78 +1553,78 @@ html{scroll-behavior:smooth}
     <h2 class="section-title" data-en="Brands I've Worked With" data-he="מותגים שעבדתי איתם">Brands I've Worked With</h2>
   </div>
   <div class="brand-marquee"><div class="brand-track" id="brandTrack">
-    <div class="brand-item"><img src="logos/Untitled-46.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-47.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-48.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-49.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-50.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-51.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-52.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-53.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-54.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-55.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-56.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-57.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-58.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-59.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-60.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-61.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-62.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-63.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-64.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-65.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-66.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-67.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-68.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-69.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-70.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-71.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-72.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-73.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-74.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-75.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-76.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-77.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-78.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-79.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-80.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-81.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-46.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-47.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-48.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-49.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-50.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-51.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-52.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-53.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-54.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-55.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-56.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-57.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-58.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-59.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-60.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-61.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-62.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-63.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-64.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-65.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-66.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-67.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-68.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-69.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-70.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-71.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-72.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-73.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-74.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-75.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-76.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-77.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-78.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-79.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-80.png" alt="Brand" loading="lazy"></div>
-    <div class="brand-item"><img src="logos/Untitled-81.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-46.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-47.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-48.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-49.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-50.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-51.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-52.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-53.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-54.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-55.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-56.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-57.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-58.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-59.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-60.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-61.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-62.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-63.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-64.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-65.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-66.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-67.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-68.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-69.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-70.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-71.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-72.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-73.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-74.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-75.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-76.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-77.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-78.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-79.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-80.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-81.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-46.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-47.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-48.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-49.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-50.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-51.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-52.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-53.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-54.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-55.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-56.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-57.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-58.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-59.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-60.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-61.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-62.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-63.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-64.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-65.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-66.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-67.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-68.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-69.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-70.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-71.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-72.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-73.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-74.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-75.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-76.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-77.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-78.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-79.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-80.png" alt="Brand" loading="lazy"></div>
+    <div class="brand-item"><img src="Untitled-81.png" alt="Brand" loading="lazy"></div>
   </div></div>
   <div class="carousel-controls"><button class="carousel-btn" onclick="scrollCarousel('brandTrack',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button><button class="carousel-btn" onclick="scrollCarousel('brandTrack',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
   <div class="testimonials-header fade-in"><span class="section-label" data-en="What Clients Say" data-he="מה אומרים הלקוחות">What Clients Say</span><h2 class="section-title" data-en="Testimonials" data-he="המלצות">Testimonials</h2></div>
@@ -1809,6 +1830,17 @@ const PROJECT_DATA = {'podcast-short':{en:'Podcast Short',he:'פודקאסט ק�
 'kristian-najem':{en:'Kristian Najem',he:'כריסטיאן נאג׳ם',vids:[['1181214416','p'],['1181216090','p'],['1181212370','p'],['1181211716','p'],['1181209657','p'],['1181206645','p'],['1181205157','p'],['1181183766','p'],['1181182439','p']]},
 'naadned':{en:'Naadned',he:'נאדנד',vids:[['1181236213','p'],['1181233630','p'],['1181231926','p'],['1181229662','p'],['1181228462','p'],['1181227058','p'],['1181225482','p'],['1181223604','p'],['1181222057','p']]}};
 
+function buildVimeoIframe(id) {
+  const iframe = document.createElement('iframe');
+  iframe.src = 'https://player.vimeo.com/video/' + id +
+    '?autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0';
+  iframe.setAttribute('frameborder', '0');
+  iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; clipboard-write');
+  iframe.setAttribute('allowfullscreen', '');
+  iframe.setAttribute('loading', 'lazy');
+  return iframe;
+}
+
 function openProject(key) {
   const p = PROJECT_DATA[key];
   if (!p) return;
@@ -1819,33 +1851,56 @@ function openProject(key) {
   titleEl.setAttribute('data-en', p.en);
   titleEl.setAttribute('data-he', p.he);
 
-  const grid = document.getElementById('pm-videos');
-  grid.innerHTML = '';
+  const container = document.getElementById('pm-videos');
+  container.innerHTML = '';
 
-  p.vids.forEach(([id, r]) => {
-    const isPortrait = r === 'p';
-    const div = document.createElement('div');
-    div.className = 'pv-item ' + (isPortrait ? 'portrait' : 'landscape');
-    const loader = document.createElement('span');
-    loader.className = 'pv-loading';
-    loader.textContent = '\u25b6';
-    div.appendChild(loader);
-    const iframe = document.createElement('iframe');
-    iframe.src = 'https://player.vimeo.com/video/' + id + '?title=0&byline=0&portrait=0&badge=0&autopause=0';
-    iframe.setAttribute('frameborder', '0');
-    iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; clipboard-write');
-    iframe.setAttribute('allowfullscreen', '');
-    iframe.setAttribute('loading', 'lazy');
-    iframe.onload = () => { loader.style.opacity = '0'; };
-    div.appendChild(iframe);
-    grid.appendChild(div);
-  });
+  const landscapes = p.vids.filter(([,r]) => r !== 'p');
+  const portraits  = p.vids.filter(([,r]) => r === 'p');
+
+  // ── Horizontal (16:9) section ──
+  if (landscapes.length > 0) {
+    const label = document.createElement('p');
+    label.className = 'pm-section-label';
+    label.setAttribute('data-en', 'Horizontal Videos');
+    label.setAttribute('data-he', 'סרטונים אופקיים');
+    label.textContent = (lang === 'he') ? 'סרטונים אופקיים' : 'Horizontal Videos';
+    container.appendChild(label);
+
+    const grid = document.createElement('div');
+    grid.className = 'pm-grid-landscape';
+    landscapes.forEach(([id]) => {
+      const div = document.createElement('div');
+      div.className = 'pv-item landscape';
+      div.appendChild(buildVimeoIframe(id));
+      grid.appendChild(div);
+    });
+    container.appendChild(grid);
+  }
+
+  // ── Vertical (9:16) section ──
+  if (portraits.length > 0) {
+    const label = document.createElement('p');
+    label.className = 'pm-section-label';
+    label.setAttribute('data-en', 'Vertical Shorts');
+    label.setAttribute('data-he', 'שורטס אנכיים');
+    label.textContent = (lang === 'he') ? 'שורטס אנכיים' : 'Vertical Shorts';
+    container.appendChild(label);
+
+    const grid = document.createElement('div');
+    grid.className = 'pm-grid-portrait';
+    portraits.forEach(([id]) => {
+      const div = document.createElement('div');
+      div.className = 'pv-item portrait';
+      div.appendChild(buildVimeoIframe(id));
+      grid.appendChild(div);
+    });
+    container.appendChild(grid);
+  }
 
   const overlay = document.getElementById('project-overlay');
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
-  // Scroll grid to top
-  setTimeout(() => { grid.scrollTop = 0; }, 50);
+  setTimeout(() => { container.scrollTop = 0; }, 50);
 }
 
 function closeProject(e) {
