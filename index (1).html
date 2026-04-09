@@ -2076,41 +2076,7 @@ window.addEventListener('scroll', () => {
 // ================================================================
 // BACKGROUND VIDEO LAZY LOADER (projects + featured)
 // ================================================================
-const bgVidObs = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    const el = entry.target;
-    if (entry.isIntersecting && !el.dataset.loaded) {
-      el.dataset.loaded = '1';
-      const vid = el.dataset.vid;
-      if (!vid) return;
-      const iframe = document.createElement('iframe');
-      iframe.src = `https://player.vimeo.com/video/${vid}?background=1&autoplay=1&loop=1&autopause=0&muted=1`;
-      iframe.style.cssText = 'position:absolute;top:-10%;left:-10%;width:120%;height:120%;border:0;pointer-events:none';
-      iframe.setAttribute('allow', 'autoplay; fullscreen');
-      el.appendChild(iframe);
-    }
-  });
-}, { rootMargin: '120px' });
-
-document.querySelectorAll('.fc-bg, .fi-bg').forEach(el => bgVidObs.observe(el));
-
-// ================================================================
-// VIDEO ROTATION in project cards (every 7 seconds)
-// ================================================================
-setInterval(() => {
-  document.querySelectorAll('.folder-card .fc-bg').forEach(el => {
-    if (!el.dataset.loaded) return;
-    const vids = el.dataset.vids ? el.dataset.vids.split(',') : [];
-    if (vids.length <= 1) return;
-    const current = parseInt(el.dataset.vidIdx || '0');
-    const next = (current + 1) % vids.length;
-    el.dataset.vidIdx = next;
-    const iframe = el.querySelector('iframe');
-    if (iframe) {
-      iframe.src = `https://player.vimeo.com/video/${vids[next]}?background=1&autoplay=1&loop=1&autopause=0&muted=1`;
-    }
-  });
-}, 7000);
+// bgVidObs removed — replaced by unified vidPreviewObs below
 
 // ================================================================
 // FEATURED SECTION SCROLL ARROWS
@@ -2379,41 +2345,60 @@ document.addEventListener('DOMContentLoaded', () => {
 // PHASE 3  — Hover-to-play, hero sequencer v2, modal grid
 // ================================================================
 
-// ─── Always-Playing Lazy Thumbnails (IntersectionObserver + background=1) ──
-function initAutoplayThumb(el){
-  const isCard = el.classList.contains('folder-card');
-  const bg = isCard ? el.querySelector('.fc-bg') : el.querySelector('.fi-bg');
-  if(!bg || bg.dataset.vidInit) return;
-  bg.dataset.vidInit = '1';
+// ─── Unified Video Preview Observer ────────────────────────────
+// Single observer: injects Vimeo background iframe when card nears
+// viewport, fades static thumbnail after 2.5s, rotates videos every 8s.
+(function() {
+  const PARAMS = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0';
+  const FADE_MS = 2500;
+  const ROTATE_MS = 8000;
 
-  const vid = bg.dataset.vid;
-  if(!vid) return;
+  function injectPreview(card) {
+    const isCard = card.classList.contains('folder-card');
+    const bg = isCard ? card.querySelector('.fc-bg') : card.querySelector('.fi-bg');
+    if (!bg || bg.dataset.vidInit) return;
+    bg.dataset.vidInit = '1';
 
-  // Build iframe — opacity handled by CSS (always 1)
-  const iframe = document.createElement('iframe');
-  iframe.src = `https://player.vimeo.com/video/${vid}?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0`;
-  iframe.setAttribute('allow','autoplay; fullscreen');
-  iframe.setAttribute('loading','lazy');
-  bg.appendChild(iframe);
+    const vid = bg.dataset.vid;
+    if (!vid) return;
 
-  // Thumbnail sits on top (z-index:3); fade it out after video has time to load
-  const thumbSel = isCard ? '.fc-thumb-img' : '.fi-thumb-img';
-  setTimeout(() => { bg.classList.add('fc-ready'); }, 3500);
-}
+    // Inject background iframe — always opacity:1 via CSS
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://player.vimeo.com/video/' + vid + PARAMS;
+    iframe.setAttribute('allow', 'autoplay; fullscreen');
+    iframe.setAttribute('frameborder', '0');
+    bg.appendChild(iframe);
 
-// ─── Observe cards + featured items entering viewport ──────────
-const hoverObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if(e.isIntersecting){
-      initAutoplayThumb(e.target);
-      hoverObs.unobserve(e.target);
+    // Fade out static thumbnail after delay
+    setTimeout(() => bg.classList.add('fc-ready'), FADE_MS);
+
+    // Rotate through project card videos every ROTATE_MS
+    if (isCard) {
+      const vids = (bg.dataset.vids || '').split(',').filter(Boolean);
+      if (vids.length > 1) {
+        let idx = 0;
+        setInterval(() => {
+          idx = (idx + 1) % vids.length;
+          const fr = bg.querySelector('iframe');
+          if (fr) fr.src = 'https://player.vimeo.com/video/' + vids[idx] + PARAMS;
+        }, ROTATE_MS);
+      }
     }
-  });
-}, { rootMargin: '300px' });
+  }
 
-document.querySelectorAll('.folder-card, .featured-item').forEach(el => {
-  hoverObs.observe(el);
-});
+  const vidPreviewObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        injectPreview(e.target);
+        vidPreviewObs.unobserve(e.target);
+      }
+    });
+  }, { rootMargin: '200px', threshold: 0 });
+
+  document.querySelectorAll('.folder-card, .featured-item').forEach(el => {
+    vidPreviewObs.observe(el);
+  });
+})();
 
 // ─── HERO VIDEO SEQUENCER v2// ─── HERO VIDEO SEQUENCER v2 ─────────────────────────────────
 (function heroSeqV2(){
