@@ -2342,61 +2342,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ================================================================
-// PHASE 3  — Hover-to-play, hero sequencer v2, modal grid
+// PHASE 3  — Live video previews on main page
 // ================================================================
-
-// ─── Unified Video Preview Observer ────────────────────────────
-// Single observer: injects Vimeo background iframe when card nears
-// viewport, fades static thumbnail after 2.5s, rotates videos every 8s.
 (function() {
-  const PARAMS = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0';
-  const FADE_MS = 2500;
-  const ROTATE_MS = 8000;
+  const P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0';
+  const FADE = 1800;   // ms before thumbnail fades (video loads fast on bg mode)
+  const ROT  = 9000;   // ms between video rotations on project cards
 
-  function injectPreview(card) {
-    const isCard = card.classList.contains('folder-card');
-    const bg = isCard ? card.querySelector('.fc-bg') : card.querySelector('.fi-bg');
-    if (!bg || bg.dataset.vidInit) return;
-    bg.dataset.vidInit = '1';
+  // ── Core inject function ────────────────────────────────────
+  function inject(el) {
+    const isCard = el.classList.contains('folder-card');
+    const bg = isCard ? el.querySelector('.fc-bg') : el.querySelector('.fi-bg');
+    if (!bg || bg.dataset.vi) return;
+    bg.dataset.vi = '1';
 
     const vid = bg.dataset.vid;
     if (!vid) return;
 
-    // Inject background iframe — always opacity:1 via CSS
-    const iframe = document.createElement('iframe');
-    iframe.src = 'https://player.vimeo.com/video/' + vid + PARAMS;
-    iframe.setAttribute('allow', 'autoplay; fullscreen');
-    iframe.setAttribute('frameborder', '0');
-    bg.appendChild(iframe);
+    const fr = document.createElement('iframe');
+    fr.setAttribute('allow', 'autoplay; fullscreen');
+    fr.setAttribute('allowfullscreen', '');
+    fr.setAttribute('frameborder', '0');
+    fr.src = 'https://player.vimeo.com/video/' + vid + P;
+    bg.appendChild(fr);
 
-    // Fade out static thumbnail after delay
-    setTimeout(() => bg.classList.add('fc-ready'), FADE_MS);
+    // Fade thumbnail: both CSS class + inline style for reliability
+    setTimeout(function() {
+      bg.classList.add('fc-ready');
+      var thumb = bg.querySelector('.fc-thumb-img, .fi-thumb-img');
+      if (thumb) { thumb.style.opacity = '0'; thumb.style.transition = 'opacity 1.2s ease'; }
+    }, FADE);
 
-    // Rotate through project card videos every ROTATE_MS
+    // Video rotation for project cards (cycles through all videos in the project)
     if (isCard) {
-      const vids = (bg.dataset.vids || '').split(',').filter(Boolean);
+      var vids = (bg.dataset.vids || '').split(',').filter(Boolean);
       if (vids.length > 1) {
-        let idx = 0;
-        setInterval(() => {
+        var idx = 0;
+        setInterval(function() {
           idx = (idx + 1) % vids.length;
-          const fr = bg.querySelector('iframe');
-          if (fr) fr.src = 'https://player.vimeo.com/video/' + vids[idx] + PARAMS;
-        }, ROTATE_MS);
+          var f = bg.querySelector('iframe');
+          if (f) f.src = 'https://player.vimeo.com/video/' + vids[idx] + P;
+        }, ROT);
       }
     }
   }
 
-  const vidPreviewObs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
+  // ── PROJECT CARDS: inject eagerly with stagger ──────────────
+  // Carousel uses CSS animation (infinite marquee) + overflow:hidden.
+  // IntersectionObserver is unreliable for CSS-animated containers.
+  // Staggered eager injection guarantees all cards get live video.
+  var cards = document.querySelectorAll('.folder-card');
+  cards.forEach(function(el, i) {
+    setTimeout(function() { inject(el); }, i * 180);
+  });
+
+  // ── FEATURED STRIP: IntersectionObserver (strict viewport) ──
+  // Featured strip is a horizontally scrollable container.
+  // Observer fires correctly when items scroll into view.
+  var featObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
       if (e.isIntersecting) {
-        injectPreview(e.target);
-        vidPreviewObs.unobserve(e.target);
+        inject(e.target);
+        featObs.unobserve(e.target);
       }
     });
-  }, { rootMargin: '200px', threshold: 0 });
+  }, { rootMargin: '0px', threshold: 0.05 });
 
-  document.querySelectorAll('.folder-card, .featured-item').forEach(el => {
-    vidPreviewObs.observe(el);
+  document.querySelectorAll('.featured-item').forEach(function(el) {
+    featObs.observe(el);
   });
 })();
 
