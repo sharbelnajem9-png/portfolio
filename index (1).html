@@ -28,8 +28,8 @@ html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--white-15)
 body{font-family:var(--font-body);background:var(--black);color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--white-15);border-radius:3px}
 
-.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);background:rgba(11,11,11,0.6);border-bottom:1px solid var(--glass-border);transition:background 0.4s,box-shadow 0.4s}
-.navbar.scrolled{background:rgba(11,11,11,0.92);box-shadow:0 2px 24px rgba(0,0,0,0.4)}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);background:rgba(4,7,18,0.88);border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.4s,box-shadow 0.4s}
+.navbar.scrolled{background:rgba(4,7,18,0.97);box-shadow:0 2px 24px rgba(0,0,0,0.4)}
 .nav-logo img{height:48px;transition:opacity 0.3s}
 .nav-logo:hover img{opacity:0.7}
 .nav-links{display:flex;gap:32px;list-style:none}
@@ -50,16 +50,16 @@ body{font-family:var(--font-body);background:var(--black);color:var(--white);ove
 
 
 /* HERO */
-.hero{position:relative;height:50vh;min-height:400px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.hero-video-bg{position:absolute;inset:0;background:var(--dark);overflow:hidden}
+.hero{position:relative;height:65vh;min-height:480px;display:flex;align-items:center;justify-content:center;overflow:visible;padding:14px 18px;box-sizing:border-box;background:#04050d}
+.hero-video-bg{position:absolute;inset:14px 18px;background:var(--dark);overflow:hidden;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,0.7)}
 .hero-video-bg video{width:100%;height:100%;object-fit:cover;opacity:0.4}
 .hero-video-placeholder{width:100%;height:100%;background:linear-gradient(160deg,#0b0b0b 0%,#14141e 50%,#0b0b0b 100%);display:flex;align-items:center;justify-content:center}
 .hero-video-placeholder::after{content:'▶ Replace with your showreel';color:var(--white-15);font-size:13px;letter-spacing:2px;text-transform:uppercase}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(11,11,11,0.2) 0%,rgba(11,11,11,0.05) 40%,rgba(11,11,11,0.75) 100%)}
+.hero-overlay{position:absolute;inset:14px 18px;border-radius:20px;background:linear-gradient(to bottom,rgba(4,5,13,0.15) 0%,rgba(4,5,13,0.04) 40%,rgba(4,5,13,0.72) 100%)}
 .hero-content{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px;animation:heroIn 1s ease-out}
 @keyframes heroIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .hero-avatar{width:100px;height:100px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.75);overflow:hidden;background:var(--card);box-shadow:0 0 0 5px rgba(255,255,255,0.07),0 0 28px rgba(255,255,255,0.2),0 4px 20px rgba(0,0,0,0.5)}
-.hero-avatar img{width:100%;height:100%;object-fit:cover;object-position:center 18%}
+.hero-avatar img{width:100%;height:100%;object-fit:cover;object-position:center 12%}
 .hero-name{font-family:var(--font-display);font-size:clamp(56px,9vw,104px);font-weight:700;letter-spacing:-2px;line-height:1}
 .hero-tagline{font-size:clamp(15px,1.5vw,19px);color:rgba(255,255,255,0.68);max-width:580px;font-weight:300;line-height:1.65}
 .hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--white-15);font-size:10px;letter-spacing:3px;text-transform:uppercase;animation:scrollB 2s infinite}
@@ -1005,12 +1005,11 @@ html{scroll-behavior:smooth}
   position:absolute;top:50%;left:50%;
   width:120%;height:120%;
   transform:translate(-50%,-50%);
-  border:0;pointer-events:none;z-index:2;
-  opacity:0;transition:opacity 0.8s ease
+  border:0;pointer-events:none;z-index:2;opacity:1
 }
-.fc-bg iframe.fc-loaded{opacity:1}
-/* once video loaded, hide static thumb */
-.fc-bg.fc-ready .fc-thumb-img{opacity:0}
+/* thumbnail stays on top until faded by JS */
+.fc-thumb-img{z-index:3!important;transition:opacity 1.2s ease!important}
+.fc-bg.fc-ready .fc-thumb-img{opacity:0!important}
 /* hover glow & lift */
 .folder-card{
   transition:transform 0.4s cubic-bezier(0.2,0,0,1),
@@ -1043,19 +1042,17 @@ html{scroll-behavior:smooth}
 }
 .fi-thumb-img{
   position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;z-index:1;
-  transition:opacity 0.4s ease
+  object-fit:cover;z-index:3;
+  transition:opacity 1.2s ease
 }
+/* iframe always visible; thumbnail fades out via JS after delay */
 .fi-bg iframe{
   position:absolute;top:50%;left:50%;
   width:120%;height:120%;
   transform:translate(-50%,-50%);
-  border:0;pointer-events:none;
-  z-index:2;opacity:0;
-  transition:opacity 0.35s ease
+  border:0;pointer-events:none;z-index:2;opacity:1
 }
-.featured-item:hover .fi-bg iframe{opacity:1}
-.featured-item:hover .fi-thumb-img{opacity:0}
+.fi-bg.fc-ready .fi-thumb-img{opacity:0}
 .fi-overlay{position:absolute;inset:0;z-index:3;
   display:flex;align-items:center;justify-content:center}
 .fi-play{
@@ -1975,6 +1972,7 @@ function makePvPlay() {
 }
 
 // ── Build one section (label + count + grid) ──
+// Iframes load immediately — modal is focused content, no lazy-load needed
 function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
   if (!videos.length) return null;
 
@@ -1986,7 +1984,8 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
   // Section header
   const head = document.createElement('div');
   head.className = 'pm-sec-head';
-  head.innerHTML = '<span class="pm-sec-label">' + label + '</span>' +
+  head.innerHTML =
+    '<span class="pm-sec-label">' + label + '</span>' +
     '<span class="pm-sec-line"></span>' +
     '<span class="pm-sec-count">' + videos.length + ' video' + (videos.length > 1 ? 's' : '') + '</span>';
   section.appendChild(head);
@@ -2001,36 +2000,30 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     div.className = 'pv-item ' + (isPortrait ? 'portrait' : 'landscape');
     div.setAttribute('role', 'listitem');
     div.setAttribute('tabindex', '0');
-    div.setAttribute('aria-label', (isPortrait ? 'Vertical short' : 'Horizontal video') + ' ' + (startIdx + i + 1));
+    div.setAttribute('aria-label',
+      (isPortrait ? 'Vertical short' : 'Horizontal video') + ' ' + (startIdx + i + 1));
 
-    // Shimmer placeholder
+    // Shimmer (hidden once iframe loads)
     const shimmer = document.createElement('div');
     shimmer.className = 'pv-shimmer';
     div.appendChild(shimmer);
 
-    // Lazy iframe via IntersectionObserver
-    const obs = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          if (!div.dataset.vidLoaded) {
-            div.dataset.vidLoaded = '1';
-            const iframe = buildVimeoIframe(id);
-            iframe.addEventListener('load', () => {
-              div.classList.add('pv-loaded');
-            });
-            div.insertBefore(iframe, div.querySelector('.pv-play'));
-          }
-          obs.unobserve(div);
-        }
-      });
-    }, { rootMargin: '400px' });
-    obs.observe(div);
+    // Iframe — staggered delay so browser doesn't spike on open
+    const iframe = buildVimeoIframe(id);
+    iframe.addEventListener('load', () => div.classList.add('pv-loaded'));
+    // Small stagger so not all iframes fire simultaneously
+    if (i > 0) {
+      const src = iframe.src;
+      iframe.removeAttribute('src');
+      setTimeout(() => { iframe.src = src; }, Math.min(i * 120, 1800));
+    }
+    div.appendChild(iframe);
 
-    // Play icon overlay
+    // Play overlay
     div.appendChild(makePvPlay());
 
-    // Stagger animation
-    div.style.animationDelay = ((startIdx + i) * 0.045) + 's';
+    // Stagger entrance animation
+    div.style.animationDelay = ((startIdx + i) * 0.05) + 's';
 
     // Click / keyboard → lightbox
     const openLb = () => openLightbox(id, isPortrait ? '9:16' : '16:9');
@@ -2465,42 +2458,23 @@ document.addEventListener('DOMContentLoaded', () => {
 // ─── Always-Playing Lazy Thumbnails (IntersectionObserver + background=1) ──
 function initAutoplayThumb(el){
   const isCard = el.classList.contains('folder-card');
-  const isFeat = el.classList.contains('featured-item');
-  const bg = isCard
-    ? el.querySelector('.fc-bg')
-    : el.querySelector('.fi-bg');
-
+  const bg = isCard ? el.querySelector('.fc-bg') : el.querySelector('.fi-bg');
   if(!bg || bg.dataset.vidInit) return;
   bg.dataset.vidInit = '1';
 
   const vid = bg.dataset.vid;
   if(!vid) return;
 
+  // Build iframe — opacity handled by CSS (always 1)
   const iframe = document.createElement('iframe');
+  iframe.src = `https://player.vimeo.com/video/${vid}?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0`;
   iframe.setAttribute('allow','autoplay; fullscreen');
   iframe.setAttribute('loading','lazy');
-  iframe.style.cssText = [
-    'position:absolute','top:50%','left:50%',
-    'width:120%','height:120%',
-    'transform:translate(-50%,-50%)',
-    'border:0','pointer-events:none','z-index:2','opacity:0',
-    'transition:opacity 0.9s ease'
-  ].join(';');
-
-  // Delay src to avoid network contention on fast scroll
-  setTimeout(() => {
-    iframe.src = `https://player.vimeo.com/video/${vid}?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0`;
-  }, isCard ? 0 : 80);
-
-  iframe.addEventListener('load', () => {
-    setTimeout(() => {
-      iframe.classList.add('fc-loaded');
-      iframe.style.opacity = '1';
-      bg.classList.add('fc-ready'); // fades out static thumb
-    }, 600);
-  });
-
   bg.appendChild(iframe);
+
+  // Thumbnail sits on top (z-index:3); fade it out after video has time to load
+  const thumbSel = isCard ? '.fc-thumb-img' : '.fi-thumb-img';
+  setTimeout(() => { bg.classList.add('fc-ready'); }, 3500);
 }
 
 // ─── Observe cards + featured items entering viewport ──────────
