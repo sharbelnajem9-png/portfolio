@@ -352,37 +352,138 @@ footer::before{
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   background-clip:text;
   text-shadow:none;position:relative}
-.pm-title::after{content:'';display:block;margin:6px auto 0;
-  width:48px;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)}
+/* pm-title::after removed — handled by pm-video-count */
 .pm-close{width:38px;height:38px;border-radius:50%;
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);
   color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   transition:all 0.2s;flex-shrink:0;line-height:1;font-family:sans-serif}
 .pm-close:hover{background:rgba(255,255,255,0.16);color:white}
-.pm-videos{flex:1;overflow-y:auto;padding:20px 24px 32px}
-.pm-videos::-webkit-scrollbar{width:5px}
+/* ─── DREAM MODAL — pm-videos ─────────────────────────────── */
+.pm-videos{
+  flex:1;overflow-y:auto;
+  padding:48px 56px 72px;
+  display:flex;flex-direction:column;gap:52px
+}
+.pm-videos::-webkit-scrollbar{width:4px}
 .pm-videos::-webkit-scrollbar-track{background:transparent}
-.pm-videos::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:3px}
-/* unified masonry grid */
-.pm-grid{display:grid;grid-template-columns:repeat(4,1fr);
-  grid-auto-rows:160px;grid-auto-flow:dense;gap:6px}
-@media(max-width:900px){
-  .pm-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:140px}}
-@media(max-width:500px){
-  .pm-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:120px}}
-.pv-item{border-radius:8px;overflow:hidden;background:#06060e;
-  position:relative;cursor:pointer;transition:transform 0.25s,box-shadow 0.25s}
-.pv-item:hover{transform:scale(1.02);box-shadow:0 8px 32px rgba(0,0,0,0.7);z-index:2}
-.pv-item.landscape{grid-column:span 2;grid-row:span 1}
-.pv-item.portrait{grid-column:span 1;grid-row:span 2}
-/* play icon overlay on hover */
-.pv-item::after{content:'▶';position:absolute;inset:0;display:flex;
-  align-items:center;justify-content:center;font-size:28px;
-  color:rgba(255,255,255,0);transition:color 0.2s;pointer-events:none;
-  text-shadow:0 2px 12px rgba(0,0,0,0.8)}
-.pv-item:hover::after{color:rgba(255,255,255,0.9)}
+.pm-videos::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,0.1);border-radius:2px}
+/* section wrapper */
+.pm-section{display:flex;flex-direction:column;gap:18px}
+/* section header row */
+.pm-sec-head{
+  display:flex;align-items:center;gap:14px
+}
+.pm-sec-label{
+  font-family:'Assistant',var(--font-display);
+  font-size:10px;font-weight:700;letter-spacing:4px;
+  text-transform:uppercase;color:rgba(255,255,255,0.3);
+  white-space:nowrap
+}
+.pm-sec-line{
+  flex:1;height:1px;
+  background:linear-gradient(90deg,rgba(255,255,255,0.1) 0%,transparent 100%)
+}
+.pm-sec-count{
+  font-size:10px;font-weight:600;letter-spacing:1.5px;
+  color:rgba(255,255,255,0.18);white-space:nowrap
+}
+/* ─── Horizontal grid: 3 cols ─── */
+.pm-grid-h{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px
+}
+/* ─── Vertical grid: 4 cols ─── */
+.pm-grid-v{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px
+}
+@media(max-width:1100px){
+  .pm-grid-h{grid-template-columns:repeat(2,1fr)}
+  .pm-grid-v{grid-template-columns:repeat(3,1fr)}
+  .pm-videos{padding:36px 32px 56px}
+}
+@media(max-width:700px){
+  .pm-grid-h{grid-template-columns:1fr}
+  .pm-grid-v{grid-template-columns:repeat(2,1fr)}
+  .pm-videos{padding:24px 16px 40px;gap:36px}
+}
+/* ─── Video items ─── */
+.pv-item{
+  position:relative;border-radius:10px;overflow:hidden;
+  background:#07070e;cursor:pointer;
+  opacity:0;transform:translateY(10px);
+  animation:pvIn 0.45s cubic-bezier(0.2,0,0.2,1) forwards;
+  transition:transform 0.3s cubic-bezier(0.2,0,0,1),
+    box-shadow 0.3s cubic-bezier(0.2,0,0,1)
+}
+@keyframes pvIn{to{opacity:1;transform:translateY(0)}}
+.pv-item:focus{outline:2px solid rgba(255,255,255,0.5);outline-offset:3px}
+.pv-item.landscape{aspect-ratio:16/9}
+.pv-item.portrait{aspect-ratio:9/16}
+.pv-item iframe{
+  position:absolute;inset:0;width:100%;height:100%;
+  border:0;pointer-events:none
+}
+/* hover: lift + glow */
+.pv-item:hover{
+  transform:translateY(-3px) scale(1.015);
+  box-shadow:0 16px 48px rgba(0,0,0,0.65),
+    0 0 0 1px rgba(255,255,255,0.07)
+}
+/* play overlay */
+.pv-play{
+  position:absolute;inset:0;z-index:4;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0);transition:background 0.25s
+}
+.pv-play svg{
+  width:42px;height:42px;opacity:0;
+  transform:scale(0.75);
+  transition:opacity 0.25s,transform 0.25s;
+  filter:drop-shadow(0 2px 14px rgba(0,0,0,0.95))
+}
+.pv-item:hover .pv-play{background:rgba(0,0,0,0.28)}
+.pv-item:hover .pv-play svg{opacity:1;transform:scale(1)}
+/* shimmer loading state */
+.pv-shimmer{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.03) 50%,
+    rgba(255,255,255,0) 100%);
+  background-size:200% 100%;
+  animation:pvShimmer 1.8s infinite
+}
+@keyframes pvShimmer{
+  from{background-position:200% 0}
+  to{background-position:-200% 0}
+}
+.pv-item.pv-loaded .pv-shimmer{display:none}
+/* ─── Dream header upgrade ─── */
+.pm-header{
+  padding:24px 56px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  flex-shrink:0;gap:24px;
+  display:flex;align-items:center
+}
+.pm-title-group{flex:1;text-align:center}
+.pm-title{
+  font-family:'Assistant',var(--font-display);
+  font-size:clamp(24px,3.5vw,42px);font-weight:800;
+  letter-spacing:-0.5px;
+  background:linear-gradient(135deg,#fff 20%,rgba(255,255,255,0.5) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text
+}
+.pm-video-count{
+  font-size:11px;font-weight:500;letter-spacing:2.5px;
+  text-transform:uppercase;color:rgba(255,255,255,0.3);
+  margin-top:5px
+}
 .pv-item iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 .pv-loading{position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;color:rgba(255,255,255,0.15);font-size:30px;
@@ -904,14 +1005,36 @@ html{scroll-behavior:smooth}
   position:absolute;top:50%;left:50%;
   width:120%;height:120%;
   transform:translate(-50%,-50%);
-  border:0;pointer-events:none;
-  z-index:2;opacity:0;
-  transition:opacity 0.4s ease
+  border:0;pointer-events:none;z-index:2;
+  opacity:0;transition:opacity 0.8s ease
 }
-.folder-card:hover .fc-bg iframe{opacity:1}
-.folder-card:hover .fc-thumb-img{opacity:0}
+.fc-bg iframe.fc-loaded{opacity:1}
+/* once video loaded, hide static thumb */
+.fc-bg.fc-ready .fc-thumb-img{opacity:0}
+/* hover glow & lift */
+.folder-card{
+  transition:transform 0.4s cubic-bezier(0.2,0,0,1),
+    box-shadow 0.4s cubic-bezier(0.2,0,0,1)!important
+}
+.folder-card:hover{
+  transform:translateY(-6px) scale(1.015)!important;
+  box-shadow:0 24px 60px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.06)!important
+}
 .fc-overlay{position:absolute;inset:0;z-index:3}
 .folder-thumb{position:relative;aspect-ratio:16/10;overflow:hidden;background:#08080f}
+/* play icon on hover */
+.fc-overlay::after{
+  content:'▶';position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;color:rgba(255,255,255,0);
+  transition:color 0.25s, text-shadow 0.25s;
+  text-shadow:none
+}
+.folder-card:hover .fc-overlay::after{
+  color:rgba(255,255,255,0.85);
+  text-shadow:0 0 24px rgba(0,0,0,0.9)
+}
 
 /* ─── 3. FEATURED ITEMS — hover-to-play ─────────────────── */
 .fi-bg{
@@ -1829,25 +1952,98 @@ const PROJECT_DATA = {'podcast-short':{en:'Podcast Short',he:'פודקאסט ק�
 'kristian-najem':{en:'Kristian Najem',he:'כריסטיאן נאג׳ם',vids:[['1181214416','p'],['1181216090','p'],['1181212370','p'],['1181211716','p'],['1181209657','p'],['1181206645','p'],['1181205157','p'],['1181183766','p'],['1181182439','p']]},
 'naadned':{en:'Naadned',he:'נאדנד',vids:[['1181236213','p'],['1181233630','p'],['1181231926','p'],['1181229662','p'],['1181228462','p'],['1181227058','p'],['1181225482','p'],['1181223604','p'],['1181222057','p']]}};
 
+// ── Dream iframe builder: background=1, no UI ──
 function buildVimeoIframe(id) {
   const iframe = document.createElement('iframe');
   iframe.src = 'https://player.vimeo.com/video/' + id +
     '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0&controls=0';
-  iframe.setAttribute('frameborder', '0');
-  iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; clipboard-write');
-  iframe.setAttribute('allowfullscreen', '');
-  iframe.setAttribute('loading', 'lazy');
+  iframe.setAttribute('frameborder','0');
+  iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture; clipboard-write');
+  iframe.setAttribute('allowfullscreen','');
+  iframe.setAttribute('loading','lazy');
   return iframe;
 }
 
-function buildLightboxIframe(id) {
-  const iframe = document.createElement('iframe');
-  iframe.src = 'https://player.vimeo.com/video/' + id +
-    '?autoplay=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0';
-  iframe.setAttribute('frameborder', '0');
-  iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; clipboard-write');
-  iframe.setAttribute('allowfullscreen', '');
-  return iframe;
+// ── Play SVG icon ──
+function makePvPlay() {
+  const wrap = document.createElement('div');
+  wrap.className = 'pv-play';
+  wrap.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<circle cx="12" cy="12" r="11" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/>' +
+    '<polygon points="10,8 17,12 10,16" fill="rgba(255,255,255,0.95)"/></svg>';
+  return wrap;
+}
+
+// ── Build one section (label + count + grid) ──
+function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
+  if (!videos.length) return null;
+
+  const section = document.createElement('div');
+  section.className = 'pm-section';
+  section.setAttribute('role', 'region');
+  section.setAttribute('aria-label', label);
+
+  // Section header
+  const head = document.createElement('div');
+  head.className = 'pm-sec-head';
+  head.innerHTML = '<span class="pm-sec-label">' + label + '</span>' +
+    '<span class="pm-sec-line"></span>' +
+    '<span class="pm-sec-count">' + videos.length + ' video' + (videos.length > 1 ? 's' : '') + '</span>';
+  section.appendChild(head);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.className = gridClass;
+  grid.setAttribute('role', 'list');
+
+  videos.forEach(([id], i) => {
+    const div = document.createElement('div');
+    div.className = 'pv-item ' + (isPortrait ? 'portrait' : 'landscape');
+    div.setAttribute('role', 'listitem');
+    div.setAttribute('tabindex', '0');
+    div.setAttribute('aria-label', (isPortrait ? 'Vertical short' : 'Horizontal video') + ' ' + (startIdx + i + 1));
+
+    // Shimmer placeholder
+    const shimmer = document.createElement('div');
+    shimmer.className = 'pv-shimmer';
+    div.appendChild(shimmer);
+
+    // Lazy iframe via IntersectionObserver
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (!div.dataset.vidLoaded) {
+            div.dataset.vidLoaded = '1';
+            const iframe = buildVimeoIframe(id);
+            iframe.addEventListener('load', () => {
+              div.classList.add('pv-loaded');
+            });
+            div.insertBefore(iframe, div.querySelector('.pv-play'));
+          }
+          obs.unobserve(div);
+        }
+      });
+    }, { rootMargin: '400px' });
+    obs.observe(div);
+
+    // Play icon overlay
+    div.appendChild(makePvPlay());
+
+    // Stagger animation
+    div.style.animationDelay = ((startIdx + i) * 0.045) + 's';
+
+    // Click / keyboard → lightbox
+    const openLb = () => openLightbox(id, isPortrait ? '9:16' : '16:9');
+    div.addEventListener('click', openLb);
+    div.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(); }
+    });
+
+    grid.appendChild(div);
+  });
+
+  section.appendChild(grid);
+  return section;
 }
 
 function openProject(key) {
@@ -1855,38 +2051,47 @@ function openProject(key) {
   if (!p) return;
   const lang = typeof currentLang !== 'undefined' ? currentLang : 'en';
   const title = lang === 'he' ? p.he : p.en;
+
+  // Header
   const titleEl = document.getElementById('pm-title');
   titleEl.textContent = title;
   titleEl.setAttribute('data-en', p.en);
   titleEl.setAttribute('data-he', p.he);
 
+  const countEl = document.getElementById('pm-video-count');
+  if (countEl) {
+    countEl.textContent = p.vids.length + (lang === 'he' ? ' סרטונים' : ' Videos');
+  }
+
   const container = document.getElementById('pm-videos');
   container.innerHTML = '';
 
-  // Single unified masonry grid
-  const grid = document.createElement('div');
-  grid.className = 'pm-grid';
+  const landscapes = p.vids.filter(([,r]) => r !== 'p');
+  const portraits  = p.vids.filter(([,r]) => r === 'p');
 
-  p.vids.forEach(([id, r]) => {
-    const isPortrait = r === 'p';
-    const div = document.createElement('div');
-    div.className = 'pv-item ' + (isPortrait ? 'portrait' : 'landscape');
-    div.appendChild(buildVimeoIframe(id));
+  const hLabel = lang === 'he' ? 'סרטונים אופקיים' : 'Horizontal Videos';
+  const vLabel = lang === 'he' ? 'שורטס אנכיים'    : 'Vertical Shorts';
 
-    // Click → lightbox with full controls
-    div.addEventListener('click', () => {
-      openLightbox(id, isPortrait ? '9:16' : '16:9');
-    });
+  const secH = buildSection(landscapes, hLabel, 'pm-grid-h', false, 0, lang);
+  const secV = buildSection(portraits,  vLabel, 'pm-grid-v', true,  landscapes.length, lang);
 
-    grid.appendChild(div);
-  });
+  if (secH) container.appendChild(secH);
+  if (secV) container.appendChild(secV);
 
-  container.appendChild(grid);
-
+  // Open modal
   const overlay = document.getElementById('project-overlay');
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', title + ' gallery');
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => { container.scrollTop = 0; }, 50);
+
+  // Focus trap: move focus into modal
+  setTimeout(() => {
+    container.scrollTop = 0;
+    const firstFocus = overlay.querySelector('[tabindex="0"]');
+    if (firstFocus) firstFocus.focus();
+  }, 60);
 }
 
 function closeProject(e) {
@@ -2257,126 +2462,62 @@ document.addEventListener('DOMContentLoaded', () => {
 // PHASE 3  — Hover-to-play, hero sequencer v2, modal grid
 // ================================================================
 
-// ─── Vimeo Hover-to-Play: Project Cards ──────────────────────
-const hoverPlayers = new WeakMap();
+// ─── Always-Playing Lazy Thumbnails (IntersectionObserver + background=1) ──
+function initAutoplayThumb(el){
+  const isCard = el.classList.contains('folder-card');
+  const isFeat = el.classList.contains('featured-item');
+  const bg = isCard
+    ? el.querySelector('.fc-bg')
+    : el.querySelector('.fi-bg');
 
-function initHoverCard(cardEl){
-  const bg = cardEl.querySelector('.fc-bg');
-  if(!bg || bg.dataset.hoverInit) return;
-  bg.dataset.hoverInit = '1';
+  if(!bg || bg.dataset.vidInit) return;
+  bg.dataset.vidInit = '1';
+
   const vid = bg.dataset.vid;
   if(!vid) return;
 
-  // Build iframe lazily
-  let iframe = bg.querySelector('iframe');
-  if(!iframe){
-    iframe = document.createElement('iframe');
-    iframe.src = `https://player.vimeo.com/video/${vid}?muted=1&autopause=0&background=0&title=0&byline=0&portrait=0&controls=0`;
-    iframe.setAttribute('allow','autoplay; fullscreen');
-    iframe.style.cssText = 'position:absolute;top:50%;left:50%;width:120%;height:120%;transform:translate(-50%,-50%);border:0;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.4s';
-    bg.appendChild(iframe);
-  }
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('allow','autoplay; fullscreen');
+  iframe.setAttribute('loading','lazy');
+  iframe.style.cssText = [
+    'position:absolute','top:50%','left:50%',
+    'width:120%','height:120%',
+    'transform:translate(-50%,-50%)',
+    'border:0','pointer-events:none','z-index:2','opacity:0',
+    'transition:opacity 0.9s ease'
+  ].join(';');
 
-  let player = null;
-  let ready = false;
+  // Delay src to avoid network contention on fast scroll
+  setTimeout(() => {
+    iframe.src = `https://player.vimeo.com/video/${vid}?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0`;
+  }, isCard ? 0 : 80);
 
-  function getPlayer(){
-    if(!player){
-      try{
-        player = new Vimeo.Player(iframe);
-        player.ready().then(()=>{ ready = true; });
-      }catch(e){}
-    }
-    return player;
-  }
-
-  cardEl.addEventListener('mouseenter', ()=>{
-    const p = getPlayer();
-    if(!p) return;
-    if(ready){
-      p.setCurrentTime(0).then(()=>p.play()).then(()=>{
-        iframe.style.opacity='1';
-      }).catch(()=>{});
-    } else {
-      p.ready().then(()=>{
-        ready = true;
-        p.setCurrentTime(0).then(()=>p.play()).then(()=>{
-          iframe.style.opacity='1';
-        }).catch(()=>{});
-      });
-    }
+  iframe.addEventListener('load', () => {
+    setTimeout(() => {
+      iframe.classList.add('fc-loaded');
+      iframe.style.opacity = '1';
+      bg.classList.add('fc-ready'); // fades out static thumb
+    }, 600);
   });
 
-  cardEl.addEventListener('mouseleave', ()=>{
-    if(player){
-      player.pause().catch(()=>{});
-      iframe.style.opacity='0';
-    }
-  });
+  bg.appendChild(iframe);
 }
 
-// ─── Vimeo Hover-to-Play: Featured Strip ─────────────────────
-function initHoverFeatured(itemEl){
-  const bg = itemEl.querySelector('.fi-bg');
-  if(!bg || bg.dataset.hoverInit) return;
-  bg.dataset.hoverInit = '1';
-  const vid = bg.dataset.vid;
-  if(!vid) return;
-
-  let iframe = bg.querySelector('iframe');
-  if(!iframe){
-    iframe = document.createElement('iframe');
-    iframe.src = `https://player.vimeo.com/video/${vid}?muted=1&autopause=0&background=0&title=0&byline=0&portrait=0&controls=0`;
-    iframe.setAttribute('allow','autoplay; fullscreen');
-    iframe.style.cssText = 'position:absolute;top:50%;left:50%;width:120%;height:120%;transform:translate(-50%,-50%);border:0;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.35s';
-    bg.appendChild(iframe);
-  }
-
-  let player = null;
-  let ready = false;
-
-  itemEl.addEventListener('mouseenter', ()=>{
-    if(!player){
-      try{
-        player = new Vimeo.Player(iframe);
-        player.ready().then(()=>{
-          ready = true;
-          player.setCurrentTime(0).then(()=>player.play()).then(()=>{
-            iframe.style.opacity='1';
-          }).catch(()=>{});
-        });
-      }catch(e){}
-      return;
-    }
-    if(ready){
-      player.setCurrentTime(0).then(()=>player.play()).then(()=>{
-        iframe.style.opacity='1';
-      }).catch(()=>{});
-    }
-  });
-
-  itemEl.addEventListener('mouseleave', ()=>{
-    if(player){ player.pause().catch(()=>{}); iframe.style.opacity='0'; }
-  });
-}
-
-// ─── Observe elements entering viewport to init hover players ─
+// ─── Observe cards + featured items entering viewport ──────────
 const hoverObs = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if(e.isIntersecting){
-      const el = e.target;
-      if(el.classList.contains('folder-card')) initHoverCard(el);
-      if(el.classList.contains('featured-item')) initHoverFeatured(el);
-      hoverObs.unobserve(el);
+      initAutoplayThumb(e.target);
+      hoverObs.unobserve(e.target);
     }
   });
-}, { rootMargin: '200px' });
+}, { rootMargin: '300px' });
 
 document.querySelectorAll('.folder-card, .featured-item').forEach(el => {
   hoverObs.observe(el);
 });
 
-// ─── HERO VIDEO SEQUENCER v2 ─────────────────────────────────
+// ─── HERO VIDEO SEQUENCER v2// ─── HERO VIDEO SEQUENCER v2 ─────────────────────────────────
 (function heroSeqV2(){
   const VIDS = ['1181277254','1181282252','1181279455','1181277743'];
   const DURATIONS = [24, 20, 22, 18]; // seconds per clip
@@ -2504,10 +2645,13 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 <!-- PROJECT MODAL -->
 <div id="project-overlay" class="project-overlay" onclick="closeProject(event)">
   <div class="project-modal" onclick="event.stopPropagation()">
-    <div class="pm-header">
+    <div class="pm-header" role="banner">
       <img src="logo.png" class="pm-logo" alt="Sharbel Najem">
-      <h2 id="pm-title" class="pm-title" data-en="" data-he=""></h2>
-      <button class="pm-close" onclick="closeProject()" aria-label="Close">&#x2715;</button>
+      <div class="pm-title-group">
+        <h2 id="pm-title" class="pm-title" data-en="" data-he=""></h2>
+        <p id="pm-video-count" class="pm-video-count"></p>
+      </div>
+      <button class="pm-close" onclick="closeProject()" aria-label="Close project gallery">&#x2715;</button>
     </div>
     <div id="pm-videos" class="pm-videos"></div>
   </div>
