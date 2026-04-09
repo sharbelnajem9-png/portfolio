@@ -2342,74 +2342,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ================================================================
-// PHASE 3  — Live video previews on main page
+// PHASE 3  — Live video previews (direct injection, same as modal)
 // ================================================================
 (function() {
-  const P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0';
-  const FADE = 1800;   // ms before thumbnail fades (video loads fast on bg mode)
-  const ROT  = 9000;   // ms between video rotations on project cards
+  var P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0';
 
-  // ── Core inject function ────────────────────────────────────
-  function inject(el) {
-    const isCard = el.classList.contains('folder-card');
-    const bg = isCard ? el.querySelector('.fc-bg') : el.querySelector('.fi-bg');
+  function injectBg(bg, delay) {
     if (!bg || bg.dataset.vi) return;
     bg.dataset.vi = '1';
-
-    const vid = bg.dataset.vid;
+    var vid = bg.dataset.vid;
     if (!vid) return;
-
-    const fr = document.createElement('iframe');
-    fr.setAttribute('allow', 'autoplay; fullscreen');
-    fr.setAttribute('allowfullscreen', '');
-    fr.setAttribute('frameborder', '0');
-    fr.src = 'https://player.vimeo.com/video/' + vid + P;
-    bg.appendChild(fr);
-
-    // Fade thumbnail: both CSS class + inline style for reliability
     setTimeout(function() {
-      bg.classList.add('fc-ready');
-      var thumb = bg.querySelector('.fc-thumb-img, .fi-thumb-img');
-      if (thumb) { thumb.style.opacity = '0'; thumb.style.transition = 'opacity 1.2s ease'; }
-    }, FADE);
-
-    // Video rotation for project cards (cycles through all videos in the project)
-    if (isCard) {
-      var vids = (bg.dataset.vids || '').split(',').filter(Boolean);
-      if (vids.length > 1) {
-        var idx = 0;
-        setInterval(function() {
-          idx = (idx + 1) % vids.length;
-          var f = bg.querySelector('iframe');
-          if (f) f.src = 'https://player.vimeo.com/video/' + vids[idx] + P;
-        }, ROT);
-      }
-    }
+      var fr = document.createElement('iframe');
+      fr.setAttribute('allow', 'autoplay; fullscreen');
+      fr.setAttribute('frameborder', '0');
+      fr.src = 'https://player.vimeo.com/video/' + vid + P;
+      bg.appendChild(fr);
+      // Hide thumbnail immediately — show live video
+      var t = bg.querySelector('img');
+      if (t) t.style.cssText += ';opacity:0!important;transition:none!important';
+    }, delay);
   }
 
-  // ── PROJECT CARDS: inject eagerly with stagger ──────────────
-  // Carousel uses CSS animation (infinite marquee) + overflow:hidden.
-  // IntersectionObserver is unreliable for CSS-animated containers.
-  // Staggered eager injection guarantees all cards get live video.
-  var cards = document.querySelectorAll('.folder-card');
-  cards.forEach(function(el, i) {
-    setTimeout(function() { inject(el); }, i * 180);
+  // Project cards — staggered 150ms apart
+  document.querySelectorAll('.fc-bg[data-vid]').forEach(function(bg, i) {
+    injectBg(bg, i * 150);
   });
 
-  // ── FEATURED STRIP: IntersectionObserver (strict viewport) ──
-  // Featured strip is a horizontally scrollable container.
-  // Observer fires correctly when items scroll into view.
-  var featObs = new IntersectionObserver(function(entries) {
-    entries.forEach(function(e) {
-      if (e.isIntersecting) {
-        inject(e.target);
-        featObs.unobserve(e.target);
-      }
-    });
-  }, { rootMargin: '0px', threshold: 0.05 });
-
-  document.querySelectorAll('.featured-item').forEach(function(el) {
-    featObs.observe(el);
+  // Featured items — staggered 80ms apart
+  document.querySelectorAll('.fi-bg[data-vid]').forEach(function(bg, i) {
+    injectBg(bg, i * 80);
   });
 })();
 
