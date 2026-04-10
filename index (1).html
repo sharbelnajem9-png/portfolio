@@ -1328,32 +1328,7 @@ body:has(button:hover) #cursor-ring,
 body:has([onclick]:hover) #cursor-ring{width:52px;height:52px;border-color:rgba(255,255,255,0.7)}
 @media(pointer:coarse){#cursor-dot,#cursor-ring{display:none}body{cursor:auto}}
 
-/* ══ STATS SECTION ══ */
-.stats-section{
-  display:flex;justify-content:center;gap:0;
-  padding:80px 40px;background:transparent
-}
-.stat-item{
-  text-align:center;padding:0 48px;
-  border-right:1px solid rgba(255,255,255,0.07);
-  flex:1;max-width:220px
-}
-.stat-item:last-child{border-right:none}
-.stat-number{
-  font-family:var(--font-display);
-  font-size:clamp(42px,6vw,72px);
-  font-weight:700;letter-spacing:-2px;
-  color:#fff;line-height:1;
-  background:linear-gradient(135deg,#fff 60%,rgba(255,255,255,0.5));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text
-}
-.stat-label{
-  font-size:12px;letter-spacing:2.5px;text-transform:uppercase;
-  color:rgba(255,255,255,0.4);margin-top:10px;font-weight:400
-}
-.stat-item.visible .stat-number{animation:countUp 1.4s cubic-bezier(0.2,0,0.2,1) forwards}
-@keyframes countUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
 
 /* ══ HERO NAME REVEAL ══ */
 .hero-name .char{
@@ -1368,6 +1343,44 @@ body:has([onclick]:hover) #cursor-ring{width:52px;height:52px;border-color:rgba(
 /* ══ ACTIVE NAV LINK ══ */
 .nav-links a.active{color:rgba(255,255,255,1)!important}
 .nav-links a.active::after{width:100%!important}
+
+/* ══ AMBIENT BACKGROUND ══ */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80vw 60vh at 20% 10%, rgba(255,255,255,0.018) 0%, transparent 70%),
+    radial-gradient(ellipse 60vw 50vh at 80% 90%, rgba(255,255,255,0.012) 0%, transparent 70%),
+    radial-gradient(ellipse 50vw 40vh at 50% 50%, rgba(255,255,255,0.006) 0%, transparent 70%);
+  animation:ambientShift 18s ease-in-out infinite alternate;
+}
+@keyframes ambientShift{
+  0%  {background:
+    radial-gradient(ellipse 80vw 60vh at 20% 10%, rgba(255,255,255,0.018) 0%, transparent 70%),
+    radial-gradient(ellipse 60vw 50vh at 80% 90%, rgba(255,255,255,0.012) 0%, transparent 70%),
+    radial-gradient(ellipse 50vw 40vh at 50% 50%, rgba(255,255,255,0.006) 0%, transparent 70%);}
+  33% {background:
+    radial-gradient(ellipse 70vw 55vh at 70% 20%, rgba(255,255,255,0.016) 0%, transparent 70%),
+    radial-gradient(ellipse 80vw 60vh at 10% 80%, rgba(255,255,255,0.014) 0%, transparent 70%),
+    radial-gradient(ellipse 60vw 50vh at 60% 40%, rgba(255,255,255,0.007) 0%, transparent 70%);}
+  66% {background:
+    radial-gradient(ellipse 90vw 70vh at 50% 5%,  rgba(255,255,255,0.015) 0%, transparent 70%),
+    radial-gradient(ellipse 50vw 45vh at 90% 60%, rgba(255,255,255,0.010) 0%, transparent 70%),
+    radial-gradient(ellipse 70vw 60vh at 30% 70%, rgba(255,255,255,0.008) 0%, transparent 70%);}
+  100%{background:
+    radial-gradient(ellipse 60vw 50vh at 30% 15%, rgba(255,255,255,0.020) 0%, transparent 70%),
+    radial-gradient(ellipse 75vw 65vh at 75% 85%, rgba(255,255,255,0.013) 0%, transparent 70%),
+    radial-gradient(ellipse 45vw 35vh at 55% 45%, rgba(255,255,255,0.005) 0%, transparent 70%);}
+}
+
+/* Grain texture overlay */
+body::after{
+  content:'';
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  opacity:0.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px 200px;
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -1451,26 +1464,6 @@ body:has([onclick]:hover) #cursor-ring{width:52px;height:52px;border-color:rgba(
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><h3 data-en="Video Production" data-he="הפקת וידאו">Video Production</h3><p data-en="From short-form reels to full cinematic productions  -  storytelling at every scale." data-he="מרילסים קצרים ועד הפקות קולנועיות מלאות  -  סיפור בכל קנה מידה.">From short-form reels to full cinematic productions  -  storytelling at every scale.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></div><h3 data-en="Branded Collaborations" data-he="שיתופי פעולה">Branded Collaborations</h3><p data-en="Authentic partnerships that feel natural and resonate with your audience." data-he="שותפויות אותנטיות שנראות טבעיות ומהדהדות עם הקהל שלך.">Authentic partnerships that feel natural and resonate with your audience.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 data-en="Marketing Strategy" data-he="אסטרטגיית שיווק">Marketing Strategy</h3><p data-en="In-depth brand analysis and tailored strategy to reach your target audience with precision." data-he="ניתוח מותג מעמיק ואסטרטגיה מותאמת אישית לתפיסת קהל היעד המדויק.">In-depth brand analysis and tailored strategy to reach the right audience with precision.</p></div>
-  </div>
-</section>
-
-<!-- STATS -->
-<section class="stats-section fade-in" aria-label="Stats">
-  <div class="stat-item">
-    <div class="stat-number" data-target="200" data-suffix="+">200+</div>
-    <div class="stat-label" data-en="Videos Produced" data-he="סרטונים שהופקו">Videos Produced</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-number" data-target="50" data-suffix="+">50+</div>
-    <div class="stat-label" data-en="Brands Worked With" data-he="מותגים שעבדתי איתם">Brands Worked With</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-number" data-target="8" data-suffix="+">8+</div>
-    <div class="stat-label" data-en="Years of Experience" data-he="שנות ניסיון">Years of Experience</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-number" data-target="5" data-suffix="M+">5M+</div>
-    <div class="stat-label" data-en="Total Views" data-he="צפיות כוללות">Total Views</div>
   </div>
 </section>
 
@@ -2069,12 +2062,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     // Iframe  -  staggered delay so browser doesn't spike on open
     const iframe = buildVimeoIframe(id);
     iframe.addEventListener('load', () => div.classList.add('pv-loaded'));
-    // Stagger: first 4 load immediately, rest at 60ms intervals (max ~1s total)
-    if (i > 4) {
-      const src = iframe.src;
-      iframe.removeAttribute('src');
-      setTimeout(() => { iframe.src = src; }, (i - 4) * 60);
-    }
+    // All iframes load immediately — no stagger in modal
     div.appendChild(iframe);
 
     // Play overlay
@@ -2731,32 +2719,7 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   document.addEventListener('mouseenter',function(){dot.style.opacity='1';ring.style.opacity='1';});
 })();
 
-// ── Animated stats counter ────────────────────────────────────────────────────
-(function(){
-  function animCount(el){
-    var target = parseInt(el.dataset.target)||0;
-    var suffix = el.dataset.suffix||'';
-    var dur = 1400, start = performance.now();
-    function step(now){
-      var t = Math.min((now-start)/dur,1);
-      var ease = 1-Math.pow(1-t,3);
-      el.textContent = Math.round(ease*target)+suffix;
-      if(t<1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-  var obs = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){
-        var el = e.target;
-        el.closest('.stat-item').classList.add('visible');
-        animCount(el);
-        obs.unobserve(el);
-      }
-    });
-  },{threshold:0.5});
-  document.querySelectorAll('.stat-number[data-target]').forEach(function(el){obs.observe(el);});
-})();
+
 
 // ── Active nav link on scroll ─────────────────────────────────────────────────
 (function(){
