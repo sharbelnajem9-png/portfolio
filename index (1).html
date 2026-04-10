@@ -2437,11 +2437,14 @@ document.addEventListener('DOMContentLoaded', () => {
     fcBgs.forEach(function(bg, i) {
       injectBg(bg, 400 + i * (mobile ? 400 : 250));
     });
-    // Featured items — inject ALL at once with tiny stagger (30ms)
-    // Track is doubled (48 items), user can scroll to any item immediately
+    // Featured items — inject in 4 waves of 12, 2s apart
+    // Browser can handle ~12 Vimeo connections well; waves let early ones load first
     var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]'));
+    var WAVE = 12;
     fiBgs.forEach(function(bg, i) {
-      injectBg(bg, 300 + i * 30);
+      var wave = Math.floor(i / WAVE);
+      var pos  = i % WAVE;
+      injectBg(bg, 500 + wave * 2000 + pos * 60);
     });
   }
 
