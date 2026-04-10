@@ -634,8 +634,8 @@ html{scroll-behavior:smooth}
   background:#08080f
 }
 .fc-bg iframe{
-  position:absolute;top:-10%;left:-10%;
-  width:120%;height:120%;border:0;
+  position:absolute;inset:0;
+  width:100%;height:100%;border:0;
   pointer-events:none
 }
 .folder-thumb{position:relative;background:#08080f;overflow:hidden}
@@ -715,7 +715,7 @@ html{scroll-behavior:smooth}
 
 /* 20. Featured items with background video */
 .fi-bg{position:absolute;inset:0;overflow:hidden;z-index:0;background:#08080f}
-.fi-bg iframe{position:absolute;top:-10%;left:-10%;width:120%;height:120%;border:0;pointer-events:none}
+.fi-bg iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
 .featured-item{position:relative!important;overflow:hidden!important}
 .fi-thumb{display:none!important}
 .fi-overlay{z-index:2}
@@ -1000,10 +1000,8 @@ html{scroll-behavior:smooth}
 }
 /* iframe hidden until hover */
 .fc-bg iframe{
-  position:absolute;top:50%;left:50%;
-  min-width:100%;min-height:100%;
-  width:177.78%;height:177.78%;
-  transform:translate(-50%,-50%);
+  position:absolute;inset:0;
+  width:100%;height:100%;
   border:0;pointer-events:none;z-index:3;opacity:1
 }
 /* thumbnails hidden  -  iframes show live video */
@@ -1034,9 +1032,8 @@ html{scroll-behavior:smooth}
 .fi-thumb-img{display:none!important}
 /* iframe always visible; thumbnail fades out via JS after delay */
 .fi-bg iframe{
-  position:absolute;top:50%;left:50%;
-  width:120%;height:120%;
-  transform:translate(-50%,-50%);
+  position:absolute;inset:0;
+  width:100%;height:100%;
   border:0;pointer-events:none;z-index:3;opacity:1
 }
 .fi-bg.fc-ready .fi-thumb-img{opacity:0}
@@ -2388,7 +2385,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // width:177.78% when based on height = 16:9 fill for portrait containers
   // height:177.78% when based on width = 16:9 fill for landscape containers
   // Using both large dimensions + center crop = guaranteed fill
-  var IFRAME_STYLE = 'position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;width:177.78%;height:177.78%;transform:translate(-50%,-50%);border:0;pointer-events:none;z-index:2;opacity:1;transition:opacity 0.5s';
+  var IFRAME_STYLE = 'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;z-index:2;opacity:1;transition:opacity 0.5s';
 
   function makeFrame(vid) {
     var fr = document.createElement('iframe');
