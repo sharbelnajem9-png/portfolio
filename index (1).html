@@ -120,7 +120,7 @@ section{padding:64px 60px}
 .folders-track{display:flex;gap:20px;animation:foldersScroll 65s linear infinite;width:max-content;padding:8px 0}
 .folders-carousel:hover .folders-track{animation-play-state:paused}
 @keyframes foldersScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.folder-card{min-width:340px;max-width:360px;border-radius:var(--radius);overflow:hidden;background:var(--card);border:1px solid var(--card-border);flex-shrink:0;cursor:pointer;transition:transform 0.4s,box-shadow 0.4s}
+.folder-card{border-radius:12px;overflow:hidden;background:var(--card);border:1px solid var(--card-border);flex-shrink:0;cursor:pointer;transition:transform 0.4s,box-shadow 0.4s}
 .folder-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.4)}
 .folder-thumb{width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#141418,#1c1c28);display:flex;align-items:center;justify-content:center;color:var(--white-15);font-size:11px;letter-spacing:2px;text-transform:uppercase;position:relative}
 .folder-thumb::after{content:'▶';position:absolute;font-size:28px;color:var(--white-15)}
@@ -642,24 +642,19 @@ html{scroll-behavior:smooth}
 .folder-thumb-img{display:none!important}
 .fc-overlay{z-index:2;position:absolute;inset:0}
 .folder-card{transition:transform 0.4s ease,box-shadow 0.4s ease!important}
-/* ── Uniform carousel row: portrait defines height, landscape fills ── */
-/* All cards: flex column */
-.folder-card{display:flex!important;flex-direction:column!important}
-/* folder-info always compact at bottom */
-.folder-info{flex-shrink:0!important}
-/* Landscape thumbnail: fixed 300px height to match featured strip */
-.folder-thumb{flex:1!important;aspect-ratio:unset!important;min-height:0;height:300px!important}
-/* Portrait cards: aspect-ratio defines the row height reference */
+/* ── Card layout: video fills top, title below ── */
+.folder-card{display:flex!important;flex-direction:column!important;border-radius:12px!important;overflow:hidden!important}
+/* Video area */
+.folder-thumb{flex:0 0 300px!important;height:300px!important;aspect-ratio:unset!important;overflow:hidden!important;position:relative!important}
+/* Title area below video */
+.folder-info{flex:0 0 auto!important;padding:11px 16px 13px!important;background:var(--card)!important}
+.folder-info h4{font-size:13px!important;font-weight:600!important;margin:0!important;letter-spacing:-0.1px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Landscape card: 533px wide = 16:9 video */
+.folder-card:not(.portrait){min-width:533px!important;max-width:533px!important}
+/* Portrait card: 169px wide = 9:16 video */
 .folder-card.portrait{min-width:169px!important;max-width:169px!important}
-.folder-card.portrait .folder-thumb{aspect-ratio:9/16!important;flex:unset!important;height:300px!important}
-.folder-card.portrait .folder-info{padding:10px 14px 12px!important}
-.folder-card.portrait .folder-info h4{
-  font-size:12px!important;font-weight:600!important;
-  white-space:normal;overflow:hidden;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  letter-spacing:-0.1px;line-height:1.3
-}
-.folder-card.portrait .fc-play-btn{width:42px!important;height:42px!important;font-size:16px!important}
+.folder-card.portrait .folder-info h4{white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
+.folder-card.portrait .fc-play-btn{width:40px!important;height:40px!important;font-size:15px!important}
 .folder-card:hover{transform:translateY(-5px)!important;box-shadow:0 20px 56px rgba(0,0,0,0.5)!important}
 
 /* 16. Modal layout  -  handled by definitive CSS above */
@@ -1040,8 +1035,7 @@ html{scroll-behavior:smooth}
 /* iframe always visible; thumbnail fades out via JS after delay */
 .fi-bg iframe{
   position:absolute;top:50%;left:50%;
-  min-width:100%;min-height:100%;
-  width:177.78%;height:177.78%;
+  width:120%;height:120%;
   transform:translate(-50%,-50%);
   border:0;pointer-events:none;z-index:3;opacity:1
 }
