@@ -807,21 +807,24 @@ html{scroll-behavior:smooth}
 }
 .service-card:hover,
 .folder-card:hover{
-  transform:translateY(-6px) scale(1.01)!important;
-  box-shadow:0 22px 60px rgba(0,0,0,0.55),0 4px 20px rgba(0,0,0,0.3)!important;
+  transform:translateY(-5px)!important;
+  box-shadow:0 20px 50px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.1),
+    0 0 35px rgba(255,255,255,0.06)!important;
 }
-.featured-item:hover{transform:scale(1.03)!important;box-shadow:0 16px 44px rgba(0,0,0,0.5)!important}
+.featured-item:hover{
+  transform:translateY(-4px)!important;
+  box-shadow:0 16px 44px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,255,255,0.1),
+    0 0 28px rgba(255,255,255,0.05)!important;
+}
 
 /* --- About section  -  Glassmorphism on image --- */
 .about-image-wrapper{
   border:1.5px solid rgba(255,255,255,0.14)!important;
-  backdrop-filter:blur(2px)!important;
-  -webkit-backdrop-filter:blur(2px)!important;
   box-shadow:
-    0 2px 0 rgba(255,255,255,0.08) inset,
-    0 30px 80px rgba(0,0,0,0.65),
-    0 8px 32px rgba(0,0,0,0.4),
-    0 0 0 1px rgba(255,255,255,0.04)!important;
+    0 12px 40px rgba(0,0,0,0.5),
+    0 4px 16px rgba(0,0,0,0.3)!important;
   overflow:hidden!important;
   position:relative!important
 }
@@ -1012,9 +1015,10 @@ html{scroll-behavior:smooth}
     box-shadow 0.4s cubic-bezier(0.2,0,0,1)!important
 }
 .folder-card:hover{
-  transform:translateY(-6px) scale(1.015)!important;
-  box-shadow:0 24px 60px rgba(0,0,0,0.55),
-    0 0 0 1px rgba(255,255,255,0.06)!important
+  transform:translateY(-5px)!important;
+  box-shadow:0 20px 50px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.1),
+    0 0 35px rgba(255,255,255,0.06)!important
 }
 .fc-overlay{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center}
 
@@ -1267,16 +1271,16 @@ html{scroll-behavior:smooth}
              box-shadow 0.32s cubic-bezier(0.2,0,0,1)!important
 }
 .folder-card:hover{
-  transform:translateY(-7px) scale(1.015)!important;
-  box-shadow:0 24px 56px rgba(0,0,0,0.65),
-             0 0 0 1px rgba(255,255,255,0.09),
-             0 0 40px rgba(255,255,255,0.04)!important
+  transform:translateY(-5px)!important;
+  box-shadow:0 20px 50px rgba(0,0,0,0.6),
+             0 0 0 1px rgba(255,255,255,0.1),
+             0 0 35px rgba(255,255,255,0.06)!important
 }
 .featured-item:hover{
-  transform:translateY(-5px) scale(1.02)!important;
-  box-shadow:0 18px 48px rgba(0,0,0,0.6),
-             0 0 0 1px rgba(255,255,255,0.08),
-             0 0 30px rgba(255,255,255,0.04)!important
+  transform:translateY(-4px)!important;
+  box-shadow:0 16px 44px rgba(0,0,0,0.55),
+             0 0 0 1px rgba(255,255,255,0.1),
+             0 0 28px rgba(255,255,255,0.05)!important
 }
 .service-card:hover{
   transform:translateY(-5px) scale(1.015)!important;
@@ -1370,7 +1374,7 @@ html{scroll-behavior:smooth}
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><h3 data-en="Social Media Content" data-he="תוכן לרשתות חברתיות">Social Media Content</h3><p data-en="Scroll-stopping content designed to grow engagement and reach." data-he="תוכן שעוצר גלילה, בנוי להגדיל מעורבות וחשיפה.">Scroll-stopping content designed to grow engagement and reach.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><h3 data-en="Video Production" data-he="הפקת וידאו">Video Production</h3><p data-en="From short-form reels to full cinematic productions  -  storytelling at every scale." data-he="מרילסים קצרים ועד הפקות קולנועיות מלאות  -  סיפור בכל קנה מידה.">From short-form reels to full cinematic productions  -  storytelling at every scale.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></div><h3 data-en="Branded Collaborations" data-he="שיתופי פעולה">Branded Collaborations</h3><p data-en="Authentic partnerships that feel natural and resonate with your audience." data-he="שותפויות אותנטיות שנראות טבעיות ומהדהדות עם הקהל שלך.">Authentic partnerships that feel natural and resonate with your audience.</p></div>
-    <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 data-en="Deep Profiling & Marketing Strategy" data-he="אפיון מעמיק ואסטרטגיות שיווקיות">Deep Profiling & Marketing Strategy</h3><p data-en="In-depth brand analysis and tailored strategy to reach the right audience with precision." data-he="ניתוח מותג מעמיק ואסטרטגיה מותאמת אישית לתפיסת קהל היעד המדויק.">In-depth brand analysis and tailored strategy to reach the right audience with precision.</p></div>
+    <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 data-en="Marketing Strategy" data-he="אסטרטגיית שיווק">Marketing Strategy</h3><p data-en="In-depth brand analysis and tailored strategy to reach your target audience with precision." data-he="ניתוח מותג מעמיק ואסטרטגיה מותאמת אישית לתפיסת קהל היעד המדויק.">In-depth brand analysis and tailored strategy to reach the right audience with precision.</p></div>
   </div>
 </section>
 
