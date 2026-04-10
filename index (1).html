@@ -993,8 +993,8 @@ html{scroll-behavior:smooth}
   transform:translate(-50%,-50%);
   border:0;pointer-events:none;z-index:3;opacity:1
 }
-/* thumbnails as fallback; iframes appear on top */
-.fc-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+/* thumbnails hidden — iframes show live video */
+.fc-thumb-img{display:none!important}
 /* hover glow & lift */
 .folder-card{
   transition:transform 0.4s cubic-bezier(0.2,0,0,1),
@@ -1025,7 +1025,7 @@ html{scroll-behavior:smooth}
   position:absolute;inset:0;z-index:0;
   background:#06060e;overflow:hidden
 }
-.fi-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.fi-thumb-img{display:none!important}
 /* iframe always visible; thumbnail fades out via JS after delay */
 .fi-bg iframe{
   position:absolute;top:50%;left:50%;
@@ -2340,7 +2340,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // PHASE 3  — Live video previews (direct injection, same as modal)
 // ================================================================
 (function() {
-  var P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&controls=0';
+  var P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&controls=0';
 
   function injectBg(bg, delay) {
     if (!bg || bg.dataset.vi) return;
@@ -2349,24 +2349,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!vid) return;
     setTimeout(function() {
       var fr = document.createElement('iframe');
-      fr.setAttribute('allow', 'autoplay; fullscreen');
+      fr.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+      fr.setAttribute('allowfullscreen', '');
       fr.setAttribute('frameborder', '0');
+      fr.style.cssText = 'position:absolute;top:50%;left:50%;width:120%;height:120%;transform:translate(-50%,-50%);border:0;pointer-events:none;z-index:2;opacity:1';
       fr.src = 'https://player.vimeo.com/video/' + vid + P;
       bg.appendChild(fr);
-      // thumbnail hidden via CSS (display:none)
     }, delay);
   }
 
-  // Project cards — staggered 150ms apart
-  document.querySelectorAll('.fc-bg[data-vid]').forEach(function(bg, i) {
-    injectBg(bg, i * 150);
-  });
+  function runPhase3() {
+    // Project cards — staggered 150ms apart
+    document.querySelectorAll('.fc-bg[data-vid]').forEach(function(bg, i) {
+      injectBg(bg, i * 150);
+    });
 
-  // Featured items — only first 24 (track is doubled for infinite loop)
-  var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]')).slice(0, 24);
-  fiBgs.forEach(function(bg, i) {
-    injectBg(bg, i * 100);
-  });
+    // Featured items — only first 24 (track is doubled for infinite loop)
+    var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]')).slice(0, 24);
+    fiBgs.forEach(function(bg, i) {
+      injectBg(bg, i * 100);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runPhase3);
+  } else {
+    runPhase3();
+  }
 })();
 
 // ─── HERO VIDEO SEQUENCER v2// ─── HERO VIDEO SEQUENCER v2 ─────────────────────────────────
