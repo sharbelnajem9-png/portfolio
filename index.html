@@ -54,7 +54,7 @@ body{font-family:var(--font-body);background:var(--black);color:var(--white);ove
 .hero-video-bg{position:absolute;inset:14px 18px;background:var(--dark);overflow:hidden;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,0.7)}
 .hero-video-bg video{width:100%;height:100%;object-fit:cover;opacity:0.4}
 .hero-video-placeholder{width:100%;height:100%;background:linear-gradient(160deg,#0b0b0b 0%,#14141e 50%,#0b0b0b 100%);display:flex;align-items:center;justify-content:center}
-.hero-video-placeholder::after{content:'▶ Replace with your showreel';color:var(--white-15);font-size:13px;letter-spacing:2px;text-transform:uppercase}
+.hero-video-placeholder::after{content:''}
 .hero-overlay{position:absolute;inset:14px 18px;border-radius:20px;background:linear-gradient(to bottom,rgba(4,5,13,0.15) 0%,rgba(4,5,13,0.04) 40%,rgba(4,5,13,0.72) 100%)}
 .hero-content{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px;animation:heroIn 1s ease-out}
 @keyframes heroIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
@@ -294,10 +294,10 @@ footer::before{
 .folder-thumb-img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;
   transition:transform 0.55s ease}
 .folder-card:hover .folder-thumb-img{transform:scale(1.06)}
-.fc-overlay{position:absolute;top:0;left:0;right:0;aspect-ratio:16/10;
+.fc-overlay{position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0);transition:background 0.35s}
-.folder-card:hover .fc-overlay{background:rgba(0,0,0,0.4)}
+  background:rgba(0,0,0,0);transition:background 0.32s}
+.folder-card:hover .fc-overlay{background:rgba(0,0,0,0.28)}
 .fc-play-btn{width:52px;height:52px;border-radius:50%;
   background:rgba(255,255,255,0.13);backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
@@ -1023,11 +1023,7 @@ html{scroll-behavior:smooth}
     0 0 0 1px rgba(255,255,255,0.06)!important
 }
 .fc-overlay{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center}
-.folder-thumb::before{
-  content:'';position:absolute;bottom:0;left:0;right:0;
-  height:40%;z-index:2;pointer-events:none;
-  background:linear-gradient(to bottom,transparent,rgba(4,4,12,0.7));
-}
+
 .folder-thumb{position:relative;overflow:hidden;background:#08080f}
 /* play icon on hover */
 .fc-overlay::after{content:none}
@@ -1426,9 +1422,9 @@ html{scroll-behavior:smooth}
         <h4 data-en="Hotels" data-he="מלונות ומקומות אירוח">Hotels</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('travel-short')" data-key="travel-short" data-vids="1181283204,1181282280,1181282252,1181279455,1181278824,1181278497,1181278067,1181277743,1181277471,1181277254">
+    <div class="folder-card" onclick="openProject('travel-short')" data-key="travel-short" data-vids="1181283204,1181282252,1181279455,1181278497,1181278067,1181277743,1181277471,1181277254">
       <div class="folder-thumb">
-        <div class="fc-bg" data-vid="1181283204" data-vids="1181283204,1181282280,1181282252,1181279455,1181278824,1181278497,1181278067,1181277743,1181277471,1181277254">
+        <div class="fc-bg" data-vid="1181283204" data-vids="1181283204,1181282252,1181279455,1181278497,1181278067,1181277743,1181277471,1181277254">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181283204.jpg" alt="Travel Short" loading="lazy" draggable="false">
         </div>
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
@@ -1514,9 +1510,9 @@ html{scroll-behavior:smooth}
         <h4 data-en="Hotels" data-he="מלונות ומקומות אירוח">Hotels</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('travel-short')" data-key="travel-short" data-vids="1181283204,1181282280,1181282252,1181279455,1181278824,1181278497,1181278067,1181277743,1181277471,1181277254">
+    <div class="folder-card" onclick="openProject('travel-short')" data-key="travel-short" data-vids="1181283204,1181282252,1181279455,1181278497,1181278067,1181277743,1181277471,1181277254">
       <div class="folder-thumb">
-        <div class="fc-bg" data-vid="1181283204" data-vids="1181283204,1181282280,1181282252,1181279455,1181278824,1181278497,1181278067,1181277743,1181277471,1181277254">
+        <div class="fc-bg" data-vid="1181283204" data-vids="1181283204,1181282252,1181279455,1181278497,1181278067,1181277743,1181277471,1181277254">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181283204.jpg" alt="Travel Short" loading="lazy" draggable="false">
         </div>
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
@@ -1927,7 +1923,6 @@ function buildVimeoIframe(id) {
   iframe.setAttribute('frameborder','0');
   iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture; clipboard-write');
   iframe.setAttribute('allowfullscreen','');
-  iframe.setAttribute('loading','lazy');
   return iframe;
 }
 
@@ -1981,11 +1976,11 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     // Iframe  -  staggered delay so browser doesn't spike on open
     const iframe = buildVimeoIframe(id);
     iframe.addEventListener('load', () => div.classList.add('pv-loaded'));
-    // Small stagger so not all iframes fire simultaneously
-    if (i > 0) {
+    // Stagger: first 3 load immediately, rest staggered by 80ms
+    if (i > 3) {
       const src = iframe.src;
       iframe.removeAttribute('src');
-      setTimeout(() => { iframe.src = src; }, Math.min(i * 120, 1800));
+      setTimeout(() => { iframe.src = src; }, (i - 3) * 80);
     }
     div.appendChild(iframe);
 
@@ -2393,6 +2388,18 @@ document.addEventListener('DOMContentLoaded', () => {
 (function() {
   var P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&controls=0';
 
+  var IFRAME_STYLE = 'position:absolute;top:50%;left:50%;width:120%;height:120%;transform:translate(-50%,-50%);border:0;pointer-events:none;z-index:2;opacity:1;transition:opacity 0.5s';
+
+  function makeFrame(vid) {
+    var fr = document.createElement('iframe');
+    fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+    fr.setAttribute('allowfullscreen','');
+    fr.setAttribute('frameborder','0');
+    fr.style.cssText = IFRAME_STYLE;
+    fr.src = 'https://player.vimeo.com/video/' + vid + P;
+    return fr;
+  }
+
   function injectBg(bg, delay) {
     if (!bg || bg.dataset.vi) return;
     bg.dataset.vi = '1';
@@ -2401,21 +2408,24 @@ document.addEventListener('DOMContentLoaded', () => {
     var vids = (bg.dataset.vids || vid).split(',').filter(Boolean);
     var cur = 0;
     setTimeout(function() {
-      var fr = document.createElement('iframe');
-      fr.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
-      fr.setAttribute('allowfullscreen', '');
-      fr.setAttribute('frameborder', '0');
-      fr.style.cssText = 'position:absolute;top:50%;left:50%;width:120%;height:120%;transform:translate(-50%,-50%);border:0;pointer-events:none;z-index:2;opacity:1';
-      fr.src = 'https://player.vimeo.com/video/' + vids[0] + P;
+      var fr = makeFrame(vids[0]);
       bg.appendChild(fr);
       if (vids.length > 1) {
         setInterval(function() {
           var next;
-          do { next = Math.floor(Math.random() * vids.length); } while (next === cur);
+          do { next = Math.floor(Math.random() * vids.length); } while (next === cur && vids.length > 1);
           cur = next;
-          var f = bg.querySelector('iframe');
-          if (f) f.src = 'https://player.vimeo.com/video/' + vids[cur] + P;
-        }, 10000);
+          // Create new frame behind current, then swap
+          var newFr = makeFrame(vids[cur]);
+          newFr.style.opacity = '0';
+          bg.appendChild(newFr);
+          // Fade in new, remove old after transition
+          setTimeout(function() {
+            newFr.style.opacity = '1';
+            var frames = bg.querySelectorAll('iframe');
+            if (frames.length > 2) bg.removeChild(frames[0]);
+          }, 200);
+        }, 9000);
       }
     }, delay);
   }
