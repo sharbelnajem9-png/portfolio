@@ -991,10 +991,10 @@ html{scroll-behavior:smooth}
   position:absolute;top:50%;left:50%;
   width:120%;height:120%;
   transform:translate(-50%,-50%);
-  border:0;pointer-events:none;z-index:2;opacity:1
+  border:0;pointer-events:none;z-index:3;opacity:1
 }
-/* thumbnails hidden — live video always shows */
-.fc-thumb-img{display:none!important}
+/* thumbnails as fallback; iframes appear on top */
+.fc-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 /* hover glow & lift */
 .folder-card{
   transition:transform 0.4s cubic-bezier(0.2,0,0,1),
@@ -1025,13 +1025,13 @@ html{scroll-behavior:smooth}
   position:absolute;inset:0;z-index:0;
   background:#06060e;overflow:hidden
 }
-.fi-thumb-img{display:none!important}
+.fi-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 /* iframe always visible; thumbnail fades out via JS after delay */
 .fi-bg iframe{
   position:absolute;top:50%;left:50%;
   width:120%;height:120%;
   transform:translate(-50%,-50%);
-  border:0;pointer-events:none;z-index:2;opacity:1
+  border:0;pointer-events:none;z-index:3;opacity:1
 }
 .fi-bg.fc-ready .fi-thumb-img{opacity:0}
 .fi-overlay{position:absolute;inset:0;z-index:3;
