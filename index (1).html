@@ -2432,16 +2432,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function runPhase3() {
     var mobile = window.innerWidth < 768;
-    // Project cards — 250ms stagger desktop, 400ms mobile
+    // Project cards — staggered
     var fcBgs = Array.from(document.querySelectorAll('.fc-bg[data-vid]'));
     fcBgs.forEach(function(bg, i) {
       injectBg(bg, 400 + i * (mobile ? 400 : 250));
     });
-    // Featured items — 12 desktop / 6 mobile (track doubled so view is covered)
-    var limit = mobile ? 6 : 12;
-    var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]')).slice(0, limit);
+    // Featured items — inject ALL (track is doubled, both halves need iframes)
+    var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]'));
     fiBgs.forEach(function(bg, i) {
-      injectBg(bg, 600 + i * (mobile ? 300 : 150));
+      injectBg(bg, 600 + i * (mobile ? 200 : 100));
     });
   }
 
