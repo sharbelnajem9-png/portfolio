@@ -647,11 +647,11 @@ html{scroll-behavior:smooth}
 .folder-card{display:flex!important;flex-direction:column!important}
 /* folder-info always compact at bottom */
 .folder-info{flex-shrink:0!important}
-/* Landscape thumbnail: fills remaining height (no aspect-ratio needed) */
-.folder-thumb{flex:1!important;aspect-ratio:unset!important;min-height:0}
+/* Landscape thumbnail: fixed 300px height to match featured strip */
+.folder-thumb{flex:1!important;aspect-ratio:unset!important;min-height:0;height:300px!important}
 /* Portrait cards: aspect-ratio defines the row height reference */
-.folder-card.portrait{min-width:155px!important;max-width:170px!important}
-.folder-card.portrait .folder-thumb{aspect-ratio:9/16!important;flex:unset!important}
+.folder-card.portrait{min-width:169px!important;max-width:169px!important}
+.folder-card.portrait .folder-thumb{aspect-ratio:9/16!important;flex:unset!important;height:300px!important}
 .folder-card.portrait .folder-info{padding:10px 14px 12px!important}
 .folder-card.portrait .folder-info h4{
   font-size:12px!important;font-weight:600!important;
@@ -2437,10 +2437,11 @@ document.addEventListener('DOMContentLoaded', () => {
     fcBgs.forEach(function(bg, i) {
       injectBg(bg, 400 + i * (mobile ? 400 : 250));
     });
-    // Featured items — inject ALL (track is doubled, both halves need iframes)
+    // Featured items — inject ALL at once with tiny stagger (30ms)
+    // Track is doubled (48 items), user can scroll to any item immediately
     var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]'));
     fiBgs.forEach(function(bg, i) {
-      injectBg(bg, 600 + i * (mobile ? 200 : 100));
+      injectBg(bg, 300 + i * 30);
     });
   }
 
