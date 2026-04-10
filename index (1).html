@@ -638,12 +638,20 @@ html{scroll-behavior:smooth}
   width:120%;height:120%;border:0;
   pointer-events:none
 }
-.folder-thumb{position:relative;aspect-ratio:16/10;background:#08080f;overflow:hidden}
+.folder-thumb{position:relative;background:#08080f;overflow:hidden}
 .folder-thumb-img{display:none!important}
 .fc-overlay{z-index:2;position:absolute;inset:0}
 .folder-card{transition:transform 0.4s ease,box-shadow 0.4s ease!important}
+/* ── Uniform carousel row: portrait defines height, landscape fills ── */
+/* All cards: flex column */
+.folder-card{display:flex!important;flex-direction:column!important}
+/* folder-info always compact at bottom */
+.folder-info{flex-shrink:0!important}
+/* Landscape thumbnail: fills remaining height (no aspect-ratio needed) */
+.folder-thumb{flex:1!important;aspect-ratio:unset!important;min-height:0}
+/* Portrait cards: aspect-ratio defines the row height reference */
 .folder-card.portrait{min-width:155px!important;max-width:170px!important}
-.folder-card.portrait .folder-thumb{aspect-ratio:9/16!important}
+.folder-card.portrait .folder-thumb{aspect-ratio:9/16!important;flex:unset!important}
 .folder-card.portrait .folder-info{padding:10px 14px 12px!important}
 .folder-card.portrait .folder-info h4{
   font-size:12px!important;font-weight:600!important;
@@ -1020,7 +1028,7 @@ html{scroll-behavior:smooth}
   height:40%;z-index:2;pointer-events:none;
   background:linear-gradient(to bottom,transparent,rgba(4,4,12,0.7));
 }
-.folder-thumb{position:relative;aspect-ratio:16/10;overflow:hidden;background:#08080f}
+.folder-thumb{position:relative;overflow:hidden;background:#08080f}
 /* play icon on hover */
 .fc-overlay::after{content:none}
 .folder-card:hover .fc-overlay::after{content:none
