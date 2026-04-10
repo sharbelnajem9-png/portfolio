@@ -1006,7 +1006,8 @@ html{scroll-behavior:smooth}
 /* iframe hidden until hover */
 .fc-bg iframe{
   position:absolute;top:50%;left:50%;
-  width:120%;height:120%;
+  min-width:100%;min-height:100%;
+  width:177.78%;height:177.78%;
   transform:translate(-50%,-50%);
   border:0;pointer-events:none;z-index:3;opacity:1
 }
@@ -1039,7 +1040,8 @@ html{scroll-behavior:smooth}
 /* iframe always visible; thumbnail fades out via JS after delay */
 .fi-bg iframe{
   position:absolute;top:50%;left:50%;
-  width:120%;height:120%;
+  min-width:100%;min-height:100%;
+  width:177.78%;height:177.78%;
   transform:translate(-50%,-50%);
   border:0;pointer-events:none;z-index:3;opacity:1
 }
@@ -1976,11 +1978,11 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     // Iframe  -  staggered delay so browser doesn't spike on open
     const iframe = buildVimeoIframe(id);
     iframe.addEventListener('load', () => div.classList.add('pv-loaded'));
-    // Stagger: first 3 load immediately, rest staggered by 80ms
-    if (i > 3) {
+    // Stagger: first 4 load immediately, rest at 60ms intervals (max ~1s total)
+    if (i > 4) {
       const src = iframe.src;
       iframe.removeAttribute('src');
-      setTimeout(() => { iframe.src = src; }, (i - 3) * 80);
+      setTimeout(() => { iframe.src = src; }, (i - 4) * 60);
     }
     div.appendChild(iframe);
 
@@ -2388,7 +2390,11 @@ document.addEventListener('DOMContentLoaded', () => {
 (function() {
   var P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&controls=0';
 
-  var IFRAME_STYLE = 'position:absolute;top:50%;left:50%;width:120%;height:120%;transform:translate(-50%,-50%);border:0;pointer-events:none;z-index:2;opacity:1;transition:opacity 0.5s';
+  // Fill container fully regardless of aspect ratio:
+  // width:177.78% when based on height = 16:9 fill for portrait containers
+  // height:177.78% when based on width = 16:9 fill for landscape containers
+  // Using both large dimensions + center crop = guaranteed fill
+  var IFRAME_STYLE = 'position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;width:177.78%;height:177.78%;transform:translate(-50%,-50%);border:0;pointer-events:none;z-index:2;opacity:1;transition:opacity 0.5s';
 
   function makeFrame(vid) {
     var fr = document.createElement('iframe');
