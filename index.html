@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sharbel Najem — Filmmaker & Content Creator</title>
+<title>Sharbel Najem  -  Filmmaker & Content Creator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -100,13 +100,13 @@ section{padding:64px 60px}
 .brand-track{display:flex;gap:48px;animation:marquee 90s linear infinite;width:max-content}
 .brand-track:hover{animation-play-state:paused}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.brand-item{display:flex;align-items:center;justify-content:center;min-width:120px;height:84px;padding:6px 24px;opacity:0.72;transition:opacity 0.4s;flex-shrink:0}.brand-item:hover{opacity:1}.brand-item img{max-height:72px;max-width:190px;width:auto;object-fit:contain;filter:grayscale(15%) brightness(1.08);transition:filter 0.3s}.brand-item:hover img{filter:none}
+.brand-item{display:flex;align-items:center;justify-content:center;min-width:130px;height:100px;padding:8px 28px;opacity:1;transition:transform 0.35s cubic-bezier(0.2,0,0,1);flex-shrink:0}.brand-item:hover{transform:scale(1.12)}.brand-item img{max-height:88px;max-width:220px;width:auto;object-fit:contain;filter:brightness(1.3) drop-shadow(0 0 7px rgba(255,255,255,0.22));transition:filter 0.35s cubic-bezier(0.2,0,0,1),transform 0.35s cubic-bezier(0.2,0,0,1)}.brand-item:hover img{filter:brightness(1.65) drop-shadow(0 0 16px rgba(255,255,255,0.5)) drop-shadow(0 0 32px rgba(255,255,255,0.18));transform:scale(1.08)}
 
 .testimonials-marquee{position:relative;overflow:hidden;margin-top:40px;padding:16px 0;mask-image:linear-gradient(90deg,transparent,black 6%,black 94%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,black 6%,black 94%,transparent)}
 .testimonial-track{display:flex;gap:20px;animation:testScroll 90s linear infinite;width:max-content}
 .testimonial-track:hover{animation-play-state:paused}
 @keyframes testScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.testimonial-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:28px;backdrop-filter:blur(20px);min-width:340px;max-width:380px;flex-shrink:0;transition:all 0.3s}
+.testimonial-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:32px;backdrop-filter:blur(20px);min-width:370px;max-width:420px;flex-shrink:0;transition:all 0.3s}
 .testimonial-card:hover{background:var(--glass-hover);border-color:var(--white-15)}
 .testimonial-stars{color:#d4a853;font-size:13px;margin-bottom:14px;letter-spacing:2px}
 .testimonial-text{color:var(--white-50);font-size:14px;line-height:1.7;font-style:italic;margin-bottom:16px;font-weight:300}
@@ -189,10 +189,10 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
 
 
 
-/* UserWay widget positioning – keep below navbar */
+/* UserWay widget positioning  -  keep below navbar */
 #userwayAccessibilityIcon{bottom:24px!important;top:auto!important;z-index:990!important}
 
-/* Services section – register service cards with IntersectionObserver */
+/* Services section  -  register service cards with IntersectionObserver */
 
 /* ANIMATED SECTION DIVIDERS */
 section:not(.hero) + section::before,
@@ -210,7 +210,7 @@ footer::before{
   50%{opacity:1;background-position:100% 50%}
 }
 
-/* ABOUT SECTION – slide in from sides */
+/* ABOUT SECTION  -  slide in from sides */
 .about-image-wrapper{
   opacity:0;
   transform:translateX(-40px);
@@ -234,7 +234,7 @@ footer::before{
 /* BRANDS section title fade-up */
 .brands-header.fade-in{transition-duration:0.9s}
 
-/* PROJECTS – folder cards entrance */
+/* PROJECTS  -  folder cards entrance */
 .folder-card{
   opacity:0;
   transform:translateY(20px);
@@ -307,7 +307,7 @@ footer::before{
   color:white;font-size:18px;pointer-events:none}
 .folder-card:hover .fc-play-btn{opacity:1;transform:scale(1)}
 
-/* Folder cards in carousel — always visible (no fade-in delay) */
+/* Folder cards in carousel  -  always visible (no fade-in delay) */
 .folders-carousel .folder-card{opacity:1!important;transform:none!important}
 [dir="rtl"] .folders-carousel .folder-card{opacity:1!important;transform:none!important}
 
@@ -352,14 +352,14 @@ footer::before{
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   background-clip:text;
   text-shadow:none;position:relative}
-/* pm-title::after removed — handled by pm-video-count */
+/* pm-title::after removed  -  handled by pm-video-count */
 .pm-close{width:38px;height:38px;border-radius:50%;
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);
   color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   transition:all 0.2s;flex-shrink:0;line-height:1;font-family:sans-serif}
 .pm-close:hover{background:rgba(255,255,255,0.16);color:white}
-/* ─── MODAL GALLERY — definitive layout ───────────────────── */
+/* ─── MODAL GALLERY  -  definitive layout ───────────────────── */
 .pm-videos{
   flex:1;overflow-y:auto;scroll-behavior:smooth;
   padding:40px 40px 64px;
@@ -370,7 +370,7 @@ footer::before{
 .pm-videos::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
 /* section wrapper */
 .pm-section{display:flex;flex-direction:column;gap:20px;width:100%}
-/* section header row — label + dot + count, no line/dash */
+/* section header row  -  label + dot + count, no line/dash */
 .pm-sec-head{
   display:flex;align-items:center;gap:10px;padding:0 2px
 }
@@ -519,7 +519,7 @@ footer::before{
    UPDATE-5 OVERRIDES
    ========================================================= */
 
-/* 1. Navbar – accessibility button */
+/* 1. Navbar  -  accessibility button */
 .nav-a11y-btn{
   width:30px;height:30px;border-radius:50%;
   background:transparent;
@@ -532,7 +532,7 @@ footer::before{
 .nav-a11y-btn svg{display:block}
 #userwayAccessibilityIcon{display:none!important}
 
-/* 2. Avatar – white glow only, face-focused */
+/* 2. Avatar  -  white glow only, face-focused */
 .hero-avatar{
   width:100px;height:100px;border-radius:50%;
   border:2px solid rgba(255,255,255,0.9);
@@ -553,7 +553,7 @@ section:not(.hero) + section::before,
 .dream-section::before,
 footer::before{display:none!important;content:none!important}
 
-/* 4. Highlights – hide "Featured Videos" h2, keep label */
+/* 4. Highlights  -  hide "Featured Videos" h2, keep label */
 .featured-section .section-title{display:none}
 .featured-label{margin-bottom:20px}
 
@@ -563,13 +563,13 @@ footer::before{display:none!important;content:none!important}
 /* Fix logos with white backgrounds */
 .brand-item img{mix-blend-mode:luminosity}
 
-/* 6. Testimonials – ensure seamless infinite (already doubled) */
+/* 6. Testimonials  -  ensure seamless infinite (already doubled) */
 
-/* 7. Contact text – all white */
+/* 7. Contact text  -  all white */
 .contact-big-text{color:var(--white)!important}
 .contact-big-text em{color:var(--white)!important;font-style:normal;font-weight:800}
 
-/* 8. DREAM CREATE SHARE – tighter letter-spacing, main font */
+/* 8. DREAM CREATE SHARE  -  tighter letter-spacing, main font */
 .dream-word-1,.dream-word-2,.dream-word-3{
   font-family:var(--font-display)!important;
   letter-spacing:2px!important
@@ -579,7 +579,7 @@ footer::before{display:none!important;content:none!important}
 .dream-word-3{font-size:clamp(20px,3.2vw,44px)!important}
 .dream-words{gap:20px!important}
 
-/* 9. Footer – copyright left, legal center, logos right */
+/* 9. Footer  -  copyright left, legal center, logos right */
 .footer{
   display:grid;
   grid-template-columns:1fr auto 1fr;
@@ -590,7 +590,7 @@ footer::before{display:none!important;content:none!important}
 .footer-legal{justify-self:center}
 .footer-socials{justify-self:end}
 
-/* 10. Carousel buttons – more stylish */
+/* 10. Carousel buttons  -  more stylish */
 .carousel-btn{
   width:50px!important;height:50px!important;
   border-radius:50%!important;
@@ -624,7 +624,7 @@ html{scroll-behavior:smooth}
   pointer-events:none
 }
 
-/* 13+14. Project cards – name only, bigger, no count */
+/* 13+14. Project cards  -  name only, bigger, no count */
 .folder-cat{display:none!important}
 .folder-info p{display:none!important}
 .folder-info{padding:16px 18px 18px!important}
@@ -650,7 +650,7 @@ html{scroll-behavior:smooth}
 .folder-card{transition:transform 0.4s ease,box-shadow 0.4s ease!important}
 .folder-card:hover{transform:translateY(-5px)!important;box-shadow:0 20px 56px rgba(0,0,0,0.5)!important}
 
-/* 16. Modal layout — handled by definitive CSS above */
+/* 16. Modal layout  -  handled by definitive CSS above */
 
 /* 17. Modal autoplay indication */
 .pv-loading{
@@ -677,7 +677,7 @@ html{scroll-behavior:smooth}
   color:white!important;transform:rotate(90deg) scale(1.1)!important
 }
 
-/* 19. Contact button – more stylish */
+/* 19. Contact button  -  more stylish */
 .contact-btn{
   display:inline-flex!important;align-items:center!important;gap:10px!important;
   padding:14px 40px!important;
@@ -714,12 +714,12 @@ html{scroll-behavior:smooth}
 .fi-overlay{z-index:2}
 .fi-play{z-index:3}
 
-/* Featured item sizing – height 300px */
+/* Featured item sizing  -  height 300px */
 .featured-item{height:300px!important}
 .featured-item.portrait{width:170px!important}
 .featured-item.landscape{width:534px!important}
 
-/* Responsive – mobile */
+/* Responsive  -  mobile */
 @media(max-width:768px){
   .navbar{height:58px;padding:0 16px}
   .nav-links{display:none}
@@ -728,13 +728,18 @@ html{scroll-behavior:smooth}
   .pm-videos{padding:16px 12px 28px!important;gap:24px!important}
   .dream-words{flex-wrap:wrap!important;gap:12px!important}
   .featured-item.portrait{width:120px!important}
-  .featured-item.landscape{width:320px!important}
-  .featured-item{height:214px!important}
+  .featured-item.landscape{width:300px!important}
+  .featured-item{height:200px!important}
   .projects-header,.featured-label{padding-left:20px!important;padding-right:20px!important}
   .pm-header{padding:12px 14px!important;gap:10px!important}
   .pm-title{font-size:15px!important}
   section{padding:60px 20px!important}
   .brands-header,.about-grid{padding:0 20px}
+  .folders-track,.featured-track{-webkit-overflow-scrolling:touch}
+  .testimonial-card{min-width:300px!important;max-width:320px!important;padding:22px!important}
+  .folder-card{min-width:230px!important;max-width:250px!important}
+  .hero-name{letter-spacing:-1px}
+  .service-card{min-height:auto!important}
 }
 @media(max-width:480px){
   .hero-name{font-size:clamp(32px,9vw,56px)!important}
@@ -774,7 +779,7 @@ html{scroll-behavior:smooth}
   rgba(8,8,8,0.1) 45%,
   rgba(8,8,8,0.8) 100%)!important}
 
-/* --- Avatar — tighter face crop --- */
+/* --- Avatar  -  tighter face crop --- */
 .hero-avatar img{object-position:center 12%!important}
 @keyframes avatarPulse{
   0%,100%{box-shadow:0 0 0 6px rgba(255,255,255,0.13),0 0 32px rgba(255,255,255,0.5),0 0 72px rgba(255,255,255,0.2),0 4px 24px rgba(0,0,0,0.5)}
@@ -800,7 +805,7 @@ html{scroll-behavior:smooth}
 }
 .featured-item:hover{transform:scale(1.03)!important;box-shadow:0 16px 44px rgba(0,0,0,0.5)!important}
 
-/* --- About section — Glassmorphism on image --- */
+/* --- About section  -  Glassmorphism on image --- */
 .about-image-wrapper{
   border:1.5px solid rgba(255,255,255,0.14)!important;
   backdrop-filter:blur(2px)!important;
@@ -836,7 +841,7 @@ html{scroll-behavior:smooth}
 .services-grid .service-card:nth-child(5){transition-delay:0.24s!important}
 .section-label{display:block}
 
-/* --- Testimonial cards — uniform height, no dash --- */
+/* --- Testimonial cards  -  uniform height, no dash --- */
 .testimonial-card{
   min-height:230px!important;
   height:auto!important;
@@ -849,7 +854,7 @@ html{scroll-behavior:smooth}
 .testimonial-brand::before{content:''!important}
 .testimonial-brand{font-size:13px!important;letter-spacing:0.3px!important;margin-top:18px!important;padding-top:14px!important;border-top:1px solid rgba(255,255,255,0.07)!important}
 
-/* --- Navbar — center links --- */
+/* --- Navbar  -  center links --- */
 .navbar{position:fixed!important}
 .nav-links{
   position:absolute!important;left:50%!important;transform:translateX(-50%)!important;
@@ -877,7 +882,7 @@ html{scroll-behavior:smooth}
 [dir="rtl"] .featured-item,
 [dir="rtl"] .testimonial-card{direction:rtl}
 
-/* --- DREAM CREATE SHARE — force LTR in RTL mode --- */
+/* --- DREAM CREATE SHARE  -  force LTR in RTL mode --- */
 .dream-section .dream-words,
 .dream-section .dream-word-1,
 .dream-section .dream-word-2,
@@ -886,7 +891,7 @@ html{scroll-behavior:smooth}
 
 /* --- RTL arrow fix (handled in JS) --- */
 
-/* --- Carousel buttons — smaller, more elegant --- */
+/* --- Carousel buttons  -  smaller, more elegant --- */
 .carousel-btn{
   width:38px!important;height:38px!important;
   background:rgba(255,255,255,0.05)!important;
@@ -922,7 +927,7 @@ html{scroll-behavior:smooth}
   .about-image-wrapper{max-width:260px!important;margin:0 auto!important}
   .services-grid{flex-wrap:wrap!important;gap:12px!important}
   .service-card{flex:1 1 calc(50% - 12px)!important;min-width:140px!important}
-  .testimonial-card{min-width:280px!important;width:290px!important}
+  .testimonial-card{min-width:300px!important;width:310px!important}
   .dream-words{gap:12px!important}
   .folder-card{min-width:240px!important;max-width:260px!important}
   .folders-track{gap:14px!important}
@@ -935,10 +940,10 @@ html{scroll-behavior:smooth}
 
 
 /* ============================================================
-   UPDATE-7  Phase 3 — Premium Cinematic Standard
+   UPDATE-7  Phase 3  -  Premium Cinematic Standard
    ============================================================ */
 
-/* ─── 1. HERO VIDEO — raw cinematic fill ─────────────────── */
+/* ─── 1. HERO VIDEO  -  raw cinematic fill ─────────────────── */
 .hero{overflow:hidden}
 .hero-video-bg{
   position:absolute;inset:0;z-index:0;
@@ -955,7 +960,7 @@ html{scroll-behavior:smooth}
 .hero-vid-item iframe{
   position:absolute;
   top:50%;left:50%;
-  /* 9:16 portrait vids — scale up so width fills */
+  /* 9:16 portrait vids  -  scale up so width fills */
   width:56.25vh;   /* = 100vh × (9/16) */
   height:100vh;
   min-width:100vw;
@@ -975,7 +980,7 @@ html{scroll-behavior:smooth}
 }
 .hero-content{position:relative;z-index:2}
 
-/* ─── 2. PROJECT CARDS — hover-to-play, thumbnail first ─── */
+/* ─── 2. PROJECT CARDS  -  hover-to-play, thumbnail first ─── */
 .fc-bg{
   position:absolute;inset:0;z-index:0;
   background:#08080f;overflow:hidden
@@ -993,7 +998,7 @@ html{scroll-behavior:smooth}
   transform:translate(-50%,-50%);
   border:0;pointer-events:none;z-index:3;opacity:1
 }
-/* thumbnails hidden — iframes show live video */
+/* thumbnails hidden  -  iframes show live video */
 .fc-thumb-img{display:none!important}
 /* hover glow & lift */
 .folder-card{
@@ -1020,7 +1025,7 @@ html{scroll-behavior:smooth}
   text-shadow:0 0 24px rgba(0,0,0,0.9)
 }
 
-/* ─── 3. FEATURED ITEMS — hover-to-play ─────────────────── */
+/* ─── 3. FEATURED ITEMS  -  hover-to-play ─────────────────── */
 .fi-bg{
   position:absolute;inset:0;z-index:0;
   background:#06060e;overflow:hidden
@@ -1056,7 +1061,7 @@ html{scroll-behavior:smooth}
 .featured-item.portrait{width:169px!important}
 .featured-item.landscape{width:533px!important}
 
-/* ─── 4. TRUE INFINITE MARQUEE — pure CSS, never stops ───── */
+/* ─── 4. TRUE INFINITE MARQUEE  -  pure CSS, never stops ───── */
 /* All tracks: transform from 0 to -50% seamlessly */
 .folders-track,
 .featured-track,
@@ -1075,9 +1080,9 @@ html{scroll-behavior:smooth}
   animation-play-state:paused!important
 }
 
-/* ─── 5. MODAL GRID — layout defined above, no overrides needed ─ */
+/* ─── 5. MODAL GRID  -  layout defined above, no overrides needed ─ */
 
-/* ─── 6. HIGHLIGHTS TITLE — bold & prominent ─────────────── */
+/* ─── 6. HIGHLIGHTS TITLE  -  bold & prominent ─────────────── */
 .featured-section .section-label{
   font-size:13px!important;letter-spacing:5px!important;
   color:rgba(255,255,255,0.4)!important
@@ -1098,7 +1103,7 @@ html{scroll-behavior:smooth}
   margin-bottom:0!important
 }
 
-/* ─── 7. TESTIMONIALS — section title + compact uniform cards */
+/* ─── 7. TESTIMONIALS  -  section title + compact uniform cards */
 .brands{padding-bottom:40px}
 /* Testimonials title row */
 .testimonials-header{
@@ -1307,7 +1312,7 @@ html{scroll-behavior:smooth}
       <span class="section-label" data-en="About" data-he="אודות">About</span>
       <h2 class="section-title" data-en="Sharbel Najem" data-he="שרבל נג'ם">Sharbel Najem</h2>
       <p data-en="A professional filmmaker and commercial content creator, focused on producing high-end video content across social media, lifestyle, tourism, and brand storytelling. With a proven track record in visually rich projects, each one built around a clear strategic objective." data-he="צלם מקצועי ויוצר תוכן שיווקי ומסחרי, מתמחה בהפקת וידאו ברמה גבוהה בתחומי הסושיאל, לייף סטייל, תיירות ותוכן מותגי. עם ניסיון מוכח בפרויקטים עשירים ויזואלית, כל אחד בנוי סביב מטרה אסטרטגית ברורה.">A professional filmmaker and commercial content creator, focused on producing high-end video content across social media, lifestyle, tourism, and brand storytelling. With a proven track record in visually rich projects, each one built around a clear strategic objective.</p>
-      <p data-en="Every project begins with a deep understanding of the brand — its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact." data-he="כל פרויקט מתחיל מהבנה מעמיקה של המותג — הזהות שלו, קהל היעד והמטרות. מכיוון קריאייטיבי ותסריט ועד לעריכה הסופית, כל פרט מעוצב כדי לפגוע בקהל הנכון ולייצר אימפקט מדיד.">Every project begins with a deep understanding of the brand — its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact.</p>
+      <p data-en="Every project begins with a deep understanding of the brand  -  its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact." data-he="כל פרויקט מתחיל מהבנה מעמיקה של המותג  -  הזהות שלו, קהל היעד והמטרות. מכיוון קריאייטיבי ותסריט ועד לעריכה הסופית, כל פרט מעוצב כדי לפגוע בקהל הנכון ולייצר אימפקט מדיד.">Every project begins with a deep understanding of the brand  -  its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact.</p>
       <div class="about-links">
         <a href="mailto:sharbelnajem9@gmail.com" class="about-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>sharbelnajem9@gmail.com</a>
         <a href="https://www.instagram.com/sharbel.najem" class="about-link" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram <span class="follower-count" id="igCount"></span></a>
@@ -1328,7 +1333,7 @@ html{scroll-behavior:smooth}
   <div class="services-grid">
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><h3 data-en="Travel & Hotel Content" data-he="תוכן תיירות ומלונאות">Travel & Hotel Content</h3><p data-en="Visuals that capture the atmosphere and turn viewers into guests." data-he="ויזואלים שלוכדים את האווירה והופכים צופים לאורחים.">Visuals that capture the atmosphere and turn viewers into guests.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><h3 data-en="Social Media Content" data-he="תוכן לרשתות חברתיות">Social Media Content</h3><p data-en="Scroll-stopping content designed to grow engagement and reach." data-he="תוכן שעוצר גלילה, בנוי להגדיל מעורבות וחשיפה.">Scroll-stopping content designed to grow engagement and reach.</p></div>
-    <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><h3 data-en="Video Production" data-he="הפקת וידאו">Video Production</h3><p data-en="From short-form reels to full cinematic productions — storytelling at every scale." data-he="מרילסים קצרים ועד הפקות קולנועיות מלאות — סיפור בכל קנה מידה.">From short-form reels to full cinematic productions — storytelling at every scale.</p></div>
+    <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><h3 data-en="Video Production" data-he="הפקת וידאו">Video Production</h3><p data-en="From short-form reels to full cinematic productions  -  storytelling at every scale." data-he="מרילסים קצרים ועד הפקות קולנועיות מלאות  -  סיפור בכל קנה מידה.">From short-form reels to full cinematic productions  -  storytelling at every scale.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></div><h3 data-en="Branded Collaborations" data-he="שיתופי פעולה">Branded Collaborations</h3><p data-en="Authentic partnerships that feel natural and resonate with your audience." data-he="שותפויות אותנטיות שנראות טבעיות ומהדהדות עם הקהל שלך.">Authentic partnerships that feel natural and resonate with your audience.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 data-en="Deep Profiling & Marketing Strategy" data-he="אפיון מעמיק ואסטרטגיות שיווקיות">Deep Profiling & Marketing Strategy</h3><p data-en="In-depth brand analysis and tailored strategy to reach the right audience with precision." data-he="ניתוח מותג מעמיק ואסטרטגיה מותאמת אישית לפגיעה מדויקת בקהל היעד.">In-depth brand analysis and tailored strategy to reach the right audience with precision.</p></div>
   </div>
@@ -1383,7 +1388,7 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Travel Short" data-he="טריבל שורט">Travel Short</h4>
+        <h4 data-en="Travel Short" data-he="טראבל שורט">Travel Short</h4>
       </div>
     </div>
     <div class="folder-card" onclick="openProject('technology')" data-key="technology" data-vids="1181259173">
@@ -1471,7 +1476,7 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Travel Short" data-he="טריבל שורט">Travel Short</h4>
+        <h4 data-en="Travel Short" data-he="טראבל שורט">Travel Short</h4>
       </div>
     </div>
     <div class="folder-card" onclick="openProject('technology')" data-key="technology" data-vids="1181259173">
@@ -1788,7 +1793,7 @@ async function fetchFollowers(){
     // that scrapes or uses official APIs to return counts
     // igEl.textContent = '• ' + data.instagram;
     // tkEl.textContent = '• ' + data.tiktok;
-  }catch(e){console.log('Follower fetch not configured yet')}
+  }catch(e){}
 }
 fetchFollowers();
 
@@ -1891,7 +1896,7 @@ function makePvPlay() {
 }
 
 // ── Build one section (label + count + grid) ──
-// Iframes load immediately — modal is focused content, no lazy-load needed
+// Iframes load immediately  -  modal is focused content, no lazy-load needed
 function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
   if (!videos.length) return null;
 
@@ -1927,7 +1932,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     shimmer.className = 'pv-shimmer';
     div.appendChild(shimmer);
 
-    // Iframe — staggered delay so browser doesn't spike on open
+    // Iframe  -  staggered delay so browser doesn't spike on open
     const iframe = buildVimeoIframe(id);
     iframe.addEventListener('load', () => div.classList.add('pv-loaded'));
     // Small stagger so not all iframes fire simultaneously
@@ -2071,7 +2076,7 @@ window.addEventListener('scroll', () => {
 // ================================================================
 // BACKGROUND VIDEO LAZY LOADER (projects + featured)
 // ================================================================
-// bgVidObs removed — replaced by unified vidPreviewObs below
+// bgVidObs removed  -  replaced by unified vidPreviewObs below
 
 // ================================================================
 // FEATURED SECTION SCROLL ARROWS
@@ -2095,7 +2100,7 @@ function scrollFeatured(dir) {
 }
 
 // ================================================================
-// OPEN PROJECT – autoplay first video
+// OPEN PROJECT  -  autoplay first video
 // ================================================================
 const _origOpenProject = openProject;
 // Override to add autoplay on first video
@@ -2287,7 +2292,7 @@ toggleLang = function(){
 };
 
 // ================================================================
-// ADDITIONAL SCROLL ANIMATIONS — observe more elements
+// ADDITIONAL SCROLL ANIMATIONS  -  observe more elements
 // ================================================================
 (function addMoreAnimations(){
   const css = `
@@ -2337,7 +2342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ================================================================
-// PHASE 3  — Live video previews (direct injection, same as modal)
+// PHASE 3   -  Live video previews (direct injection, same as modal)
 // ================================================================
 (function() {
   var P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&controls=0';
@@ -2347,27 +2352,40 @@ document.addEventListener('DOMContentLoaded', () => {
     bg.dataset.vi = '1';
     var vid = bg.dataset.vid;
     if (!vid) return;
+    var vids = (bg.dataset.vids || vid).split(',').filter(Boolean);
+    var cur = 0;
     setTimeout(function() {
       var fr = document.createElement('iframe');
       fr.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
       fr.setAttribute('allowfullscreen', '');
       fr.setAttribute('frameborder', '0');
       fr.style.cssText = 'position:absolute;top:50%;left:50%;width:120%;height:120%;transform:translate(-50%,-50%);border:0;pointer-events:none;z-index:2;opacity:1';
-      fr.src = 'https://player.vimeo.com/video/' + vid + P;
+      fr.src = 'https://player.vimeo.com/video/' + vids[0] + P;
       bg.appendChild(fr);
+      if (vids.length > 1) {
+        setInterval(function() {
+          var next;
+          do { next = Math.floor(Math.random() * vids.length); } while (next === cur);
+          cur = next;
+          var f = bg.querySelector('iframe');
+          if (f) f.src = 'https://player.vimeo.com/video/' + vids[cur] + P;
+        }, 10000);
+      }
     }, delay);
   }
 
   function runPhase3() {
-    // Project cards — staggered 150ms apart
-    document.querySelectorAll('.fc-bg[data-vid]').forEach(function(bg, i) {
-      injectBg(bg, i * 150);
+    var mobile = window.innerWidth < 768;
+    // Project cards  -  staggered, fewer on mobile
+    var fcBgs = Array.from(document.querySelectorAll('.fc-bg[data-vid]'));
+    fcBgs.forEach(function(bg, i) {
+      injectBg(bg, i * (mobile ? 300 : 150));
     });
-
-    // Featured items — only first 24 (track is doubled for infinite loop)
-    var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]')).slice(0, 24);
+    // Featured items  -  only first 24 (track is doubled); fewer on mobile
+    var limit = mobile ? 8 : 24;
+    var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]')).slice(0, limit);
     fiBgs.forEach(function(bg, i) {
-      injectBg(bg, i * 100);
+      injectBg(bg, i * (mobile ? 200 : 100));
     });
   }
 
