@@ -120,7 +120,7 @@ section{padding:64px 60px}
 .folders-track{display:flex;gap:20px;animation:foldersScroll 65s linear infinite;width:max-content;padding:8px 0}
 .folders-carousel:hover .folders-track{animation-play-state:paused}
 @keyframes foldersScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.folder-card{min-width:320px;max-width:340px;border-radius:var(--radius);overflow:hidden;background:var(--card);border:1px solid var(--card-border);flex-shrink:0;cursor:pointer;transition:transform 0.4s,box-shadow 0.4s}
+.folder-card{min-width:340px;max-width:360px;border-radius:var(--radius);overflow:hidden;background:var(--card);border:1px solid var(--card-border);flex-shrink:0;cursor:pointer;transition:transform 0.4s,box-shadow 0.4s}
 .folder-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.4)}
 .folder-thumb{width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#141418,#1c1c28);display:flex;align-items:center;justify-content:center;color:var(--white-15);font-size:11px;letter-spacing:2px;text-transform:uppercase;position:relative}
 .folder-thumb::after{content:'▶';position:absolute;font-size:28px;color:var(--white-15)}
@@ -623,7 +623,7 @@ html{scroll-behavior:smooth}
 .folder-info p{display:none!important}
 .folder-info{padding:12px 16px 14px!important}
 .folder-info h4{
-  font-size:15px!important;font-weight:700!important;
+  font-size:14px!important;font-weight:700!important;
   margin:0!important;letter-spacing:-0.2px;
   line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
 }
@@ -642,15 +642,16 @@ html{scroll-behavior:smooth}
 .folder-thumb-img{display:none!important}
 .fc-overlay{z-index:2;position:absolute;inset:0}
 .folder-card{transition:transform 0.4s ease,box-shadow 0.4s ease!important}
-.folder-card.portrait{min-width:112px!important;max-width:120px!important}
+.folder-card.portrait{min-width:155px!important;max-width:170px!important}
 .folder-card.portrait .folder-thumb{aspect-ratio:9/16!important}
-.folder-card.portrait .folder-info{padding:8px 10px 10px!important}
+.folder-card.portrait .folder-info{padding:10px 14px 12px!important}
 .folder-card.portrait .folder-info h4{
-  font-size:11px!important;font-weight:600!important;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  letter-spacing:0px;line-height:1.2
+  font-size:12px!important;font-weight:600!important;
+  white-space:normal;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  letter-spacing:-0.1px;line-height:1.3
 }
-.folder-card.portrait .fc-play-btn{width:36px!important;height:36px!important}
+.folder-card.portrait .fc-play-btn{width:42px!important;height:42px!important;font-size:16px!important}
 .folder-card:hover{transform:translateY(-5px)!important;box-shadow:0 20px 56px rgba(0,0,0,0.5)!important}
 
 /* 16. Modal layout  -  handled by definitive CSS above */
@@ -932,7 +933,7 @@ html{scroll-behavior:smooth}
   .service-card{flex:1 1 calc(50% - 12px)!important;min-width:140px!important}
   .testimonial-card{min-width:300px!important;width:310px!important}
   .dream-words{gap:12px!important}
-  .folder-card{min-width:240px!important;max-width:260px!important}
+  .folder-card{min-width:260px!important;max-width:280px!important}
   .folders-track{gap:14px!important}
 }
 @media(max-width:480px){
@@ -1013,7 +1014,7 @@ html{scroll-behavior:smooth}
   box-shadow:0 24px 60px rgba(0,0,0,0.55),
     0 0 0 1px rgba(255,255,255,0.06)!important
 }
-.fc-overlay{position:absolute;inset:0;z-index:3}
+.fc-overlay{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center}
 .folder-thumb::before{
   content:'';position:absolute;bottom:0;left:0;right:0;
   height:40%;z-index:2;pointer-events:none;
@@ -1021,16 +1022,8 @@ html{scroll-behavior:smooth}
 }
 .folder-thumb{position:relative;aspect-ratio:16/10;overflow:hidden;background:#08080f}
 /* play icon on hover */
-.fc-overlay::after{
-  content:'▶';position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:30px;color:rgba(255,255,255,0);
-  transition:color 0.25s, text-shadow 0.25s;
-  text-shadow:none
-}
-.folder-card:hover .fc-overlay::after{
-  color:rgba(255,255,255,0.85);
-  text-shadow:0 0 24px rgba(0,0,0,0.9)
+.fc-overlay::after{content:none}
+.folder-card:hover .fc-overlay::after{content:none
 }
 
 /* ─── 3. FEATURED ITEMS  -  hover-to-play ─────────────────── */
