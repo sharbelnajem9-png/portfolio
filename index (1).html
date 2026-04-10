@@ -2369,9 +2369,10 @@ document.addEventListener('DOMContentLoaded', () => {
     injectBg(bg, i * 150);
   });
 
-  // Featured items — staggered 80ms apart
-  document.querySelectorAll('.fi-bg[data-vid]').forEach(function(bg, i) {
-    injectBg(bg, i * 80);
+  // Featured items — only first 24 (track is doubled for infinite loop)
+  var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]')).slice(0, 24);
+  fiBgs.forEach(function(bg, i) {
+    injectBg(bg, i * 100);
   });
 })();
 
