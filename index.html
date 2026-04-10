@@ -389,25 +389,19 @@ footer::before{
   color:rgba(255,255,255,0.2);white-space:nowrap
 }
 /* ─── Horizontal (16:9) grid ─── */
-.pm-grid-h{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-  gap:20px;width:100%
-}
+.pm-grid-h{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;width:100%}
+.pm-grid-h .pv-item{flex:1 1 320px;max-width:460px;min-width:260px;width:auto!important}
 /* ─── Vertical (9:16) grid ─── */
-.pm-grid-v{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:16px;width:100%
-}
+.pm-grid-v{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;width:100%}
+.pm-grid-v .pv-item{flex:0 0 200px;width:auto!important}
 @media(max-width:900px){
-  .pm-grid-h{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-  .pm-grid-v{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+  .pm-grid-h .pv-item{flex:1 1 260px;max-width:380px}
+  .pm-grid-v .pv-item{flex:0 0 160px}
   .pm-videos{padding:28px 24px 48px;gap:36px}
 }
 @media(max-width:600px){
-  .pm-grid-h{grid-template-columns:1fr;gap:12px}
-  .pm-grid-v{grid-template-columns:repeat(2,1fr);gap:10px}
+  .pm-grid-h .pv-item{flex:1 1 100%}
+  .pm-grid-v .pv-item{flex:0 0 calc(50% - 5px)}
   .pm-videos{padding:20px 16px 36px;gap:28px}
 }
 /* ─── Video items ─── */
@@ -648,6 +642,8 @@ html{scroll-behavior:smooth}
 .folder-thumb-img{display:none!important}
 .fc-overlay{z-index:2;position:absolute;inset:0}
 .folder-card{transition:transform 0.4s ease,box-shadow 0.4s ease!important}
+.folder-card.portrait{min-width:175px!important;max-width:200px!important}
+.folder-card.portrait .folder-thumb{aspect-ratio:9/16!important}
 .folder-card:hover{transform:translateY(-5px)!important;box-shadow:0 20px 56px rgba(0,0,0,0.5)!important}
 
 /* 16. Modal layout  -  handled by definitive CSS above */
@@ -1266,7 +1262,7 @@ html{scroll-behavior:smooth}
   <ul class="nav-links">
     <li><a href="#projects" data-en="Projects" data-he="פרויקטים">Projects</a></li>
     <li><a href="#about" data-en="About" data-he="אודות">About</a></li>
-    <li><a href="#contact" data-en="Contact" data-he="צור קשר">Contact</a></li>
+    <li><a href="#contact" data-en="Contact" data-he="צרו קשר">Contact</a></li>
   </ul>
   <div class="nav-right">
     <button class="nav-a11y-btn" onclick="document.getElementById('userwayAccessibilityIcon')?.click()" aria-label="Accessibility"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
@@ -1284,7 +1280,7 @@ html{scroll-behavior:smooth}
   <button class="mobile-nav-close" onclick="closeMobileNav()">&times;</button>
   <a href="#projects" onclick="closeMobileNav()" data-en="Projects" data-he="פרויקטים">Projects</a>
   <a href="#about" onclick="closeMobileNav()" data-en="About" data-he="אודות">About</a>
-  <a href="#contact" onclick="closeMobileNav()" data-en="Contact" data-he="צור קשר">Contact</a>
+  <a href="#contact" onclick="closeMobileNav()" data-en="Contact" data-he="צרו קשר">Contact</a>
 </div>
 
 <!-- HERO -->
@@ -1299,7 +1295,7 @@ html{scroll-behavior:smooth}
   <div class="hero-content">
     <div class="hero-avatar"><img src="avatar.jpg" alt="Sharbel Najem" style="object-position:center 6%;"></div>
     <h1 class="hero-name">Sharbel Najem</h1>
-    <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן - מייצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
+    <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
   </div>
   <div class="hero-scroll"><span data-en="Scroll" data-he="גלול">Scroll</span><div class="scroll-line"></div></div>
 </section>
@@ -1312,7 +1308,7 @@ html{scroll-behavior:smooth}
       <span class="section-label" data-en="About" data-he="אודות">About</span>
       <h2 class="section-title" data-en="Sharbel Najem" data-he="שרבל נג'ם">Sharbel Najem</h2>
       <p data-en="A professional filmmaker and commercial content creator, focused on producing high-end video content across social media, lifestyle, tourism, and brand storytelling. With a proven track record in visually rich projects, each one built around a clear strategic objective." data-he="צלם מקצועי ויוצר תוכן שיווקי ומסחרי, מתמחה בהפקת וידאו ברמה גבוהה בתחומי הסושיאל, לייף סטייל, תיירות ותוכן מותגי. עם ניסיון מוכח בפרויקטים עשירים ויזואלית, כל אחד בנוי סביב מטרה אסטרטגית ברורה.">A professional filmmaker and commercial content creator, focused on producing high-end video content across social media, lifestyle, tourism, and brand storytelling. With a proven track record in visually rich projects, each one built around a clear strategic objective.</p>
-      <p data-en="Every project begins with a deep understanding of the brand  -  its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact." data-he="כל פרויקט מתחיל מהבנה מעמיקה של המותג  -  הזהות שלו, קהל היעד והמטרות. מכיוון קריאייטיבי ותסריט ועד לעריכה הסופית, כל פרט מעוצב כדי לפגוע בקהל הנכון ולייצר אימפקט מדיד.">Every project begins with a deep understanding of the brand  -  its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact.</p>
+      <p data-en="Every project begins with a deep understanding of the brand  -  its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact." data-he="כל פרויקט מתחיל מהבנה מעמיקה של המותג  -  הזהות שלו, קהל היעד והמטרות. מכיוון קריאייטיבי ותסריט ועד לעריכה הסופית, כל פרט מעוצב כדי להגיע לקהל הנכון ולייצר אימפקט מדיד.">Every project begins with a deep understanding of the brand  -  its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact.</p>
       <div class="about-links">
         <a href="mailto:sharbelnajem9@gmail.com" class="about-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>sharbelnajem9@gmail.com</a>
         <a href="https://www.instagram.com/sharbel.najem" class="about-link" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram <span class="follower-count" id="igCount"></span></a>
@@ -1328,14 +1324,14 @@ html{scroll-behavior:smooth}
   <div class="services-header fade-in">
     <span class="section-label" data-en="What I Do" data-he="מה אני עושה">What I Do</span>
     <h2 class="section-title" data-en="Services" data-he="השירותים שלי">Services</h2>
-    <p class="section-subtitle" data-en="End-to-end visual solutions built around your brand's voice and goals." data-he="פתרונות ויזואליים מקצה לקצה, בנויים סביב הקול והמטרות של המותג שלך.">End-to-end visual solutions built around your brand's voice and goals.</p>
+    <p class="section-subtitle" data-en="End-to-end visual solutions built around your brand's voice and goals." data-he="פתרונות שיווק וויזואליות מקצה לקצה, הבנויים סביב הקול והמטרות של המותג שלך.">End-to-end visual solutions built around your brand's voice and goals.</p>
   </div>
   <div class="services-grid">
-    <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><h3 data-en="Travel & Hotel Content" data-he="תוכן תיירות ומלונאות">Travel & Hotel Content</h3><p data-en="Visuals that capture the atmosphere and turn viewers into guests." data-he="ויזואלים שלוכדים את האווירה והופכים צופים לאורחים.">Visuals that capture the atmosphere and turn viewers into guests.</p></div>
+    <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><h3 data-en="Travel Content" data-he="תוכן תיירות">Travel Content</h3><p data-en="Visuals that capture the atmosphere and turn viewers into guests." data-he="סרטונים שלוכדים את האווירה והופכים צופים לאורחים.">Visuals that capture the atmosphere and turn viewers into guests.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><h3 data-en="Social Media Content" data-he="תוכן לרשתות חברתיות">Social Media Content</h3><p data-en="Scroll-stopping content designed to grow engagement and reach." data-he="תוכן שעוצר גלילה, בנוי להגדיל מעורבות וחשיפה.">Scroll-stopping content designed to grow engagement and reach.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><h3 data-en="Video Production" data-he="הפקת וידאו">Video Production</h3><p data-en="From short-form reels to full cinematic productions  -  storytelling at every scale." data-he="מרילסים קצרים ועד הפקות קולנועיות מלאות  -  סיפור בכל קנה מידה.">From short-form reels to full cinematic productions  -  storytelling at every scale.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></div><h3 data-en="Branded Collaborations" data-he="שיתופי פעולה">Branded Collaborations</h3><p data-en="Authentic partnerships that feel natural and resonate with your audience." data-he="שותפויות אותנטיות שנראות טבעיות ומהדהדות עם הקהל שלך.">Authentic partnerships that feel natural and resonate with your audience.</p></div>
-    <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 data-en="Deep Profiling & Marketing Strategy" data-he="אפיון מעמיק ואסטרטגיות שיווקיות">Deep Profiling & Marketing Strategy</h3><p data-en="In-depth brand analysis and tailored strategy to reach the right audience with precision." data-he="ניתוח מותג מעמיק ואסטרטגיה מותאמת אישית לפגיעה מדויקת בקהל היעד.">In-depth brand analysis and tailored strategy to reach the right audience with precision.</p></div>
+    <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 data-en="Deep Profiling & Marketing Strategy" data-he="אפיון מעמיק ואסטרטגיות שיווקיות">Deep Profiling & Marketing Strategy</h3><p data-en="In-depth brand analysis and tailored strategy to reach the right audience with precision." data-he="ניתוח מותג מעמיק ואסטרטגיה מותאמת אישית לתפיסת קהל היעד המדויק.">In-depth brand analysis and tailored strategy to reach the right audience with precision.</p></div>
   </div>
 </section>
 
@@ -1347,7 +1343,7 @@ html{scroll-behavior:smooth}
   </div>
   <div class="folders-carousel">
     <div class="folders-track" id="foldersTrack">
-    <div class="folder-card" onclick="openProject('podcast-short')" data-key="podcast-short" data-vids="1181247341,1181246622,1181245910,1181245016,1181244361,1181243866,1181242850,1181241565,1181240736,1181239956,1181238978,1181238149,1181237397">
+    <div class="folder-card portrait" onclick="openProject('podcast-short')" data-key="podcast-short" data-vids="1181247341,1181246622,1181245910,1181245016,1181244361,1181243866,1181242850,1181241565,1181240736,1181239956,1181238978,1181238149,1181237397">
       <div class="folder-thumb">
         <div class="fc-bg" data-vid="1181247341" data-vids="1181247341,1181246622,1181245910,1181245016,1181244361,1181243866,1181242850,1181241565,1181240736,1181239956,1181238978,1181238149,1181237397">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181247341.jpg" alt="Podcast Short" loading="lazy" draggable="false">
@@ -1355,10 +1351,10 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Podcast Short" data-he="פודקאסט קצר">Podcast Short</h4>
+        <h4 data-en="Podcast Short" data-he="פודקאסט">Podcast Short</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('real-estate')" data-key="real-estate" data-vids="1181258640,1181258284,1181257746,1181257117,1181256366,1181255416,1181253289,1181251726,1181249987,1181251383,1181249674,1181248011">
+    <div class="folder-card portrait" onclick="openProject('real-estate')" data-key="real-estate" data-vids="1181258640,1181258284,1181257746,1181257117,1181256366,1181255416,1181253289,1181251726,1181249987,1181251383,1181249674,1181248011">
       <div class="folder-thumb">
         <div class="fc-bg" data-vid="1181258640" data-vids="1181258640,1181258284,1181257746,1181257117,1181256366,1181255416,1181253289,1181251726,1181249987,1181251383,1181249674,1181248011">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181258640.jpg" alt="Real Estate & Interior Design" loading="lazy" draggable="false">
@@ -1377,7 +1373,7 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Hotels" data-he="מלונות">Hotels</h4>
+        <h4 data-en="Hotels" data-he="מלונות ומקומות אירוח">Hotels</h4>
       </div>
     </div>
     <div class="folder-card" onclick="openProject('travel-short')" data-key="travel-short" data-vids="1181283204,1181282280,1181282252,1181279455,1181278824,1181278497,1181278067,1181277743,1181277471,1181277254">
@@ -1388,7 +1384,7 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Travel Short" data-he="טראבל שורט">Travel Short</h4>
+        <h4 data-en="Travel Short" data-he="סרטוני טיולים">Travel Short</h4>
       </div>
     </div>
     <div class="folder-card" onclick="openProject('technology')" data-key="technology" data-vids="1181259173">
@@ -1413,7 +1409,7 @@ html{scroll-behavior:smooth}
         <h4 data-en="Tourism & Companies" data-he="תיירות וחברות">Tourism & Companies</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('kristian-najem')" data-key="kristian-najem" data-vids="1181214416,1181216090,1181212370,1181211716,1181209657,1181206645,1181205157,1181183766,1181182439">
+    <div class="folder-card portrait" onclick="openProject('kristian-najem')" data-key="kristian-najem" data-vids="1181214416,1181216090,1181212370,1181211716,1181209657,1181206645,1181205157,1181183766,1181182439">
       <div class="folder-thumb">
         <div class="fc-bg" data-vid="1181214416" data-vids="1181214416,1181216090,1181212370,1181211716,1181209657,1181206645,1181205157,1181183766,1181182439">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181214416.jpg" alt="Kristian Najem" loading="lazy" draggable="false">
@@ -1421,10 +1417,10 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Kristian Najem" data-he="כריסטיאן נאג&#39;ם">Kristian Najem</h4>
+        <h4 data-en="Kristian Najem" data-he="כריסטיאן נג&#39;ם">Kristian Najem</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('naadned')" data-key="naadned" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
+    <div class="folder-card portrait" onclick="openProject('naadned')" data-key="naadned" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
       <div class="folder-thumb">
         <div class="fc-bg" data-vid="1181236213" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181236213.jpg" alt="Naadned" loading="lazy" draggable="false">
@@ -1432,10 +1428,10 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Naadned" data-he="נאדנד">Naadned</h4>
+        <h4 data-en="Naadned" data-he="נע עד נד">Naadned</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('podcast-short')" data-key="podcast-short" data-vids="1181247341,1181246622,1181245910,1181245016,1181244361,1181243866,1181242850,1181241565,1181240736,1181239956,1181238978,1181238149,1181237397">
+    <div class="folder-card portrait" onclick="openProject('podcast-short')" data-key="podcast-short" data-vids="1181247341,1181246622,1181245910,1181245016,1181244361,1181243866,1181242850,1181241565,1181240736,1181239956,1181238978,1181238149,1181237397">
       <div class="folder-thumb">
         <div class="fc-bg" data-vid="1181247341" data-vids="1181247341,1181246622,1181245910,1181245016,1181244361,1181243866,1181242850,1181241565,1181240736,1181239956,1181238978,1181238149,1181237397">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181247341.jpg" alt="Podcast Short" loading="lazy" draggable="false">
@@ -1443,10 +1439,10 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Podcast Short" data-he="פודקאסט קצר">Podcast Short</h4>
+        <h4 data-en="Podcast Short" data-he="פודקאסט">Podcast Short</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('real-estate')" data-key="real-estate" data-vids="1181258640,1181258284,1181257746,1181257117,1181256366,1181255416,1181253289,1181251726,1181249987,1181251383,1181249674,1181248011">
+    <div class="folder-card portrait" onclick="openProject('real-estate')" data-key="real-estate" data-vids="1181258640,1181258284,1181257746,1181257117,1181256366,1181255416,1181253289,1181251726,1181249987,1181251383,1181249674,1181248011">
       <div class="folder-thumb">
         <div class="fc-bg" data-vid="1181258640" data-vids="1181258640,1181258284,1181257746,1181257117,1181256366,1181255416,1181253289,1181251726,1181249987,1181251383,1181249674,1181248011">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181258640.jpg" alt="Real Estate & Interior Design" loading="lazy" draggable="false">
@@ -1465,7 +1461,7 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Hotels" data-he="מלונות">Hotels</h4>
+        <h4 data-en="Hotels" data-he="מלונות ומקומות אירוח">Hotels</h4>
       </div>
     </div>
     <div class="folder-card" onclick="openProject('travel-short')" data-key="travel-short" data-vids="1181283204,1181282280,1181282252,1181279455,1181278824,1181278497,1181278067,1181277743,1181277471,1181277254">
@@ -1476,7 +1472,7 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Travel Short" data-he="טראבל שורט">Travel Short</h4>
+        <h4 data-en="Travel Short" data-he="סרטוני טיולים">Travel Short</h4>
       </div>
     </div>
     <div class="folder-card" onclick="openProject('technology')" data-key="technology" data-vids="1181259173">
@@ -1501,7 +1497,7 @@ html{scroll-behavior:smooth}
         <h4 data-en="Tourism & Companies" data-he="תיירות וחברות">Tourism & Companies</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('kristian-najem')" data-key="kristian-najem" data-vids="1181214416,1181216090,1181212370,1181211716,1181209657,1181206645,1181205157,1181183766,1181182439">
+    <div class="folder-card portrait" onclick="openProject('kristian-najem')" data-key="kristian-najem" data-vids="1181214416,1181216090,1181212370,1181211716,1181209657,1181206645,1181205157,1181183766,1181182439">
       <div class="folder-thumb">
         <div class="fc-bg" data-vid="1181214416" data-vids="1181214416,1181216090,1181212370,1181211716,1181209657,1181206645,1181205157,1181183766,1181182439">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181214416.jpg" alt="Kristian Najem" loading="lazy" draggable="false">
@@ -1509,10 +1505,10 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Kristian Najem" data-he="כריסטיאן נאג&#39;ם">Kristian Najem</h4>
+        <h4 data-en="Kristian Najem" data-he="כריסטיאן נג&#39;ם">Kristian Najem</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('naadned')" data-key="naadned" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
+    <div class="folder-card portrait" onclick="openProject('naadned')" data-key="naadned" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
       <div class="folder-thumb">
         <div class="fc-bg" data-vid="1181236213" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181236213.jpg" alt="Naadned" loading="lazy" draggable="false">
@@ -1520,7 +1516,7 @@ html{scroll-behavior:smooth}
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Naadned" data-he="נאדנד">Naadned</h4>
+        <h4 data-en="Naadned" data-he="נע עד נד">Naadned</h4>
       </div>
     </div>
     </div>
@@ -1711,7 +1707,7 @@ html{scroll-behavior:smooth}
     <h2 class="contact-big-text" data-en="Ready to bring your vision to life? Let's create content that <em>makes an impact</em>." data-he="מוכנים להפוך את החזון למציאות? בואו ניצור תוכן ש<em>עושה אימפקט</em>.">Ready to bring your vision to life? Let's create content that <em>makes an impact</em>.</h2>
     <a href="mailto:sharbelnajem9@gmail.com?subject=Lead from Portfolio Website" class="contact-btn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      <span data-en="Contact Me" data-he="צור קשר">Contact Me</span>
+      <span data-en="Contact Me" data-he="צרו קשר">Contact Me</span>
     </a>
   </div>
 </section>
