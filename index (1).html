@@ -1294,11 +1294,87 @@ html{scroll-behavior:smooth}
              0 0 0 1px rgba(255,255,255,0.1),
              0 0 24px rgba(255,255,255,0.04)!important
 }
+
+/* ══ SCROLL PROGRESS BAR ══ */
+#scroll-progress{
+  position:fixed;top:0;left:0;height:2px;width:0%;
+  background:linear-gradient(90deg,rgba(255,255,255,0.9),rgba(255,255,255,0.4));
+  z-index:9999;transition:width 0.1s linear;
+  box-shadow:0 0 8px rgba(255,255,255,0.5)
+}
+
+/* ══ CUSTOM CURSOR ══ */
+body{cursor:none}
+#cursor-dot{
+  position:fixed;width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,0.95);
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform 0.08s ease,opacity 0.2s ease,width 0.2s ease,height 0.2s ease;
+  mix-blend-mode:difference
+}
+#cursor-ring{
+  position:fixed;width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.45);
+  pointer-events:none;z-index:9997;
+  transform:translate(-50%,-50%);
+  transition:transform 0.18s ease,width 0.2s ease,height 0.2s ease,opacity 0.2s ease;
+}
+body:has(a:hover) #cursor-dot,
+body:has(button:hover) #cursor-dot,
+body:has([onclick]:hover) #cursor-dot{width:12px;height:12px}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring,
+body:has([onclick]:hover) #cursor-ring{width:52px;height:52px;border-color:rgba(255,255,255,0.7)}
+@media(pointer:coarse){#cursor-dot,#cursor-ring{display:none}body{cursor:auto}}
+
+/* ══ STATS SECTION ══ */
+.stats-section{
+  display:flex;justify-content:center;gap:0;
+  padding:80px 40px;background:transparent
+}
+.stat-item{
+  text-align:center;padding:0 48px;
+  border-right:1px solid rgba(255,255,255,0.07);
+  flex:1;max-width:220px
+}
+.stat-item:last-child{border-right:none}
+.stat-number{
+  font-family:var(--font-display);
+  font-size:clamp(42px,6vw,72px);
+  font-weight:700;letter-spacing:-2px;
+  color:#fff;line-height:1;
+  background:linear-gradient(135deg,#fff 60%,rgba(255,255,255,0.5));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text
+}
+.stat-label{
+  font-size:12px;letter-spacing:2.5px;text-transform:uppercase;
+  color:rgba(255,255,255,0.4);margin-top:10px;font-weight:400
+}
+.stat-item.visible .stat-number{animation:countUp 1.4s cubic-bezier(0.2,0,0.2,1) forwards}
+@keyframes countUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ══ HERO NAME REVEAL ══ */
+.hero-name .char{
+  display:inline-block;
+  opacity:0;transform:translateY(30px) rotateX(-40deg);
+  animation:charIn 0.6s cubic-bezier(0.2,0,0,1) forwards
+}
+@keyframes charIn{
+  to{opacity:1;transform:translateY(0) rotateX(0)}
+}
+
+/* ══ ACTIVE NAV LINK ══ */
+.nav-links a.active{color:rgba(255,255,255,1)!important}
+.nav-links a.active::after{width:100%!important}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
 <body>
 <div class="scroll-progress" id="scrollProgress"></div>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
 
 <nav class="navbar" id="navbar">
   <a href="#" class="nav-logo"><img src="logo.png" alt="SN" id="navLogo"></a>
@@ -1375,6 +1451,26 @@ html{scroll-behavior:smooth}
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><h3 data-en="Video Production" data-he="הפקת וידאו">Video Production</h3><p data-en="From short-form reels to full cinematic productions  -  storytelling at every scale." data-he="מרילסים קצרים ועד הפקות קולנועיות מלאות  -  סיפור בכל קנה מידה.">From short-form reels to full cinematic productions  -  storytelling at every scale.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></div><h3 data-en="Branded Collaborations" data-he="שיתופי פעולה">Branded Collaborations</h3><p data-en="Authentic partnerships that feel natural and resonate with your audience." data-he="שותפויות אותנטיות שנראות טבעיות ומהדהדות עם הקהל שלך.">Authentic partnerships that feel natural and resonate with your audience.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 data-en="Marketing Strategy" data-he="אסטרטגיית שיווק">Marketing Strategy</h3><p data-en="In-depth brand analysis and tailored strategy to reach your target audience with precision." data-he="ניתוח מותג מעמיק ואסטרטגיה מותאמת אישית לתפיסת קהל היעד המדויק.">In-depth brand analysis and tailored strategy to reach the right audience with precision.</p></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section fade-in" aria-label="Stats">
+  <div class="stat-item">
+    <div class="stat-number" data-target="200" data-suffix="+">200+</div>
+    <div class="stat-label" data-en="Videos Produced" data-he="סרטונים שהופקו">Videos Produced</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" data-target="50" data-suffix="+">50+</div>
+    <div class="stat-label" data-en="Brands Worked With" data-he="מותגים שעבדתי איתם">Brands Worked With</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" data-target="8" data-suffix="+">8+</div>
+    <div class="stat-label" data-en="Years of Experience" data-he="שנות ניסיון">Years of Experience</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" data-target="5" data-suffix="M+">5M+</div>
+    <div class="stat-label" data-en="Total Views" data-he="צפיות כוללות">Total Views</div>
   </div>
 </section>
 
@@ -2603,5 +2699,92 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
     <div id="vlb-video" class="vlb-video"></div>
   </div>
 </div>
+<script>
+// ── Scroll progress bar ──────────────────────────────────────────────────────
+(function(){
+  var bar = document.getElementById('scroll-progress');
+  if(!bar) return;
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement;
+    var pct = (h.scrollTop || document.body.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    bar.style.width = pct + '%';
+  }, {passive:true});
+})();
+
+// ── Custom cursor ─────────────────────────────────────────────────────────────
+(function(){
+  var dot  = document.getElementById('cursor-dot');
+  var ring = document.getElementById('cursor-ring');
+  if(!dot || !ring) return;
+  var rx=0,ry=0,mx=0,my=0;
+  document.addEventListener('mousemove',function(e){
+    mx=e.clientX; my=e.clientY;
+    dot.style.left=mx+'px'; dot.style.top=my+'px';
+  },{passive:true});
+  function animRing(){
+    rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.addEventListener('mouseleave',function(){dot.style.opacity='0';ring.style.opacity='0';});
+  document.addEventListener('mouseenter',function(){dot.style.opacity='1';ring.style.opacity='1';});
+})();
+
+// ── Animated stats counter ────────────────────────────────────────────────────
+(function(){
+  function animCount(el){
+    var target = parseInt(el.dataset.target)||0;
+    var suffix = el.dataset.suffix||'';
+    var dur = 1400, start = performance.now();
+    function step(now){
+      var t = Math.min((now-start)/dur,1);
+      var ease = 1-Math.pow(1-t,3);
+      el.textContent = Math.round(ease*target)+suffix;
+      if(t<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var el = e.target;
+        el.closest('.stat-item').classList.add('visible');
+        animCount(el);
+        obs.unobserve(el);
+      }
+    });
+  },{threshold:0.5});
+  document.querySelectorAll('.stat-number[data-target]').forEach(function(el){obs.observe(el);});
+})();
+
+// ── Active nav link on scroll ─────────────────────────────────────────────────
+(function(){
+  var sections = document.querySelectorAll('section[id]');
+  var links = document.querySelectorAll('.nav-links a[href^="#"]');
+  if(!links.length) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){l.classList.remove('active');});
+        var a = document.querySelector('.nav-links a[href="#'+e.target.id+'"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  },{rootMargin:'-40% 0px -55% 0px'});
+  sections.forEach(function(s){obs.observe(s);});
+})();
+
+// ── Hero name char reveal ─────────────────────────────────────────────────────
+(function(){
+  var nameEl = document.querySelector('.hero-name');
+  if(!nameEl || nameEl.dataset.charSplit) return;
+  nameEl.dataset.charSplit='1';
+  var text = nameEl.textContent;
+  nameEl.innerHTML = text.split('').map(function(c,i){
+    return '<span class="char" style="animation-delay:'+(i*0.04)+'s">'+(c===' '?'&nbsp;':c)+'</span>';
+  }).join('');
+})();
+</script>
 </body>
 </html>
