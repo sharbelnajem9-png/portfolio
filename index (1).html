@@ -993,9 +993,8 @@ html{scroll-behavior:smooth}
   transform:translate(-50%,-50%);
   border:0;pointer-events:none;z-index:2;opacity:1
 }
-/* thumbnail stays on top until faded by JS */
-.fc-thumb-img{z-index:3!important;transition:opacity 1.2s ease!important}
-.fc-bg.fc-ready .fc-thumb-img{opacity:0!important}
+/* thumbnails hidden — live video always shows */
+.fc-thumb-img{display:none!important}
 /* hover glow & lift */
 .folder-card{
   transition:transform 0.4s cubic-bezier(0.2,0,0,1),
@@ -1026,11 +1025,7 @@ html{scroll-behavior:smooth}
   position:absolute;inset:0;z-index:0;
   background:#06060e;overflow:hidden
 }
-.fi-thumb-img{
-  position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;z-index:3;
-  transition:opacity 1.2s ease
-}
+.fi-thumb-img{display:none!important}
 /* iframe always visible; thumbnail fades out via JS after delay */
 .fi-bg iframe{
   position:absolute;top:50%;left:50%;
@@ -2358,9 +2353,7 @@ document.addEventListener('DOMContentLoaded', () => {
       fr.setAttribute('frameborder', '0');
       fr.src = 'https://player.vimeo.com/video/' + vid + P;
       bg.appendChild(fr);
-      // Hide thumbnail immediately — show live video
-      var t = bg.querySelector('img');
-      if (t) t.style.cssText += ';opacity:0!important;transition:none!important';
+      // thumbnail hidden via CSS (display:none)
     }, delay);
   }
 
