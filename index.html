@@ -1079,7 +1079,10 @@ html{scroll-behavior:smooth}
   will-change:transform;
   animation-timing-function:linear!important;
   animation-iteration-count:infinite!important;
-  animation-play-state:running!important
+  animation-play-state:running!important;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  transform:translateZ(0)
 }
 /* Pause on hover */
 .folders-carousel:hover .folders-track,
@@ -1264,6 +1267,40 @@ html{scroll-behavior:smooth}
   .testimonials-header{padding:32px 20px 20px!important}
 }
 
+
+/* ── Unified hover: lift + glow on all interactive cards ── */
+.folder-card,
+.featured-item,
+.service-card,
+.testimonial-card,
+.brand-item{
+  transition:transform 0.32s cubic-bezier(0.2,0,0,1),
+             box-shadow 0.32s cubic-bezier(0.2,0,0,1)!important
+}
+.folder-card:hover{
+  transform:translateY(-7px) scale(1.015)!important;
+  box-shadow:0 24px 56px rgba(0,0,0,0.65),
+             0 0 0 1px rgba(255,255,255,0.09),
+             0 0 40px rgba(255,255,255,0.04)!important
+}
+.featured-item:hover{
+  transform:translateY(-5px) scale(1.02)!important;
+  box-shadow:0 18px 48px rgba(0,0,0,0.6),
+             0 0 0 1px rgba(255,255,255,0.08),
+             0 0 30px rgba(255,255,255,0.04)!important
+}
+.service-card:hover{
+  transform:translateY(-5px) scale(1.015)!important;
+  box-shadow:0 16px 44px rgba(0,0,0,0.55),
+             0 0 0 1px rgba(255,255,255,0.1),
+             0 0 28px rgba(255,255,255,0.05)!important
+}
+.testimonial-card:hover{
+  transform:translateY(-4px) scale(1.01)!important;
+  box-shadow:0 14px 40px rgba(0,0,0,0.5),
+             0 0 0 1px rgba(255,255,255,0.1),
+             0 0 24px rgba(255,255,255,0.04)!important
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -1411,9 +1448,9 @@ html{scroll-behavior:smooth}
         <h4 data-en="Technology" data-he="טכנולוגיה">Technology</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('tourism-companies')" data-key="tourism-companies" data-vids="1181271353,1181270619,1181269909,1181263657,1181261937">
+    <div class="folder-card" onclick="openProject('tourism-companies')" data-key="tourism-companies" data-vids="1181271353,1181269909,1181263657">
       <div class="folder-thumb">
-        <div class="fc-bg" data-vid="1181271353" data-vids="1181271353,1181270619,1181269909,1181263657,1181261937">
+        <div class="fc-bg" data-vid="1181271353" data-vids="1181271353,1181269909,1181263657">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181271353.jpg" alt="Tourism & Companies" loading="lazy" draggable="false">
         </div>
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
@@ -1499,9 +1536,9 @@ html{scroll-behavior:smooth}
         <h4 data-en="Technology" data-he="טכנולוגיה">Technology</h4>
       </div>
     </div>
-    <div class="folder-card" onclick="openProject('tourism-companies')" data-key="tourism-companies" data-vids="1181271353,1181270619,1181269909,1181263657,1181261937">
+    <div class="folder-card" onclick="openProject('tourism-companies')" data-key="tourism-companies" data-vids="1181271353,1181269909,1181263657">
       <div class="folder-thumb">
-        <div class="fc-bg" data-vid="1181271353" data-vids="1181271353,1181270619,1181269909,1181263657,1181261937">
+        <div class="fc-bg" data-vid="1181271353" data-vids="1181271353,1181269909,1181263657">
           <img class="fc-thumb-img" src="https://vumbnail.com/1181271353.jpg" alt="Tourism & Companies" loading="lazy" draggable="false">
         </div>
         <div class="fc-overlay"><div class="fc-play-btn">&#9654;</div></div>
@@ -2385,16 +2422,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function runPhase3() {
     var mobile = window.innerWidth < 768;
-    // Project cards  -  staggered, fewer on mobile
+    // Project cards — 250ms stagger desktop, 400ms mobile
     var fcBgs = Array.from(document.querySelectorAll('.fc-bg[data-vid]'));
     fcBgs.forEach(function(bg, i) {
-      injectBg(bg, i * (mobile ? 300 : 150));
+      injectBg(bg, 400 + i * (mobile ? 400 : 250));
     });
-    // Featured items  -  only first 24 (track is doubled); fewer on mobile
-    var limit = mobile ? 8 : 24;
+    // Featured items — 12 desktop / 6 mobile (track doubled so view is covered)
+    var limit = mobile ? 6 : 12;
     var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]')).slice(0, limit);
     fiBgs.forEach(function(bg, i) {
-      injectBg(bg, i * (mobile ? 200 : 100));
+      injectBg(bg, 600 + i * (mobile ? 300 : 150));
     });
   }
 
