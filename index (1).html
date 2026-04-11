@@ -771,16 +771,7 @@ html{scroll-behavior:smooth}
   overflow:hidden
 }
 .hero-vid-item.active{opacity:1}
-.hero-vid-item iframe{
-  position:absolute;top:50%;left:50%;
-  width:178%;height:178%;
-  transform:translate(-50%,-50%);
-  border:0;pointer-events:none
-}
-/* landscape ratio fallback */
-@media(min-aspect-ratio:16/9){
-  .hero-vid-item iframe{width:100%;height:100%;top:0;left:0;transform:none}
-}
+
 .hero-overlay{background:linear-gradient(to bottom,
   rgba(8,8,8,0.35) 0%,
   rgba(8,8,8,0.1) 45%,
@@ -950,17 +941,22 @@ html{scroll-behavior:smooth}
   pointer-events:none;overflow:hidden
 }
 .hero-vid-item.active{opacity:1}
-/* Scale iframe to cover regardless of aspect ratio */
+/* Scale iframe to cover — centered crop, no zoom artifact */
 .hero-vid-item iframe{
   position:absolute;
   top:50%;left:50%;
-  /* 9:16 portrait vids  -  scale up so width fills */
-  width:56.25vh;   /* = 100vh × (9/16) */
+  width:177.78vh;   /* = 100vh × (16/9) — fills width for landscape */
   height:100vh;
-  min-width:100vw;
-  min-height:177.78vw; /* = 100vw × (16/9) */
+  min-width:100%;
   transform:translate(-50%,-50%);
   border:0;pointer-events:none
+}
+@media(max-width:768px){
+  .hero-vid-item iframe{
+    width:100vw;
+    height:177.78vw; /* = 100vw × (16/9) — fills height for portrait screens */
+    min-width:unset
+  }
 }
 .hero-overlay{
   position:absolute;inset:0;z-index:1;
@@ -1382,6 +1378,26 @@ body::after{
 .folder-card:hover .fc-peek-badge{
   opacity:1;transform:translateY(0);
 }
+
+/* ── Mobile nav socials + lang ─────────────────────────────── */
+.mob-nav-socials{
+  display:flex;gap:24px;margin-top:8px;
+}
+.mob-nav-socials a{
+  color:rgba(255,255,255,0.55);
+  transition:color 0.2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.mob-nav-socials a:hover{color:#fff}
+.mob-nav-lang{
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.2);
+  color:#fff;font-size:13px;font-weight:600;
+  padding:8px 20px;border-radius:20px;
+  cursor:pointer;letter-spacing:1px;
+  transition:background 0.2s;
+}
+.mob-nav-lang:hover{background:rgba(255,255,255,0.15)}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -1422,6 +1438,12 @@ body::after{
   <a href="#testimonials" onclick="closeMobileNav()" data-en="Testimonials" data-he="המלצות">Testimonials</a>
   <a href="#about" onclick="closeMobileNav()" data-en="About" data-he="אודות">About</a>
   <a href="#contact" onclick="closeMobileNav()" data-en="Contact" data-he="צרו קשר">Contact</a>
+  <div class="mob-nav-socials">
+    <a href="https://www.instagram.com/sharbel.najem" target="_blank" aria-label="Instagram" onclick="closeMobileNav()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+    <a href="https://youtube.com/@sharbelnajem." target="_blank" aria-label="YouTube" onclick="closeMobileNav()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-2A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98"/></svg></a>
+    <a href="https://www.tiktok.com/@sharbelnajem" target="_blank" aria-label="TikTok" onclick="closeMobileNav()"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.75a8.18 8.18 0 004.76 1.52V6.84a4.86 4.86 0 01-1-.15z"/></svg></a>
+  </div>
+  <button class="mob-nav-lang" onclick="toggleLang()" id="mobLangToggle">עב</button>
 </div>
 
 <!-- HERO -->
@@ -1885,6 +1907,8 @@ body::after{
 let currentLang='en';
 function toggleLang(){
   currentLang=currentLang==='en'?'he':'en';
+  var mob=document.getElementById('mobLangToggle');
+  if(mob) mob.textContent=currentLang==='en'?'עב':'EN';
   document.documentElement.dir=currentLang==='he'?'rtl':'ltr';
   document.documentElement.lang=currentLang;
   document.getElementById('langToggle').textContent=currentLang==='en'?'עב':'EN';
@@ -2646,7 +2670,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(()=>players[current].play())
         .catch(()=>{});
     }
-    setTimeout(()=>{ if(prevEl) prevEl.classList.remove('active'); }, 1600);
+    // Keep previous visible for 2.2s — new video has time to render before old disappears
+    setTimeout(()=>{ if(prevEl) prevEl.classList.remove('active'); }, 2200);
     // Re-arm fallback timer using the CURRENT clip's duration
     clearTimeout(_fallbackTimer);
     _fallbackTimer = setTimeout(advanceHero, DURATIONS[current] * 1000);
