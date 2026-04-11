@@ -1441,6 +1441,128 @@ body::after{
     transform:translateZ(0)
   }
 }
+
+/* ══ UPDATE-46 ═══════════════════════════════════════════════════ */
+
+/* Music button */
+#music-btn{
+  position:fixed;bottom:24px;right:24px;z-index:9000;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);
+  color:rgba(255,255,255,0.6);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.3s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+#music-btn:hover{background:rgba(255,255,255,0.16);color:#fff;transform:scale(1.08)}
+#music-btn.music-on{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.35)}
+@media(max-width:768px){#music-btn{bottom:16px;right:16px;width:40px;height:40px}}
+
+/* 2. Brighten About text */
+.about-text p{color:rgba(255,255,255,0.82)!important}
+
+/* 5. Brighter service cards */
+.service-card{background:rgba(255,255,255,0.06)!important;border-color:rgba(255,255,255,0.10)!important}
+.service-card:hover{background:rgba(255,255,255,0.11)!important;border-color:rgba(255,255,255,0.18)!important}
+.service-card p{color:rgba(255,255,255,0.68)!important}
+.service-icon{background:rgba(255,255,255,0.08)!important;color:rgba(255,255,255,0.75)!important}
+
+/* 6. Reduce About → Services spacing on mobile */
+@media(max-width:768px){
+  .about{padding-bottom:28px!important}
+  .services{padding-top:28px!important}
+}
+
+/* 7. Hero premium: taller, cinematic overlay */
+.hero{height:88vh!important;min-height:560px!important}
+.hero-overlay{
+  background:linear-gradient(
+    to bottom,
+    rgba(4,5,13,0.38) 0%,
+    rgba(4,5,13,0.05) 35%,
+    rgba(4,5,13,0.55) 78%,
+    rgba(4,5,13,0.84) 100%
+  )!important;
+}
+.hero-content{gap:14px!important}
+.hero-cta-row{
+  display:flex;gap:14px;align-items:center;
+  flex-wrap:wrap;justify-content:center;margin-top:6px
+}
+.hero-btn-showreel{
+  padding:13px 32px;border-radius:50px;
+  background:rgba(255,255,255,0.94);border:none;
+  color:#0b0b0b;font-size:14px;font-weight:700;letter-spacing:0.3px;
+  cursor:pointer;transition:all 0.3s;font-family:var(--font-display)
+}
+.hero-btn-showreel:hover{background:#fff;transform:translateY(-2px);box-shadow:0 8px 32px rgba(255,255,255,0.25)}
+.hero-btn-primary{
+  padding:13px 28px;border-radius:50px;
+  background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.28);
+  color:#fff;text-decoration:none;font-size:14px;font-weight:500;letter-spacing:0.3px;
+  transition:all 0.3s;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  font-family:var(--font-display)
+}
+.hero-btn-primary:hover{background:rgba(255,255,255,0.17);border-color:rgba(255,255,255,0.45);transform:translateY(-2px)}
+@media(max-width:600px){
+  .hero-btn-showreel,.hero-btn-primary{padding:11px 22px;font-size:13px}
+  .hero-cta-row{gap:10px}
+}
+
+/* 8. Bold headings, brighter body text */
+.section-title{font-weight:700!important}
+.section-subtitle{color:rgba(255,255,255,0.72)!important}
+.hero-tagline{color:rgba(255,255,255,0.82)!important}
+.nav-links a{color:rgba(255,255,255,0.72)!important}
+
+/* 9. Uniform section title size */
+.section-title{font-size:clamp(28px,4.5vw,46px)!important;letter-spacing:-0.8px!important}
+@media(max-width:480px){.section-title{font-size:clamp(26px,6.5vw,36px)!important}}
+
+/* 10. Mobile: touch scroll-snap instead of CSS animation for carousels */
+@media(max-width:768px){
+  .folders-carousel,
+  .featured-strip,
+  .testimonials-marquee{
+    overflow-x:scroll!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+    mask-image:none!important;
+    -webkit-mask-image:none!important;
+    padding:8px 16px 12px!important;
+    cursor:grab;
+  }
+  .folders-carousel::-webkit-scrollbar,
+  .featured-strip::-webkit-scrollbar,
+  .testimonials-marquee::-webkit-scrollbar{display:none}
+
+  .folders-track,
+  .featured-track,
+  .testimonial-track{
+    animation:none!important;
+    animation-play-state:paused!important;
+  }
+  .folder-card{scroll-snap-align:center;scroll-snap-stop:always}
+  .featured-item{scroll-snap-align:center;scroll-snap-stop:always}
+  .testimonial-card{scroll-snap-align:center;scroll-snap-stop:always}
+}
+
+/* 11. Mobile general polish */
+@media(max-width:768px){
+  /* Services: Marketing Strategy 1st, Video Production 2nd */
+  .services-grid .service-card:nth-child(5){order:-2!important}
+  .services-grid .service-card:nth-child(3){order:-1!important}
+
+  /* Slightly more breathing room for service cards */
+  .service-card{padding:22px 18px!important}
+
+  /* Better font sizes for readability */
+  .service-card h3{font-size:15px!important}
+  .section-label{font-size:10px!important;letter-spacing:3px!important}
+
+  /* Hero CTA row already handled above */
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -1502,6 +1624,10 @@ body::after{
     <div class="hero-avatar"><img src="avatar.jpg" alt="Sharbel Najem" style="object-position:center 6%;"></div>
     <h1 class="hero-name">Sharbel Najem</h1>
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
+    <div class="hero-cta-row">
+      <button class="hero-btn-showreel" onclick="openLightbox('1181177403','16:9')" data-en="▶ Watch Showreel" data-he="▶ צפה בשוורייל">▶ Watch Showreel</button>
+      <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
+    </div>
   </div>
   <div class="hero-scroll"><span data-en="Scroll" data-he="גלול">Scroll</span><div class="scroll-line"></div></div>
 </section>
@@ -1516,7 +1642,7 @@ body::after{
       <p data-en="A professional filmmaker and commercial content creator, focused on producing high-end video content across social media, lifestyle, tourism, and brand storytelling. With a proven track record in visually rich projects, each one built around a clear strategic objective." data-he="צלם מקצועי ויוצר תוכן שיווקי ומסחרי, מתמחה בהפקת וידאו ברמה גבוהה בתחומי הסושיאל, לייף סטייל, תיירות ותוכן מותגי. עם ניסיון מוכח בפרויקטים עשירים ויזואלית, כל אחד בנוי סביב מטרה אסטרטגית ברורה.">A professional filmmaker and commercial content creator, focused on producing high-end video content across social media, lifestyle, tourism, and brand storytelling. With a proven track record in visually rich projects, each one built around a clear strategic objective.</p>
       <p data-en="Every project begins with a deep understanding of the brand  -  its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact." data-he="כל פרויקט מתחיל מהבנה מעמיקה של המותג  -  הזהות שלו, קהל היעד והמטרות. מכיוון קריאייטיבי ותסריט ועד לעריכה הסופית, כל פרט מעוצב כדי להגיע לקהל הנכון ולייצר אימפקט מדיד.">Every project begins with a deep understanding of the brand  -  its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact.</p>
       <div class="about-links">
-        <a href="mailto:sharbelnajem9@gmail.com" class="about-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>sharbelnajem9@gmail.com</a>
+        <a href="mailto:sharbelnajem9@gmail.com" class="about-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Gmail</a>
         <a href="https://www.instagram.com/sharbel.najem" class="about-link" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram <span class="follower-count" id="igCount"></span></a>
         <a href="https://youtube.com/@sharbelnajem." class="about-link" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-2A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98"/></svg>YouTube</a>
         <a href="https://www.tiktok.com/@sharbelnajem" class="about-link" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.75a8.18 8.18 0 004.76 1.52V6.84a4.86 4.86 0 01-1-.15z"/></svg>TikTok <span class="follower-count" id="tkCount"></span></a>
@@ -2907,6 +3033,42 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   nameEl.innerHTML = text.split('').map(function(c,i){
     return '<span class="char" style="animation-delay:'+(i*0.04)+'s">'+(c===' '?'&nbsp;':c)+'</span>';
   }).join('');
+})();
+</script>
+
+<!-- ── Site music: floating toggle button ─────────────────────── -->
+<div id="site-music-wrap" style="position:fixed;width:1px;height:1px;overflow:hidden;left:-300px;top:-300px;opacity:0;pointer-events:none;z-index:-1;">
+  <iframe id="site-music-frame" src="" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:300px;height:300px;border:0;"></iframe>
+</div>
+<button id="music-btn" onclick="toggleSiteMusic()" title="Toggle music" aria-label="Toggle background music">
+  <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3v12.26A4 4 0 1013 19V7h4V3H9z"/></svg>
+</button>
+<script>
+(function(){
+  var _on=false, _player=null;
+  window.toggleSiteMusic=function(){
+    var btn=document.getElementById('music-btn');
+    var fr=document.getElementById('site-music-frame');
+    if(!_on){
+      fr.src='https://player.vimeo.com/video/1181177403?background=1&autoplay=1&loop=1&muted=0&autopause=0';
+      if(typeof Vimeo!=='undefined'){
+        setTimeout(function(){
+          try{
+            _player=new Vimeo.Player(fr);
+            _player.setMuted(false).catch(function(){});
+            _player.setVolume(0.45).catch(function(){});
+          }catch(e){}
+        },900);
+      }
+      _on=true;
+      if(btn){btn.classList.add('music-on');}
+    } else {
+      if(_player){try{_player.pause();}catch(e){} _player=null;}
+      fr.src='';
+      _on=false;
+      if(btn){btn.classList.remove('music-on');}
+    }
+  };
 })();
 </script>
 </body>
