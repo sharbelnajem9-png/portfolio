@@ -1444,18 +1444,7 @@ body::after{
 
 /* ══ UPDATE-46 ═══════════════════════════════════════════════════ */
 
-/* Music button */
-#music-btn{
-  position:fixed;bottom:24px;right:24px;z-index:9000;
-  width:44px;height:44px;border-radius:50%;
-  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);
-  color:rgba(255,255,255,0.6);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all 0.3s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-}
-#music-btn:hover{background:rgba(255,255,255,0.16);color:#fff;transform:scale(1.08)}
-#music-btn.music-on{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.35)}
-@media(max-width:768px){#music-btn{bottom:16px;right:16px;width:40px;height:40px}}
+
 
 /* 2. Brighten About text */
 .about-text p{color:rgba(255,255,255,0.82)!important}
@@ -3036,39 +3025,66 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 })();
 </script>
 
-<!-- ── Site music: floating toggle button ─────────────────────── -->
-<div id="site-music-wrap" style="position:fixed;width:1px;height:1px;overflow:hidden;left:-300px;top:-300px;opacity:0;pointer-events:none;z-index:-1;">
+<!-- ── Background music: auto-start on first user gesture ──────── -->
+<div id="site-music-wrap" style="position:fixed;width:1px;height:1px;overflow:hidden;left:-9999px;top:-9999px;opacity:0;pointer-events:none;z-index:-1;" aria-hidden="true">
   <iframe id="site-music-frame" src="" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:300px;height:300px;border:0;"></iframe>
 </div>
-<button id="music-btn" onclick="toggleSiteMusic()" title="Toggle music" aria-label="Toggle background music">
-  <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3v12.26A4 4 0 1013 19V7h4V3H9z"/></svg>
-</button>
 <script>
 (function(){
-  var _on=false, _player=null;
-  window.toggleSiteMusic=function(){
-    var btn=document.getElementById('music-btn');
-    var fr=document.getElementById('site-music-frame');
-    if(!_on){
-      fr.src='https://player.vimeo.com/video/1181177403?background=1&autoplay=1&loop=1&muted=0&autopause=0';
-      if(typeof Vimeo!=='undefined'){
-        setTimeout(function(){
-          try{
-            _player=new Vimeo.Player(fr);
-            _player.setMuted(false).catch(function(){});
-            _player.setVolume(0.45).catch(function(){});
-          }catch(e){}
-        },900);
-      }
-      _on=true;
-      if(btn){btn.classList.add('music-on');}
-    } else {
-      if(_player){try{_player.pause();}catch(e){} _player=null;}
-      fr.src='';
-      _on=false;
-      if(btn){btn.classList.remove('music-on');}
-    }
-  };
+  var _started = false;
+  var VID = '1181177403';
+
+  function startMusic(){
+    if(_started) return;
+    _started = true;
+    var fr = document.getElementById('site-music-frame');
+    if(!fr) return;
+    fr.src = 'https://player.vimeo.com/video/' + VID + '?background=1&autoplay=1&loop=1&muted=0&autopause=0&controls=0';
+    // Once frame loads, set volume via API
+    fr.addEventListener('load', function(){
+      if(typeof Vimeo === 'undefined') return;
+      try{
+        var p = new Vimeo.Player(fr);
+        p.setMuted(false).catch(function(){});
+        p.setVolume(0.38).catch(function(){});
+        p.play().catch(function(){});
+      }catch(e){}
+    }, {once:true});
+  }
+
+  // Try immediate autoplay (works on some browsers / returning visitors)
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(function(){
+      var fr = document.getElementById('site-music-frame');
+      if(!fr) return;
+      fr.src = 'https://player.vimeo.com/video/' + VID + '?background=1&autoplay=1&loop=1&muted=0&autopause=0&controls=0';
+      fr.addEventListener('load', function(){
+        if(typeof Vimeo === 'undefined') return;
+        try{
+          var p = new Vimeo.Player(fr);
+          p.setMuted(false).then(function(){
+            return p.setVolume(0.38);
+          }).then(function(){
+            return p.play();
+          }).then(function(){
+            _started = true;
+          }).catch(function(){
+            // Autoplay blocked — wait for first gesture
+            fr.src = '';
+            _started = false;
+          });
+        }catch(e){}
+      }, {once:true});
+    }, 800);
+  });
+
+  // Fallback: first user interaction → start music
+  var EVENTS = ['click','touchstart','keydown','scroll'];
+  function onGesture(){
+    startMusic();
+    EVENTS.forEach(function(ev){ document.removeEventListener(ev, onGesture, true); });
+  }
+  EVENTS.forEach(function(ev){ document.addEventListener(ev, onGesture, {once:true, capture:true, passive:true}); });
 })();
 </script>
 </body>
