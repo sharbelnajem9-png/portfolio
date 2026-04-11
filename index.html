@@ -32,8 +32,8 @@ body{font-family:var(--font-body);background:var(--black);color:var(--white);ove
 .navbar.scrolled{background:rgba(4,7,18,0.97);box-shadow:0 2px 24px rgba(0,0,0,0.4)}
 .nav-logo img{height:48px;transition:opacity 0.3s}
 .nav-logo:hover img{opacity:0.7}
-.nav-links{display:flex;gap:32px;list-style:none}
-.nav-links a{color:var(--white-50);text-decoration:none;font-size:14px;font-weight:400;letter-spacing:0.8px;text-transform:uppercase;transition:color 0.3s;position:relative}
+.nav-links{display:flex;gap:20px;list-style:none}
+.nav-links a{color:var(--white-50);text-decoration:none;font-size:11.5px;font-weight:400;letter-spacing:0.6px;text-transform:uppercase;transition:color 0.3s;position:relative}
 .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--white);transition:width 0.3s}
 .nav-links a:hover{color:var(--white)}.nav-links a:hover::after{width:100%}
 .nav-right{display:flex;align-items:center;gap:10px}
@@ -60,7 +60,7 @@ body{font-family:var(--font-body);background:var(--black);color:var(--white);ove
 @keyframes heroIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .hero-avatar{width:100px;height:100px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.75);overflow:hidden;background:var(--card);box-shadow:0 0 0 5px rgba(255,255,255,0.07),0 0 28px rgba(255,255,255,0.2),0 4px 20px rgba(0,0,0,0.5)}
 .hero-avatar img{width:100%;height:100%;object-fit:cover;object-position:center 12%}
-.hero-name{font-family:var(--font-display);font-size:clamp(56px,9vw,104px);font-weight:700;letter-spacing:-2px;line-height:1}
+.hero-name{font-family:var(--font-display);font-size:clamp(56px,9vw,104px);font-weight:700;letter-spacing:-2px;line-height:1;direction:ltr;unicode-bidi:isolate}
 .hero-tagline{font-size:clamp(15px,1.5vw,19px);color:rgba(255,255,255,0.68);max-width:580px;font-weight:300;line-height:1.65}
 .hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--white-15);font-size:10px;letter-spacing:3px;text-transform:uppercase;animation:scrollB 2s infinite}
 @keyframes scrollB{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
@@ -641,7 +641,7 @@ html{scroll-behavior:smooth}
 .folder-thumb{position:relative;background:#08080f;overflow:hidden}
 .folder-thumb-img{display:none!important}
 .fc-overlay{z-index:2;position:absolute;inset:0}
-.folder-card{transition:transform 0.4s ease,box-shadow 0.4s ease!important}
+
 /* ── Card layout: video fills top, title below ── */
 .folder-card{display:flex!important;flex-direction:column!important;border-radius:12px!important;overflow:hidden!important}
 /* Video area */
@@ -655,7 +655,7 @@ html{scroll-behavior:smooth}
 .folder-card.portrait{min-width:169px!important;max-width:169px!important}
 .folder-card.portrait .folder-info h4{white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
 .folder-card.portrait .fc-play-btn{width:40px!important;height:40px!important;font-size:15px!important}
-.folder-card:hover{transform:translateY(-5px)!important;box-shadow:0 20px 56px rgba(0,0,0,0.5)!important}
+
 
 /* 16. Modal layout  -  handled by definitive CSS above */
 
@@ -805,19 +805,7 @@ html{scroll-behavior:smooth}
   transition-duration:0.38s!important;
   transition-timing-function:cubic-bezier(0.34,1.4,0.64,1)!important;
 }
-.service-card:hover,
-.folder-card:hover{
-  transform:translateY(-5px)!important;
-  box-shadow:0 20px 50px rgba(0,0,0,0.55),
-    0 0 0 1px rgba(255,255,255,0.1),
-    0 0 35px rgba(255,255,255,0.06)!important;
-}
-.featured-item:hover{
-  transform:translateY(-4px)!important;
-  box-shadow:0 16px 44px rgba(0,0,0,0.5),
-    0 0 0 1px rgba(255,255,255,0.1),
-    0 0 28px rgba(255,255,255,0.05)!important;
-}
+
 
 /* --- About section  -  Glassmorphism on image --- */
 .about-image-wrapper{
@@ -853,12 +841,8 @@ html{scroll-behavior:smooth}
 
 /* --- Testimonial cards  -  uniform height, no dash --- */
 .testimonial-card{
-  min-height:230px!important;
-  height:auto!important;
   display:flex!important;flex-direction:column!important;
-  justify-content:space-between!important;
-  min-width:360px!important;max-width:400px!important;
-  width:380px!important
+  justify-content:space-between!important
 }
 .testimonial-text{flex:1!important;font-size:13.5px!important;line-height:1.7!important}
 .testimonial-brand::before{content:''!important}
@@ -868,7 +852,7 @@ html{scroll-behavior:smooth}
 .navbar{position:fixed!important}
 .nav-links{
   position:absolute!important;left:50%!important;transform:translateX(-50%)!important;
-  gap:40px!important
+  gap:20px!important
 }
 [dir="rtl"] .nav-links{left:50%!important;right:auto!important;transform:translateX(-50%)!important}
 
@@ -1008,18 +992,8 @@ html{scroll-behavior:smooth}
   border:0;pointer-events:none;z-index:3;opacity:1
 }
 /* thumbnails hidden  -  iframes show live video */
-.fc-thumb-img{display:none!important;opacity:0!important;visibility:hidden!important}
-/* hover glow & lift */
-.folder-card{
-  transition:transform 0.4s cubic-bezier(0.2,0,0,1),
-    box-shadow 0.4s cubic-bezier(0.2,0,0,1)!important
-}
-.folder-card:hover{
-  transform:translateY(-5px)!important;
-  box-shadow:0 20px 50px rgba(0,0,0,0.55),
-    0 0 0 1px rgba(255,255,255,0.1),
-    0 0 35px rgba(255,255,255,0.06)!important
-}
+.fc-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:1;transition:opacity 0.8s ease}.fc-bg.live .fc-thumb-img{opacity:0}
+
 .fc-overlay{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center}
 
 .folder-thumb{position:relative;overflow:hidden;background:#08080f}
@@ -1033,14 +1007,14 @@ html{scroll-behavior:smooth}
   position:absolute;inset:0;z-index:0;
   background:#06060e;overflow:hidden
 }
-.fi-thumb-img{display:none!important}
+.fi-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:1;transition:opacity 0.8s ease}.fi-bg.live .fi-thumb-img{opacity:0}
 /* iframe always visible; thumbnail fades out via JS after delay */
 .fi-bg iframe{
   position:absolute;inset:0;
   width:100%;height:100%;
   border:0;pointer-events:none;z-index:3;opacity:1
 }
-.fi-bg.fc-ready .fi-thumb-img{opacity:0}
+
 .fi-overlay{position:absolute;inset:0;z-index:3;
   display:flex;align-items:center;justify-content:center}
 .fi-play{
@@ -1118,9 +1092,9 @@ html{scroll-behavior:smooth}
   background:rgba(255,255,255,0.03)!important;
   border:1px solid rgba(255,255,255,0.07)!important;
   border-radius:16px!important;
-  padding:22px 24px 20px!important;
-  width:320px!important;min-width:320px!important;max-width:320px!important;
-  height:220px!important;min-height:220px!important;max-height:220px!important;
+  padding:28px 28px 24px!important;
+  width:400px!important;min-width:400px!important;max-width:400px!important;
+  height:280px!important;min-height:280px!important;max-height:280px!important;
   flex-shrink:0;
   display:flex!important;flex-direction:column!important;
   justify-content:space-between!important;
@@ -1134,21 +1108,21 @@ html{scroll-behavior:smooth}
   box-shadow:0 8px 40px rgba(0,0,0,0.5)!important
 }
 .testimonial-stars{
-  font-size:11px!important;letter-spacing:2px!important;
-  color:#c9a84c!important;margin-bottom:10px!important
+  font-size:12px!important;letter-spacing:2px!important;
+  color:#c9a84c!important;margin-bottom:12px!important
 }
 .testimonial-text{
-  font-size:12.5px!important;line-height:1.65!important;
+  font-size:13.5px!important;line-height:1.7!important;
   color:rgba(242,242,240,0.68)!important;
   flex:1!important;
   overflow:hidden;
-  display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical
+  display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical
 }
 .testimonial-brand{
-  font-size:11.5px!important;font-weight:700!important;
+  font-size:12.5px!important;font-weight:700!important;
   letter-spacing:0.3px!important;
   color:rgba(242,242,240,0.85)!important;
-  margin-top:12px!important;padding-top:10px!important;
+  margin-top:14px!important;padding-top:12px!important;
   border-top:1px solid rgba(255,255,255,0.07)!important;
   font-family:var(--font-display)!important
 }
@@ -1186,8 +1160,10 @@ html{scroll-behavior:smooth}
              background 0.35s ease!important
 }
 .service-card:hover,.folder-card:hover{
-  transform:translateY(-7px) scale(1.01)!important;
-  box-shadow:0 24px 64px rgba(0,0,0,0.6),0 6px 24px rgba(0,0,0,0.3)!important
+  transform:translateY(-5px)!important;
+  box-shadow:0 20px 50px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.1),
+    0 0 35px rgba(255,255,255,0.06)!important
 }
 /* Subtle float pulse on non-hovered cards */
 @keyframes cardFloat{
@@ -1256,7 +1232,7 @@ html{scroll-behavior:smooth}
   .featured-item.portrait{width:130px!important}
   .featured-item.landscape{width:280px!important}
   .featured-item{height:220px!important}
-  .testimonial-card{width:270px!important;min-width:270px!important;height:240px!important;max-height:240px!important}
+  .testimonial-card{width:300px!important;min-width:300px!important;height:260px!important;max-height:260px!important}
   .testimonials-header{padding:32px 20px 20px!important}
 }
 
@@ -1293,14 +1269,6 @@ html{scroll-behavior:smooth}
   box-shadow:0 14px 40px rgba(0,0,0,0.5),
              0 0 0 1px rgba(255,255,255,0.1),
              0 0 24px rgba(255,255,255,0.04)!important
-}
-
-/* ══ SCROLL PROGRESS BAR ══ */
-#scroll-progress{
-  position:fixed;top:0;left:0;height:2px;width:0%;
-  background:linear-gradient(90deg,rgba(255,255,255,0.9),rgba(255,255,255,0.4));
-  z-index:9999;transition:width 0.1s linear;
-  box-shadow:0 0 8px rgba(255,255,255,0.5)
 }
 
 /* ══ CUSTOM CURSOR ══ */
@@ -1381,6 +1349,39 @@ body::after{
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size:200px 200px;
 }
+
+/* ─── PROJECT CARD PEEK STRIP ─────────────────────────────── */
+.fc-peek{
+  position:absolute;bottom:0;left:0;right:0;z-index:10;
+  display:flex;gap:3px;padding:0 3px 3px;
+  transform:translateY(102%);opacity:0;
+  transition:transform 0.38s cubic-bezier(0.2,0,0,1),
+             opacity 0.38s cubic-bezier(0.2,0,0,1);
+  pointer-events:none;
+}
+.folder-card:hover .fc-peek{
+  transform:translateY(0);opacity:1;
+}
+.fc-peek-thumb{
+  flex:1;height:40px;object-fit:cover;
+  border-radius:5px;
+  border:1px solid rgba(255,255,255,0.14);
+  box-shadow:0 2px 8px rgba(0,0,0,0.5);
+}
+.fc-peek-badge{
+  position:absolute;top:-26px;right:6px;
+  font-size:9.5px;letter-spacing:1.8px;text-transform:uppercase;
+  color:rgba(255,255,255,0.75);
+  background:rgba(0,0,0,0.55);
+  padding:3px 8px;border-radius:20px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  white-space:nowrap;
+  opacity:0;transform:translateY(5px);
+  transition:opacity 0.25s 0.08s,transform 0.25s 0.08s;
+}
+.folder-card:hover .fc-peek-badge{
+  opacity:1;transform:translateY(0);
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -1393,17 +1394,21 @@ body::after{
   <a href="#" class="nav-logo"><img src="logo.png" alt="SN" id="navLogo"></a>
   <ul class="nav-links">
     <li><a href="#projects" data-en="Projects" data-he="פרויקטים">Projects</a></li>
+    <li><a href="#highlights" data-en="Highlights" data-he="מועדפים">Highlights</a></li>
+    <li><a href="#services" data-en="Services" data-he="שירותים">Services</a></li>
+    <li><a href="#brands" data-en="Brands" data-he="מותגים">Brands</a></li>
+    <li><a href="#testimonials" data-en="Testimonials" data-he="המלצות">Testimonials</a></li>
     <li><a href="#about" data-en="About" data-he="אודות">About</a></li>
     <li><a href="#contact" data-en="Contact" data-he="צרו קשר">Contact</a></li>
   </ul>
   <div class="nav-right">
-    <button class="nav-a11y-btn" onclick="document.getElementById('userwayAccessibilityIcon')?.click()" aria-label="Accessibility"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
     <div class="nav-socials">
       <a href="https://www.instagram.com/sharbel.najem" target="_blank" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
       <a href="https://youtube.com/@sharbelnajem." target="_blank" aria-label="YouTube"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-2A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98"/></svg></a>
       <a href="https://www.tiktok.com/@sharbelnajem" target="_blank" aria-label="TikTok"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.75a8.18 8.18 0 004.76 1.52V6.84a4.86 4.86 0 01-1-.15z"/></svg></a>
     </div>
     <button class="lang-toggle" id="langToggle" onclick="toggleLang()">עב</button>
+    <button class="nav-a11y-btn" onclick="document.getElementById('userwayAccessibilityIcon')?.click()" aria-label="Accessibility"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
     <button class="mobile-menu-btn" onclick="openMobileNav()"><span></span><span></span><span></span></button>
   </div>
 </nav>
@@ -1411,6 +1416,10 @@ body::after{
 <div class="mobile-nav-overlay" id="mobileNav">
   <button class="mobile-nav-close" onclick="closeMobileNav()">&times;</button>
   <a href="#projects" onclick="closeMobileNav()" data-en="Projects" data-he="פרויקטים">Projects</a>
+  <a href="#highlights" onclick="closeMobileNav()" data-en="Highlights" data-he="מועדפים">Highlights</a>
+  <a href="#services" onclick="closeMobileNav()" data-en="Services" data-he="שירותים">Services</a>
+  <a href="#brands" onclick="closeMobileNav()" data-en="Brands" data-he="מותגים">Brands</a>
+  <a href="#testimonials" onclick="closeMobileNav()" data-en="Testimonials" data-he="המלצות">Testimonials</a>
   <a href="#about" onclick="closeMobileNav()" data-en="About" data-he="אודות">About</a>
   <a href="#contact" onclick="closeMobileNav()" data-en="Contact" data-he="צרו קשר">Contact</a>
 </div>
@@ -1657,7 +1666,7 @@ body::after{
 </section>
 
 <!-- FEATURED VIDEOS -->
-<section class="featured-section">
+<section class="featured-section" id="highlights">
   <div class="featured-label fade-in">
     <span class="section-label" data-en="Highlights" data-he="מומלצים">Highlights</span>
     <h2 class="section-title" data-en="Featured Videos" data-he="סרטונים מועדפים">Featured Videos</h2>
@@ -1798,7 +1807,7 @@ body::after{
     <div class="brand-item"><img src="logos/Untitled-81.png" alt="Brand" loading="lazy"></div>
   </div></div>
   <div class="carousel-controls"><button class="carousel-btn" onclick="scrollCarousel('brandTrack',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button><button class="carousel-btn" onclick="scrollCarousel('brandTrack',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
-  <div class="testimonials-header fade-in"><span class="section-label" data-en="What Clients Say" data-he="מה אומרים הלקוחות">What Clients Say</span><h2 class="section-title" data-en="Testimonials" data-he="המלצות">Testimonials</h2></div>
+  <div class="testimonials-header fade-in" id="testimonials"><span class="section-label" data-en="What Clients Say" data-he="מה אומרים הלקוחות">What Clients Say</span><h2 class="section-title" data-en="Testimonials" data-he="המלצות">Testimonials</h2></div>
   <div class="testimonials-marquee"><div class="testimonial-track" id="testTrack">
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Our shooting day together completely brought out the best in me, despite my many fears of being filmed and speaking to the camera. Sharbel knew how to guide and strengthen me throughout the day and even after! And of course, the videos turned out perfect and brought amazing results. Thank you for the journey and the professionalism." data-he="יום הצילום שלנו ביחד הוציא ממני לגמרי את המיטב, למרות החששות הרבים שלי מלהצטלם ולדבר למצלמה. שרבל ידע להדריך אותי ולחזק אותי לאורך כל היום וגם אחרי! וכמובן שהסרטונים יצאו מושלמים והביאו לתוצאות מדהימות. תודה על הדרך ועל המקצועיות.">Our shooting day together completely brought out the best in me, despite my many fears of being filmed and speaking to the camera. Sharbel knew how to guide and strengthen me throughout the day and even after! And of course, the videos turned out perfect and brought amazing results. Thank you for the journey and the professionalism.</p><div class="testimonial-brand" data-en="Shoham Maor" data-he="Shoham Maor">Shoham Maor</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel is a highly reliable professional who helped me triple my sales through precise personal branding and organic videos. Beyond his creativity, he is a highly disciplined person, both towards himself and his clients. He didn't let me 'scatter', helped me focus, and maximized the campaigns in the best way possible! Thank you Sharbel." data-he="שרבל הוא איש מקצוע אמין מאוד שעזר לי לשלש את המכירות שלי באמצעות מיתוג אישי מדויק וסרטונים אורגניים. מעבר ליצירתיות, הוא אדם בעל משמעת גבוהה, גם כלפי עצמו וגם כלפי הלקוחות. הוא לא נתן לי 'להתפזר', עזר לי להתמקד ומקסם את הקמפיינים בצורה הטובה ביותר! תודה שרבל.">Sharbel is a highly reliable professional who helped me triple my sales through precise personal branding and organic videos. Beyond his creativity, he is a highly disciplined person, both towards himself and his clients. He didn't let me 'scatter', helped me focus, and maximized the campaigns in the best way possible! Thank you Sharbel.</p><div class="testimonial-brand" data-en="Naadned" data-he="Naadned">Naadned</div></div>
@@ -2198,8 +2207,6 @@ window.addEventListener('scroll', () => {
 // ================================================================
 // BACKGROUND VIDEO LAZY LOADER (projects + featured)
 // ================================================================
-// bgVidObs removed  -  replaced by unified vidPreviewObs below
-
 // ================================================================
 // FEATURED SECTION SCROLL ARROWS
 // ================================================================
@@ -2220,27 +2227,6 @@ function scrollFeatured(dir) {
     track.style.transform = '';
   }, 5000);
 }
-
-// ================================================================
-// OPEN PROJECT  -  autoplay first video
-// ================================================================
-const _origOpenProject = openProject;
-// Override to add autoplay on first video
-(function(){
-  const orig = window.openProject;
-  window.openProject = function(key) {
-    orig(key);
-    // Enable autoplay on all iframes after they're created
-    setTimeout(() => {
-      document.querySelectorAll('#pm-videos iframe').forEach((iframe, i) => {
-        const src = iframe.src;
-        if (!src.includes('autoplay')) {
-          iframe.src = src + '&autoplay=1';
-        }
-      });
-    }, 200);
-  };
-})();
 
 </script>
 
@@ -2492,45 +2478,130 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!vid) return;
     var vids = (bg.dataset.vids || vid).split(',').filter(Boolean);
     var cur = 0;
-    setTimeout(function() {
-      var fr = makeFrame(vids[0]);
+
+    function addFrame(v, opacity) {
+      var fr = makeFrame(v);
+      fr.style.opacity = String(opacity);
+      fr.addEventListener('load', function(){
+        fr.dataset.loaded = '1';
+        bg.classList.add('live');    // fades out thumbnail
+      });
       bg.appendChild(fr);
-      if (vids.length > 1) {
-        setInterval(function() {
-          var next;
-          do { next = Math.floor(Math.random() * vids.length); } while (next === cur && vids.length > 1);
-          cur = next;
-          // Create new frame behind current, then swap
-          var newFr = makeFrame(vids[cur]);
-          newFr.style.opacity = '0';
-          bg.appendChild(newFr);
-          // Fade in new, remove old after transition
-          setTimeout(function() {
-            newFr.style.opacity = '1';
-            var frames = bg.querySelectorAll('iframe');
-            if (frames.length > 2) bg.removeChild(frames[0]);
-          }, 200);
-        }, 9000);
+      return fr;
+    }
+
+    function removeOldFrames(keep) {
+      // Remove every iframe in bg except `keep`
+      bg.querySelectorAll('iframe').forEach(function(f) {
+        if (f !== keep) bg.removeChild(f);
+      });
+    }
+
+    setTimeout(function() {
+      // ── First frame ──────────────────────────────────────────
+      var fr = addFrame(vids[0], 1);
+
+      // Stall detection: if no load after 18s, replace
+      setTimeout(function() {
+        if (!fr.dataset.loaded && bg.contains(fr)) {
+          bg.removeChild(fr);
+          addFrame(vids[0], 1);
+        }
+      }, 18000);
+
+      if (vids.length <= 1) return;
+
+      // ── Rotation ─────────────────────────────────────────────
+      // Interval = 9s. Pre-buffer next video at 4s so it has 5s to load.
+      var pendingFr = null;
+      var pendingIdx = null;
+
+      function pickNext() {
+        var next;
+        do { next = Math.floor(Math.random() * vids.length); }
+        while (next === cur && vids.length > 1);
+        return next;
       }
+
+      function preBuffer() {
+        pendingIdx = pickNext();
+        pendingFr = addFrame(vids[pendingIdx], 0);   // hidden, starts loading
+      }
+
+      function doSwap() {
+        if (!pendingFr) return;
+        var swapFr = pendingFr;
+        var swapIdx = pendingIdx;
+        pendingFr = null;
+        pendingIdx = null;
+
+        function perform() {
+          swapFr.style.opacity = '1';      // fade new frame in
+          cur = swapIdx;
+          // Remove old frames only after new one is visually up (fade=500ms)
+          setTimeout(function() { removeOldFrames(swapFr); }, 700);
+          // Start buffering the next video
+          setTimeout(preBuffer, 4000);
+        }
+
+        if (swapFr.dataset.loaded) {
+          perform();                        // already loaded, swap now
+        } else {
+          // Wait for it to load (up to 8 more seconds)
+          var done = false;
+          swapFr.addEventListener('load', function() {
+            if (!done) { done = true; perform(); }
+          });
+          setTimeout(function() {
+            if (!done) { done = true; perform(); } // fallback: show anyway
+          }, 8000);
+        }
+      }
+
+      // Kick off: pre-buffer first rotation target after 4s
+      setTimeout(preBuffer, 4000);
+      // First swap at 9s
+      setTimeout(function tick() {
+        doSwap();
+        setTimeout(tick, 9000);
+      }, 9000);
+
     }, delay);
   }
 
   function runPhase3() {
     var mobile = window.innerWidth < 768;
-    // Project cards — staggered
+
+    // ── Project cards ──────────────────────────────────────────
     var fcBgs = Array.from(document.querySelectorAll('.fc-bg[data-vid]'));
     fcBgs.forEach(function(bg, i) {
       injectBg(bg, 400 + i * (mobile ? 400 : 250));
     });
-    // Featured items — inject in 4 waves of 12, 2s apart
-    // Browser can handle ~12 Vimeo connections well; waves let early ones load first
+
+    // ── Featured strip: IntersectionObserver — inject only when near viewport ──
+    // Max ~12 active at once (8 visible + buffer). Never overloads Vimeo.
     var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]'));
-    var WAVE = 12;
-    fiBgs.forEach(function(bg, i) {
-      var wave = Math.floor(i / WAVE);
-      var pos  = i % WAVE;
-      injectBg(bg, 500 + wave * 2000 + pos * 60);
-    });
+    var fiBgObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          injectBg(e.target, 0);
+          fiBgObs.unobserve(e.target);   // once injected, stop watching
+        }
+      });
+    }, { rootMargin: '0px 700px' });     // 700px horizontal buffer
+    fiBgs.forEach(function(bg) { fiBgObs.observe(bg); });
+
+    // ── Health-check: retry any fi-bg that lost its iframe ──────
+    // Fires every 30s. If data-vi is set but no <iframe> child exists,
+    // the inject either failed or the iframe was garbage-collected.
+    setInterval(function() {
+      document.querySelectorAll('.fi-bg[data-vid]').forEach(function(bg) {
+        if (bg.dataset.vi && !bg.querySelector('iframe')) {
+          delete bg.dataset.vi;             // clear flag so injectBg runs again
+          injectBg(bg, 0);
+        }
+      });
+    }, 30000);
   }
 
   if (document.readyState === 'loading') {
@@ -2587,76 +2658,101 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })();
 
-// ─── MODAL: hover-to-play inside project modal ───────────────
-function initModalHoverPlay(){
-  document.querySelectorAll('.pv-item').forEach(item => {
-    if(item.dataset.hoverInit) return;
-    item.dataset.hoverInit = '1';
-    const iframe = item.querySelector('iframe');
-    const thumb = item.querySelector('.pv-thumb');
-    const playBtn = item.querySelector('.pv-play-btn');
-    if(!iframe) return;
 
-    let player = null;
-    let playerReady = false;
 
-    function getPlayer(){
-      if(!player){
-        try{
-          player = new Vimeo.Player(iframe);
-          player.ready().then(()=>{ playerReady = true; });
-        }catch(e){}
-      }
-      return player;
-    }
 
-    // Click to play (not just hover, since modal videos need explicit click)
-    item.addEventListener('click', e => {
-      if(item.classList.contains('playing')) return;
-      const p = getPlayer();
-      if(!p) return;
-      const activate = ()=>{
-        p.setCurrentTime(0).then(()=>p.play()).then(()=>{
-          item.classList.add('playing');
-        }).catch(()=>{});
-      };
-      if(playerReady) activate();
-      else p.ready().then(()=>{ playerReady=true; activate(); });
-      e.stopPropagation();
+// ─── HOVER PRELOAD: start iframes before user clicks ─────────────────────────
+(function(){
+  var _cache = {};
+  var _container = document.createElement('div');
+  _container.style.cssText =
+    'position:fixed;top:-9999px;left:0;width:300px;height:300px;' +
+    'overflow:hidden;pointer-events:none;z-index:-9999;';
+  document.body.appendChild(_container);
+
+  function preload(key){
+    if(_cache[key]) return;
+    var p = (typeof PROJECT_DATA !== 'undefined') && PROJECT_DATA[key];
+    if(!p) return;
+    var cache = {};
+    // Pre-load first 8 videos (covers most projects in full)
+    p.vids.slice(0, 8).forEach(function(vid){
+      var id = vid[0];
+      var fr = document.createElement('iframe');
+      fr.src = 'https://player.vimeo.com/video/' + id +
+        '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0&controls=0';
+      fr.setAttribute('frameborder','0');
+      fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture; clipboard-write');
+      fr.setAttribute('allowfullscreen','');
+      fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;';
+      _container.appendChild(fr);
+      cache[id] = fr;
     });
+    _cache[key] = cache;
+  }
+
+  // Attach mouseenter to all project cards (both carousel copies)
+  document.querySelectorAll('.folder-card[data-key]').forEach(function(card){
+    card.addEventListener('mouseenter', function(){
+      preload(card.dataset.key);
+    }, {passive:true});
   });
-}
 
-// Hook into openProject
-const _origOpenProject2 = window.openProject;
-window.openProject = function(key){
-  if(_origOpenProject2) _origOpenProject2(key);
-  setTimeout(()=>{
-    // Add thumb imgs and play btns to modal items
-    document.querySelectorAll('#pm-videos .pv-item').forEach(item=>{
-      if(!item.querySelector('.pv-thumb')){
-        const iframe = item.querySelector('iframe');
-        if(iframe){
-          // Extract video id from src
-          const m = iframe.src.match(/video\/(\d+)/);
-          if(m){
-            const thumb = document.createElement('img');
-            thumb.className = 'pv-thumb';
-            thumb.src = `https://vumbnail.com/${m[1]}.jpg`;
-            thumb.loading = 'lazy';
-            item.insertBefore(thumb, iframe);
-          }
-          const btn = document.createElement('div');
-          btn.className = 'pv-play-btn';
-          btn.innerHTML = '<div class="pv-play-icon">&#9654;</div>';
-          item.appendChild(btn);
-        }
-      }
+  // After openProject builds the modal, swap fresh iframes with pre-loaded ones
+  var _openOrig = window.openProject;
+  window.openProject = function(key){
+    _openOrig(key);
+    var cache = _cache[key];
+    if(!cache) return;
+    document.querySelectorAll('#pm-videos iframe').forEach(function(iframe){
+      var m = iframe.src.match(/video\/(\d+)/);
+      if(!m) return;
+      var id = m[1];
+      var preloaded = cache[id];
+      if(!preloaded) return;
+      // Move the pre-loaded iframe (already buffering) into the modal slot
+      iframe.parentNode.replaceChild(preloaded, iframe);
+      // Mark loaded immediately since it was already loading
+      preloaded.closest('.pv-item') && preloaded.closest('.pv-item').classList.add('pv-loaded');
+      delete cache[id];
     });
-    initModalHoverPlay();
-  }, 250);
-};
+    delete _cache[key];
+  };
+})();
 
+// ─── PEEK STRIP: show video thumbnails on project card hover ─────────────────
+(function(){
+  document.querySelectorAll('.folder-card[data-key][data-vids]').forEach(function(card){
+    var thumb = card.querySelector('.folder-thumb');
+    if(!thumb || thumb.querySelector('.fc-peek')) return;
+    var vids = (card.dataset.vids || '').split(',').filter(Boolean);
+    if(vids.length < 2) return;
+    var count = vids.length;
+    // Show up to 3 peek thumbs from the project (skip vid[0] — already playing)
+    var peekVids = vids.slice(1, 4);
+
+    var peek = document.createElement('div');
+    peek.className = 'fc-peek';
+
+    // Badge: "12 videos"
+    var badge = document.createElement('span');
+    badge.className = 'fc-peek-badge';
+    badge.textContent = count + ' videos';
+    peek.appendChild(badge);
+
+    peekVids.forEach(function(vid){
+      var img = document.createElement('img');
+      img.className = 'fc-peek-thumb';
+      img.src = 'https://vumbnail.com/' + vid.trim() + '.jpg';
+      img.loading = 'lazy';
+      img.draggable = false;
+      img.alt = '';
+      peek.appendChild(img);
+    });
+
+    thumb.appendChild(peek);
+  });
+})();
 // ─── RTL ARROW FIX ───────────────────────────────────────────
 document.querySelectorAll('.carousel-btn').forEach(btn => {
   btn.addEventListener('click', e => e.stopPropagation());
@@ -2688,17 +2784,6 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   </div>
 </div>
 <script>
-// ── Scroll progress bar ──────────────────────────────────────────────────────
-(function(){
-  var bar = document.getElementById('scroll-progress');
-  if(!bar) return;
-  window.addEventListener('scroll', function(){
-    var h = document.documentElement;
-    var pct = (h.scrollTop || document.body.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
-    bar.style.width = pct + '%';
-  }, {passive:true});
-})();
-
 // ── Custom cursor ─────────────────────────────────────────────────────────────
 (function(){
   var dot  = document.getElementById('cursor-dot');
