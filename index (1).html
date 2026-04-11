@@ -921,6 +921,17 @@ html{scroll-behavior:smooth}
   .service-card{flex:1 1 100%!important}
   .hero-content{padding:0 18px!important}
   .about-grid{padding:0 16px!important}
+
+  /* Avatar: slightly smaller, clean border, no glow on mobile */
+  .hero-avatar{
+    width:84px!important;height:84px!important;
+    border:2px solid rgba(255,255,255,0.85)!important;
+    box-shadow:0 0 0 4px rgba(255,255,255,0.1),0 4px 20px rgba(0,0,0,0.6)!important
+  }
+  /* Hero tagline: slightly smaller on very small screens */
+  .hero-tagline{font-size:14px!important;max-width:100%!important;padding:0 4px}
+  /* Hero name: tighter */
+  .hero-name{font-size:clamp(36px,10vw,56px)!important;letter-spacing:-1px!important}
 }
 
 
@@ -1398,6 +1409,38 @@ body::after{
   transition:background 0.2s;
 }
 .mob-nav-lang:hover{background:rgba(255,255,255,0.15)}
+
+/* ══ MOBILE PERFORMANCE ══════════════════════════════════════ */
+@media(max-width:768px){
+  /* Kill ambient background animation — animates background-position
+     which forces full repaint every frame on mobile GPU */
+  body::before{ animation:none!important; background:none!important }
+  body::after { display:none!important }
+
+  /* Kill avatar glow pulse — box-shadow animation = paint storm */
+  .hero-avatar{ animation:none!important }
+
+  /* Reduce backdrop-filter blur cost */
+  .navbar{ backdrop-filter:blur(12px)!important; -webkit-backdrop-filter:blur(12px)!important }
+  .testimonial-card{ backdrop-filter:none!important; -webkit-backdrop-filter:none!important }
+  .about-link{ backdrop-filter:none!important; -webkit-backdrop-filter:none!important }
+  .carousel-btn{ backdrop-filter:none!important; -webkit-backdrop-filter:none!important }
+
+  /* Kill hero name char animation on mobile — each span triggers layout */
+  .hero-name .char{ animation:none!important; opacity:1!important; transform:none!important }
+
+  /* Disable cursor (already display:none but make sure no rAF loop runs) */
+  #cursor-dot,#cursor-ring{ display:none!important }
+
+  /* Smoother scroll */
+  html{ scroll-behavior:smooth; -webkit-overflow-scrolling:touch }
+
+  /* Promote composited layers for scroll elements */
+  .folders-track,.featured-track,.testimonial-track{
+    will-change:transform;
+    transform:translateZ(0)
+  }
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -2600,12 +2643,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Project cards ──────────────────────────────────────────
     var fcBgs = Array.from(document.querySelectorAll('.fc-bg[data-vid]'));
     fcBgs.forEach(function(bg, i) {
-      injectBg(bg, 400 + i * (mobile ? 400 : 250));
+      // Mobile: longer stagger so not all cards hit Vimeo simultaneously
+      injectBg(bg, 600 + i * (mobile ? 600 : 250));
     });
 
     // ── Featured strip: IntersectionObserver — inject only when near viewport ──
     // Max ~12 active at once (8 visible + buffer). Never overloads Vimeo.
     var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]'));
+    var fiBufPx = window.innerWidth < 768 ? '0px 200px' : '0px 700px';
     var fiBgObs = new IntersectionObserver(function(entries) {
       entries.forEach(function(e) {
         if (e.isIntersecting) {
@@ -2613,7 +2658,7 @@ document.addEventListener('DOMContentLoaded', () => {
           fiBgObs.unobserve(e.target);   // once injected, stop watching
         }
       });
-    }, { rootMargin: '0px 700px' });     // 700px horizontal buffer
+    }, { rootMargin: fiBufPx });
     fiBgs.forEach(function(bg) { fiBgObs.observe(bg); });
 
     // ── Health-check: retry any fi-bg that lost its iframe ──────
@@ -2812,6 +2857,8 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 <script>
 // ── Custom cursor ─────────────────────────────────────────────────────────────
 (function(){
+  // Skip on touch devices — no cursor needed, saves rAF loop
+  if(window.matchMedia('(pointer:coarse)').matches) return;
   var dot  = document.getElementById('cursor-dot');
   var ring = document.getElementById('cursor-ring');
   if(!dot || !ring) return;
@@ -2851,6 +2898,8 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 
 // ── Hero name char reveal ─────────────────────────────────────────────────────
 (function(){
+  // Skip on mobile — 14+ spans each animating = jank
+  if(window.matchMedia('(max-width:768px)').matches) return;
   var nameEl = document.querySelector('.hero-name');
   if(!nameEl || nameEl.dataset.charSplit) return;
   nameEl.dataset.charSplit='1';
