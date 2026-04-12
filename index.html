@@ -2630,6 +2630,139 @@ section::after{
     width:100%!important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   UPDATE-64 — THUMBNAILS + GALLERY + MOBILE CENTERING
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── pv-item: thumbnails and iframes ── */
+.pv-item{
+  background:#07070e;
+  overflow:hidden;
+}
+/* Thumbnail image inside pv-item */
+.pv-item > img[src*="vumbnail"]{
+  display:block;
+}
+/* iframe inside pv-item: positioned absolutely, managed by JS */
+.pv-item iframe{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  border:0;
+  pointer-events:none;
+}
+
+/* ── Mobile carousel centering: scroll-padding trick ── */
+@media(max-width:768px){
+
+  /* Center first/last card by padding the TRACK, not the container */
+  .folders-carousel,
+  .featured-strip{
+    overflow-x:scroll!important;
+    scroll-snap-type:x mandatory!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding:0!important;              /* no padding on container */
+    mask-image:none!important;
+    -webkit-mask-image:none!important;
+  }
+  .folders-carousel::-webkit-scrollbar,
+  .featured-strip::-webkit-scrollbar{ display:none!important; }
+
+  /* Tracks: padding = (viewport - card) / 2 = (100vw - 72vw)/2 = 14vw */
+  .folders-track,
+  .featured-track{
+    animation:none!important;
+    width:max-content!important;
+    display:flex!important;
+    flex-direction:row!important;
+    gap:12px!important;
+    padding:8px 14vw!important;       /* 14vw on each side = center first/last card */
+    align-items:flex-start!important;
+  }
+
+  /* Scroll-padding so snap target is the visual center */
+  .folders-carousel{ scroll-padding-inline:14vw!important; }
+  .featured-strip  { scroll-padding-inline:14vw!important; }
+
+  /* ── Project cards: uniform 3:4 ── */
+  .folder-card,
+  .folder-card.portrait{
+    min-width:72vw!important;
+    max-width:72vw!important;
+    width:72vw!important;
+    flex:0 0 72vw!important;
+    scroll-snap-align:start!important;   /* snap with the scroll-padding offset */
+    scroll-snap-stop:always!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+    border-radius:10px!important;
+    background:var(--card)!important;
+  }
+
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb{
+    width:100%!important;
+    aspect-ratio:3/4!important;
+    height:auto!important;
+    flex:none!important;
+    padding-bottom:0!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+  }
+
+  /* ── Featured items: same uniform 3:4 ── */
+  .featured-item,
+  .featured-item.portrait,
+  .featured-item.landscape{
+    width:72vw!important;
+    min-width:72vw!important;
+    max-width:72vw!important;
+    flex:0 0 72vw!important;
+    height:auto!important;
+    aspect-ratio:3/4!important;
+    padding-bottom:0!important;
+    flex-shrink:0!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+    scroll-snap-align:start!important;
+    scroll-snap-stop:always!important;
+    border-radius:10px!important;
+  }
+
+  /* ── Inner gallery: clean 2-col portrait / 1-col landscape ── */
+  .pm-videos{
+    padding:12px 12px 48px!important;
+  }
+  .pm-section + .pm-section{
+    margin-top:28px!important;
+  }
+  .pm-grid-v{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+    justify-content:center!important;
+  }
+  .pm-grid-v .pv-item{
+    flex:0 0 calc(50% - 4px)!important;
+    max-width:calc(50% - 4px)!important;
+    min-width:0!important;
+  }
+  .pm-grid-h{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:12px!important;
+  }
+  .pm-grid-h .pv-item{
+    flex:1 1 100%!important;
+    max-width:100%!important;
+    width:100%!important;
+  }
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -3311,6 +3444,38 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
   grid.className = gridClass;
   grid.setAttribute('role', 'list');
 
+  // Sequential load queue: iframes load one at a time to avoid connection spike
+  var pvQueue = [];
+  var pvActive = 0;
+  var pvMax = window.innerWidth < 768 ? 1 : 3;
+  function pvNext() {
+    while (pvActive < pvMax && pvQueue.length > 0) {
+      pvActive++;
+      var job = pvQueue.shift();
+      var fr = job.iframe, dv = job.div, th = job.thumb;
+      fr.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;z-index:2;opacity:0;transition:opacity 0.7s ease;';
+      dv.appendChild(fr);
+      var done = false;
+      function resolve(iframe, thumb, div) {
+        return function() {
+          if (done) return; done = true;
+          pvActive--;
+          div.classList.add('pv-loaded');
+          setTimeout(function() {
+            iframe.style.opacity = '1';   // fade in video
+            thumb.style.opacity = '0';    // fade out thumbnail
+          }, 250);
+          pvNext();
+        };
+      }
+      fr.addEventListener('load', resolve(fr, th, dv), {once:true});
+      setTimeout(resolve(fr, th, dv), 9000);  // hard timeout
+      // Actually set src now to start loading
+      var srcVal = fr.getAttribute('data-src') || fr.src;
+      if (fr.getAttribute('data-src')) { fr.src = srcVal; }
+    }
+  }
+
   videos.forEach(([id], i) => {
     const div = document.createElement('div');
     div.className = 'pv-item ' + (isPortrait ? 'portrait' : 'landscape');
@@ -3319,16 +3484,24 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     div.setAttribute('aria-label',
       (isPortrait ? 'Vertical short' : 'Horizontal video') + ' ' + (startIdx + i + 1));
 
-    // Shimmer (hidden once iframe loads)
+    // Real thumbnail: vumbnail.com → full image, no black, no shimmer
+    const thumb = document.createElement('img');
+    thumb.src = 'https://vumbnail.com/' + id + '.jpg';
+    thumb.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
+      'object-fit:cover;object-position:center;z-index:1;border-radius:inherit;' +
+      'transition:opacity 0.7s ease;';
+    thumb.setAttribute('loading','eager');
+    thumb.setAttribute('alt','');
+    div.appendChild(thumb);
+
+    // Shimmer overlay during load
     const shimmer = document.createElement('div');
     shimmer.className = 'pv-shimmer';
+    shimmer.style.zIndex = '3';
     div.appendChild(shimmer);
 
-    // Iframe  -  staggered delay so browser doesn't spike on open
+    // Build iframe but don't set src yet (queue will do it)
     const iframe = buildVimeoIframe(id);
-    iframe.addEventListener('load', () => div.classList.add('pv-loaded'));
-    // All iframes load immediately — no stagger in modal
-    div.appendChild(iframe);
 
     // Play overlay
     div.appendChild(makePvPlay());
@@ -3344,7 +3517,10 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     });
 
     grid.appendChild(div);
+    pvQueue.push({iframe, div, thumb});
   });
+
+  pvNext(); // kick off sequential loading
 
   section.appendChild(grid);
   return section;
@@ -3800,7 +3976,7 @@ document.addEventListener('DOMContentLoaded', () => {
           swapFr.style.opacity = '1';      // fade new frame in
           cur = swapIdx;
           // Remove old frames only after new one is visually up (fade=500ms)
-          setTimeout(function() { removeOldFrames(swapFr); }, 700);
+          setTimeout(function() { removeOldFrames(swapFr); }, 2500);
           // Start buffering the next video
           setTimeout(preBuffer, 4000);
         }
