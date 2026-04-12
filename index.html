@@ -414,7 +414,7 @@ footer::before{
 @keyframes pvIn{to{opacity:1;transform:translateY(0)}}
 .pv-item:focus{outline:2px solid rgba(255,255,255,0.45);outline-offset:3px}
 .pv-item.landscape{aspect-ratio:16/9}
-.pv-item.portrait{aspect-ratio:16/9!important}
+.pv-item.portrait{aspect-ratio:9/16!important}
 .pv-item iframe{
   position:absolute;inset:0;width:100%;height:100%;
   border:0;pointer-events:none
@@ -2656,18 +2656,17 @@ section::after{
 
 /* ── Global pv-item ratios (desktop + mobile) ── */
 .pv-item.portrait{
-  aspect-ratio:16/9;
+  aspect-ratio:9/16;
 }
 .pv-item.landscape{
   aspect-ratio:16/9;
   width:100%;
 }
 
-/* Portrait pv-item thumbnail: contain — shows full vumbnail (16:9 image in 9:16 container) */
+/* All pv-item thumbnails: cover fills container (portrait thumbnail is native 9:16) */
 .pv-item.portrait > img{
-  object-fit:contain;
+  object-fit:cover;
   object-position:center center;
-  background:#07070e;
 }
 /* Landscape pv-item thumbnail: cover — fills 16:9 container perfectly */
 .pv-item.landscape > img{
@@ -2698,8 +2697,8 @@ section::after{
 /* ── Desktop featured: portrait 9:16, landscape 16:9, same height ── */
 .featured-item { height:280px!important; }
 .featured-item.portrait{
-  width:280px!important;
-  aspect-ratio:16/9!important;
+  width:169px!important;
+  aspect-ratio:9/16!important;
   height:auto!important;
 }
 .featured-item.landscape { width:498px!important; }
@@ -2921,9 +2920,9 @@ section::after{
   position:absolute!important;
   inset:0!important;
 }
-/* pv-item.portrait: 16:9 container — 16:9 vumbnail thumbnail fills perfectly */
+/* pv-item.portrait: 9:16 container — portrait thumbnail fills perfectly */
 .pv-item.portrait{
-  aspect-ratio:16/9!important;
+  aspect-ratio:9/16!important;
 }
 /* pm-grid-v: no stretch */
 .pm-grid-v{
@@ -2933,19 +2932,13 @@ section::after{
   align-items:flex-start!important;
 }
 
-/* ── UPDATE-74: featured portrait → 16:9 everywhere, thumbnails cover ── */
+/* ── UPDATE-76: all fi-thumb-img → cover ── */
 .featured-item.portrait .fi-thumb-img,
 .featured-item.landscape .fi-thumb-img,
 .featured-item .fi-thumb-img{
   object-fit:cover!important;
   object-position:center center!important;
   background:transparent!important;
-}
-@media(max-width:768px){
-  /* Featured: all items 16:9 — thumbnails fill perfectly */
-  .featured-item.portrait{
-    aspect-ratio:16/9!important;
-  }
 }
 
 /* ── UPDATE-75: mobile project cards — match desktop visual quality ── */
@@ -3001,14 +2994,79 @@ section::after{
     overflow:hidden!important;
     text-overflow:ellipsis!important;
   }
-  /* pv-item portrait on mobile: 16:9 so thumbnail fills */
+  /* pv-item portrait on mobile: 9:16 vertical */
   .pv-item.portrait{
-    aspect-ratio:16/9!important;
+    aspect-ratio:9/16!important;
   }
   /* pm-grid-v mobile: 2 columns */
   .pm-grid-v .pv-item{
     flex:0 0 calc(50% - 4px)!important;
     max-width:calc(50% - 4px)!important;
+  }
+}
+
+/* ── UPDATE-76: final portrait + mobile cards ── */
+
+/* Portrait pv-items: 9:16 vertical, cover fills native portrait thumbnail */
+.pv-item.portrait{
+  aspect-ratio:9/16!important;
+}
+.pv-item.portrait > img{
+  object-fit:cover!important;
+  object-position:center center!important;
+}
+
+/* Featured portrait: 9:16 vertical everywhere */
+.featured-item.portrait{
+  aspect-ratio:9/16!important;
+  width:169px!important;
+  height:auto!important;
+}
+@media(max-width:768px){
+  .featured-item.portrait{
+    aspect-ratio:9/16!important;
+    width:calc(100vw - 64px)!important;
+    height:auto!important;
+  }
+}
+
+/* Mobile project cards: UNIFORM — same width, same 3:4 thumb ratio */
+@media(max-width:768px){
+  .folder-card,
+  .folder-card.portrait,
+  .folder-card:not(.portrait){
+    min-width:calc(100vw - 24px)!important;
+    max-width:calc(100vw - 24px)!important;
+    width:calc(100vw - 24px)!important;
+    flex:0 0 calc(100vw - 24px)!important;
+    scroll-snap-align:start!important;
+    scroll-snap-stop:always!important;
+    display:flex!important;
+    flex-direction:column!important;
+    border-radius:14px!important;
+    overflow:hidden!important;
+  }
+  .folder-thumb,
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb,
+  .folder-card:not(.portrait) .folder-thumb{
+    aspect-ratio:3/4!important;
+    height:auto!important;
+    flex:none!important;
+    width:100%!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#08080f!important;
+  }
+  .folder-card .fc-thumb-img,
+  .folder-card.portrait .fc-thumb-img,
+  .folder-card:not(.portrait) .fc-thumb-img{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
   }
 }
 </style>
