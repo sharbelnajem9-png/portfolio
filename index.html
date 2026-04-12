@@ -641,15 +641,14 @@ html{scroll-behavior:smooth}
 
 /* ── Card layout: video fills top, title below ── */
 .folder-card{display:flex!important;flex-direction:column!important;border-radius:12px!important;overflow:hidden!important}
-/* Video area */
-.folder-thumb{flex:0 0 300px!important;height:300px!important;aspect-ratio:unset!important;overflow:hidden!important;position:relative!important}
+/* Video area — square 280×280 for ALL cards (landscape + portrait same size) */
+.folder-thumb{flex:0 0 280px!important;height:280px!important;aspect-ratio:unset!important;overflow:hidden!important;position:relative!important}
 /* Title area below video */
 .folder-info{flex:0 0 auto!important;padding:11px 16px 13px!important;background:var(--card)!important}
 .folder-info h4{font-size:13px!important;font-weight:600!important;margin:0!important;letter-spacing:-0.1px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* Landscape card: 533px wide = 16:9 video */
-.folder-card:not(.portrait){min-width:533px!important;max-width:533px!important}
-/* Portrait card: 169px wide = 9:16 video */
-.folder-card.portrait{min-width:169px!important;max-width:169px!important}
+/* All cards: identical 280px wide — square container, video covers via Vimeo internal cover */
+.folder-card:not(.portrait){min-width:280px!important;max-width:280px!important}
+.folder-card.portrait{min-width:280px!important;max-width:280px!important}
 .folder-card.portrait .folder-info h4{white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
 .folder-card.portrait .fc-play-btn{width:40px!important;height:40px!important;font-size:15px!important}
 
@@ -2501,7 +2500,7 @@ section::after{
   inset:0!important;
   width:100%!important;
   height:100%!important;
-  object-fit:contain!important;      /* FULL image — no cropping */
+  object-fit:cover!important;
   object-position:center center!important;
   background:transparent!important;  /* bg-color comes from fc-bg/fi-bg */
 }
@@ -2761,6 +2760,85 @@ section::after{
     flex:1 1 100%!important;
     max-width:100%!important;
     width:100%!important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   UPDATE-65 — DESIGNER PASS: SYMMETRIC CARDS + NATURAL RATIOS
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── DESKTOP: featured highlights — correct natural ratios, same height ── */
+.featured-item { height:280px!important; }
+.featured-item.portrait  { width:158px!important; }   /* 280×9/16 = 157.5 */
+.featured-item.landscape { width:498px!important; }   /* 280×16/9 = 497.8 */
+.featured-item:not(.portrait):not(.landscape){ width:158px!important; } /* default = portrait */
+
+/* ── ALL thumbnails: cover + no hover zoom ── */
+.fc-thumb-img,
+.fi-thumb-img {
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:none!important;           /* never scale */
+  transition:opacity 0.9s ease!important;
+}
+.folder-card:hover .fc-thumb-img,
+.featured-item:hover .fi-thumb-img {
+  transform:none!important;
+}
+
+/* ── pv-item thumbnails (modal): cover + no zoom ── */
+.pv-item > img {
+  transform:none!important;
+}
+.pv-item:hover > img {
+  transform:none!important;
+}
+
+/* ════ MOBILE ════════════════════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* Featured: natural aspect per orientation — video fills, nothing cropped */
+  .featured-item,
+  .featured-item:not(.portrait):not(.landscape){
+    aspect-ratio:3/4!important;
+    height:auto!important;
+    width:72vw!important;
+    min-width:72vw!important;
+    max-width:72vw!important;
+    flex:0 0 72vw!important;
+  }
+  .featured-item.portrait{
+    aspect-ratio:9/16!important;   /* portrait: tall card = full-screen UX */
+    height:auto!important;
+    width:72vw!important;
+    min-width:72vw!important;
+    max-width:72vw!important;
+    flex:0 0 72vw!important;
+  }
+  .featured-item.landscape{
+    aspect-ratio:16/9!important;  /* landscape: short card = correct 16:9 */
+    height:auto!important;
+    width:72vw!important;
+    min-width:72vw!important;
+    max-width:72vw!important;
+    flex:0 0 72vw!important;
+  }
+
+  /* Project carousel cards: uniform 3:4 (symmetric, all identical) */
+  .folder-card,
+  .folder-card.portrait{
+    width:72vw!important;
+    min-width:72vw!important;
+    max-width:72vw!important;
+    flex:0 0 72vw!important;
+  }
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb{
+    aspect-ratio:3/4!important;
+    height:auto!important;
+    flex:none!important;
+    width:100%!important;
+    padding-bottom:0!important;
   }
 }
 </style>
@@ -3451,28 +3529,34 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
   function pvNext() {
     while (pvActive < pvMax && pvQueue.length > 0) {
       pvActive++;
-      var job = pvQueue.shift();
-      var fr = job.iframe, dv = job.div, th = job.thumb;
-      fr.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;z-index:2;opacity:0;transition:opacity 0.7s ease;';
-      dv.appendChild(fr);
-      var done = false;
-      function resolve(iframe, thumb, div) {
-        return function() {
+      // IIFE per job: each job gets its own closure (no shared-var bug)
+      (function(job) {
+        var fr = job.iframe, dv = job.div, th = job.thumb;
+        fr.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;z-index:2;opacity:0;transition:opacity 0.9s ease;';
+        dv.appendChild(fr);
+        var done = false;
+        function finish() {
           if (done) return; done = true;
           pvActive--;
-          div.classList.add('pv-loaded');
+          dv.classList.add('pv-loaded');
+          // Fade in video, fade out thumbnail
           setTimeout(function() {
-            iframe.style.opacity = '1';   // fade in video
-            thumb.style.opacity = '0';    // fade out thumbnail
-          }, 250);
+            fr.style.opacity = '1';
+            th.style.opacity = '0';
+          }, 120);
           pvNext();
-        };
-      }
-      fr.addEventListener('load', resolve(fr, th, dv), {once:true});
-      setTimeout(resolve(fr, th, dv), 9000);  // hard timeout
-      // Actually set src now to start loading
-      var srcVal = fr.getAttribute('data-src') || fr.src;
-      if (fr.getAttribute('data-src')) { fr.src = srcVal; }
+        }
+        // Use Vimeo Player API: fade thumbnail only when video is actually rendering
+        try {
+          var vp = new Vimeo.Player(fr);
+          vp.on('timeupdate', finish);
+        } catch(e) {
+          // Fallback: use iframe load event
+          fr.addEventListener('load', finish, {once:true});
+        }
+        // Hard timeout: 12s
+        setTimeout(finish, 12000);
+      })(pvQueue.shift());
     }
   }
 
@@ -3520,7 +3604,9 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     pvQueue.push({iframe, div, thumb});
   });
 
-  pvNext(); // kick off sequential loading
+  // Desktop: load iframes sequentially. Mobile: thumbnails only (click → lightbox).
+  // No iframes on mobile prevents iOS Safari memory pressure (page reload).
+  if (window.innerWidth >= 768) { pvNext(); }
 
   section.appendChild(grid);
   return section;
