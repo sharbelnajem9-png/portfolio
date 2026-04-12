@@ -1788,7 +1788,7 @@ body{background:var(--black)!important}
     scrollbar-width:none!important;
     mask-image:none!important;
     -webkit-mask-image:none!important;
-    padding:0 20px!important;
+    padding:8px 16px 12px!important;
     cursor:grab!important;
   }
   .folders-carousel::-webkit-scrollbar{display:none!important}
@@ -1828,7 +1828,7 @@ body{background:var(--black)!important}
     scrollbar-width:none!important;
     mask-image:none!important;
     -webkit-mask-image:none!important;
-    padding:0 20px!important;
+    padding:8px 16px 12px!important;
   }
   .featured-strip::-webkit-scrollbar{display:none!important}
   .featured-track{
@@ -2715,12 +2715,11 @@ section::after{
 }
 .featured-item::after{ display:none!important; }
 
-/* ── Thumbnail styles: contain — full image visible, no zoom ── */
+/* ── Thumbnail styles: cover — fills container (ratio matches = full image) ── */
 .fc-thumb-img,
 .fi-thumb-img{
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:center center!important;
-  background:#08080f!important;
 }
 
 /* No hover zoom on thumbnails */
@@ -2918,27 +2917,25 @@ section::after{
 .pv-item.portrait{ aspect-ratio:9/16!important; }
 .pv-item.landscape{ aspect-ratio:16/9!important; }
 
-/* pv-item thumbnails: contain — full image, no zoom */
+/* pv-item thumbnails: cover — fills container (ratio matches = full image) */
 .pv-item > img,
 .pv-item.portrait > img,
 .pv-item.landscape > img{
   position:absolute!important; inset:0!important;
   width:100%!important; height:100%!important;
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:center center!important;
-  background:#08080f!important;
 }
 
 /* Grid alignment */
 .pm-grid-v{ align-items:flex-start!important; }
 .pm-grid-h{ align-items:flex-start!important; }
 
-/* Featured thumbnails: contain — full image, no zoom */
+/* Featured thumbnails: cover — fills container (ratio matches = full image) */
 .fi-thumb-img,
 .featured-item .fi-thumb-img{
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:center center!important;
-  background:#08080f!important;
 }
 
 /* Desktop featured: portrait 9:16 same HEIGHT as landscape */
@@ -3013,9 +3010,8 @@ section::after{
     inset:0!important;
     width:100%!important;
     height:100%!important;
-    object-fit:contain!important;
+    object-fit:cover!important;
     object-position:center center!important;
-    background:#08080f!important;
   }
   .folder-card .folder-info,
   .folder-card.portrait .folder-info,
