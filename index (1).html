@@ -3691,6 +3691,26 @@ function makePvPlay() {
   return wrap;
 }
 
+// ── Fetch correct portrait thumbnail from Vimeo oEmbed API ──
+// vumbnail.com always returns 16:9; for portrait containers we need the native portrait thumb.
+function loadPortraitThumb(imgEl, id, pvItem) {
+  fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' + id)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d || !d.thumbnail_url) { if (pvItem) pvItem.classList.add('pv-loaded'); return; }
+      var check = new Image();
+      check.onload = function() {
+        imgEl.src = d.thumbnail_url;
+        imgEl.style.objectFit = 'cover';
+        imgEl.style.background = 'transparent';
+        if (pvItem) pvItem.classList.add('pv-loaded');
+      };
+      check.onerror = function() { if (pvItem) pvItem.classList.add('pv-loaded'); };
+      check.src = d.thumbnail_url;
+    })
+    .catch(function(){ if (pvItem) pvItem.classList.add('pv-loaded'); });
+}
+
 // ── Build one section (label + count + grid) ──
 // Iframes load immediately  -  modal is focused content, no lazy-load needed
 function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
@@ -3761,16 +3781,19 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     div.setAttribute('aria-label',
       (isPortrait ? 'Vertical short' : 'Horizontal video') + ' ' + (startIdx + i + 1));
 
-    // Thumbnail: cover fills container. Portrait uses top-center (shows face/subject).
+    // Thumbnail: landscape=cover (fills 16:9), portrait=contain placeholder then Vimeo portrait thumb
     const thumb = document.createElement('img');
     thumb.src = 'https://vumbnail.com/' + id + '.jpg';
-    var thumbPos = isPortrait ? 'center top' : 'center center';
     thumb.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
-      'object-fit:cover;object-position:center center;z-index:1;border-radius:inherit;' +
+      (isPortrait ? 'object-fit:contain;background:#08080f;' : 'object-fit:cover;') +
+      'object-position:center center;z-index:1;border-radius:inherit;' +
       'transition:opacity 0.7s ease;';
     thumb.setAttribute('loading','eager');
     thumb.setAttribute('alt','');
     div.appendChild(thumb);
+
+    // Portrait: fetch correct portrait thumbnail from Vimeo API (vumbnail = 16:9 only)
+    if (isPortrait) loadPortraitThumb(thumb, id, div);
 
     // Shimmer overlay during load
     const shimmer = document.createElement('div');
@@ -3950,6 +3973,28 @@ function scrollFeatured(dir) {
   }, 5000);
 }
 
+
+// ── Fix featured portrait thumbnails: load correct portrait image from Vimeo ──
+// Runs immediately (script is at bottom of page, DOM is ready)
+document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(item) {
+  var vid = item.dataset.vid;
+  var img = item.querySelector('.fi-thumb-img');
+  if (!vid || !img) return;
+  fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' + vid)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d || !d.thumbnail_url) return;
+      var check = new Image();
+      check.onload = function() {
+        img.src = d.thumbnail_url;
+        img.style.objectFit = 'cover';
+        img.style.background = 'transparent';
+      };
+      check.onerror = function(){};
+      check.src = d.thumbnail_url;
+    })
+    .catch(function(){});
+});
 </script>
 
 <!-- LEGAL MODALS -->
