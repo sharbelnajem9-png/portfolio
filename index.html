@@ -1462,7 +1462,7 @@ body::after{
 }
 
 /* 7. Hero premium: taller, cinematic overlay */
-.hero{height:88vh!important;min-height:560px!important}
+/* hero height override moved to mobile-only block */
 .hero-overlay{
   background:linear-gradient(
     to bottom,
@@ -1569,28 +1569,7 @@ body::after{
 /* ── MOBILE ONLY ──────────────────────────────────────────────── */
 @media(max-width:768px){
 
-  /* Hero: taller, better framed, video fills properly */
-  .hero{
-    height:100svh!important;
-    min-height:100vh!important;
-    padding:0!important;
-    align-items:flex-end!important;
-  }
-  .hero-content{
-    padding:0 24px 52px!important;
-    gap:10px!important;
-    align-items:center!important;
-  }
-  .hero-overlay{
-    background:linear-gradient(
-      to bottom,
-      rgba(4,5,13,0.18) 0%,
-      rgba(4,5,13,0.02) 30%,
-      rgba(4,5,13,0.45) 65%,
-      rgba(4,5,13,0.88) 100%
-    )!important;
-  }
-  .hero-scroll{bottom:14px!important}
+  /* hero mobile block moved to update-52 */
 
   /* About: larger photo, center social links */
   .about-image-wrapper img{
@@ -1642,35 +1621,7 @@ body::after{
 
 /* ══ UPDATE-49 ═══════════════════════════════════════════════════════ */
 
-/* ── Fix 1: Hero — iframe must COVER fully at all heights ── */
-/* On mobile: Vimeo background player fills container when w/h=100% */
-@media(max-width:768px){
-  /* Hero: clip video properly, no gap */
-  .hero{
-    overflow:hidden!important;
-  }
-  /* Iframe: let Vimeo background fill the container */
-  .hero-vid-item iframe{
-    width:100%!important;
-    height:100%!important;
-    min-width:unset!important;
-    top:0!important;left:0!important;
-    transform:none!important;
-    object-fit:cover!important;
-  }
-  /* Hero content: centered, padded from bottom */
-  .hero-content{
-    width:100%!important;
-    align-items:center!important;
-    text-align:center!important;
-    padding:0 20px 56px!important;
-  }
-  /* Avatar centered */
-  .hero-avatar{
-    margin:0 auto!important;
-    display:block!important;
-  }
-}
+/* update-49 hero block removed — consolidated in update-52 */
 
 /* ── Fix 2: About image — fix the rectangle box on mobile ── */
 @media(max-width:768px){
@@ -1710,67 +1661,78 @@ body::after{
   }
 }
 
-/* ══ UPDATE-50: MOBILE HERO FULL-BLEED ══════════════════════════ */
+/* ══ UPDATE-52: MOBILE HERO FULL-BLEED (CLEAN CONSOLIDATION) ════ */
 @media(max-width:768px){
 
-  /* ── Revert bad iframe override from update-49 ── */
-  /* Correct formula: height=100vh fills portrait, width=177.78vh fills landscape */
-  .hero-vid-item iframe{
-    position:absolute!important;
-    top:50%!important;left:50%!important;
-    width:177.78vh!important;
-    height:100vh!important;
-    min-width:100vw!important;
-    min-height:unset!important;
-    transform:translate(-50%,-50%)!important;
-    border:0!important;pointer-events:none!important;
-  }
-
-  /* ── Hero container: full viewport, no padding, clip video ── */
+  /* Hero container: true full-screen, clips video */
   .hero{
-    height:100vh!important;
-    height:100dvh!important;   /* dynamic viewport height — avoids Safari bar gap */
-    min-height:100vh!important;
+    height:100svh!important;
+    min-height:100svh!important;
     padding:0!important;
     overflow:hidden!important;
-    align-items:flex-end!important;
+    /* Flexbox centres hero-content (the only in-flow child) */
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
     justify-content:center!important;
   }
 
-  /* ── Hide avatar in hero on mobile ── */
-  .hero-content .hero-avatar{
-    display:none!important;
-  }
-
-  /* ── Content: vertically centred on the video ── */
-  .hero-content{
+  /* Video background fills hero absolutely */
+  .hero-video-bg{
     position:absolute!important;
-    top:50%!important;left:0!important;right:0!important;bottom:auto!important;
-    transform:translateY(-50%)!important;
-    width:100%!important;
-    padding:0 24px!important;
-    gap:10px!important;
-    text-align:center!important;
-    align-items:center!important;
-    animation:none!important;
-    z-index:3!important;
+    inset:0!important;
+    z-index:0!important;
   }
 
-  /* ── Stronger gradient so text is readable on video ── */
+  /* Iframe: standard cover formula */
+  .hero-vid-item iframe{
+    position:absolute!important;
+    top:50%!important; left:50%!important;
+    width:177.78vh!important;
+    height:100vh!important;
+    min-width:100%!important;
+    min-height:unset!important;
+    transform:translate(-50%,-50%)!important;
+    border:0!important; pointer-events:none!important;
+  }
+
+  /* Overlay */
   .hero-overlay{
+    position:absolute!important;
+    inset:0!important;
+    z-index:1!important;
     background:linear-gradient(
       to bottom,
       rgba(4,5,13,0) 0%,
-      rgba(4,5,13,0) 40%,
-      rgba(4,5,13,0.6) 68%,
-      rgba(4,5,13,0.92) 100%
+      rgba(4,5,13,0) 35%,
+      rgba(4,5,13,0.55) 68%,
+      rgba(4,5,13,0.88) 100%
     )!important;
   }
 
-  /* ── Hero scroll indicator at bottom ── */
+  /* Hide avatar on mobile hero */
+  .hero-content .hero-avatar{ display:none!important; }
+
+  /* Hero content: in-flow flex child → flexbox centres it inside .hero */
+  .hero-content{
+    position:relative!important;
+    transform:none!important;
+    top:auto!important; left:auto!important; right:auto!important; bottom:auto!important;
+    z-index:2!important;
+    width:100%!important;
+    padding:0 24px!important;
+    gap:12px!important;
+    text-align:center!important;
+    align-items:center!important;
+    display:flex!important;
+    flex-direction:column!important;
+    animation:none!important;
+  }
+
   .hero-scroll{
+    position:absolute!important;
     bottom:16px!important;
-    z-index:4!important;
+    z-index:3!important;
   }
 }
 </style>
