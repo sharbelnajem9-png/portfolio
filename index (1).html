@@ -59,7 +59,7 @@ body{font-family:var(--font-body);background:var(--black);color:var(--white);ove
 .hero-content{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px;animation:heroIn 1s ease-out}
 @keyframes heroIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .hero-avatar{width:100px;height:100px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.75);overflow:hidden;background:var(--card);box-shadow:0 0 0 5px rgba(255,255,255,0.07),0 0 28px rgba(255,255,255,0.2),0 4px 20px rgba(0,0,0,0.5)}
-.hero-avatar img{width:100%;height:100%;object-fit:cover;object-position:center 12%}
+.hero-avatar img{width:100%;height:100%;object-fit:cover;object-position:center center}
 .hero-name{font-family:var(--font-display);font-size:clamp(56px,9vw,104px);font-weight:700;letter-spacing:-2px;line-height:1;direction:ltr;unicode-bidi:isolate}
 .hero-tagline{font-size:clamp(15px,1.5vw,19px);color:rgba(255,255,255,0.68);max-width:580px;font-weight:300;line-height:1.65}
 .hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--white-15);font-size:10px;letter-spacing:3px;text-transform:uppercase;animation:scrollB 2s infinite}
@@ -533,7 +533,7 @@ footer::before{
     0 0 70px rgba(255,255,255,0.18),
     0 4px 24px rgba(0,0,0,0.5)
 }
-.hero-avatar img{width:100%;height:100%;object-fit:cover;object-position:center 6%}
+.hero-avatar img{width:100%;height:100%;object-fit:cover;object-position:center center}
 @keyframes avatarPulse{
   0%,100%{box-shadow:0 0 0 6px rgba(255,255,255,0.12),0 0 30px rgba(255,255,255,0.45),0 0 70px rgba(255,255,255,0.18),0 4px 24px rgba(0,0,0,0.5)}
   50%{box-shadow:0 0 0 10px rgba(255,255,255,0.08),0 0 55px rgba(255,255,255,0.65),0 0 100px rgba(255,255,255,0.28),0 4px 24px rgba(0,0,0,0.5)}
@@ -775,7 +775,7 @@ html{scroll-behavior:smooth}
   rgba(8,8,8,0.8) 100%)!important}
 
 /* --- Avatar  -  tighter face crop --- */
-.hero-avatar img{object-position:center 12%!important}
+.hero-avatar img{object-position:center center!important}
 @keyframes avatarPulse{
   0%,100%{box-shadow:0 0 0 6px rgba(255,255,255,0.13),0 0 32px rgba(255,255,255,0.5),0 0 72px rgba(255,255,255,0.2),0 4px 24px rgba(0,0,0,0.5)}
   50%{box-shadow:0 0 0 10px rgba(255,255,255,0.08),0 0 60px rgba(255,255,255,0.7),0 0 110px rgba(255,255,255,0.3),0 4px 24px rgba(0,0,0,0.5)}
@@ -2169,31 +2169,7 @@ section::after{
     object-position:center center!important;
     border:0!important;
   }
-  /* ─ Landscape (16:9) iframes in a 3:4 (72vw×96vw) container ─
-     Fit to height → width = 96vw × 16/9 = 170.67vw = 237% of 72vw container */
-  .folder-card:not(.portrait) .fc-bg iframe,
-  .featured-item.landscape .fi-bg iframe{
-    position:absolute!important;
-    top:50%!important; left:50%!important;
-    inset:auto!important;
-    width:237%!important;
-    height:100%!important;
-    transform:translate(-50%,-50%)!important;
-    border:0!important;
-  }
-  /* ─ Portrait (9:16) iframes in a 3:4 (72vw×96vw) container ─
-     Fit to width → height = 72vw × 16/9 = 128vw = 133% of 96vw container */
-  .folder-card.portrait .fc-bg iframe,
-  .featured-item.portrait .fi-bg iframe,
-  .featured-item:not(.landscape) .fi-bg iframe{
-    position:absolute!important;
-    top:50%!important; left:50%!important;
-    inset:auto!important;
-    width:100%!important;
-    height:133%!important;
-    transform:translate(-50%,-50%)!important;
-    border:0!important;
-  }
+  /* iframes: just fill container — Vimeo background=1 handles cover internally */
 }
 
 /* ══ UPDATE-60 ═══════════════════════════════════════════════════ */
@@ -2266,33 +2242,7 @@ section::after{
     object-position:center!important;
   }
 
-  /* ─ LANDSCAPE 16:9 iframe in 3:4 container:
-       fit to height → width = 96vw×(16/9) = 170.7vw
-       as % of 72vw container = 237% */
-  .folder-card:not(.portrait) .fc-bg iframe,
-  .featured-item.landscape .fi-bg iframe{
-    position:absolute!important;
-    inset:auto!important;
-    top:50%!important; left:50%!important;
-    width:237%!important;
-    height:100%!important;
-    transform:translate(-50%,-50%)!important;
-    border:0!important;
-  }
-
-  /* ─ PORTRAIT 9:16 iframe in 3:4 container:
-       fit to width → height = 72vw×(16/9) = 128vw
-       as % of 96vw container = 133% */
-  .folder-card.portrait .fc-bg iframe,
-  .featured-item:not(.landscape) .fi-bg iframe{
-    position:absolute!important;
-    inset:auto!important;
-    top:50%!important; left:50%!important;
-    width:100%!important;
-    height:133%!important;
-    transform:translate(-50%,-50%)!important;
-    border:0!important;
-  }
+  /* iframes fill container — Vimeo background=1 covers internally */
 
   /* Card info: contained */
   .folder-info{
@@ -2302,6 +2252,113 @@ section::after{
 
   /* Ensure hero-btn-showreel stays hidden */
   .hero-btn-showreel{ display:none!important; }
+}
+
+/* ══ UPDATE-61 ══════════════════════════���════════════════════════ */
+
+/* ── DESKTOP & MOBILE: ensure .fc-bg and .fi-bg fill their containers ─ */
+/* Vimeo background=1 applies object-fit:cover to the video internally.
+   Just fill the iframe to 100%×100% of the container and Vimeo does the rest. */
+.fc-bg{
+  position:absolute;inset:0;overflow:hidden;background:#07070e;
+}
+.fc-bg iframe{
+  position:absolute;inset:0;
+  width:100%!important;height:100%!important;
+  border:0;pointer-events:none;
+}
+.fi-bg{
+  position:absolute;inset:0;overflow:hidden;background:#07070e;
+}
+.fi-bg iframe{
+  position:absolute;inset:0;
+  width:100%!important;height:100%!important;
+  border:0;pointer-events:none;
+}
+
+/* ── MOBILE: clean uniform card sizing using aspect-ratio ── */
+@media(max-width:768px){
+
+  /* ALL project carousel cards: same width */
+  .folder-card,
+  .folder-card.portrait{
+    min-width:72vw!important;
+    max-width:72vw!important;
+    width:72vw!important;
+    flex-shrink:0!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+
+  /* Thumb: uniform 3:4 aspect, overflow clips the video cover */
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb{
+    flex:none!important;
+    height:auto!important;
+    padding-bottom:0!important;
+    aspect-ratio:3/4!important;
+    width:100%!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+  }
+
+  /* Thumbnail image: cover crop inside thumb */
+  .fc-thumb-img{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+
+  /* ── ALL featured items: same size ── */
+  .featured-item,
+  .featured-item.portrait,
+  .featured-item.landscape{
+    width:72vw!important;
+    min-width:72vw!important;
+    max-width:72vw!important;
+    height:auto!important;
+    aspect-ratio:3/4!important;
+    flex-shrink:0!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+    padding-bottom:0!important;
+  }
+
+  /* Thumbnail image in featured */
+  .fi-thumb-img{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+
+  /* Card info label */
+  .folder-info{
+    flex:0 0 auto!important;
+    padding:8px 12px 10px!important;
+  }
+
+  /* Inner gallery: portrait = 2 col, landscape = 1 col */
+  .pm-grid-v{
+    gap:8px!important;
+  }
+  .pm-grid-v .pv-item{
+    flex:0 0 calc(50% - 4px)!important;
+    max-width:calc(50% - 4px)!important;
+  }
+  .pm-grid-h .pv-item{
+    flex:1 1 100%!important;
+    max-width:100%!important;
+  }
 }
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
@@ -2358,7 +2415,7 @@ section::after{
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-avatar"><img src="avatar.jpg" alt="Sharbel Najem" style="object-position:center 6%;"></div>
+    <div class="hero-avatar"><img src="avatar.jpg" alt="Sharbel Najem" style="object-position:center center;"></div>
     <h1 class="hero-name">Sharbel Najem</h1>
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
@@ -3548,17 +3605,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { rootMargin: fiBufPx });
     fiBgs.forEach(function(bg) { fiBgObs.observe(bg); });
 
-    // ── Health-check: retry any fi-bg that lost its iframe ──────
-    // Fires every 30s. If data-vi is set but no <iframe> child exists,
-    // the inject either failed or the iframe was garbage-collected.
-    setInterval(function() {
-      document.querySelectorAll('.fi-bg[data-vid]').forEach(function(bg) {
-        if (bg.dataset.vi && !bg.querySelector('iframe')) {
-          delete bg.dataset.vi;             // clear flag so injectBg runs again
-          injectBg(bg, 0);
-        }
-      });
-    }, 30000);
+    // ── Health-check: retry any fi-bg that lost its iframe (desktop only) ──
+    // Disabled on mobile — re-injection every 30s can accumulate iframes
+    // and trigger iOS Safari memory pressure (tab reload).
+    if (!mobile) {
+      setInterval(function() {
+        document.querySelectorAll('.fi-bg[data-vid]').forEach(function(bg) {
+          if (bg.dataset.vi && !bg.querySelector('iframe')) {
+            delete bg.dataset.vi;
+            injectBg(bg, 0);
+          }
+        });
+      }, 30000);
+    }
   }
 
   if (document.readyState === 'loading') {
