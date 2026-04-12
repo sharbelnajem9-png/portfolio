@@ -1639,6 +1639,76 @@ body::after{
     padding:18px 18px 16px!important;
   }
 }
+
+/* ══ UPDATE-49 ═══════════════════════════════════════════════════════ */
+
+/* ── Fix 1: Hero — iframe must COVER fully at all heights ── */
+/* On mobile: Vimeo background player fills container when w/h=100% */
+@media(max-width:768px){
+  /* Hero: clip video properly, no gap */
+  .hero{
+    overflow:hidden!important;
+  }
+  /* Iframe: let Vimeo background fill the container */
+  .hero-vid-item iframe{
+    width:100%!important;
+    height:100%!important;
+    min-width:unset!important;
+    top:0!important;left:0!important;
+    transform:none!important;
+    object-fit:cover!important;
+  }
+  /* Hero content: centered, padded from bottom */
+  .hero-content{
+    width:100%!important;
+    align-items:center!important;
+    text-align:center!important;
+    padding:0 20px 56px!important;
+  }
+  /* Avatar centered */
+  .hero-avatar{
+    margin:0 auto!important;
+    display:block!important;
+  }
+}
+
+/* ── Fix 2: About image — fix the rectangle box on mobile ── */
+@media(max-width:768px){
+  /* Make the wrapper itself a circle, not just the img */
+  .about-image-wrapper{
+    width:150px!important;
+    height:150px!important;
+    border-radius:50%!important;
+    aspect-ratio:unset!important;
+    max-width:unset!important;
+    margin:0 auto 20px!important;
+    /* Remove the rectangular decorations */
+    border:2.5px solid rgba(255,255,255,0.28)!important;
+    box-shadow:0 0 0 5px rgba(255,255,255,0.06),0 8px 32px rgba(0,0,0,0.5)!important;
+    background:var(--card)!important;
+    flex-shrink:0!important;
+  }
+  /* Remove the decorative top highlight line inside rectangle */
+  .about-image-wrapper::before{display:none!important}
+  /* Remove the dark gradient overlay (not needed on circle) */
+  .about-image-wrapper::after{display:none!important}
+  /* Image fills the circle */
+  .about-image-wrapper img{
+    width:100%!important;
+    height:100%!important;
+    border-radius:0!important;
+    border:none!important;
+    box-shadow:none!important;
+    margin:0!important;
+    object-position:center top!important;
+  }
+  /* Grid: stack vertically, center everything */
+  .about-grid{
+    grid-template-columns:1fr!important;
+    text-align:center!important;
+    gap:20px!important;
+  }
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -2844,21 +2914,23 @@ document.addEventListener('DOMContentLoaded', () => {
     var mobile = window.innerWidth < 768;
 
     // ── Project cards ──────────────────────────────────────────
-    // Project card backgrounds: use IntersectionObserver so only cards
-    // near the viewport get iframes — prevents Vimeo throttle/stutter.
+    // Project card backgrounds: eager load, de-duped by data-vid.
+    // IntersectionObserver does NOT work with CSS-animated carousels
+    // (CSS transforms bypass IO bounding rect updates).
+    // De-duplicate: the track has 2 copies of each card for infinite loop;
+    // only inject the first occurrence of each unique video ID.
     var fcBgs = Array.from(document.querySelectorAll('.fc-bg[data-vid]'));
-    var fcBufPx = mobile ? '0px 100px' : '0px 400px';
-    var _fcIdx = 0; // stagger counter among observed entries
-    var fcBgObs = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (e.isIntersecting) {
-          var delay = mobile ? (_fcIdx++ * 400) : (_fcIdx++ * 150);
-          injectBg(e.target, delay);
-          fcBgObs.unobserve(e.target);
-        }
-      });
-    }, { rootMargin: fcBufPx });
-    fcBgs.forEach(function(bg) { fcBgObs.observe(bg); });
+    var seenVids = {};
+    var fcUnique = fcBgs.filter(function(bg) {
+      var v = bg.dataset.vid;
+      if (seenVids[v]) return false;
+      seenVids[v] = true;
+      return true;
+    });
+    var fcGap = mobile ? 700 : 220;
+    fcUnique.forEach(function(bg, i) {
+      injectBg(bg, 300 + i * fcGap);
+    });
 
     // ── Featured strip: IntersectionObserver — inject only when near viewport ──
     // Max ~12 active at once (8 visible + buffer). Never overloads Vimeo.
