@@ -1754,6 +1754,149 @@ body::after{
     padding-top:20px!important;
   }
 }
+
+/* ══ UPDATE-54 ═══════════════════════════════════════════════════ */
+
+/* ── 14. Luxury deep blue background tint ── */
+:root{
+  --black:#080c14;
+  --dark:#0a0f1a;
+  --card:#0e1422;
+}
+body{background:var(--black)!important}
+
+/* ── Project card bg: prevent wrong video from neighbouring card ──
+   Each fc-bg iframe is strictly scoped to its own bg element ── */
+.fc-bg{isolation:isolate}
+
+/* ── Video crossfade: ensure no black gap between clips ── */
+.fc-bg iframe{transition:opacity 0.6s ease!important}
+.fi-bg iframe{transition:opacity 0.6s ease!important}
+
+/* ── Mobile carousels: manual swipe + snap, full item visible ── */
+@media(max-width:768px){
+
+  /* Wrapper becomes the scroll container */
+  .folders-carousel{
+    overflow-x:scroll!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x mandatory!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    mask-image:none!important;
+    -webkit-mask-image:none!important;
+    padding:0 20px!important;
+    cursor:grab!important;
+  }
+  .folders-carousel::-webkit-scrollbar{display:none!important}
+  /* Track: normal flex, no animation */
+  .folders-track{
+    animation:none!important;
+    width:auto!important;
+    gap:12px!important;
+    padding:8px 0!important;
+  }
+  /* Portrait card: fills full phone width */
+  .folder-card.portrait{
+    min-width:calc(100vw - 64px)!important;
+    max-width:calc(100vw - 64px)!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+  /* Landscape card: nearly full width */
+  .folder-card:not(.portrait){
+    min-width:calc(100vw - 40px)!important;
+    max-width:calc(100vw - 40px)!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+  .folder-thumb{
+    flex:0 0 auto!important;
+    height:auto!important;
+    aspect-ratio:9/16!important;
+  }
+  .folder-card:not(.portrait) .folder-thumb{
+    aspect-ratio:16/9!important;
+  }
+
+  /* Featured strip */
+  .featured-strip{
+    overflow-x:scroll!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x mandatory!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    mask-image:none!important;
+    -webkit-mask-image:none!important;
+    padding:0 20px!important;
+  }
+  .featured-strip::-webkit-scrollbar{display:none!important}
+  .featured-track{
+    animation:none!important;
+    width:auto!important;
+    gap:12px!important;
+  }
+  .featured-item{
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+    flex-shrink:0!important;
+  }
+  .featured-item.portrait{
+    width:calc(100vw - 64px)!important;
+    height:auto!important;
+    aspect-ratio:9/16!important;
+  }
+  .featured-item.landscape{
+    width:calc(100vw - 40px)!important;
+    height:auto!important;
+    aspect-ratio:16/9!important;
+  }
+
+  /* Testimonials */
+  .testimonials-marquee{
+    overflow-x:scroll!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x mandatory!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    mask-image:none!important;
+    -webkit-mask-image:none!important;
+    padding:0 20px 16px!important;
+  }
+  .testimonials-marquee::-webkit-scrollbar{display:none!important}
+  .testimonial-track{
+    animation:none!important;
+    width:auto!important;
+    gap:12px!important;
+  }
+  .testimonial-card{
+    min-width:calc(100vw - 56px)!important;
+    max-width:calc(100vw - 56px)!important;
+    width:calc(100vw - 56px)!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+    height:auto!important;
+    min-height:unset!important;
+  }
+
+  /* Inner project modal: centered, full-width videos */
+  .pm-grid-v{
+    justify-content:center!important;
+    gap:10px!important;
+  }
+  .pm-grid-v .pv-item{
+    flex:0 0 calc(50vw - 20px)!important;
+    max-width:none!important;
+  }
+  .pm-grid-h .pv-item{
+    flex:1 1 100%!important;
+    max-width:none!important;
+  }
+  .pm-videos{
+    padding:16px 16px 40px!important;
+    gap:10px!important;
+  }
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -1820,7 +1963,7 @@ body::after{
       <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
     </div>
   </div>
-  <div class="hero-scroll"><span data-en="Scroll" data-he="גלול">Scroll</span><div class="scroll-line"></div></div>
+  <div class="hero-scroll"><div class="scroll-line"></div></div>
 </section>
 
 <!-- ABOUT -->
@@ -3240,67 +3383,5 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 })();
 </script>
 
-<!-- ── Background music: auto-start on first user gesture ──────── -->
-<div id="site-music-wrap" style="position:fixed;width:1px;height:1px;overflow:hidden;left:-9999px;top:-9999px;opacity:0;pointer-events:none;z-index:-1;" aria-hidden="true">
-  <iframe id="site-music-frame" src="" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:300px;height:300px;border:0;"></iframe>
-</div>
-<script>
-(function(){
-  var _started = false;
-  var VID = '1181177403';
-
-  function startMusic(){
-    if(_started) return;
-    _started = true;
-    var fr = document.getElementById('site-music-frame');
-    if(!fr) return;
-    fr.src = 'https://player.vimeo.com/video/' + VID + '?background=1&autoplay=1&loop=1&muted=0&autopause=0&controls=0';
-    // Once frame loads, set volume via API
-    fr.addEventListener('load', function(){
-      if(typeof Vimeo === 'undefined') return;
-      try{
-        var p = new Vimeo.Player(fr);
-        p.setMuted(false).catch(function(){});
-        p.setVolume(0.38).catch(function(){});
-        p.play().catch(function(){});
-      }catch(e){}
-    }, {once:true});
-  }
-
-  // Try immediate autoplay (works on some browsers / returning visitors)
-  document.addEventListener('DOMContentLoaded', function(){
-    setTimeout(function(){
-      var fr = document.getElementById('site-music-frame');
-      if(!fr) return;
-      fr.src = 'https://player.vimeo.com/video/' + VID + '?background=1&autoplay=1&loop=1&muted=0&autopause=0&controls=0';
-      fr.addEventListener('load', function(){
-        if(typeof Vimeo === 'undefined') return;
-        try{
-          var p = new Vimeo.Player(fr);
-          p.setMuted(false).then(function(){
-            return p.setVolume(0.38);
-          }).then(function(){
-            return p.play();
-          }).then(function(){
-            _started = true;
-          }).catch(function(){
-            // Autoplay blocked — wait for first gesture
-            fr.src = '';
-            _started = false;
-          });
-        }catch(e){}
-      }, {once:true});
-    }, 800);
-  });
-
-  // Fallback: first user interaction → start music
-  var EVENTS = ['click','touchstart','keydown','scroll'];
-  function onGesture(){
-    startMusic();
-    EVENTS.forEach(function(ev){ document.removeEventListener(ev, onGesture, true); });
-  }
-  EVENTS.forEach(function(ev){ document.addEventListener(ev, onGesture, {once:true, capture:true, passive:true}); });
-})();
-</script>
 </body>
 </html>
