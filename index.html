@@ -3802,12 +3802,9 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     shimmer.style.zIndex = '3';
     div.appendChild(shimmer);
 
-    // Portrait: thumbnail-only (cover fills 9:16, click → lightbox plays correctly).
-    // Landscape: load iframe (background=1 works fine for 16:9 containers).
-    if (!isPortrait) {
-      const iframe = buildVimeoIframe(id);
-      pvQueue.push({iframe, div, thumb});
-    }
+    // All items: load Vimeo background iframe (portrait 9:16 and landscape 16:9).
+    const iframe = buildVimeoIframe(id);
+    pvQueue.push({iframe, div, thumb});
 
     // Play overlay
     div.appendChild(makePvPlay());
