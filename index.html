@@ -2164,10 +2164,7 @@ section::after{
 <!-- HERO -->
 <section class="hero" id="hero">
   <div class="hero-video-bg" id="heroBg">
-  <div class="hero-vid-item active" id="heroVid0" data-vid="1181277254"><iframe src="https://player.vimeo.com/video/1181277254?background=1&autoplay=1&loop=0&muted=1&playsinline=1&autopause=0" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-  <div class="hero-vid-item" id="heroVid1" data-vid="1181282252"><iframe src="https://player.vimeo.com/video/1181282252?background=1&autoplay=1&loop=0&muted=1&playsinline=1&autopause=0" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-  <div class="hero-vid-item" id="heroVid2" data-vid="1181279455"><iframe src="https://player.vimeo.com/video/1181279455?background=1&autoplay=1&loop=0&muted=1&playsinline=1&autopause=0" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-  <div class="hero-vid-item" id="heroVid3" data-vid="1181277743"><iframe src="https://player.vimeo.com/video/1181277743?background=1&autoplay=1&loop=0&muted=1&playsinline=1&autopause=0" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+  <div class="hero-vid-item active" id="heroVid0" data-vid="1182382291"><iframe src="https://player.vimeo.com/video/1182382291?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
@@ -3370,53 +3367,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 })();
 
-// ─── HERO VIDEO SEQUENCER v2 ─────────────────────────────────
-(function heroSeqV2(){
-  const VIDS = ['1181277254','1181282252','1181279455','1181277743'];
-  const DURATIONS = [24, 20, 22, 18]; // seconds per clip
-  let current = 0;
-  let players = {};
-  let _fallbackTimer = null;
-
-  function getVidEl(i){ return document.getElementById('heroVid'+i); }
-
-  function buildHeroPlayer(i){
-    const el = getVidEl(i);
-    if(!el || players[i]) return;
-    const iframe = el.querySelector('iframe');
-    if(!iframe) return;
-    try{
-      const p = new Vimeo.Player(iframe);
-      players[i] = p;
-      p.on('ended', () => advanceHero());
-    }catch(e){}
-  }
-
-  function advanceHero(){
-    const prev = current;
-    current = (current + 1) % VIDS.length;
-    const prevEl = getVidEl(prev);
-    const nextEl = getVidEl(current);
-    if(nextEl){ nextEl.classList.add('active'); }
-    buildHeroPlayer(current);
-    if(players[current]){
-      players[current].setCurrentTime(0)
-        .then(()=>players[current].play())
-        .catch(()=>{});
-    }
-    // Keep previous visible for 2.2s — new video has time to render before old disappears
-    setTimeout(()=>{ if(prevEl) prevEl.classList.remove('active'); }, 2200);
-    // Re-arm fallback timer using the CURRENT clip's duration
-    clearTimeout(_fallbackTimer);
-    _fallbackTimer = setTimeout(advanceHero, DURATIONS[current] * 1000);
-  }
-
-  document.addEventListener('DOMContentLoaded', ()=>{
-    VIDS.forEach((_,i) => buildHeroPlayer(i));
-    // Arm first fallback using clip 0 duration
-    _fallbackTimer = setTimeout(advanceHero, DURATIONS[0] * 1000);
-  });
-})();
+// Hero: single looping video — no sequencer needed
 
 
 
