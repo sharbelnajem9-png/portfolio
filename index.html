@@ -2720,11 +2720,10 @@ section::after{
   object-fit:cover!important;
   object-position:center center!important;
 }
-/* ── Featured thumbnails: contain — full image, no zoom ── */
+/* ── Featured thumbnails: cover — fills container ── */
 .fi-thumb-img{
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:center center!important;
-  background:#08080f!important;
 }
 
 /* No hover zoom on thumbnails */
@@ -2840,9 +2839,8 @@ section::after{
 
   /* Featured thumbnail: portrait=contain, landscape=cover */
   .featured-item.portrait .fi-thumb-img{
-    object-fit:contain!important;
+    object-fit:cover!important;
     object-position:center center!important;
-    background:#07070e!important;
   }
   .featured-item.landscape .fi-thumb-img,
   .featured-item:not(.portrait) .fi-thumb-img{
@@ -2888,9 +2886,8 @@ section::after{
 
   /* pv-item thumbnails */
   .pv-item.portrait > img{
-    object-fit:contain!important;
+    object-fit:cover!important;
     object-position:center center!important;
-    background:#07070e!important;
   }
   .pv-item.landscape > img{
     object-fit:cover!important;
@@ -2922,27 +2919,25 @@ section::after{
 .pv-item.portrait{ aspect-ratio:9/16!important; }
 .pv-item.landscape{ aspect-ratio:16/9!important; }
 
-/* pv-item thumbnails: contain — full image, no zoom */
+/* pv-item thumbnails: cover — portrait oEmbed thumb fills 9:16, landscape fills 16:9 */
 .pv-item > img,
 .pv-item.portrait > img,
 .pv-item.landscape > img{
   position:absolute!important; inset:0!important;
   width:100%!important; height:100%!important;
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:center center!important;
-  background:#08080f!important;
 }
 
 /* Grid alignment */
 .pm-grid-v{ align-items:flex-start!important; }
 .pm-grid-h{ align-items:flex-start!important; }
 
-/* Featured thumbnails: contain — full image, no zoom */
+/* Featured thumbnails: cover — oEmbed portrait thumb fills 9:16 perfectly */
 .fi-thumb-img,
 .featured-item .fi-thumb-img{
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:center center!important;
-  background:#08080f!important;
 }
 
 /* Desktop featured: portrait 9:16 same HEIGHT as landscape */
@@ -3785,8 +3780,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     const thumb = document.createElement('img');
     thumb.src = 'https://vumbnail.com/' + id + '.jpg';
     thumb.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
-      (isPortrait ? 'object-fit:contain;background:#08080f;' : 'object-fit:cover;') +
-      'object-position:center center;z-index:1;border-radius:inherit;' +
+      'object-fit:cover;object-position:center center;z-index:1;border-radius:inherit;' +
       'transition:opacity 0.7s ease;';
     thumb.setAttribute('loading','eager');
     thumb.setAttribute('alt','');
