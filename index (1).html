@@ -2360,6 +2360,134 @@ section::after{
     max-width:100%!important;
   }
 }
+
+/* ══ UPDATE-62: avatar removed, animation killed ══ */
+.hero-avatar{ display:none!important; }
+.hero-content{ gap:14px!important; }
+
+/* ══ UPDATE-62: natural aspect ratios ══ */
+
+/* Featured (highest priority) */
+@media(max-width:768px){
+
+  /* ALL featured: 72vw wide, natural height by video type */
+  .featured-item,
+  .featured-item.portrait,
+  .featured-item.landscape{
+    width:72vw!important;
+    min-width:72vw!important;
+    max-width:72vw!important;
+    height:auto!important;
+    padding-bottom:0!important;
+    aspect-ratio:unset!important;
+    position:relative!important;
+    overflow:hidden!important;
+    flex-shrink:0!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+  .featured-item.portrait{
+    aspect-ratio:9/16!important;   /* 9:16 portrait — fills video exactly */
+  }
+  .featured-item.landscape{
+    aspect-ratio:16/9!important;  /* 16:9 landscape — fills video exactly */
+  }
+  /* Items with no orientation class default to 9:16 */
+  .featured-item:not(.portrait):not(.landscape){
+    aspect-ratio:9/16!important;
+  }
+
+  /* fi-bg fills the item */
+  .fi-bg{
+    position:absolute!important;
+    inset:0!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+  }
+  /* Thumbnail: cover fills container (matching ratio = no distortion) */
+  .fi-thumb-img{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+  /* Iframe: fill container — Vimeo background=1 covers internally */
+  .fi-bg iframe{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    border:0!important;
+    pointer-events:none!important;
+  }
+
+  /* Project cards: same approach */
+  .folder-card,
+  .folder-card.portrait{
+    min-width:72vw!important;
+    max-width:72vw!important;
+    width:72vw!important;
+    flex-shrink:0!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+  .folder-card.portrait .folder-thumb{
+    aspect-ratio:9/16!important;
+    flex:none!important;
+    height:auto!important;
+    padding-bottom:0!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+  }
+  .folder-card:not(.portrait) .folder-thumb{
+    aspect-ratio:16/9!important;
+    flex:none!important;
+    height:auto!important;
+    padding-bottom:0!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+  }
+  /* Thumbnail in project cards */
+  .fc-thumb-img{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+  /* fc-bg fills folder-thumb */
+  .fc-bg{
+    position:absolute!important;
+    inset:0!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+  }
+  /* Iframe fill */
+  .fc-bg iframe{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    border:0!important;
+    pointer-events:none!important;
+  }
+}
+
+/* DESKTOP: ensure full fill on fc-bg and fi-bg */
+.fc-bg iframe,
+.fi-bg iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  pointer-events:none;
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -2415,7 +2543,6 @@ section::after{
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-avatar"><img src="avatar.jpg" alt="Sharbel Najem" style="object-position:center center;"></div>
     <h1 class="hero-name">Sharbel Najem</h1>
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
@@ -3560,50 +3687,86 @@ document.addEventListener('DOMContentLoaded', () => {
   function runPhase3() {
     var mobile = window.innerWidth < 768;
 
-    // ── Project cards (fc-bg): smart IntersectionObserver preload ──────────────
-    // Works on both desktop and mobile.
-    // Mobile uses overflow-x:scroll (scroll-snap), so IO works correctly.
-    // rootMargin is wide: start buffering iframes BEFORE the card is visible,
-    // so by the time the viewer reaches the card the video is already playing.
-    // De-duplicate: only inject the FIRST occurrence of each video ID.
-    (function(){
-      var seenVids = {};
-      var fcBgs = Array.from(document.querySelectorAll('.fc-bg[data-vid]')).filter(function(bg){
-        var v = bg.dataset.vid;
-        if(seenVids[v]) return false;
-        seenVids[v] = true;
-        return true;
-      });
+    // ── Sequential loading queue ─────────────────────────────────────────────
+    // Items enter a queue when IO sees them near the viewport.
+    // On mobile: process ONE at a time (no memory overload).
+    // On desktop: process up to 3 in parallel for faster load.
+    // Thumbnail stays visible until iframe fires 'load' → seamless fade-in.
 
-      // Desktop: pre-buffer 700px ahead.  Mobile: pre-buffer 400px ahead.
-      var bufPx = mobile ? '0px 400px 0px 400px' : '0px 700px 0px 700px';
+    var loadQueue  = [];
+    var activeJobs = 0;
+    var maxJobs    = mobile ? 1 : 3;
 
-      var fcObs = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){
-          if(e.isIntersecting){
-            // Small delay so multiple cards entering at once don't all fire together
-            var delay = Math.random() * 150;
-            injectBg(e.target, delay);
-            fcObs.unobserve(e.target);
+    function processQueue() {
+      while (activeJobs < maxJobs && loadQueue.length > 0) {
+        var bg = loadQueue.shift();
+        if (!bg || bg.dataset.vi) continue;  // already injected
+        activeJobs++;
+        injectBg(bg, 0);
+        // Wait for iframe to fire 'load' (or 8s timeout) before next
+        var resolved = false;
+        function done() {
+          if (resolved) return;
+          resolved = true;
+          activeJobs--;
+          processQueue();
+        }
+        var iframe = bg.querySelector('iframe');
+        // injectBg is async (has setTimeout inside), poll briefly for the iframe
+        var pollCount = 0;
+        var poll = setInterval(function() {
+          pollCount++;
+          iframe = bg.querySelector('iframe');
+          if (iframe) {
+            clearInterval(poll);
+            iframe.addEventListener('load', done, {once:true});
+            setTimeout(done, 8000); // hard timeout
+          } else if (pollCount > 50) {
+            clearInterval(poll);
+            done(); // give up polling
           }
-        });
-      }, { rootMargin: bufPx });
+        }, 100);
+      }
+    }
 
-      fcBgs.forEach(function(bg){ fcObs.observe(bg); });
-    })();
+    // De-duplicate: only queue first occurrence of each video ID
+    var seenVids = {};
+    function dedupe(bg) {
+      var v = bg.dataset.vid;
+      if (seenVids[v]) return false;
+      seenVids[v] = true;
+      return true;
+    }
 
-    // ── Featured strip (fi-bg): IntersectionObserver — same smart preload ──────
-    var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]'));
-    var fiBufPx = mobile ? '0px 400px 0px 400px' : '0px 700px 0px 700px';
-    var fiBgObs = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (e.isIntersecting) {
-          injectBg(e.target, 0);
-          fiBgObs.unobserve(e.target);
+    // IO for fc-bg (project carousel)
+    var bufPx = mobile ? '0px 300px 0px 300px' : '0px 700px 0px 700px';
+    var fcObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting && !e.target.dataset.vi && dedupe(e.target)){
+          loadQueue.push(e.target);
+          processQueue();
+          fcObs.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: bufPx });
+    Array.from(document.querySelectorAll('.fc-bg[data-vid]')).forEach(function(bg){
+      fcObs.observe(bg);
+    });
+
+    // IO for fi-bg (featured carousel)
+    var fiBufPx = mobile ? '0px 300px 0px 300px' : '0px 700px 0px 700px';
+    var fiObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting && !e.target.dataset.vi){
+          loadQueue.push(e.target);
+          processQueue();
+          fiObs.unobserve(e.target);
         }
       });
     }, { rootMargin: fiBufPx });
-    fiBgs.forEach(function(bg) { fiBgObs.observe(bg); });
+    Array.from(document.querySelectorAll('.fi-bg[data-vid]')).forEach(function(bg){
+      fiObs.observe(bg);
+    });
 
     // ── Health-check: retry any fi-bg that lost its iframe (desktop only) ──
     // Disabled on mobile — re-injection every 30s can accumulate iframes
