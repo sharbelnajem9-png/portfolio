@@ -2715,11 +2715,16 @@ section::after{
 }
 .featured-item::after{ display:none!important; }
 
-/* ── Thumbnail styles: cover — fills container (ratio matches = full image) ── */
-.fc-thumb-img,
-.fi-thumb-img{
+/* ── Project card thumbnails: cover — fills container ── */
+.fc-thumb-img{
   object-fit:cover!important;
   object-position:center center!important;
+}
+/* ── Featured thumbnails: contain — full image, no zoom ── */
+.fi-thumb-img{
+  object-fit:contain!important;
+  object-position:center center!important;
+  background:#08080f!important;
 }
 
 /* No hover zoom on thumbnails */
@@ -2917,25 +2922,27 @@ section::after{
 .pv-item.portrait{ aspect-ratio:9/16!important; }
 .pv-item.landscape{ aspect-ratio:16/9!important; }
 
-/* pv-item thumbnails: cover — fills container (ratio matches = full image) */
+/* pv-item thumbnails: contain — full image, no zoom */
 .pv-item > img,
 .pv-item.portrait > img,
 .pv-item.landscape > img{
   position:absolute!important; inset:0!important;
   width:100%!important; height:100%!important;
-  object-fit:cover!important;
+  object-fit:contain!important;
   object-position:center center!important;
+  background:#08080f!important;
 }
 
 /* Grid alignment */
 .pm-grid-v{ align-items:flex-start!important; }
 .pm-grid-h{ align-items:flex-start!important; }
 
-/* Featured thumbnails: cover — fills container (ratio matches = full image) */
+/* Featured thumbnails: contain — full image, no zoom */
 .fi-thumb-img,
 .featured-item .fi-thumb-img{
-  object-fit:cover!important;
+  object-fit:contain!important;
   object-position:center center!important;
+  background:#08080f!important;
 }
 
 /* Desktop featured: portrait 9:16 same HEIGHT as landscape */
