@@ -3686,22 +3686,29 @@ function makePvPlay() {
   return wrap;
 }
 
-// ── Fetch correct portrait thumbnail from Vimeo oEmbed API ──
-// vumbnail.com always returns 16:9; for portrait containers we need the native portrait thumb.
+// ── Load correct 1080x1920 portrait thumbnail from Vimeo CDN ──
+// oEmbed gives us the picture hash (e.g. _1280x720.jpg).
+// We replace dimensions with _1080x1920.jpg — Vimeo CDN serves this for portrait videos.
 function loadPortraitThumb(imgEl, id, pvItem) {
   fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' + id)
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (!d || !d.thumbnail_url) { if (pvItem) pvItem.classList.add('pv-loaded'); return; }
-      var check = new Image();
-      check.onload = function() {
-        imgEl.src = d.thumbnail_url;
+      // Build 1080x1920 portrait URL from the CDN hash
+      var portraitUrl = d.thumbnail_url.replace(/_\d+x\d+(\.\w+)$/, '_1080x1920$1');
+      var done = false;
+      function apply(url) {
+        if (done) return; done = true;
+        imgEl.src = url;
         imgEl.style.objectFit = 'cover';
         imgEl.style.background = 'transparent';
         if (pvItem) pvItem.classList.add('pv-loaded');
-      };
-      check.onerror = function() { if (pvItem) pvItem.classList.add('pv-loaded'); };
-      check.src = d.thumbnail_url;
+      }
+      // Try 1080x1920 first; fall back to oEmbed default if CDN rejects it
+      var check = new Image();
+      check.onload  = function() { apply(portraitUrl); };
+      check.onerror = function() { apply(d.thumbnail_url); };
+      check.src = portraitUrl;
     })
     .catch(function(){ if (pvItem) pvItem.classList.add('pv-loaded'); });
 }
@@ -3968,8 +3975,7 @@ function scrollFeatured(dir) {
 }
 
 
-// ── Fix featured portrait thumbnails: load correct portrait image from Vimeo ──
-// Runs immediately (script is at bottom of page, DOM is ready)
+// ── Fix featured portrait thumbnails: load 1080x1920 from Vimeo CDN ──
 document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(item) {
   var vid = item.dataset.vid;
   var img = item.querySelector('.fi-thumb-img');
@@ -3978,14 +3984,18 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (!d || !d.thumbnail_url) return;
-      var check = new Image();
-      check.onload = function() {
-        img.src = d.thumbnail_url;
+      var portraitUrl = d.thumbnail_url.replace(/_\d+x\d+(\.\w+)$/, '_1080x1920$1');
+      var done = false;
+      function apply(url) {
+        if (done) return; done = true;
+        img.src = url;
         img.style.objectFit = 'cover';
         img.style.background = 'transparent';
-      };
-      check.onerror = function(){};
-      check.src = d.thumbnail_url;
+      }
+      var check = new Image();
+      check.onload  = function() { apply(portraitUrl); };
+      check.onerror = function() { apply(d.thumbnail_url); };
+      check.src = portraitUrl;
     })
     .catch(function(){});
 });
