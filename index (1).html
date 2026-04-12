@@ -131,10 +131,10 @@ section{padding:64px 60px}
 .folder-nav{display:flex;justify-content:center;gap:12px;margin-top:20px}
 .folder-nav button{width:40px;height:40px;border-radius:50%;background:var(--glass);border:1px solid var(--glass-border);color:var(--white-50);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;font-size:16px}
 .folder-nav button:hover{background:var(--glass-hover);border-color:var(--white-15);color:var(--white)}
-.featured-strip{position:relative;overflow:hidden;mask-image:linear-gradient(90deg,transparent,black 4%,black 96%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,black 4%,black 96%,transparent)}
+.featured-strip{position:relative;overflow:hidden;height:auto;min-height:280px;mask-image:linear-gradient(90deg,transparent,black 4%,black 96%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,black 4%,black 96%,transparent)}
 .featured-track{display:flex;gap:12px;animation:featuredScroll 130s linear infinite;width:max-content;padding:8px 0}.featured-strip:hover .featured-track{animation-play-state:paused}
 @keyframes featuredScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.featured-item{width:360px;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;background:var(--card);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--white-08);font-size:11px;letter-spacing:2px;text-transform:uppercase;position:relative}
+.featured-item{width:360px;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;background:var(--card);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--white-08);font-size:11px;letter-spacing:2px;text-transform:uppercase;position:relative}.featured-item.portrait{aspect-ratio:9/16!important;width:169px}
 .featured-item::after{content:'▶';position:absolute;font-size:24px;color:var(--white-15)}
 .featured-label{text-align:center;margin-bottom:24px}
 
@@ -360,7 +360,8 @@ footer::before{
 .pm-videos{
   flex:1;overflow-y:auto;scroll-behavior:smooth;
   padding:40px 40px 64px;
-  display:flex;flex-direction:column;gap:48px
+  display:flex;flex-direction:row;flex-wrap:wrap;
+  align-items:flex-start;justify-content:center;gap:48px
 }
 .pm-videos::-webkit-scrollbar{width:4px}
 .pm-videos::-webkit-scrollbar-track{background:transparent}
@@ -386,19 +387,19 @@ footer::before{
   color:rgba(255,255,255,0.2);white-space:nowrap
 }
 /* ─── Horizontal (16:9) grid ─── */
-.pm-grid-h{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;width:100%}
+.pm-grid-h{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:20px;width:100%}
 .pm-grid-h .pv-item{flex:1 1 320px;max-width:460px;min-width:260px;width:auto!important}
 /* ─── Vertical (9:16) grid ─── */
-.pm-grid-v{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;width:100%}
-.pm-grid-v .pv-item{flex:0 0 200px;width:auto!important}
+.pm-grid-v{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:16px;width:100%}
+.pm-grid-v .pv-item{flex:0 0 calc(25% - 12px);max-width:calc(25% - 12px);width:auto!important}
 @media(max-width:900px){
   .pm-grid-h .pv-item{flex:1 1 260px;max-width:380px}
-  .pm-grid-v .pv-item{flex:0 0 160px}
+  .pm-grid-v .pv-item{flex:0 0 calc(33.33% - 10px);max-width:calc(33.33% - 10px)}
   .pm-videos{padding:28px 24px 48px;gap:36px}
 }
 @media(max-width:600px){
   .pm-grid-h .pv-item{flex:1 1 100%}
-  .pm-grid-v .pv-item{flex:0 0 calc(50% - 5px)}
+  .pm-grid-v .pv-item{flex:0 0 calc(50% - 4px);max-width:calc(50% - 4px)}
   .pm-videos{padding:20px 16px 36px;gap:28px}
 }
 /* ─── Video items ─── */
@@ -412,8 +413,8 @@ footer::before{
 }
 @keyframes pvIn{to{opacity:1;transform:translateY(0)}}
 .pv-item:focus{outline:2px solid rgba(255,255,255,0.45);outline-offset:3px}
-.pv-item.landscape{aspect-ratio:16/9;width:100%}
-.pv-item.portrait{aspect-ratio:9/16;width:100%}
+.pv-item.landscape{aspect-ratio:16/9}
+.pv-item.portrait{aspect-ratio:16/9!important}
 .pv-item iframe{
   position:absolute;inset:0;width:100%;height:100%;
   border:0;pointer-events:none
@@ -485,7 +486,8 @@ footer::before{
   opacity:0;pointer-events:none;transition:opacity 0.28s cubic-bezier(0.4,0,0.2,1);
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .vid-lightbox.active{opacity:1;pointer-events:all}
-.vlb-inner{position:relative}
+.vlb-inner{position:relative;width:min(90vw,500px);height:auto}
+.vlb-video{width:100%;height:100%;object-fit:cover}
 .vlb-close{position:absolute;top:-46px;right:0;
   background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
   color:white;font-size:18px;width:36px;height:36px;border-radius:50%;
@@ -642,7 +644,7 @@ html{scroll-behavior:smooth}
 /* ── Card layout: video fills top, title below ── */
 .folder-card{display:flex!important;flex-direction:column!important;border-radius:12px!important;overflow:hidden!important}
 /* Video area — square 280×280 for ALL cards (landscape + portrait same size) */
-.folder-thumb{flex:0 0 280px!important;height:280px!important;aspect-ratio:unset!important;overflow:hidden!important;position:relative!important}
+.folder-thumb{flex:0 0 280px!important;height:280px!important;aspect-ratio:unset!important;overflow:hidden!important;position:relative!important;object-fit:cover!important;object-position:center!important}
 /* Title area below video */
 .folder-info{flex:0 0 auto!important;padding:11px 16px 13px!important;background:var(--card)!important}
 .folder-info h4{font-size:13px!important;font-weight:600!important;margin:0!important;letter-spacing:-0.1px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -995,7 +997,7 @@ html{scroll-behavior:smooth}
   border:0;pointer-events:none;z-index:3;opacity:1
 }
 /* thumbnails hidden  -  iframes show live video */
-.fc-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:1;transition:opacity 0.8s ease}.fc-bg.live .fc-thumb-img{opacity:0;transition:opacity 1.2s ease}
+.fc-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;z-index:1;opacity:1;transition:opacity 0.8s ease}.fc-bg.live .fc-thumb-img{opacity:0;transition:opacity 1.2s ease}
 
 .fc-overlay{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center}
 
@@ -1008,9 +1010,10 @@ html{scroll-behavior:smooth}
 /* ─── 3. FEATURED ITEMS  -  hover-to-play ─────────────────── */
 .fi-bg{
   position:absolute;inset:0;z-index:0;
-  background:#06060e;overflow:hidden
+  background:#06060e;overflow:hidden;
+  object-fit:cover
 }
-.fi-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:1;transition:opacity 0.8s ease}.fi-bg.live .fi-thumb-img{opacity:0}
+.fi-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;z-index:1;opacity:1;transition:opacity 0.8s ease}.fi-bg.live .fi-thumb-img{opacity:0}
 /* iframe always visible; thumbnail fades out via JS after delay */
 .fi-bg iframe{
   position:absolute;inset:0;
@@ -2630,20 +2633,15 @@ section::after{
   }
 }
 
-/* ════════════════════════════════════════════════════════════════
-   UPDATE-64 — THUMBNAILS + GALLERY + MOBILE CENTERING
-   ════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════════════
+   UPDATE-70 — SINGLE CLEAN CSS (replaces conflicting updates 64–69)
+   ════════════════════════════════════════════════════════════════════════════ */
 
-/* ── pv-item: thumbnails and iframes ── */
+/* ── pv-item base ── */
 .pv-item{
   background:#07070e;
   overflow:hidden;
 }
-/* Thumbnail image inside pv-item */
-.pv-item > img[src*="vumbnail"]{
-  display:block;
-}
-/* iframe inside pv-item: positioned absolutely, managed by JS */
 .pv-item iframe{
   position:absolute;
   top:0;left:0;
@@ -2651,100 +2649,215 @@ section::after{
   border:0;
   pointer-events:none;
 }
+/* Thumbnail image inside pv-item */
+.pv-item > img{
+  display:block;
+}
 
-/* ── Mobile carousel centering: scroll-padding trick ── */
+/* ── Global pv-item ratios (desktop + mobile) ── */
+.pv-item.portrait{
+  aspect-ratio:16/9;
+}
+.pv-item.landscape{
+  aspect-ratio:16/9;
+  width:100%;
+}
+
+/* Portrait pv-item thumbnail: contain — shows full vumbnail (16:9 image in 9:16 container) */
+.pv-item.portrait > img{
+  object-fit:contain;
+  object-position:center center;
+  background:#07070e;
+}
+/* Landscape pv-item thumbnail: cover — fills 16:9 container perfectly */
+.pv-item.landscape > img{
+  object-fit:cover;
+  object-position:center center;
+}
+
+/* ── Desktop project cards: square 280×280 ── */
+.folder-thumb{flex:0 0 280px!important;height:280px!important;aspect-ratio:unset!important;overflow:hidden!important;position:relative!important;object-fit:cover!important;object-position:center!important}
+.folder-info{flex:0 0 auto!important;padding:11px 16px 13px!important;background:var(--card)!important}
+.folder-info h4{font-size:13px!important;font-weight:600!important;margin:0!important;letter-spacing:-0.1px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.folder-card:not(.portrait){min-width:280px!important;max-width:280px!important}
+.folder-card.portrait{min-width:280px!important;max-width:280px!important}
+
+/* ── Desktop fc-bg iframe: 177.8% oversized — covers square container for any video ratio ── */
+.fc-bg iframe {
+  position:absolute!important;
+  width:177.8%!important;
+  height:177.8%!important;
+  top:50%!important;
+  left:50%!important;
+  transform:translate(-50%,-50%)!important;
+  border:0!important;
+  pointer-events:none!important;
+  z-index:2;
+}
+
+/* ── Desktop featured: portrait 9:16, landscape 16:9, same height ── */
+.featured-item { height:280px!important; }
+.featured-item.portrait{
+  width:280px!important;
+  aspect-ratio:16/9!important;
+  height:auto!important;
+}
+.featured-item.landscape { width:498px!important; }
+.featured-item:not(.portrait):not(.landscape){ width:158px!important; }
+
+/* ── Featured play button: always visible ── */
+.fi-play{
+  opacity:0.85!important;
+  transform:scale(1)!important;
+  background:rgba(0,0,0,0.35)!important;
+  backdrop-filter:blur(4px)!important;
+  -webkit-backdrop-filter:blur(4px)!important;
+}
+.featured-item:hover .fi-play{
+  opacity:1!important;
+  background:rgba(0,0,0,0.55)!important;
+}
+.featured-item::after{ display:none!important; }
+
+/* ── Thumbnail styles: all cover — fills container ── */
+.fc-thumb-img,
+.fi-thumb-img{
+  object-fit:cover!important;
+  object-position:center center!important;
+}
+
+/* No hover zoom on thumbnails */
+.fc-thumb-img,
+.fi-thumb-img,
+.pv-item > img{
+  transform:none!important;
+  transition:opacity 0.9s ease!important;
+}
+.folder-card:hover .fc-thumb-img,
+.featured-item:hover .fi-thumb-img,
+.pv-item:hover > img{
+  transform:none!important;
+}
+
+/* ── About image: eager loading (already in HTML attr, this is belt-and-suspenders) ── */
+
+/* ── Modal smooth scroll ── */
+.pm-videos{
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  scroll-behavior:smooth!important;
+}
+
+/* ════ MOBILE ════════════════════════════════════════════════════════════════ */
 @media(max-width:768px){
 
-  /* Center first/last card by padding the TRACK, not the container */
+  /* ── Carousels: full-card snap scroll ── */
   .folders-carousel,
   .featured-strip{
+    scroll-padding-inline:12px!important;
+    padding:0!important;
     overflow-x:scroll!important;
     scroll-snap-type:x mandatory!important;
     -webkit-overflow-scrolling:touch!important;
     scrollbar-width:none!important;
-    padding:0!important;              /* no padding on container */
     mask-image:none!important;
     -webkit-mask-image:none!important;
   }
   .folders-carousel::-webkit-scrollbar,
   .featured-strip::-webkit-scrollbar{ display:none!important; }
 
-  /* Tracks: padding = (viewport - card) / 2 = (100vw - 72vw)/2 = 14vw */
   .folders-track,
   .featured-track{
-    animation:none!important;
+    padding:8px 12px!important;
+    gap:12px!important;
     width:max-content!important;
     display:flex!important;
     flex-direction:row!important;
-    gap:12px!important;
-    padding:8px 14vw!important;       /* 14vw on each side = center first/last card */
     align-items:flex-start!important;
   }
 
-  /* Scroll-padding so snap target is the visual center */
-  .folders-carousel{ scroll-padding-inline:14vw!important; }
-  .featured-strip  { scroll-padding-inline:14vw!important; }
-
-  /* ── Project cards: uniform 3:4 ── */
+  /* ── Project cards: same full width, height follows content ratio ── */
   .folder-card,
   .folder-card.portrait{
-    min-width:72vw!important;
-    max-width:72vw!important;
-    width:72vw!important;
-    flex:0 0 72vw!important;
-    scroll-snap-align:start!important;   /* snap with the scroll-padding offset */
-    scroll-snap-stop:always!important;
-    display:flex!important;
-    flex-direction:column!important;
-    overflow:hidden!important;
-    border-radius:10px!important;
-    background:var(--card)!important;
-  }
-
-  .folder-card .folder-thumb,
-  .folder-card.portrait .folder-thumb{
-    width:100%!important;
-    aspect-ratio:3/4!important;
-    height:auto!important;
-    flex:none!important;
-    padding-bottom:0!important;
-    position:relative!important;
-    overflow:hidden!important;
-    background:#07070e!important;
-  }
-
-  /* ── Featured items: same uniform 3:4 ── */
-  .featured-item,
-  .featured-item.portrait,
-  .featured-item.landscape{
-    width:72vw!important;
-    min-width:72vw!important;
-    max-width:72vw!important;
-    flex:0 0 72vw!important;
-    height:auto!important;
-    aspect-ratio:3/4!important;
-    padding-bottom:0!important;
-    flex-shrink:0!important;
-    position:relative!important;
-    overflow:hidden!important;
-    background:#07070e!important;
+    width:calc(100vw - 24px)!important;
+    min-width:calc(100vw - 24px)!important;
+    max-width:calc(100vw - 24px)!important;
+    flex:0 0 calc(100vw - 24px)!important;
     scroll-snap-align:start!important;
     scroll-snap-stop:always!important;
-    border-radius:10px!important;
   }
 
-  /* ── Inner gallery: clean 2-col portrait / 1-col landscape ── */
+  /* All project cards: uniform 3:4 — symmetric grid */
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb{
+    aspect-ratio:3/4!important;
+    height:auto!important;
+    width:100%!important;
+    flex:none!important;
+    padding-bottom:0!important;
+  }
+
+  /* All card thumbnails: cover (fills 3:4 container) */
+  .folder-card .fc-thumb-img,
+  .folder-card.portrait .fc-thumb-img{
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+
+  /* Card name: single line, all cards same level */
+  .folder-card .folder-info h4,
+  .folder-card.portrait .folder-info h4{
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    display:block!important;
+    -webkit-line-clamp:unset!important;
+  }
+
+  /* ── Featured items: natural ratio per orientation, full width ── */
+  .featured-item.portrait{
+    aspect-ratio:9/16!important;
+    height:auto!important;
+    width:calc(100vw - 24px)!important;
+    min-width:calc(100vw - 24px)!important;
+    max-width:calc(100vw - 24px)!important;
+    flex:0 0 calc(100vw - 24px)!important;
+    scroll-snap-align:start!important;
+    scroll-snap-stop:always!important;
+  }
+  .featured-item.landscape,
+  .featured-item:not(.portrait):not(.landscape){
+    aspect-ratio:16/9!important;
+    height:auto!important;
+    width:calc(100vw - 24px)!important;
+    min-width:calc(100vw - 24px)!important;
+    max-width:calc(100vw - 24px)!important;
+    flex:0 0 calc(100vw - 24px)!important;
+    scroll-snap-align:start!important;
+    scroll-snap-stop:always!important;
+  }
+
+  /* Featured thumbnail: portrait=contain, landscape=cover */
+  .featured-item.portrait .fi-thumb-img{
+    object-fit:contain!important;
+    object-position:center center!important;
+    background:#07070e!important;
+  }
+  .featured-item.landscape .fi-thumb-img,
+  .featured-item:not(.portrait) .fi-thumb-img{
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+
+  /* ── Project modal: portrait 2-col, landscape 1-col ── */
   .pm-videos{
     padding:12px 12px 48px!important;
-  }
-  .pm-section + .pm-section{
-    margin-top:28px!important;
   }
   .pm-grid-v{
     display:flex!important;
     flex-wrap:wrap!important;
     gap:8px!important;
-    justify-content:center!important;
+    justify-content:flex-start!important;
   }
   .pm-grid-v .pv-item{
     flex:0 0 calc(50% - 4px)!important;
@@ -2761,176 +2874,35 @@ section::after{
     max-width:100%!important;
     width:100%!important;
   }
-}
 
-/* ════════════════════════════════════════════════════════════════
-   UPDATE-65 — DESIGNER PASS: SYMMETRIC CARDS + NATURAL RATIOS
-   ════════════════════════════════════════════════════════════════ */
-
-/* ── DESKTOP: featured highlights — correct natural ratios, same height ── */
-.featured-item { height:280px!important; }
-.featured-item.portrait  { width:158px!important; }   /* 280×9/16 = 157.5 */
-.featured-item.landscape { width:498px!important; }   /* 280×16/9 = 497.8 */
-.featured-item:not(.portrait):not(.landscape){ width:158px!important; } /* default = portrait */
-
-/* ── ALL thumbnails: cover + no hover zoom ── */
-.fc-thumb-img,
-.fi-thumb-img {
-  object-fit:cover!important;
-  object-position:center center!important;
-  transform:none!important;           /* never scale */
-  transition:opacity 0.9s ease!important;
-}
-.folder-card:hover .fc-thumb-img,
-.featured-item:hover .fi-thumb-img {
-  transform:none!important;
-}
-
-/* ── pv-item thumbnails (modal): cover + no zoom ── */
-.pv-item > img {
-  transform:none!important;
-}
-.pv-item:hover > img {
-  transform:none!important;
-}
-
-/* ════ MOBILE ════════════════════════════════════════════════════ */
-@media(max-width:768px){
-
-  /* Featured: natural aspect per orientation — video fills, nothing cropped */
-  .featured-item,
-  .featured-item:not(.portrait):not(.landscape){
-    aspect-ratio:3/4!important;
-    height:auto!important;
-    width:72vw!important;
-    min-width:72vw!important;
-    max-width:72vw!important;
-    flex:0 0 72vw!important;
-  }
-  .featured-item.portrait{
-    aspect-ratio:9/16!important;   /* portrait: tall card = full-screen UX */
-    height:auto!important;
-    width:72vw!important;
-    min-width:72vw!important;
-    max-width:72vw!important;
-    flex:0 0 72vw!important;
-  }
-  .featured-item.landscape{
-    aspect-ratio:16/9!important;  /* landscape: short card = correct 16:9 */
-    height:auto!important;
-    width:72vw!important;
-    min-width:72vw!important;
-    max-width:72vw!important;
-    flex:0 0 72vw!important;
-  }
-
-  /* Project carousel cards: uniform 3:4 (symmetric, all identical) */
-  .folder-card,
-  .folder-card.portrait{
-    width:72vw!important;
-    min-width:72vw!important;
-    max-width:72vw!important;
-    flex:0 0 72vw!important;
-  }
-  .folder-card .folder-thumb,
-  .folder-card.portrait .folder-thumb{
-    aspect-ratio:3/4!important;
-    height:auto!important;
-    flex:none!important;
+  /* pv-item ratios on mobile */
+  .pv-item.portrait{
+    aspect-ratio:16/9!important;
     width:100%!important;
-    padding-bottom:0!important;
   }
-}
-
-/* ════════════════════════════════════════════════════════════════
-   UPDATE-66 — VIDEO COVERAGE + FEATURED THUMBNAIL + MOBILE POLISH
-   ════════════════════════════════════════════════════════════════ */
-
-/* ── 1. Desktop project cards: fc-bg iframe oversized to guarantee full coverage ──
-   Vimeo background=1 may not cover square containers for off-ratio videos.
-   Oversizing the iframe to 177% × 177% and centering ensures the video
-   always fills regardless of video aspect ratio. */
-.fc-bg iframe {
-  position:absolute!important;
-  width:177.8%!important;
-  height:177.8%!important;
-  top:50%!important;
-  left:50%!important;
-  transform:translate(-50%,-50%)!important;
-  border:0!important;
-  pointer-events:none!important;
-  z-index:2;
-}
-
-/* ── 2. Featured: play button always visible (thumbnail-card UX) ── */
-.fi-play{
-  opacity:0.85!important;
-  transform:scale(1)!important;
-  background:rgba(0,0,0,0.35)!important;
-  backdrop-filter:blur(4px)!important;
-  -webkit-backdrop-filter:blur(4px)!important;
-}
-.featured-item:hover .fi-play{
-  opacity:1!important;
-  background:rgba(0,0,0,0.55)!important;
-}
-/* Remove ::after play-arrow placeholder (replaced by real fi-play) */
-.featured-item::after{ display:none!important; }
-
-/* ── 3. Featured thumbnails: cover + correct sizes on desktop ── */
-.fi-thumb-img{
-  object-fit:cover!important;
-  object-position:center center!important;
-}
-
-/* ── 4. Mobile project modal: smooth scroll + no stutter ── */
-.pm-videos{
-  -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior:contain!important;
-  scroll-behavior:smooth!important;
-  will-change:scroll-position!important;
-}
-
-/* ── 5. Mobile featured: uniform 3:4 (same height for portrait + landscape) ── */
-@media(max-width:768px){
-
-  .featured-item,
-  .featured-item.portrait,
-  .featured-item.landscape,
-  .featured-item:not(.portrait):not(.landscape){
-    aspect-ratio:3/4!important;
-    height:auto!important;
-    width:72vw!important;
-    min-width:72vw!important;
-    max-width:72vw!important;
-    flex:0 0 72vw!important;
+  .pv-item.landscape{
+    aspect-ratio:16/9!important;
+    width:100%!important;
   }
 
-  /* Featured thumbnail fills 3:4 container with cover */
-  .featured-item .fi-thumb-img{
+  /* pv-item thumbnails */
+  .pv-item.portrait > img{
+    object-fit:contain!important;
+    object-position:center center!important;
+    background:#07070e!important;
+  }
+  .pv-item.landscape > img{
     object-fit:cover!important;
     object-position:center center!important;
   }
 
-  /* Project carousel cards: uniform 3:4 */
-  .folder-card,
-  .folder-card.portrait{
-    width:72vw!important;
-    min-width:72vw!important;
-    max-width:72vw!important;
-    flex:0 0 72vw!important;
-  }
-  .folder-card .folder-thumb,
-  .folder-card.portrait .folder-thumb{
-    aspect-ratio:3/4!important;
-    height:auto!important;
-    width:100%!important;
-    flex:none!important;
-    padding-bottom:0!important;
+  /* pv-item iframes */
+  .pv-item iframe{
+    pointer-events:none!important;
   }
 
-  /* fc-bg iframe on mobile: same oversized coverage */
-  .fc-bg iframe {
+  /* fc-bg iframe on mobile (landscape cards): keep 177.8% coverage */
+  .folder-card:not(.portrait) .fc-bg iframe{
     width:177.8%!important;
     height:177.8%!important;
     top:50%!important;
@@ -2939,35 +2911,46 @@ section::after{
   }
 }
 
-/* ════════════════════════════════════════════════════════════════
-   UPDATE-67 — SHOWREEL + PORTRAIT FIX + MOBILE FULL-CARD SCROLL
-   ════════════════════════════════════════════════════════════════ */
 
-/* ── Desktop: portrait featured items — show full thumbnail (no horizontal crop) ── */
-.featured-item.portrait .fi-bg .fi-thumb-img,
-.featured-item.portrait .fi-thumb-img{
-  object-fit:contain!important;
-  background:#07070e!important;
+/* ── UPDATE-74: all pv-item thumbnails → cover (fills container) ── */
+.pv-item > img{
+  object-fit:cover!important;
+  object-position:center center!important;
+  width:100%!important;
+  height:100%!important;
+  position:absolute!important;
+  inset:0!important;
+}
+/* pv-item.portrait: 16:9 container — 16:9 vumbnail thumbnail fills perfectly */
+.pv-item.portrait{
+  aspect-ratio:16/9!important;
+}
+/* pm-grid-v: no stretch */
+.pm-grid-v{
+  align-items:flex-start!important;
+}
+.pm-grid-h{
+  align-items:flex-start!important;
 }
 
-/* ── Mobile ── */
+/* ── UPDATE-74: featured portrait → 16:9 everywhere, thumbnails cover ── */
+.featured-item.portrait .fi-thumb-img,
+.featured-item.landscape .fi-thumb-img,
+.featured-item .fi-thumb-img{
+  object-fit:cover!important;
+  object-position:center center!important;
+  background:transparent!important;
+}
 @media(max-width:768px){
-
-  /* ── Full-card scrolling: cards fill viewport, zero adjacent-card peek ── */
-  /* Math: card = 100vw-24px, track padding = 12px each side, gap = 12px
-     At snap position: adjacent card is exactly 0px visible (just the gap edge) */
-  .folders-carousel,
-  .featured-strip{
-    scroll-padding-inline:12px!important;
-    padding:0!important;
+  /* Featured: all items 16:9 — thumbnails fill perfectly */
+  .featured-item.portrait{
+    aspect-ratio:16/9!important;
   }
-  .folders-track,
-  .featured-track{
-    padding:8px 12px!important;
-    gap:12px!important;
-  }
+}
 
-  /* Project cards: full viewport width */
+/* ── UPDATE-75: mobile project cards — match desktop visual quality ── */
+@media(max-width:768px){
+  /* Project card containers: full width, 3:4 ratio (same as desktop feel) */
   .folder-card,
   .folder-card.portrait{
     width:calc(100vw - 24px)!important;
@@ -2976,74 +2959,56 @@ section::after{
     flex:0 0 calc(100vw - 24px)!important;
     scroll-snap-align:start!important;
     scroll-snap-stop:always!important;
+    display:flex!important;
+    flex-direction:column!important;
+    border-radius:14px!important;
+    overflow:hidden!important;
+    background:var(--card)!important;
   }
   .folder-card .folder-thumb,
   .folder-card.portrait .folder-thumb{
     aspect-ratio:3/4!important;
     height:auto!important;
-    width:100%!important;
     flex:none!important;
-    padding-bottom:0!important;
+    width:100%!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#08080f!important;
   }
-
-  /* Project card names: single-line on all cards → all at same vertical level */
+  /* Thumbnail fills the 3:4 container */
+  .folder-card .fc-thumb-img,
+  .folder-card.portrait .fc-thumb-img{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+  /* Card name below thumbnail */
+  .folder-card .folder-info,
+  .folder-card.portrait .folder-info{
+    flex:0 0 auto!important;
+    padding:12px 16px 14px!important;
+    background:var(--card)!important;
+  }
   .folder-card .folder-info h4,
   .folder-card.portrait .folder-info h4{
+    font-size:14px!important;
+    font-weight:600!important;
+    margin:0!important;
     white-space:nowrap!important;
-    display:block!important;
-    -webkit-line-clamp:unset!important;
     overflow:hidden!important;
     text-overflow:ellipsis!important;
   }
-
-  /* Featured items: full viewport width + uniform 3:4 */
-  .featured-item,
-  .featured-item.portrait,
-  .featured-item.landscape,
-  .featured-item:not(.portrait):not(.landscape){
-    width:calc(100vw - 24px)!important;
-    min-width:calc(100vw - 24px)!important;
-    max-width:calc(100vw - 24px)!important;
-    flex:0 0 calc(100vw - 24px)!important;
-    aspect-ratio:3/4!important;
-    height:auto!important;
-    scroll-snap-align:start!important;
-    scroll-snap-stop:always!important;
-  }
-
-  /* ── Project modal: portrait pv-items use 16:9 so thumbnail fills container ── */
-  /* (vumbnail thumbnails are always 16:9 — matching container = no crop/strip) */
+  /* pv-item portrait on mobile: 16:9 so thumbnail fills */
   .pv-item.portrait{
     aspect-ratio:16/9!important;
   }
-
-  /* Landscape pv-items: full-width 16:9 containers */
-  .pm-grid-h .pv-item.landscape,
-  .pv-item.landscape{
-    aspect-ratio:16/9!important;
-    width:100%!important;
-    flex:1 1 100%!important;
-    max-width:100%!important;
-  }
-
-  /* Portrait grid (2-col): each item still 50% wide, now with 16:9 height */
+  /* pm-grid-v mobile: 2 columns */
   .pm-grid-v .pv-item{
     flex:0 0 calc(50% - 4px)!important;
     max-width:calc(50% - 4px)!important;
-    min-width:0!important;
-  }
-
-  /* Landscape grid (1-col): stack vertically, full width */
-  .pm-grid-h{
-    display:flex!important;
-    flex-direction:column!important;
-    gap:12px!important;
-  }
-
-  /* pv-item thumbnails on mobile: cover (fills 16:9 container perfectly) */
-  .pv-item > img{
-    object-fit:cover!important;
-    object-position:center center!important;
   }
 }
 </style>
@@ -3773,12 +3738,13 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     div.setAttribute('aria-label',
       (isPortrait ? 'Vertical short' : 'Horizontal video') + ' ' + (startIdx + i + 1));
 
-    // Real thumbnail: vumbnail.com → full image, no black, no shimmer
+    // Thumbnail: cover fills container. Portrait uses top-center (shows face/subject).
     const thumb = document.createElement('img');
     thumb.src = 'https://vumbnail.com/' + id + '.jpg';
+    var thumbPos = isPortrait ? 'center top' : 'center center';
     thumb.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
-      'object-fit:contain;object-position:center;z-index:1;border-radius:inherit;' +
-      'background:#07070e;transition:opacity 0.7s ease;';
+      'object-fit:cover;object-position:center center;z-index:1;border-radius:inherit;' +
+      'transition:opacity 0.7s ease;';
     thumb.setAttribute('loading','eager');
     thumb.setAttribute('alt','');
     div.appendChild(thumb);
@@ -3789,8 +3755,12 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     shimmer.style.zIndex = '3';
     div.appendChild(shimmer);
 
-    // Build iframe but don't set src yet (queue will do it)
-    const iframe = buildVimeoIframe(id);
+    // Portrait: thumbnail-only (cover fills 9:16, click → lightbox plays correctly).
+    // Landscape: load iframe (background=1 works fine for 16:9 containers).
+    if (!isPortrait) {
+      const iframe = buildVimeoIframe(id);
+      pvQueue.push({iframe, div, thumb});
+    }
 
     // Play overlay
     div.appendChild(makePvPlay());
@@ -3798,7 +3768,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     // Stagger entrance animation
     div.style.animationDelay = ((startIdx + i) * 0.05) + 's';
 
-    // Click / keyboard → lightbox
+    // Click / keyboard → lightbox (handles both portrait 9:16 and landscape 16:9)
     const openLb = () => openLightbox(id, isPortrait ? '9:16' : '16:9');
     div.addEventListener('click', openLb);
     div.addEventListener('keydown', e => {
@@ -3806,12 +3776,9 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     });
 
     grid.appendChild(div);
-    pvQueue.push({iframe, div, thumb});
   });
 
-  // Desktop: load iframes sequentially. Mobile: thumbnails only (click → lightbox).
-  // No iframes on mobile prevents iOS Safari memory pressure (page reload).
-  if (window.innerWidth >= 768) { pvNext(); }
+  pvNext(); // load iframes sequentially
 
   section.appendChild(grid);
   return section;
@@ -3881,19 +3848,27 @@ function openLightbox(vid, ratio) {
   const lb = document.getElementById('vid-lightbox');
   const container = document.getElementById('vlb-video');
   const isPortrait = ratio === '9:16';
-  const maxH = Math.min(window.innerHeight * 0.86, 600);
+  // Responsive: use 90% of the limiting screen dimension
+  const maxW = window.innerWidth  * 0.90;
+  const maxH = window.innerHeight * 0.88;
   let w, h;
   if (isPortrait) {
-    h = Math.min(maxH, 560);
+    // 9:16 portrait — height limited
+    h = maxH;
     w = Math.round(h * 9 / 16);
+    if (w > maxW) { w = maxW; h = Math.round(w * 16 / 9); }
   } else {
-    w = Math.min(window.innerWidth * 0.86, 960);
+    // 16:9 landscape — width limited
+    w = maxW;
     h = Math.round(w * 9 / 16);
     if (h > maxH) { h = maxH; w = Math.round(h * 16 / 9); }
   }
-  container.style.width = w + 'px';
+  container.style.width  = w + 'px';
   container.style.height = h + 'px';
-  container.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vid + '?title=0&byline=0&portrait=0&autoplay=1&badge=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen style="width:100%;height:100%;border:0;border-radius:10px"></iframe>';
+  container.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vid +
+    '?title=0&byline=0&portrait=0&autoplay=1&badge=0" frameborder="0" ' +
+    'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen ' +
+    'style="width:100%;height:100%;border:0;border-radius:10px"></iframe>';
   lb.classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -4669,9 +4644,10 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   if(window.innerWidth > 768) return; // desktop only uses CSS animation
 
   // Config: [selector, direction] — 'right'=positive scrollLeft, 'left'=negative
+  // NOTE: .folders-carousel and .featured-strip are snap carousels (manual scroll).
+  // Including them caused jump-to-start when the loop-detection reset scrollLeft.
+  // Only marquees (infinite loops, no snap) are auto-scrolled.
   var CAROUSELS = [
-    ['.folders-carousel',    'right', 0.45],  // Projects → right
-    ['.featured-strip',      'left',  0.45],  // Favorites → left
     ['.brand-marquee',       'right', 0.55],  // Logos → right
     ['.testimonials-marquee','left',  0.40],  // Testimonials → left
   ];
