@@ -1799,27 +1799,24 @@ body{background:var(--black)!important}
     gap:12px!important;
     padding:8px 0!important;
   }
-  /* Portrait card: fills full phone width */
-  .folder-card.portrait{
-    min-width:calc(100vw - 64px)!important;
-    max-width:calc(100vw - 64px)!important;
-    scroll-snap-align:center!important;
-    scroll-snap-stop:always!important;
-  }
-  /* Landscape card: nearly full width */
+  /* All project cards: uniform width, center-snapping */
+  .folder-card,
+  .folder-card.portrait,
   .folder-card:not(.portrait){
-    min-width:calc(100vw - 40px)!important;
-    max-width:calc(100vw - 40px)!important;
+    min-width:calc(100vw - 32px)!important;
+    max-width:calc(100vw - 32px)!important;
+    width:calc(100vw - 32px)!important;
+    flex:0 0 calc(100vw - 32px)!important;
     scroll-snap-align:center!important;
     scroll-snap-stop:always!important;
   }
-  .folder-thumb{
+  .folder-thumb,
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb,
+  .folder-card:not(.portrait) .folder-thumb{
     flex:0 0 auto!important;
     height:auto!important;
-    aspect-ratio:9/16!important;
-  }
-  .folder-card:not(.portrait) .folder-thumb{
-    aspect-ratio:16/9!important;
+    aspect-ratio:3/4!important;
   }
 
   /* Featured strip */
@@ -2697,9 +2694,9 @@ section::after{
 /* ── Desktop featured: portrait 9:16, landscape 16:9, same height ── */
 .featured-item { height:280px!important; }
 .featured-item.portrait{
-  width:169px!important;
   aspect-ratio:9/16!important;
-  height:auto!important;
+  height:280px!important;
+  width:auto!important;
 }
 .featured-item.landscape { width:498px!important; }
 .featured-item:not(.portrait):not(.landscape){ width:158px!important; }
@@ -2718,11 +2715,12 @@ section::after{
 }
 .featured-item::after{ display:none!important; }
 
-/* ── Thumbnail styles: all cover — fills container ── */
+/* ── Thumbnail styles: contain — full image visible, no zoom ── */
 .fc-thumb-img,
 .fi-thumb-img{
-  object-fit:cover!important;
+  object-fit:contain!important;
   object-position:center center!important;
+  background:#08080f!important;
 }
 
 /* No hover zoom on thumbnails */
@@ -2911,135 +2909,85 @@ section::after{
 }
 
 
-/* ── UPDATE-74: all pv-item thumbnails → cover (fills container) ── */
-.pv-item > img{
-  object-fit:cover!important;
+/* ══════════════════════════════════════════════════════════════
+   FINAL — single authoritative override (Update 77)
+   All rules here beat everything above via !important + cascade.
+══════════════════════════════════════════════════════════════ */
+
+/* pv-item ratios */
+.pv-item.portrait{ aspect-ratio:9/16!important; }
+.pv-item.landscape{ aspect-ratio:16/9!important; }
+
+/* pv-item thumbnails: contain — full image, no zoom */
+.pv-item > img,
+.pv-item.portrait > img,
+.pv-item.landscape > img{
+  position:absolute!important; inset:0!important;
+  width:100%!important; height:100%!important;
+  object-fit:contain!important;
   object-position:center center!important;
-  width:100%!important;
-  height:100%!important;
-  position:absolute!important;
-  inset:0!important;
-}
-/* pv-item.portrait: 9:16 container — portrait thumbnail fills perfectly */
-.pv-item.portrait{
-  aspect-ratio:9/16!important;
-}
-/* pm-grid-v: no stretch */
-.pm-grid-v{
-  align-items:flex-start!important;
-}
-.pm-grid-h{
-  align-items:flex-start!important;
+  background:#08080f!important;
 }
 
-/* ── UPDATE-76: all fi-thumb-img → cover ── */
-.featured-item.portrait .fi-thumb-img,
-.featured-item.landscape .fi-thumb-img,
+/* Grid alignment */
+.pm-grid-v{ align-items:flex-start!important; }
+.pm-grid-h{ align-items:flex-start!important; }
+
+/* Featured thumbnails: contain — full image, no zoom */
+.fi-thumb-img,
 .featured-item .fi-thumb-img{
-  object-fit:cover!important;
+  object-fit:contain!important;
   object-position:center center!important;
-  background:transparent!important;
+  background:#08080f!important;
 }
 
-/* ── UPDATE-75: mobile project cards — match desktop visual quality ── */
-@media(max-width:768px){
-  /* Project card containers: full width, 3:4 ratio (same as desktop feel) */
-  .folder-card,
-  .folder-card.portrait{
-    width:calc(100vw - 24px)!important;
-    min-width:calc(100vw - 24px)!important;
-    max-width:calc(100vw - 24px)!important;
-    flex:0 0 calc(100vw - 24px)!important;
-    scroll-snap-align:start!important;
-    scroll-snap-stop:always!important;
-    display:flex!important;
-    flex-direction:column!important;
-    border-radius:14px!important;
-    overflow:hidden!important;
-    background:var(--card)!important;
-  }
-  .folder-card .folder-thumb,
-  .folder-card.portrait .folder-thumb{
-    aspect-ratio:3/4!important;
-    height:auto!important;
-    flex:none!important;
-    width:100%!important;
-    position:relative!important;
-    overflow:hidden!important;
-    background:#08080f!important;
-  }
-  /* Thumbnail fills the 3:4 container */
-  .folder-card .fc-thumb-img,
-  .folder-card.portrait .fc-thumb-img{
-    position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
-    object-fit:cover!important;
-    object-position:center center!important;
-  }
-  /* Card name below thumbnail */
-  .folder-card .folder-info,
-  .folder-card.portrait .folder-info{
-    flex:0 0 auto!important;
-    padding:12px 16px 14px!important;
-    background:var(--card)!important;
-  }
-  .folder-card .folder-info h4,
-  .folder-card.portrait .folder-info h4{
-    font-size:14px!important;
-    font-weight:600!important;
-    margin:0!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-  /* pv-item portrait on mobile: 9:16 vertical */
-  .pv-item.portrait{
-    aspect-ratio:9/16!important;
-  }
-  /* pm-grid-v mobile: 2 columns */
-  .pm-grid-v .pv-item{
-    flex:0 0 calc(50% - 4px)!important;
-    max-width:calc(50% - 4px)!important;
-  }
-}
-
-/* ── UPDATE-76: final portrait + mobile cards ── */
-
-/* Portrait pv-items: 9:16 vertical, cover fills native portrait thumbnail */
-.pv-item.portrait{
-  aspect-ratio:9/16!important;
-}
-.pv-item.portrait > img{
-  object-fit:cover!important;
-  object-position:center center!important;
-}
-
-/* Featured portrait: 9:16 vertical everywhere */
+/* Desktop featured: portrait 9:16 same HEIGHT as landscape */
+.featured-item{ height:280px!important; }
 .featured-item.portrait{
   aspect-ratio:9/16!important;
-  width:169px!important;
-  height:auto!important;
+  height:280px!important;
+  width:auto!important;
 }
-@media(max-width:768px){
-  .featured-item.portrait{
-    aspect-ratio:9/16!important;
-    width:calc(100vw - 64px)!important;
-    height:auto!important;
-  }
+.featured-item.landscape{
+  aspect-ratio:16/9!important;
+  height:280px!important;
+  width:auto!important;
 }
 
-/* Mobile project cards: UNIFORM — same width, same 3:4 thumb ratio */
+/* Mobile */
 @media(max-width:768px){
+
+  /* Featured strip: same HEIGHT for all items (portrait proportionally narrower) */
+  .featured-item{
+    height:210px!important;
+    width:auto!important;
+    flex-shrink:0!important;
+    scroll-snap-align:center!important;
+  }
+  .featured-item.portrait{
+    aspect-ratio:9/16!important;
+    height:210px!important;
+    width:auto!important;
+  }
+  .featured-item.landscape{
+    aspect-ratio:16/9!important;
+    height:210px!important;
+    width:auto!important;
+  }
+  .featured-item:not(.portrait):not(.landscape){
+    height:210px!important;
+    width:auto!important;
+  }
+
+  /* Project cards: uniform, centered snap */
   .folder-card,
   .folder-card.portrait,
   .folder-card:not(.portrait){
-    min-width:calc(100vw - 24px)!important;
-    max-width:calc(100vw - 24px)!important;
-    width:calc(100vw - 24px)!important;
-    flex:0 0 calc(100vw - 24px)!important;
-    scroll-snap-align:start!important;
+    min-width:calc(100vw - 32px)!important;
+    max-width:calc(100vw - 32px)!important;
+    width:calc(100vw - 32px)!important;
+    flex:0 0 calc(100vw - 32px)!important;
+    scroll-snap-align:center!important;
     scroll-snap-stop:always!important;
     display:flex!important;
     flex-direction:column!important;
@@ -3065,8 +3013,22 @@ section::after{
     inset:0!important;
     width:100%!important;
     height:100%!important;
-    object-fit:cover!important;
+    object-fit:contain!important;
     object-position:center center!important;
+    background:#08080f!important;
+  }
+  .folder-card .folder-info,
+  .folder-card.portrait .folder-info,
+  .folder-card:not(.portrait) .folder-info{
+    flex:0 0 auto!important;
+    padding:12px 16px 14px!important;
+  }
+
+  /* pv-item portrait mobile */
+  .pv-item.portrait{ aspect-ratio:9/16!important; }
+  .pm-grid-v .pv-item{
+    flex:0 0 calc(50% - 4px)!important;
+    max-width:calc(50% - 4px)!important;
   }
 }
 </style>
@@ -3886,7 +3848,7 @@ function openProject(key) {
   setTimeout(() => {
     container.scrollTop = 0;
     const firstFocus = overlay.querySelector('[tabindex="0"]');
-    if (firstFocus) firstFocus.focus();
+    if (firstFocus) firstFocus.focus({ preventScroll: true });
   }, 60);
 }
 
