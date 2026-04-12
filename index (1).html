@@ -2113,6 +2113,88 @@ section::after{
 
 /* ── Mobile auto-scroll carousels: slow drift, pauses on touch ── */
 /* (JS in update-57 handles the actual scrolling logic) */
+
+/* ══ UPDATE-59 ═══════════════════════════════════════════════════ */
+
+/* ── Mobile: uniform card sizing for Projects + Featured ── */
+@media(max-width:768px){
+
+  /* ─ Projects carousel cards: ALL same size ─ */
+  .folder-card,
+  .folder-card.portrait{
+    min-width:72vw!important;
+    max-width:72vw!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+  /* Thumb: fixed square-ish height, cover-crops any aspect ratio cleanly */
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb{
+    flex:0 0 auto!important;
+    height:0!important;
+    padding-bottom:96vw!important;   /* 72vw × (4/3) = ~square portrait card */
+    aspect-ratio:unset!important;
+    position:relative!important;
+    overflow:hidden!important;
+  }
+
+  /* ─ Featured strip items: ALL same size ─ */
+  .featured-item,
+  .featured-item.portrait,
+  .featured-item.landscape{
+    width:72vw!important;
+    height:0!important;
+    padding-bottom:96vw!important;
+    aspect-ratio:unset!important;
+    position:relative!important;
+    overflow:hidden!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+
+  /* ─ Bg containers: fill thumb ─ */
+  .fc-bg,
+  .fi-bg{
+    position:absolute!important;
+    inset:0!important;
+  }
+  /* ─ Thumbnail images: cover crop ─ */
+  .fc-thumb-img,
+  .fi-thumb-img{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+    border:0!important;
+  }
+  /* ─ Landscape (16:9) iframes in a 3:4 (72vw×96vw) container ─
+     Fit to height → width = 96vw × 16/9 = 170.67vw = 237% of 72vw container */
+  .folder-card:not(.portrait) .fc-bg iframe,
+  .featured-item.landscape .fi-bg iframe{
+    position:absolute!important;
+    top:50%!important; left:50%!important;
+    inset:auto!important;
+    width:237%!important;
+    height:100%!important;
+    transform:translate(-50%,-50%)!important;
+    border:0!important;
+  }
+  /* ─ Portrait (9:16) iframes in a 3:4 (72vw×96vw) container ─
+     Fit to width → height = 72vw × 16/9 = 128vw = 133% of 96vw container */
+  .folder-card.portrait .fc-bg iframe,
+  .featured-item.portrait .fi-bg iframe,
+  .featured-item:not(.landscape) .fi-bg iframe{
+    position:absolute!important;
+    top:50%!important; left:50%!important;
+    inset:auto!important;
+    width:100%!important;
+    height:133%!important;
+    transform:translate(-50%,-50%)!important;
+    border:0!important;
+  }
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -2164,7 +2246,7 @@ section::after{
 <!-- HERO -->
 <section class="hero" id="hero">
   <div class="hero-video-bg" id="heroBg">
-  <div class="hero-vid-item active" id="heroVid0" data-vid="1182382291"><iframe src="https://player.vimeo.com/video/1182382291?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+  <div class="hero-vid-item active" id="heroVid0" data-vid="1182382291"><iframe src="https://player.vimeo.com/video/1182382291?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
@@ -3314,34 +3396,46 @@ document.addEventListener('DOMContentLoaded', () => {
   function runPhase3() {
     var mobile = window.innerWidth < 768;
 
-    // ── Project cards ──────────────────────────────────────────
-    // On mobile: skip iframe injection entirely — show thumbnails only.
-    // Thumbnails are now eager-loaded, so cards are visible immediately.
-    // Iframes are only loaded when the user opens a project modal.
-    // On desktop: eager load all unique fc-bg iframes (9 cards, 220ms stagger).
-    if (!mobile) {
-      var fcBgs = Array.from(document.querySelectorAll('.fc-bg[data-vid]'));
+    // ── Project cards (fc-bg): smart IntersectionObserver preload ──────────────
+    // Works on both desktop and mobile.
+    // Mobile uses overflow-x:scroll (scroll-snap), so IO works correctly.
+    // rootMargin is wide: start buffering iframes BEFORE the card is visible,
+    // so by the time the viewer reaches the card the video is already playing.
+    // De-duplicate: only inject the FIRST occurrence of each video ID.
+    (function(){
       var seenVids = {};
-      var fcUnique = fcBgs.filter(function(bg) {
+      var fcBgs = Array.from(document.querySelectorAll('.fc-bg[data-vid]')).filter(function(bg){
         var v = bg.dataset.vid;
-        if (seenVids[v]) return false;
+        if(seenVids[v]) return false;
         seenVids[v] = true;
         return true;
       });
-      fcUnique.forEach(function(bg, i) {
-        injectBg(bg, 300 + i * 220);
-      });
-    }
 
-    // ── Featured strip: IntersectionObserver — inject only when near viewport ──
-    // Max ~12 active at once (8 visible + buffer). Never overloads Vimeo.
+      // Desktop: pre-buffer 700px ahead.  Mobile: pre-buffer 400px ahead.
+      var bufPx = mobile ? '0px 400px 0px 400px' : '0px 700px 0px 700px';
+
+      var fcObs = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){
+            // Small delay so multiple cards entering at once don't all fire together
+            var delay = Math.random() * 150;
+            injectBg(e.target, delay);
+            fcObs.unobserve(e.target);
+          }
+        });
+      }, { rootMargin: bufPx });
+
+      fcBgs.forEach(function(bg){ fcObs.observe(bg); });
+    })();
+
+    // ── Featured strip (fi-bg): IntersectionObserver — same smart preload ──────
     var fiBgs = Array.from(document.querySelectorAll('.fi-bg[data-vid]'));
-    var fiBufPx = window.innerWidth < 768 ? '0px 200px' : '0px 700px';
+    var fiBufPx = mobile ? '0px 400px 0px 400px' : '0px 700px 0px 700px';
     var fiBgObs = new IntersectionObserver(function(entries) {
       entries.forEach(function(e) {
         if (e.isIntersecting) {
           injectBg(e.target, 0);
-          fiBgObs.unobserve(e.target);   // once injected, stop watching
+          fiBgObs.unobserve(e.target);
         }
       });
     }, { rootMargin: fiBufPx });
