@@ -2488,6 +2488,148 @@ section::after{
   border:0;
   pointer-events:none;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   UPDATE-63 — DEFINITIVE CARD FIX
+   Wins over all previous rules via !important + late placement.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── ALL thumbnails everywhere: show full image (no crop/zoom) ── */
+.fc-thumb-img,
+.fi-thumb-img{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;      /* FULL image — no cropping */
+  object-position:center center!important;
+  background:transparent!important;  /* bg-color comes from fc-bg/fi-bg */
+}
+
+/* ── All bg containers: dark fill behind contain-image ── */
+.fc-bg,
+.fi-bg{
+  background:#07070e!important;
+}
+
+/* ── All iframes: fill container 100% (Vimeo background=1 covers internally) ── */
+.fc-bg iframe,
+.fi-bg iframe{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  border:0!important;
+  pointer-events:none!important;
+}
+
+/* ════ MOBILE ════════════════════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* ── Carousel scroll containers ── */
+  .folders-carousel,
+  .featured-strip{
+    overflow-x:scroll!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x mandatory!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    mask-image:none!important;
+    -webkit-mask-image:none!important;
+    padding:0 14px!important;
+  }
+  .folders-carousel::-webkit-scrollbar,
+  .featured-strip::-webkit-scrollbar{ display:none!important; }
+
+  /* ── Carousel tracks: no animation on mobile ── */
+  .folders-track,
+  .featured-track{
+    animation:none!important;
+    width:max-content!important;
+    display:flex!important;
+    flex-direction:row!important;
+    gap:12px!important;
+    padding:8px 0!important;
+    align-items:flex-start!important;  /* don't stretch cards to same height */
+  }
+
+  /* ── ALL project cards: 72vw × 3:4 (uniform, symmetric) ── */
+  .folder-card,
+  .folder-card.portrait{
+    min-width:72vw!important;
+    max-width:72vw!important;
+    width:72vw!important;
+    flex:0 0 72vw!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+    border-radius:10px!important;
+  }
+
+  /* Thumb: uniform 3:4 for ALL cards (landscape same as portrait) */
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb{
+    width:100%!important;
+    aspect-ratio:3/4!important;   /* 72vw × 96vw — same for every card */
+    height:auto!important;
+    padding-bottom:0!important;
+    flex:none!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+  }
+
+  /* fc-bg fills thumb absolutely */
+  .folder-card .fc-bg{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    overflow:hidden!important;
+  }
+
+  /* ── ALL featured items: 72vw × 3:4 (same as project cards) ── */
+  .featured-item,
+  .featured-item.portrait,
+  .featured-item.landscape{
+    width:72vw!important;
+    min-width:72vw!important;
+    max-width:72vw!important;
+    flex:0 0 72vw!important;
+    height:auto!important;
+    aspect-ratio:3/4!important;
+    padding-bottom:0!important;
+    flex-shrink:0!important;
+    position:relative!important;
+    overflow:hidden!important;
+    background:#07070e!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+    border-radius:10px!important;
+  }
+
+  /* fi-bg fills featured-item */
+  .featured-item .fi-bg{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    overflow:hidden!important;
+  }
+
+  /* fi/fc overlay above thumbnail, below iframe */
+  .fc-overlay,
+  .fi-overlay{ z-index:3!important; }
+
+  /* Card info label */
+  .folder-info{
+    flex:0 0 auto!important;
+    padding:8px 12px 10px!important;
+    width:100%!important;
+  }
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -3613,8 +3755,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setTimeout(function() {
-      // ── First frame ──────────────────────────────────────────
-      var fr = addFrame(vids[0], 1);
+      // ── First frame: start hidden, fade in when Vimeo is ready ──
+      var fr = addFrame(vids[0], 0);
+      fr.addEventListener('load', function(){
+        // Small delay so Vimeo's video element has initialised
+        setTimeout(function(){ fr.style.opacity = '1'; }, 200);
+      }, {once:true});
 
       // Stall detection: if no load after 18s, replace
       setTimeout(function() {
