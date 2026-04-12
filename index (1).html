@@ -2938,6 +2938,114 @@ section::after{
     transform:translate(-50%,-50%)!important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   UPDATE-67 — SHOWREEL + PORTRAIT FIX + MOBILE FULL-CARD SCROLL
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Desktop: portrait featured items — show full thumbnail (no horizontal crop) ── */
+.featured-item.portrait .fi-bg .fi-thumb-img,
+.featured-item.portrait .fi-thumb-img{
+  object-fit:contain!important;
+  background:#07070e!important;
+}
+
+/* ── Mobile ── */
+@media(max-width:768px){
+
+  /* ── Full-card scrolling: cards fill viewport, zero adjacent-card peek ── */
+  /* Math: card = 100vw-24px, track padding = 12px each side, gap = 12px
+     At snap position: adjacent card is exactly 0px visible (just the gap edge) */
+  .folders-carousel,
+  .featured-strip{
+    scroll-padding-inline:12px!important;
+    padding:0!important;
+  }
+  .folders-track,
+  .featured-track{
+    padding:8px 12px!important;
+    gap:12px!important;
+  }
+
+  /* Project cards: full viewport width */
+  .folder-card,
+  .folder-card.portrait{
+    width:calc(100vw - 24px)!important;
+    min-width:calc(100vw - 24px)!important;
+    max-width:calc(100vw - 24px)!important;
+    flex:0 0 calc(100vw - 24px)!important;
+    scroll-snap-align:start!important;
+    scroll-snap-stop:always!important;
+  }
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb{
+    aspect-ratio:3/4!important;
+    height:auto!important;
+    width:100%!important;
+    flex:none!important;
+    padding-bottom:0!important;
+  }
+
+  /* Project card names: single-line on all cards → all at same vertical level */
+  .folder-card .folder-info h4,
+  .folder-card.portrait .folder-info h4{
+    white-space:nowrap!important;
+    display:block!important;
+    -webkit-line-clamp:unset!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  /* Featured items: full viewport width + uniform 3:4 */
+  .featured-item,
+  .featured-item.portrait,
+  .featured-item.landscape,
+  .featured-item:not(.portrait):not(.landscape){
+    width:calc(100vw - 24px)!important;
+    min-width:calc(100vw - 24px)!important;
+    max-width:calc(100vw - 24px)!important;
+    flex:0 0 calc(100vw - 24px)!important;
+    aspect-ratio:3/4!important;
+    height:auto!important;
+    scroll-snap-align:start!important;
+    scroll-snap-stop:always!important;
+  }
+
+  /* ── Project modal: portrait pv-items use 16:9 so thumbnail fills container ── */
+  /* (vumbnail thumbnails are always 16:9 — matching container = no crop/strip) */
+  .pv-item.portrait{
+    aspect-ratio:16/9!important;
+  }
+
+  /* Landscape pv-items: full-width 16:9 containers */
+  .pm-grid-h .pv-item.landscape,
+  .pv-item.landscape{
+    aspect-ratio:16/9!important;
+    width:100%!important;
+    flex:1 1 100%!important;
+    max-width:100%!important;
+  }
+
+  /* Portrait grid (2-col): each item still 50% wide, now with 16:9 height */
+  .pm-grid-v .pv-item{
+    flex:0 0 calc(50% - 4px)!important;
+    max-width:calc(50% - 4px)!important;
+    min-width:0!important;
+  }
+
+  /* Landscape grid (1-col): stack vertically, full width */
+  .pm-grid-h{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:12px!important;
+  }
+
+  /* pv-item thumbnails on mobile: cover (fills 16:9 container perfectly) */
+  .pv-item > img{
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -4458,57 +4566,100 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 
 
 
-<!-- ── Update-60: Hero video keeper — restarts if Vimeo stops ── -->
+<!-- ── Update-67: Hero keeper — robust, no reload loop ── -->
 <script>
 (function(){
-  function initHeroKeeper(){
-    var heroIframe = document.querySelector('#heroVid0 iframe');
-    if(!heroIframe){ setTimeout(initHeroKeeper, 1000); return; }
-    if(typeof Vimeo === 'undefined'){ setTimeout(initHeroKeeper, 1000); return; }
-    try{
-      var player = new Vimeo.Player(heroIframe);
+  var SEL   = '#heroVid0 iframe';
+  var _pl   = null;   // Vimeo.Player instance
+  var _tmr  = null;   // watchdog interval
+  var _busy = false;  // true while reloading (prevents re-entry)
 
-      // Restart immediately when video ends (belt-and-suspenders with loop=1)
-      player.on('ended', function(){
-        player.setCurrentTime(0).then(function(){ return player.play(); }).catch(function(){});
+  function el() { return document.querySelector(SEL); }
+
+  function tryPlay(p) {
+    if (!p || _busy) return;
+    p.play().catch(function(){ reload(); });
+  }
+
+  function reload() {
+    if (_busy) return;
+    _busy = true;
+    if (_tmr) { clearInterval(_tmr); _tmr = null; }
+    if (_pl)  { try { _pl.destroy(); } catch(e){} _pl = null; }
+    var fr = el();
+    if (!fr) { _busy = false; setTimeout(init, 1000); return; }
+    var src = fr.src;
+    fr.src = 'about:blank';
+    setTimeout(function() {
+      fr.src = src;
+      // Wait for iframe to reload, then re-attach player
+      setTimeout(function() { _busy = false; init(); }, 2500);
+    }, 300);
+  }
+
+  function init() {
+    if (_busy) return;
+    var fr = el();
+    if (!fr) { setTimeout(init, 500); return; }
+    if (typeof Vimeo === 'undefined') { setTimeout(init, 500); return; }
+    try {
+      _pl = new Vimeo.Player(fr);
+
+      // Loop safety: if ended event fires before loop param takes effect
+      _pl.on('ended', function() {
+        _pl.setCurrentTime(0).then(function(){ return _pl.play(); }).catch(function(){});
       });
 
-      // Watchdog: every 8s check the video is still playing
-      setInterval(function(){
-        player.getPaused().then(function(paused){
-          if(paused){
-            player.play().catch(function(){
-              // If play() fails (e.g. iframe was reloaded), re-init
-              heroIframe.src = heroIframe.src;
-            });
-          }
-        }).catch(function(){
-          // Player died — reload the iframe src to restart it
-          try{ heroIframe.src = heroIframe.src; }catch(e){}
-        });
+      // Watchdog: every 4s — check still playing
+      if (_tmr) clearInterval(_tmr);
+      _tmr = setInterval(function() {
+        if (_busy || !_pl) return;
+        _pl.getPaused().then(function(paused) {
+          if (paused && !_busy) tryPlay(_pl);
+        }).catch(function() { reload(); });
       }, 4000);
 
-      // Page visibility: resume when tab comes back into view
-      document.addEventListener('visibilitychange', function(){
-        if(!document.hidden){
-          setTimeout(function(){
-            player.play().catch(function(){});
-          }, 500);
+    } catch(e) {
+      // Vimeo API unavailable — fallback: reload iframe every 15s if needed
+      if (_tmr) clearInterval(_tmr);
+      _tmr = setInterval(function() {
+        var fr = el();
+        if (fr && !_busy) {
+          _busy = true;
+          var s = fr.src; fr.src = 'about:blank';
+          setTimeout(function() { fr.src = s; _busy = false; }, 300);
         }
-      });
-    }catch(e){
-      // Fallback: just reload src every time page becomes visible
-      document.addEventListener('visibilitychange', function(){
-        if(!document.hidden && heroIframe){
-          try{ heroIframe.src = heroIframe.src; }catch(ex){}
-        }
-      });
+      }, 15000);
     }
   }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initHeroKeeper);
+
+  // Tab becomes visible again → restart if needed
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && !_busy) {
+      setTimeout(function() { _pl ? tryPlay(_pl) : init(); }, 400);
+    }
+  });
+
+  // Window regains focus (e.g. after alt-tab) → ensure playing
+  window.addEventListener('focus', function() {
+    if (!_busy) setTimeout(function() { _pl ? tryPlay(_pl) : init(); }, 300);
+  });
+
+  // User scrolls back to hero → re-check
+  window.addEventListener('scroll', (function() {
+    var t;
+    return function() {
+      clearTimeout(t);
+      t = setTimeout(function() {
+        if (window.scrollY < 300 && _pl && !_busy) tryPlay(_pl);
+      }, 500);
+    };
+  })(), { passive: true });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(init, 1000); });
   } else {
-    setTimeout(initHeroKeeper, 800);
+    setTimeout(init, 1000);
   }
 })();
 </script>
