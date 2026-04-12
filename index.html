@@ -1709,6 +1709,69 @@ body::after{
     gap:20px!important;
   }
 }
+
+/* ══ UPDATE-50: MOBILE HERO FULL-BLEED ══════════════════════════ */
+@media(max-width:768px){
+
+  /* ── Revert bad iframe override from update-49 ── */
+  /* Correct formula: height=100vh fills portrait, width=177.78vh fills landscape */
+  .hero-vid-item iframe{
+    position:absolute!important;
+    top:50%!important;left:50%!important;
+    width:177.78vh!important;
+    height:100vh!important;
+    min-width:100vw!important;
+    min-height:unset!important;
+    transform:translate(-50%,-50%)!important;
+    border:0!important;pointer-events:none!important;
+  }
+
+  /* ── Hero container: full viewport, no padding, clip video ── */
+  .hero{
+    height:100vh!important;
+    height:100dvh!important;   /* dynamic viewport height — avoids Safari bar gap */
+    min-height:100vh!important;
+    padding:0!important;
+    overflow:hidden!important;
+    align-items:flex-end!important;
+    justify-content:center!important;
+  }
+
+  /* ── Hide avatar in hero on mobile ── */
+  .hero-content .hero-avatar{
+    display:none!important;
+  }
+
+  /* ── Content sits at bottom of video, centred ── */
+  .hero-content{
+    position:absolute!important;
+    bottom:0!important;left:0!important;right:0!important;top:auto!important;
+    width:100%!important;
+    padding:0 24px 52px!important;
+    gap:10px!important;
+    text-align:center!important;
+    align-items:center!important;
+    animation:none!important;   /* disable slideUp on mobile — already in correct place */
+    z-index:3!important;
+  }
+
+  /* ── Stronger gradient so text is readable on video ── */
+  .hero-overlay{
+    background:linear-gradient(
+      to bottom,
+      rgba(4,5,13,0) 0%,
+      rgba(4,5,13,0) 40%,
+      rgba(4,5,13,0.6) 68%,
+      rgba(4,5,13,0.92) 100%
+    )!important;
+  }
+
+  /* ── Hero scroll indicator at bottom ── */
+  .hero-scroll{
+    bottom:16px!important;
+    z-index:4!important;
+  }
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -1771,7 +1834,7 @@ body::after{
     <h1 class="hero-name">Sharbel Najem</h1>
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
-      <button class="hero-btn-showreel" onclick="openLightbox('1181177403','16:9')" data-en="▶ Watch Showreel" data-he="▶ צפה בשוורייל">▶ Watch Showreel</button>
+      <button class="hero-btn-showreel" onclick="openLightbox('1181177403','16:9')" data-en="Watch Showreel" data-he="צפה בשוורייל">Watch Showreel</button>
       <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
     </div>
   </div>
