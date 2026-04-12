@@ -2195,6 +2195,114 @@ section::after{
     border:0!important;
   }
 }
+
+/* ══ UPDATE-60 ═══════════════════════════════════════════════════ */
+
+/* ── Remove earlier conflicting card rules ── */
+/* (earlier updates set different heights — override all with one rule) */
+@media(max-width:768px){
+
+  /* ALL project cards: same width, same height, cover-crop */
+  .folder-card,
+  .folder-card.portrait{
+    min-width:72vw!important;
+    max-width:72vw!important;
+    width:72vw!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+    flex-shrink:0!important;
+  }
+
+  /* ALL featured items: same size */
+  .featured-item,
+  .featured-item.portrait,
+  .featured-item.landscape{
+    width:72vw!important;
+    min-width:72vw!important;
+    max-width:72vw!important;
+    flex-shrink:0!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+
+  /* Thumbnail area: uniform height — 3:4 ratio (height=96vw for width=72vw) */
+  .folder-card .folder-thumb,
+  .folder-card.portrait .folder-thumb{
+    width:100%!important;
+    height:0!important;
+    padding-bottom:96vw!important;
+    flex:none!important;
+    aspect-ratio:unset!important;
+    position:relative!important;
+    overflow:hidden!important;
+  }
+
+  /* Featured item inner wrapper */
+  .featured-item,
+  .featured-item.portrait,
+  .featured-item.landscape{
+    height:0!important;
+    padding-bottom:96vw!important;
+    aspect-ratio:unset!important;
+    position:relative!important;
+    overflow:hidden!important;
+  }
+
+  /* Bg containers fill the thumb */
+  .fc-bg,
+  .fi-bg{
+    position:absolute!important;
+    inset:0!important;
+  }
+
+  /* Thumbnails: cover crop */
+  .fc-thumb-img,
+  .fi-thumb-img{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center!important;
+  }
+
+  /* ─ LANDSCAPE 16:9 iframe in 3:4 container:
+       fit to height → width = 96vw×(16/9) = 170.7vw
+       as % of 72vw container = 237% */
+  .folder-card:not(.portrait) .fc-bg iframe,
+  .featured-item.landscape .fi-bg iframe{
+    position:absolute!important;
+    inset:auto!important;
+    top:50%!important; left:50%!important;
+    width:237%!important;
+    height:100%!important;
+    transform:translate(-50%,-50%)!important;
+    border:0!important;
+  }
+
+  /* ─ PORTRAIT 9:16 iframe in 3:4 container:
+       fit to width → height = 72vw×(16/9) = 128vw
+       as % of 96vw container = 133% */
+  .folder-card.portrait .fc-bg iframe,
+  .featured-item:not(.landscape) .fi-bg iframe{
+    position:absolute!important;
+    inset:auto!important;
+    top:50%!important; left:50%!important;
+    width:100%!important;
+    height:133%!important;
+    transform:translate(-50%,-50%)!important;
+    border:0!important;
+  }
+
+  /* Card info: contained */
+  .folder-info{
+    padding:8px 12px 10px!important;
+    flex-shrink:0!important;
+  }
+
+  /* Ensure hero-btn-showreel stays hidden */
+  .hero-btn-showreel{ display:none!important; }
+}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -2246,7 +2354,7 @@ section::after{
 <!-- HERO -->
 <section class="hero" id="hero">
   <div class="hero-video-bg" id="heroBg">
-  <div class="hero-vid-item active" id="heroVid0" data-vid="1182382291"><iframe src="https://player.vimeo.com/video/1182382291?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+  <div class="hero-vid-item active" id="heroVid0" data-vid="1182382291"><iframe src="https://player.vimeo.com/video/1182382291?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&player_id=0&app_id=58479&texttrack=false" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
@@ -2254,7 +2362,6 @@ section::after{
     <h1 class="hero-name">Sharbel Najem</h1>
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
-      <button class="hero-btn-showreel" onclick="openLightbox('1181177403','16:9')" data-en="Watch Showreel" data-he="צפה בשוורייל">Watch Showreel</button>
       <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
     </div>
   </div>
@@ -2837,7 +2944,7 @@ const PROJECT_DATA = {'podcast-short':{en:'Podcast Short',he:'פודקאסט ק�
 function buildVimeoIframe(id) {
   const iframe = document.createElement('iframe');
   iframe.src = 'https://player.vimeo.com/video/' + id +
-    '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0&controls=0';
+    '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0&controls=0&texttrack=false';
   iframe.setAttribute('frameborder','0');
   iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture; clipboard-write');
   iframe.setAttribute('allowfullscreen','');
@@ -3277,7 +3384,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // PHASE 3   -  Live video previews (direct injection, same as modal)
 // ================================================================
 (function() {
-  var P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&controls=0';
+  var P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&controls=0&texttrack=false';
 
   // Fill container fully regardless of aspect ratio:
   // width:177.78% when based on height = 16:9 fill for portrait containers
@@ -3467,7 +3574,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ─── HOVER PRELOAD: start iframes before user clicks ─────────────────────────
+// Mobile: disabled — creating 8 iframes per card touch causes memory pressure
+// and iOS Safari kills the tab (appears as "auto refresh").
 (function(){
+  if(window.innerWidth < 768) return; // desktop only
   var _cache = {};
   var _container = document.createElement('div');
   _container.style.cssText =
@@ -3485,7 +3595,7 @@ document.addEventListener('DOMContentLoaded', () => {
       var id = vid[0];
       var fr = document.createElement('iframe');
       fr.src = 'https://player.vimeo.com/video/' + id +
-        '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0&controls=0';
+        '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0&controls=0&texttrack=false';
       fr.setAttribute('frameborder','0');
       fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture; clipboard-write');
       fr.setAttribute('allowfullscreen','');
@@ -3645,6 +3755,61 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 </script>
 
 
+
+<!-- ── Update-60: Hero video keeper — restarts if Vimeo stops ── -->
+<script>
+(function(){
+  function initHeroKeeper(){
+    var heroIframe = document.querySelector('#heroVid0 iframe');
+    if(!heroIframe){ setTimeout(initHeroKeeper, 1000); return; }
+    if(typeof Vimeo === 'undefined'){ setTimeout(initHeroKeeper, 1000); return; }
+    try{
+      var player = new Vimeo.Player(heroIframe);
+
+      // Restart immediately when video ends (belt-and-suspenders with loop=1)
+      player.on('ended', function(){
+        player.setCurrentTime(0).then(function(){ return player.play(); }).catch(function(){});
+      });
+
+      // Watchdog: every 8s check the video is still playing
+      setInterval(function(){
+        player.getPaused().then(function(paused){
+          if(paused){
+            player.play().catch(function(){
+              // If play() fails (e.g. iframe was reloaded), re-init
+              heroIframe.src = heroIframe.src;
+            });
+          }
+        }).catch(function(){
+          // Player died — reload the iframe src to restart it
+          try{ heroIframe.src = heroIframe.src; }catch(e){}
+        });
+      }, 8000);
+
+      // Page visibility: resume when tab comes back into view
+      document.addEventListener('visibilitychange', function(){
+        if(!document.hidden){
+          setTimeout(function(){
+            player.play().catch(function(){});
+          }, 500);
+        }
+      });
+    }catch(e){
+      // Fallback: just reload src every time page becomes visible
+      document.addEventListener('visibilitychange', function(){
+        if(!document.hidden && heroIframe){
+          try{ heroIframe.src = heroIframe.src; }catch(ex){}
+        }
+      });
+    }
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initHeroKeeper);
+  } else {
+    setTimeout(initHeroKeeper, 800);
+  }
+})();
+</script>
 <!-- ── Update-57: mobile carousel auto-scroller ── -->
 <script>
 (function(){
