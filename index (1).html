@@ -4398,19 +4398,26 @@ document.addEventListener('DOMContentLoaded', () => {
       return true;
     }
 
-    // IO for fc-bg (project carousel)
-    var bufPx = mobile ? '0px 300px 0px 300px' : '0px 700px 0px 700px';
-    var fcObs = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting && !e.target.dataset.vi && dedupe(e.target)){
-          loadQueue.push(e.target);
-          processQueue();
-          fcObs.unobserve(e.target);
+    // fc-bg (project carousel): load ALL immediately — videos must always play
+    // Push all cards into queue now; processQueue drains up to maxJobs in parallel,
+    // then chains next batch automatically when each iframe fires 'load'.
+    Array.from(document.querySelectorAll('.fc-bg[data-vid]')).forEach(function(bg){
+      if (dedupe(bg)) loadQueue.push(bg);
+    });
+    processQueue();
+
+    // Keep-alive: if browser discards iframes (hidden tab, memory pressure),
+    // re-inject them when the user returns to the page.
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) return;
+      document.querySelectorAll('.fc-bg[data-vid]').forEach(function(bg) {
+        if (bg.dataset.vi && !bg.querySelector('iframe')) {
+          // iframe was discarded — reload it
+          delete bg.dataset.vi;
+          bg.classList.remove('live');
+          injectBg(bg, 0);
         }
       });
-    }, { rootMargin: bufPx });
-    Array.from(document.querySelectorAll('.fc-bg[data-vid]')).forEach(function(bg){
-      fcObs.observe(bg);
     });
 
     // Featured items: NO autoplay. Thumbnail + play button are always visible.
