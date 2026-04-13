@@ -1447,15 +1447,65 @@ body::before{
 #testTrack > .testimonial-card{display:flex!important}
 #brandTrack > .brand-item{display:flex!important}
 
-/* ── Mobile: hide card name overlay ("subtitles") ── */
-@media(max-width:768px){
-  .fc-name-overlay{display:none!important}
-}
+/* fc-name-overlay shown on all devices — see Update 100 above */
 
 /* ── fc-card-vid: larger overflow to fill card on touch-active ── */
 .folder-card .fc-bg .fc-card-vid{
   inset:-15%!important;width:130%!important;height:130%!important;
   position:absolute!important;border:0!important;pointer-events:none!important;
+}
+
+/* ══ UPDATE 100: Polish — loader, thumbnails, names, snap ════════════════ */
+
+/* ── sl-name: loader title ── */
+.sl-name{
+  color:rgba(255,255,255,0.88);
+  font-size:12px;letter-spacing:4.5px;text-transform:uppercase;
+  margin:0;font-weight:500;
+  opacity:0;animation:slFadeIn 0.6s ease 0.9s forwards;
+}
+
+/* ── pm-load-cover: match site-loader style ── */
+.pm-load-cover .pm-lc-inner{
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+}
+.pm-lc-bar-wrap{
+  width:120px;height:2px;
+  background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;
+}
+.pm-lc-bar{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,rgba(255,255,255,0.4),rgba(255,255,255,0.9));
+  border-radius:2px;
+  animation:slProgress 3s cubic-bezier(0.4,0,0.2,1) forwards;
+  animation-play-state:paused;
+}
+.pm-load-cover.active .pm-lc-bar{animation-play-state:running}
+
+/* ── fc-peek-thumb: center crop ── */
+.fc-peek-thumb{
+  object-position:center center!important;
+  object-fit:cover!important;
+}
+
+/* ── fc-name-overlay: always show (override mobile hide from Update 98) ── */
+.fc-name-overlay{display:flex!important}
+
+/* ── Touch-active: ensure name overlay shows clearly ── */
+.folder-card.touch-active .fc-name-overlay{
+  opacity:1!important;
+  background:linear-gradient(to bottom,transparent 0%,transparent 30%,rgba(0,0,0,0.7) 70%,rgba(0,0,0,0.88) 100%)!important;
+}
+
+/* ── pv-shimmer: dark base so no white/black flash ── */
+.pv-shimmer{background-color:#07070e!important}
+
+/* ── Mobile: snap to center on touch (not on auto-scroll) ── */
+@media(max-width:768px){
+  .folders-carousel.snap-touch{scroll-snap-type:x mandatory!important}
+  .featured-strip.snap-touch{scroll-snap-type:x mandatory!important}
+  .folder-card{scroll-snap-align:center!important}
+  .featured-item{scroll-snap-align:center!important}
 }
 
 /* ══ UPDATE 96: Mobile/Desktop Polish ══════════════════════════════════════ */
@@ -3576,6 +3626,7 @@ section::after{
 <div id="site-loader">
   <div class="sl-inner">
     <img src="logo.png" class="sl-logo" alt="Sharbel Najem">
+    <p class="sl-name">SHARBEL NAJEM</p>
     <div class="sl-bar-wrap"><div class="sl-bar" id="slBar"></div></div>
     <p class="sl-tagline" id="slTagline">Loading...</p>
   </div>
@@ -4145,6 +4196,7 @@ function scrollServices(dir){
   if (!grid) return;
   var card = grid.querySelector('.service-card');
   var w = card ? card.offsetWidth + 14 : 280;
+  window._carouselBtnPauseUntil = Date.now() + 2500;
   grid.scrollBy({left: dir * w, behavior: 'smooth'});
 }
 function scrollFolders(dir){
@@ -4153,6 +4205,7 @@ function scrollFolders(dir){
   if (!carousel || !track) return;
   var card = track.querySelector('.folder-card');
   var w = card ? card.offsetWidth + 20 : 300;
+  window._carouselBtnPauseUntil = Date.now() + 2500;
   carousel.scrollBy({left: dir * w, behavior: 'smooth'});
 }
 function openMobileNav(){document.getElementById('mobileNav').classList.add('open');document.body.style.overflow='hidden';var b=document.getElementById('mobileMenuBtn');if(b)b.classList.add('is-open')}
@@ -4219,6 +4272,7 @@ function scrollCarousel(trackId, dir){
   if(!items.length)return;
   var gap=parseInt(getComputedStyle(track).gap)||20;
   var itemW=(items[0].offsetWidth||300)+gap;
+  window._carouselBtnPauseUntil = Date.now() + 2500;
   container.scrollBy({left: dir * itemW * 3, behavior: 'smooth'});
 }
 
@@ -4656,6 +4710,7 @@ function scrollFeatured(dir) {
   if (!strip || !track) return;
   var item = (track.querySelector('.featured-item.landscape') || track.querySelector('.featured-item'));
   var w = item ? item.offsetWidth + 12 : 300;
+  window._carouselBtnPauseUntil = Date.now() + 2500;
   strip.scrollBy({left: dir * w, behavior: 'smooth'});
 }
 
@@ -5213,7 +5268,10 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   <div class="project-modal" onclick="event.stopPropagation()">
     <div id="pm-load-cover" class="pm-load-cover">
       <div class="pm-lc-inner">
-        <div class="pm-lc-shimmer"></div>
+        <img src="logo.png" class="sl-logo" alt="">
+        <p class="sl-name">SHARBEL NAJEM</p>
+        <div class="pm-lc-bar-wrap"><div class="pm-lc-bar"></div></div>
+        <p class="sl-tagline">Loading...</p>
       </div>
     </div>
     <div class="pm-header" role="banner">
@@ -5328,7 +5386,8 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
     }
 
     function step(ts){
-      if (touching || hovering){ lastTs = null; rafId = requestAnimationFrame(step); return; }
+      var btnPaused = window._carouselBtnPauseUntil && Date.now() < window._carouselBtnPauseUntil;
+      if (touching || hovering || btnPaused){ lastTs = null; rafId = requestAnimationFrame(step); return; }
       if (lastTs === null){ lastTs = ts; rafId = requestAnimationFrame(step); return; }
       var dt = Math.min(ts - lastTs, 50);
       lastTs = ts;
@@ -5348,10 +5407,16 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
       rafId = requestAnimationFrame(step);
     }
 
-    // Pause on touch (mobile)
-    wrap.addEventListener('touchstart', function(){ touching = true; }, {passive:true});
+    // Pause on touch (mobile) + add snap class so touch-drag snaps to center
+    wrap.addEventListener('touchstart', function(){
+      touching = true;
+      if (window.innerWidth <= 768) wrap.classList.add('snap-touch');
+    }, {passive:true});
     wrap.addEventListener('touchend', function(){
-      setTimeout(function(){ touching = false; }, 600);
+      setTimeout(function(){
+        touching = false;
+        wrap.classList.remove('snap-touch');
+      }, 900);
     }, {passive:true});
 
     // Pause on hover (desktop)
@@ -5385,7 +5450,8 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
         setTimeout(function(){ svcTouching = false; }, 800);
       }, {passive:true});
       function svcStep(ts){
-        if (!svcTouching){
+        var svcBtnPaused = window._carouselBtnPauseUntil && Date.now() < window._carouselBtnPauseUntil;
+        if (!svcTouching && !svcBtnPaused){
           if (svcLast !== null){
             var dt = Math.min(ts - svcLast, 50);
             var delta = svcDir * svcSpeed * dt / 16.67;
