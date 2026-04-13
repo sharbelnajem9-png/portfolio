@@ -439,7 +439,8 @@ footer::before{
 .pv-item.portrait{aspect-ratio:9/16!important}
 .pv-item iframe{
   position:absolute;inset:0;width:100%;height:100%;
-  border:0;pointer-events:none
+  border:0;pointer-events:none;
+  opacity:0;transition:opacity 0.6s ease
 }
 /* hover: lift + glow */
 .pv-item:hover{
@@ -1410,7 +1411,7 @@ body::before{
 .sl-logo{width:90px;height:auto;opacity:0;animation:slLogoIn 0.8s ease 0.3s forwards}
 @keyframes slLogoIn{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 .sl-bar-wrap{width:160px;height:2px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;opacity:0;animation:slFadeIn 0.6s ease 0.7s forwards}
-.sl-bar{height:100%;width:0%;background:linear-gradient(90deg,rgba(255,255,255,0.4),rgba(255,255,255,0.9));border-radius:2px;animation:slProgress 2.4s cubic-bezier(0.4,0,0.2,1) 0.8s forwards}
+.sl-bar{height:100%;width:0%;background:linear-gradient(90deg,rgba(255,255,255,0.4),rgba(255,255,255,0.9));border-radius:2px;animation:slProgress 3.6s cubic-bezier(0.4,0,0.2,1) 0.6s forwards}
 @keyframes slProgress{0%{width:0%}60%{width:72%}85%{width:88%}100%{width:100%}}
 @keyframes slFadeIn{0%{opacity:0}100%{opacity:1}}
 .sl-tagline{color:rgba(255,255,255,0.35);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;margin:0;opacity:0;animation:slFadeIn 0.6s ease 1s forwards}
@@ -1453,6 +1454,35 @@ body::before{
 .folder-card .fc-bg .fc-card-vid{
   inset:-15%!important;width:130%!important;height:130%!important;
   position:absolute!important;border:0!important;pointer-events:none!important;
+}
+
+/* ══ UPDATE 102: Timing, thumbnail centering, header fix ════════════════ */
+
+/* ── Mobile: ensure first video starts well below the pm-header ── */
+@media(max-width:768px){
+  .pm-videos{
+    padding-top:20px!important;
+  }
+  /* Fix: pm-header has solid bg so videos behind it don't bleed through */
+  .pm-header{
+    background:rgba(4,7,18,0.97)!important;
+    position:relative;
+    z-index:20;
+  }
+  .pm-videos{
+    position:relative;
+    z-index:1;
+  }
+  /* Hide peek strip on mobile — cleaner, prevents "image on side" */
+  .fc-peek{display:none!important}
+}
+
+/* ── Thumbnail: portrait cards — show top portion (face/subject) ── */
+.folder-card.portrait .fc-thumb-img{
+  object-position:top center!important;
+}
+.folder-card.portrait .fc-bg{
+  background-position:top center!important;
 }
 
 /* ══ UPDATE 100: Polish — loader, thumbnails, names, snap ════════════════ */
@@ -4480,12 +4510,14 @@ function openProject(key) {
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
 
-  // Show loading cover — dismiss when videos are loaded (real iframe load events)
+  // Show loading cover — dismiss only after videos have had time to buffer
   var lc = document.getElementById('pm-load-cover');
   if (lc) lc.classList.add('active');
   var _pvRevealDone = false;
   var _pvLoadCount = 0;
-  var _pvTarget = Math.min(4, p.vids.length);
+  var _pvTarget = Math.min(3, p.vids.length);
+  var _pvOpenTime = Date.now();
+  var _pvMinWait = 4000; // always show cover at least 4s so videos buffer
   function _pvRevealAll() {
     if (_pvRevealDone) return; _pvRevealDone = true;
     if (lc) lc.classList.remove('active');
@@ -4498,11 +4530,14 @@ function openProject(key) {
     _pvLoadCount++;
     if (_pvLoadCount >= _pvTarget){
       container.removeEventListener('load', _pvLH, true);
-      setTimeout(_pvRevealAll, 250); // small delay so first frame renders
+      // Wait for minimum time to ensure video has buffered before revealing
+      var elapsed = Date.now() - _pvOpenTime;
+      var remaining = Math.max(1200, _pvMinWait - elapsed);
+      setTimeout(_pvRevealAll, remaining);
     }
   }, true);
-  // Hard fallback — never leave cover on screen more than 7s
-  setTimeout(_pvRevealAll, 7000);
+  // Hard fallback — never leave cover on screen more than 9s
+  setTimeout(_pvRevealAll, 9000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
@@ -5471,13 +5506,32 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   }
 })();
 
+// ── Hero showreel keepalive: keep playing even after scroll / tab switch ──
+(function(){
+  function pingHero(){
+    var iframe = document.querySelector('.hero-vid-item.active iframe');
+    if (!iframe || !iframe.contentWindow) return;
+    try {
+      iframe.contentWindow.postMessage(JSON.stringify({method:'play'}), 'https://player.vimeo.com');
+    } catch(e){}
+  }
+  // Ping every 4s so it resumes if browser paused it
+  setInterval(pingHero, 4000);
+  // Resume immediately when user returns to tab
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) setTimeout(pingHero, 300);
+  });
+  // Also resume after site-loader dismisses
+  window.addEventListener('load', function(){ setTimeout(pingHero, 3200); });
+})();
+
 // ── Site loader: smart dismiss when hero + featured videos are ready ──
 (function(){
   var loader = document.getElementById('site-loader');
   if (!loader) return;
   var _slDismissed = false;
   var _slStart = Date.now();
-  var _slMinMs = 2000; // always show at least 2s so progress bar looks right
+  var _slMinMs = 4000; // show at least 4s so videos have time to buffer and play
 
   function dismiss(){
     if (_slDismissed) return;
@@ -5494,7 +5548,7 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   // Shared counters read by featured IIFE (defined above)
   window._slFeatLoaded = 0;
   var _slHeroReady = false;
-  var _slNeededFeat = 3; // need at least 3 featured iframes to have loaded
+  var _slNeededFeat = 2; // need at least 2 featured iframes to have loaded
 
   window._slCheckReady = function(){
     if (_slHeroReady && window._slFeatLoaded >= _slNeededFeat) dismiss();
@@ -5507,14 +5561,16 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
       _slHeroReady = true;
       window._slCheckReady();
     }, {once: true});
+    // Iframe may have loaded before this listener was added — set ready after 1s anyway
+    setTimeout(function(){ _slHeroReady = true; window._slCheckReady(); }, 1000);
   } else {
     _slHeroReady = true; // no hero iframe found — don't block
   }
 
-  // Hard fallback — never keep loader past 6s
-  setTimeout(dismiss, 6000);
-  // Secondary: if hero loaded but featured slow, still dismiss at 4.5s
-  setTimeout(function(){ if (_slHeroReady) dismiss(); }, 4500);
+  // Hard fallback — never keep loader past 8s
+  setTimeout(dismiss, 8000);
+  // Secondary: dismiss at 6s if hero loaded and enough featured ready
+  setTimeout(function(){ if (_slHeroReady && window._slFeatLoaded >= 1) dismiss(); }, 6000);
 })();
 </script>
 </body>
