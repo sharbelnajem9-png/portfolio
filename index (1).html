@@ -4264,32 +4264,17 @@ function makePvPlay() {
 // ── Load correct 1080x1920 portrait thumbnail from Vimeo CDN ──
 // oEmbed gives us the picture hash (e.g. _1280x720.jpg).
 // We replace dimensions with _1080x1920.jpg — Vimeo CDN serves this for portrait videos.
-// ── Modal video queue: loads pv-item Vimeo iframes 4 at a time ──
+// ── Modal video queue — all videos load immediately, batch-revealed when ready ──
 var _pvQueue = [];
 var _pvActive = 0;
 var _pvMax = 4;
-function _pvNext() {
-  while (_pvActive < _pvMax && _pvQueue.length > 0) {
-    _pvActive++;
+// _pvNext kept for compatibility; actual loading driven by openProject
+function _pvNext() {}
+function _pvDrainAll() {
+  while (_pvQueue.length > 0) {
     (function(job){
-      var fr = job.iframe, dv = job.div, th = job.thumb;
-      dv.appendChild(fr);
-      var done = false;
-      function finish() {
-        if (done) return; done = true;
-        _pvActive--;
-        if (!dv.isConnected) { _pvNext(); return; }
-        // Fade in video, hide shimmer — minimum 2.8s ensures video has buffered
-        setTimeout(function(){
-          fr.style.opacity = '1';
-          dv.classList.add('pv-loaded');
-        }, 2800);
-        _pvNext();
-      }
-      // Trigger reveal after generous load time (no SDK needed)
-      setTimeout(finish, 3200);
-      // Hard cap in case previous finish never fired
-      setTimeout(function(){ if(!done){ done=true; _pvActive--; fr.style.opacity='1'; dv.classList.add('pv-loaded'); _pvNext(); } }, 14000);
+      var fr = job.iframe, dv = job.div;
+      if (dv && dv.isConnected) dv.appendChild(fr);
     })(_pvQueue.shift());
   }
 }
@@ -4426,8 +4411,8 @@ function openProject(key) {
 
   if (secH) container.appendChild(secH);
   if (secV) container.appendChild(secV);
-  // Start loading pv-item videos (staggered, 4 at a time)
-  setTimeout(function(){ _pvNext(); }, 100);
+  // Load ALL videos immediately
+  setTimeout(function(){ _pvDrainAll(); }, 60);
 
   // Open modal
   const overlay = document.getElementById('project-overlay');
@@ -4441,12 +4426,29 @@ function openProject(key) {
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
 
-  // Show loading cover, hide after 2s
+  // Show loading cover — dismiss when videos are loaded (real iframe load events)
   var lc = document.getElementById('pm-load-cover');
-  if (lc) {
-    lc.classList.add('active');
-    setTimeout(function(){ lc.classList.remove('active'); }, 2000);
+  if (lc) lc.classList.add('active');
+  var _pvRevealDone = false;
+  var _pvLoadCount = 0;
+  var _pvTarget = Math.min(4, p.vids.length);
+  function _pvRevealAll() {
+    if (_pvRevealDone) return; _pvRevealDone = true;
+    if (lc) lc.classList.remove('active');
+    // Reveal all video iframes at once — no individual shimmer delays
+    container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
+    container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
+  container.addEventListener('load', function _pvLH(e){
+    if (e.target.tagName !== 'IFRAME') return;
+    _pvLoadCount++;
+    if (_pvLoadCount >= _pvTarget){
+      container.removeEventListener('load', _pvLH, true);
+      setTimeout(_pvRevealAll, 250); // small delay so first frame renders
+    }
+  }, true);
+  // Hard fallback — never leave cover on screen more than 7s
+  setTimeout(_pvRevealAll, 7000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
@@ -4584,51 +4586,65 @@ window.addEventListener('scroll', () => {
 });
 
 // ================================================================
-// ─── FEATURED STRIP AUTOPLAY via IntersectionObserver ───────────────────────────
+// ─── FEATURED STRIP AUTOPLAY — eager pre-load + site-loader signal ─────────────
 (function(){
   var _fCount = 0;
-  var _fMax = 7;
+  var _fMax = 16; // allow plenty for eager + observer load
 
-  function _buildFi(id) {
-    var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+  function _buildFiItem(item) {
+    var bg = item.querySelector('.fi-bg');
+    if (!bg) return;
+    if (bg.querySelector('iframe') || _fCount >= _fMax) return;
+    var vid = bg.dataset.vid;
+    if (!vid) return;
+    _fCount++;
+    var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
     var q = hash ? '?h=' + hash + '&' : '?';
     var iframe = document.createElement('iframe');
-    iframe.src = 'https://player.vimeo.com/video/' + id + q +
+    iframe.src = 'https://player.vimeo.com/video/' + vid + q +
       'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1';
     iframe.setAttribute('frameborder','0');
     iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
       'border:0;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.8s ease;';
-    return iframe;
+    bg.appendChild(iframe);
+    // Reveal on iframe load (real signal) — small delay so first frame renders
+    iframe.addEventListener('load', function(){
+      setTimeout(function(){
+        iframe.style.opacity = '1';
+        var thumb = bg.querySelector('.fi-thumb-img');
+        if (thumb) thumb.style.opacity = '0';
+        item.classList.add('fi-loaded');
+      }, 300);
+      // Signal site loader that a featured video is ready
+      if (typeof window._slFeatLoaded !== 'undefined'){
+        window._slFeatLoaded++;
+        if (window._slCheckReady) window._slCheckReady();
+      }
+    }, {once: true});
   }
 
+  // Eagerly pre-load first 7 unique items (no viewport check needed)
+  var allItems = Array.from(document.querySelectorAll('.featured-item[data-vid]'));
+  var seenVids = {}, preCount = 0;
+  allItems.forEach(function(item){
+    if (preCount >= 7) return;
+    var bg = item.querySelector('.fi-bg');
+    var vid = bg && bg.dataset.vid;
+    if (!vid || seenVids[vid]) return;
+    seenVids[vid] = true;
+    preCount++;
+    _buildFiItem(item);
+  });
+
+  // IntersectionObserver for items beyond the pre-loaded set (when user scrolls)
   var featObs = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
-      var bg = entry.target.querySelector('.fi-bg');
-      if (!bg) return;
-      var vid = bg.dataset.vid;
-      if (!vid) return;
-      if (entry.isIntersecting) {
-        if (bg.querySelector('iframe') || _fCount >= _fMax) return;
-        _fCount++;
-        var iframe = _buildFi(vid);
-        bg.appendChild(iframe);
-        setTimeout(function(){
-          iframe.style.opacity = '1';
-          var thumb = bg.querySelector('.fi-thumb-img');
-          if (thumb) thumb.style.opacity = '0';
-          // fi-loaded removes shimmer skeleton
-          entry.target.classList.add('fi-loaded');
-        }, 1400);
-      } else {
-        var iframe = bg.querySelector('iframe');
-        if (iframe) { iframe.remove(); _fCount = Math.max(0,_fCount-1); }
-        var thumb = bg.querySelector('.fi-thumb-img');
-        if (thumb) thumb.style.opacity = '1';
-      }
+      if (!entry.isIntersecting) return;
+      _buildFiItem(entry.target);
     });
-  }, {threshold:0, rootMargin:'300px'});
-  document.querySelectorAll('.featured-item[data-vid]').forEach(function(i){ featObs.observe(i); });
+  }, {threshold: 0, rootMargin: '300px'});
+  allItems.forEach(function(i){ featObs.observe(i); });
 })();
 
 // ================================================================
@@ -5389,22 +5405,50 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   }
 })();
 
-// ── Site loader dismiss ──
+// ── Site loader: smart dismiss when hero + featured videos are ready ──
 (function(){
   var loader = document.getElementById('site-loader');
   if (!loader) return;
+  var _slDismissed = false;
+  var _slStart = Date.now();
+  var _slMinMs = 2000; // always show at least 2s so progress bar looks right
+
   function dismiss(){
-    loader.classList.add('sl-hidden');
-    setTimeout(function(){ loader.style.display='none'; }, 800);
+    if (_slDismissed) return;
+    var elapsed = Date.now() - _slStart;
+    var wait = Math.max(0, _slMinMs - elapsed);
+    setTimeout(function(){
+      if (_slDismissed) return;
+      _slDismissed = true;
+      loader.classList.add('sl-hidden');
+      setTimeout(function(){ if (loader.parentNode) loader.style.display = 'none'; }, 800);
+    }, wait);
   }
-  // Dismiss after 2.8s regardless, or after load event (whichever is later, max 4s)
-  var t1 = setTimeout(dismiss, 2800);
-  window.addEventListener('load', function(){
-    // If load fires late, cap at 4s
-    clearTimeout(t1);
-    var remaining = Math.max(0, 2800 - performance.now());
-    setTimeout(dismiss, remaining);
-  });
+
+  // Shared counters read by featured IIFE (defined above)
+  window._slFeatLoaded = 0;
+  var _slHeroReady = false;
+  var _slNeededFeat = 3; // need at least 3 featured iframes to have loaded
+
+  window._slCheckReady = function(){
+    if (_slHeroReady && window._slFeatLoaded >= _slNeededFeat) dismiss();
+  };
+
+  // Hero showreel iframe (already embedded in HTML)
+  var heroIframe = document.querySelector('.hero-vid-item iframe');
+  if (heroIframe) {
+    heroIframe.addEventListener('load', function(){
+      _slHeroReady = true;
+      window._slCheckReady();
+    }, {once: true});
+  } else {
+    _slHeroReady = true; // no hero iframe found — don't block
+  }
+
+  // Hard fallback — never keep loader past 6s
+  setTimeout(dismiss, 6000);
+  // Secondary: if hero loaded but featured slow, still dismiss at 4.5s
+  setTimeout(function(){ if (_slHeroReady) dismiss(); }, 4500);
 })();
 </script>
 </body>
