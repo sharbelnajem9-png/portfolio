@@ -3665,16 +3665,7 @@ const PROJECT_DATA = {'podcast-short':{en:'Podcast Short',he:'פודקאסט ק�
 'kristian-najem':{en:'Kristian Najem',he:'כריסטיאן נאג׳ם',vids:[['1181214416','p'],['1181216090','p'],['1181212370','p'],['1181211716','p'],['1181209657','p'],['1181206645','p'],['1181205157','p'],['1181183766','p'],['1181182439','p']]},
 'naadned':{en:'Naadned',he:'נאדנד',vids:[['1181236213','p'],['1181233630','p'],['1181231926','p'],['1181229662','p'],['1181228462','p'],['1181227058','p'],['1181225482','p'],['1181223604','p'],['1181222057','p']]}};
 
-// ── Dream iframe builder: background=1, no UI ──
-function buildVimeoIframe(id) {
-  const iframe = document.createElement('iframe');
-  iframe.src = 'https://player.vimeo.com/video/' + id +
-    '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0&controls=0&texttrack=false';
-  iframe.setAttribute('frameborder','0');
-  iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture; clipboard-write');
-  iframe.setAttribute('allowfullscreen','');
-  return iframe;
-}
+/
 
 // ── Play SVG icon ──
 function makePvPlay() {
@@ -3737,44 +3728,6 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
   grid.className = gridClass;
   grid.setAttribute('role', 'list');
 
-  // Sequential load queue: iframes load one at a time to avoid connection spike
-  var pvQueue = [];
-  var pvActive = 0;
-  var pvMax = window.innerWidth < 768 ? 1 : 3;
-  function pvNext() {
-    while (pvActive < pvMax && pvQueue.length > 0) {
-      pvActive++;
-      // IIFE per job: each job gets its own closure (no shared-var bug)
-      (function(job) {
-        var fr = job.iframe, dv = job.div, th = job.thumb;
-        fr.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;z-index:2;opacity:0;transition:opacity 0.9s ease;';
-        dv.appendChild(fr);
-        var done = false;
-        function finish() {
-          if (done) return; done = true;
-          pvActive--;
-          dv.classList.add('pv-loaded');
-          // Fade in video, fade out thumbnail
-          setTimeout(function() {
-            fr.style.opacity = '1';
-            th.style.opacity = '0';
-          }, 120);
-          pvNext();
-        }
-        // Use Vimeo Player API: fade thumbnail only when video is actually rendering
-        try {
-          var vp = new Vimeo.Player(fr);
-          vp.on('timeupdate', finish);
-        } catch(e) {
-          // Fallback: use iframe load event
-          fr.addEventListener('load', finish, {once:true});
-        }
-        // Hard timeout: 12s
-        setTimeout(finish, 12000);
-      })(pvQueue.shift());
-    }
-  }
-
   videos.forEach(([id], i) => {
     const div = document.createElement('div');
     div.className = 'pv-item ' + (isPortrait ? 'portrait' : 'landscape');
@@ -3794,17 +3747,19 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     div.appendChild(thumb);
 
     // Portrait: fetch correct portrait thumbnail from Vimeo API (vumbnail = 16:9 only)
-    if (isPortrait) loadPortraitThumb(thumb, id, div);
+    if (isPortrait) {
+      loadPortraitThumb(thumb, id, div);
+    } else {
+      // Landscape: mark loaded once thumbnail fires
+      if (thumb.complete) { div.classList.add('pv-loaded'); }
+      else { thumb.addEventListener('load', function(){ div.classList.add('pv-loaded'); }, {once:true}); }
+    }
 
     // Shimmer overlay during load
     const shimmer = document.createElement('div');
     shimmer.className = 'pv-shimmer';
     shimmer.style.zIndex = '3';
     div.appendChild(shimmer);
-
-    // All items: load Vimeo background iframe (portrait 9:16 and landscape 16:9).
-    const iframe = buildVimeoIframe(id);
-    pvQueue.push({iframe, div, thumb});
 
     // Play overlay
     div.appendChild(makePvPlay());
@@ -3821,8 +3776,6 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
 
     grid.appendChild(div);
   });
-
-  pvNext(); // load iframes sequentially
 
   section.appendChild(grid);
   return section;
@@ -4217,284 +4170,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ================================================================
-// PHASE 3   -  Live video previews (direct injection, same as modal)
-// ================================================================
-(function() {
-  var P = '?background=1&autoplay=1&loop=1&muted=1&autopause=0&controls=0&texttrack=false';
-
-  // Fill container fully regardless of aspect ratio:
-  // width:177.78% when based on height = 16:9 fill for portrait containers
-  // height:177.78% when based on width = 16:9 fill for landscape containers
-  // Using both large dimensions + center crop = guaranteed fill
-  var IFRAME_STYLE = 'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;z-index:2;opacity:1;transition:opacity 0.5s';
-
-  function makeFrame(vid) {
-    var fr = document.createElement('iframe');
-    fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-    fr.setAttribute('allowfullscreen','');
-    fr.setAttribute('frameborder','0');
-    fr.style.cssText = IFRAME_STYLE;
-    fr.src = 'https://player.vimeo.com/video/' + vid + P;
-    return fr;
-  }
-
-  function injectBg(bg, delay) {
-    if (!bg || bg.dataset.vi) return;
-    bg.dataset.vi = '1';
-    var vid = bg.dataset.vid;
-    if (!vid) return;
-    var vids = (bg.dataset.vids || vid).split(',').filter(Boolean);
-    var cur = 0;
-
-    function addFrame(v, opacity) {
-      var fr = makeFrame(v);
-      fr.style.opacity = String(opacity);
-      fr.addEventListener('load', function(){
-        fr.dataset.loaded = '1';
-        bg.classList.add('live');    // fades out thumbnail
-      });
-      bg.appendChild(fr);
-      return fr;
-    }
-
-    function removeOldFrames(keep) {
-      // Remove every iframe in bg except `keep`
-      bg.querySelectorAll('iframe').forEach(function(f) {
-        if (f !== keep) bg.removeChild(f);
-      });
-    }
-
-    setTimeout(function() {
-      // ── First frame: start hidden, fade in when Vimeo is ready ──
-      var fr = addFrame(vids[0], 0);
-      fr.addEventListener('load', function(){
-        // Small delay so Vimeo's video element has initialised
-        setTimeout(function(){ fr.style.opacity = '1'; }, 200);
-      }, {once:true});
-
-      // Stall detection: if no load after 18s, replace
-      setTimeout(function() {
-        if (!fr.dataset.loaded && bg.contains(fr)) {
-          bg.removeChild(fr);
-          addFrame(vids[0], 1);
-        }
-      }, 18000);
-
-      if (vids.length <= 1) return;
-
-      // ── Rotation ─────────────────────────────────────────────
-      // Interval = 9s. Pre-buffer next video at 4s so it has 5s to load.
-      var pendingFr = null;
-      var pendingIdx = null;
-
-      function pickNext() {
-        var next;
-        do { next = Math.floor(Math.random() * vids.length); }
-        while (next === cur && vids.length > 1);
-        return next;
-      }
-
-      function preBuffer() {
-        pendingIdx = pickNext();
-        pendingFr = addFrame(vids[pendingIdx], 0);   // hidden, starts loading
-      }
-
-      function doSwap() {
-        if (!pendingFr) return;
-        var swapFr = pendingFr;
-        var swapIdx = pendingIdx;
-        pendingFr = null;
-        pendingIdx = null;
-
-        function perform() {
-          swapFr.style.opacity = '1';      // fade new frame in
-          cur = swapIdx;
-          // Remove old frames only after new one is visually up (fade=500ms)
-          setTimeout(function() { removeOldFrames(swapFr); }, 2500);
-          // Start buffering the next video
-          setTimeout(preBuffer, 4000);
-        }
-
-        if (swapFr.dataset.loaded) {
-          perform();                        // already loaded, swap now
-        } else {
-          // Wait for it to load (up to 8 more seconds)
-          var done = false;
-          swapFr.addEventListener('load', function() {
-            if (!done) { done = true; perform(); }
-          });
-          setTimeout(function() {
-            if (!done) { done = true; perform(); } // fallback: show anyway
-          }, 8000);
-        }
-      }
-
-      // Kick off: pre-buffer first rotation target after 4s
-      setTimeout(preBuffer, 4000);
-      // First swap at 9s
-      setTimeout(function tick() {
-        doSwap();
-        setTimeout(tick, 9000);
-      }, 9000);
-
-    }, delay);
-  }
-
-  function runPhase3() {
-    var mobile = window.innerWidth < 768;
-
-    // ── Sequential loading queue ─────────────────────────────────────────────
-    // Items enter a queue when IO sees them near the viewport.
-    // On mobile: process ONE at a time (no memory overload).
-    // On desktop: process up to 3 in parallel for faster load.
-    // Thumbnail stays visible until iframe fires 'load' → seamless fade-in.
-
-    var loadQueue  = [];
-    var activeJobs = 0;
-    var maxJobs    = mobile ? 1 : 3;
-
-    function processQueue() {
-      while (activeJobs < maxJobs && loadQueue.length > 0) {
-        var bg = loadQueue.shift();
-        if (!bg || bg.dataset.vi) continue;  // already injected
-        activeJobs++;
-        injectBg(bg, 0);
-        // Wait for iframe to fire 'load' (or 8s timeout) before next
-        var resolved = false;
-        function done() {
-          if (resolved) return;
-          resolved = true;
-          activeJobs--;
-          processQueue();
-        }
-        var iframe = bg.querySelector('iframe');
-        // injectBg is async (has setTimeout inside), poll briefly for the iframe
-        var pollCount = 0;
-        var poll = setInterval(function() {
-          pollCount++;
-          iframe = bg.querySelector('iframe');
-          if (iframe) {
-            clearInterval(poll);
-            iframe.addEventListener('load', done, {once:true});
-            setTimeout(done, 8000); // hard timeout
-          } else if (pollCount > 50) {
-            clearInterval(poll);
-            done(); // give up polling
-          }
-        }, 100);
-      }
-    }
-
-    // De-duplicate: only queue first occurrence of each video ID
-    var seenVids = {};
-    function dedupe(bg) {
-      var v = bg.dataset.vid;
-      if (seenVids[v]) return false;
-      seenVids[v] = true;
-      return true;
-    }
-
-    // fc-bg (project carousel): load ALL immediately — videos must always play
-    // Push all cards into queue now; processQueue drains up to maxJobs in parallel,
-    // then chains next batch automatically when each iframe fires 'load'.
-    Array.from(document.querySelectorAll('.fc-bg[data-vid]')).forEach(function(bg){
-      if (dedupe(bg)) loadQueue.push(bg);
-    });
-    processQueue();
-
-    // Keep-alive: if browser discards iframes (hidden tab, memory pressure),
-    // re-inject them when the user returns to the page.
-    document.addEventListener('visibilitychange', function() {
-      if (document.hidden) return;
-      document.querySelectorAll('.fc-bg[data-vid]').forEach(function(bg) {
-        if (bg.dataset.vi && !bg.querySelector('iframe')) {
-          // iframe was discarded — reload it
-          delete bg.dataset.vi;
-          bg.classList.remove('live');
-          injectBg(bg, 0);
-        }
-      });
-    });
-
-    // Featured items: NO autoplay. Thumbnail + play button are always visible.
-    // User clicks featured item → openLightbox (already wired in HTML onclick).
-    // This saves ~20 Vimeo iframes and prevents memory pressure on mobile.
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runPhase3);
-  } else {
-    runPhase3();
-  }
-})();
-
-// Hero: single looping video — no sequencer needed
 
 
 
 
-// ─── HOVER PRELOAD: start iframes before user clicks ─────────────────────────
-// Mobile: disabled — creating 8 iframes per card touch causes memory pressure
-// and iOS Safari kills the tab (appears as "auto refresh").
-(function(){
-  if(window.innerWidth < 768) return; // desktop only
-  var _cache = {};
-  var _container = document.createElement('div');
-  _container.style.cssText =
-    'position:fixed;top:-9999px;left:0;width:300px;height:300px;' +
-    'overflow:hidden;pointer-events:none;z-index:-9999;';
-  document.body.appendChild(_container);
-
-  function preload(key){
-    if(_cache[key]) return;
-    var p = (typeof PROJECT_DATA !== 'undefined') && PROJECT_DATA[key];
-    if(!p) return;
-    var cache = {};
-    // Pre-load first 8 videos (covers most projects in full)
-    p.vids.slice(0, 8).forEach(function(vid){
-      var id = vid[0];
-      var fr = document.createElement('iframe');
-      fr.src = 'https://player.vimeo.com/video/' + id +
-        '?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&title=0&byline=0&portrait=0&badge=0&controls=0&texttrack=false';
-      fr.setAttribute('frameborder','0');
-      fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture; clipboard-write');
-      fr.setAttribute('allowfullscreen','');
-      fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;';
-      _container.appendChild(fr);
-      cache[id] = fr;
-    });
-    _cache[key] = cache;
-  }
-
-  // Attach mouseenter to all project cards (both carousel copies)
-  document.querySelectorAll('.folder-card[data-key]').forEach(function(card){
-    card.addEventListener('mouseenter', function(){
-      preload(card.dataset.key);
-    }, {passive:true});
-  });
-
-  // After openProject builds the modal, swap fresh iframes with pre-loaded ones
-  var _openOrig = window.openProject;
-  window.openProject = function(key){
-    _openOrig(key);
-    var cache = _cache[key];
-    if(!cache) return;
-    document.querySelectorAll('#pm-videos iframe').forEach(function(iframe){
-      var m = iframe.src.match(/video\/(\d+)/);
-      if(!m) return;
-      var id = m[1];
-      var preloaded = cache[id];
-      if(!preloaded) return;
-      // Move the pre-loaded iframe (already buffering) into the modal slot
-      iframe.parentNode.replaceChild(preloaded, iframe);
-      // Mark loaded immediately since it was already loading
-      preloaded.closest('.pv-item') && preloaded.closest('.pv-item').classList.add('pv-loaded');
-      delete cache[id];
-    });
-    delete _cache[key];
-  };
-})();
 
 // ─── PEEK STRIP: show video thumbnails on project card hover ─────────────────
 (function(){
@@ -4617,103 +4296,6 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 
 
 
-<!-- ── Update-67: Hero keeper — robust, no reload loop ── -->
-<script>
-(function(){
-  var SEL   = '#heroVid0 iframe';
-  var _pl   = null;   // Vimeo.Player instance
-  var _tmr  = null;   // watchdog interval
-  var _busy = false;  // true while reloading (prevents re-entry)
-
-  function el() { return document.querySelector(SEL); }
-
-  function tryPlay(p) {
-    if (!p || _busy) return;
-    p.play().catch(function(){ reload(); });
-  }
-
-  function reload() {
-    if (_busy) return;
-    _busy = true;
-    if (_tmr) { clearInterval(_tmr); _tmr = null; }
-    if (_pl)  { try { _pl.destroy(); } catch(e){} _pl = null; }
-    var fr = el();
-    if (!fr) { _busy = false; setTimeout(init, 1000); return; }
-    var src = fr.src;
-    fr.src = 'about:blank';
-    setTimeout(function() {
-      fr.src = src;
-      // Wait for iframe to reload, then re-attach player
-      setTimeout(function() { _busy = false; init(); }, 2500);
-    }, 300);
-  }
-
-  function init() {
-    if (_busy) return;
-    var fr = el();
-    if (!fr) { setTimeout(init, 500); return; }
-    if (typeof Vimeo === 'undefined') { setTimeout(init, 500); return; }
-    try {
-      _pl = new Vimeo.Player(fr);
-
-      // Loop safety: if ended event fires before loop param takes effect
-      _pl.on('ended', function() {
-        _pl.setCurrentTime(0).then(function(){ return _pl.play(); }).catch(function(){});
-      });
-
-      // Watchdog: every 4s — check still playing
-      if (_tmr) clearInterval(_tmr);
-      _tmr = setInterval(function() {
-        if (_busy || !_pl) return;
-        _pl.getPaused().then(function(paused) {
-          if (paused && !_busy) tryPlay(_pl);
-        }).catch(function() { reload(); });
-      }, 4000);
-
-    } catch(e) {
-      // Vimeo API unavailable — fallback: reload iframe every 15s if needed
-      if (_tmr) clearInterval(_tmr);
-      _tmr = setInterval(function() {
-        var fr = el();
-        if (fr && !_busy) {
-          _busy = true;
-          var s = fr.src; fr.src = 'about:blank';
-          setTimeout(function() { fr.src = s; _busy = false; }, 300);
-        }
-      }, 15000);
-    }
-  }
-
-  // Tab becomes visible again → restart if needed
-  document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && !_busy) {
-      setTimeout(function() { _pl ? tryPlay(_pl) : init(); }, 400);
-    }
-  });
-
-  // Window regains focus (e.g. after alt-tab) → ensure playing
-  window.addEventListener('focus', function() {
-    if (!_busy) setTimeout(function() { _pl ? tryPlay(_pl) : init(); }, 300);
-  });
-
-  // User scrolls back to hero → re-check
-  window.addEventListener('scroll', (function() {
-    var t;
-    return function() {
-      clearTimeout(t);
-      t = setTimeout(function() {
-        if (window.scrollY < 300 && _pl && !_busy) tryPlay(_pl);
-      }, 500);
-    };
-  })(), { passive: true });
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() { setTimeout(init, 1000); });
-  } else {
-    setTimeout(init, 1000);
-  }
-})();
-</script>
 <!-- ── Update-57: mobile carousel auto-scroller ── -->
 <script>
 (function(){
