@@ -1450,10 +1450,18 @@ body::before{
 
 /* fc-name-overlay shown on all devices — see Update 100 above */
 
-/* ── fc-card-vid: larger overflow to fill card on touch-active ── */
+/* ── fc-card-vid: centered, 177.8% to fill any aspect-ratio card ── */
 .folder-card .fc-bg .fc-card-vid{
-  inset:-15%!important;width:130%!important;height:130%!important;
-  position:absolute!important;border:0!important;pointer-events:none!important;
+  position:absolute!important;
+  top:50%!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:177.8%!important;
+  height:177.8%!important;
+  transform:translate(-50%,-50%)!important;
+  border:0!important;
+  pointer-events:none!important;
 }
 
 /* ══ UPDATE 102: Timing, thumbnail centering, header fix ════════════════ */
