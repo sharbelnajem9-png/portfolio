@@ -672,7 +672,14 @@ html{scroll-behavior:smooth}
 .fc-bg iframe{
   position:absolute;inset:0;
   width:100%;height:100%;border:0;
-  pointer-events:none
+  pointer-events:none;z-index:2;
+  opacity:0;transition:opacity 0.8s ease
+}
+.fi-bg iframe{
+  position:absolute;inset:0;
+  width:100%;height:100%;border:0;
+  pointer-events:none;z-index:2;
+  opacity:0;transition:opacity 0.8s ease
 }
 .folder-thumb{position:relative;background:#08080f;overflow:hidden}
 .folder-thumb-img{display:none!important}
@@ -2964,26 +2971,44 @@ section::after{
 /* pv-item: dark base so no white flash */
 .pv-item{ background:#08080f!important; }
 
-/* pv-item thumbnails: contain — full frame, no crop, no distortion */
+/* pv-item thumbnails: portrait=contain until portrait thumb loads, landscape=cover */
 .pv-item > img,
-.pv-item.portrait > img,
 .pv-item.landscape > img{
+  position:absolute!important; inset:0!important;
+  width:100%!important; height:100%!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  background:#08080f!important;
+}
+.pv-item.portrait > img{
   position:absolute!important; inset:0!important;
   width:100%!important; height:100%!important;
   object-fit:contain!important;
   object-position:center center!important;
   background:#08080f!important;
 }
+/* Once portrait thumb loaded (9:16 native image) → cover fills container perfectly */
+.pv-item.portrait.pt-loaded > img{
+  object-fit:cover!important;
+}
 
 /* Grid alignment */
 .pm-grid-v{ align-items:flex-start!important; }
 .pm-grid-h{ align-items:flex-start!important; }
 
-/* Featured thumbnails: cover — oEmbed portrait thumb fills 9:16 perfectly */
+/* Featured thumbnails: landscape=cover, portrait=contain until thumb loads */
 .fi-thumb-img,
 .featured-item .fi-thumb-img{
   object-fit:cover!important;
   object-position:center center!important;
+}
+.featured-item.portrait .fi-thumb-img{
+  object-fit:contain!important;
+  background:#08080f!important;
+}
+.featured-item.portrait.pt-loaded .fi-thumb-img{
+  object-fit:cover!important;
+  background:transparent!important;
 }
 
 /* Desktop featured: portrait 9:16 same HEIGHT as landscape */
@@ -3016,12 +3041,15 @@ section::after{
   }
   .featured-item.landscape{
     aspect-ratio:16/9!important;
-    height:210px!important;
-    width:auto!important;
+    height:auto!important;
+    width:min(373px,82vw)!important;
+    max-width:82vw!important;
   }
   .featured-item:not(.portrait):not(.landscape){
-    height:210px!important;
-    width:auto!important;
+    height:auto!important;
+    width:min(373px,82vw)!important;
+    max-width:82vw!important;
+    aspect-ratio:16/9!important;
   }
 
   /* Project cards: uniform, centered snap */
@@ -3738,7 +3766,13 @@ function makePvPlay() {
 // oEmbed gives us the picture hash (e.g. _1280x720.jpg).
 // We replace dimensions with _1080x1920.jpg — Vimeo CDN serves this for portrait videos.
 function loadPortraitThumb(imgEl, id, pvItem) {
-  fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' + id)
+  // Include secure hash if available (required for private/unlisted videos)
+  var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+  var vidUrl = hash
+    ? 'https://vimeo.com/' + id + '%3Fh%3D' + hash
+    : 'https://vimeo.com/' + id;
+  fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2F' +
+    'vimeo.com%2F' + id + (hash ? '%3Fh%3D' + hash : ''))
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (!d || !d.thumbnail_url) { if (pvItem) pvItem.classList.add('pv-loaded'); return; }
@@ -3748,9 +3782,8 @@ function loadPortraitThumb(imgEl, id, pvItem) {
       function apply(url) {
         if (done) return; done = true;
         imgEl.src = url;
-        imgEl.style.objectFit = 'cover';
-        imgEl.style.background = 'transparent';
-        if (pvItem) pvItem.classList.add('pv-loaded');
+        // Mark as portrait-loaded so CSS switches to object-fit:cover
+        if (pvItem) { pvItem.classList.add('pv-loaded'); pvItem.classList.add('pt-loaded'); }
       }
       // Try 1080x1920 first; fall back to oEmbed default if CDN rejects it
       var check = new Image();
@@ -3983,8 +4016,77 @@ window.addEventListener('scroll', () => {
 });
 
 // ================================================================
-// BACKGROUND VIDEO LAZY LOADER (projects + featured)
-// ================================================================
+// ─── BACKGROUND VIDEO AUTOPLAY via IntersectionObserver ────────────────────────────
+(function(){
+  // Shared limit: max concurrent background Vimeo iframes
+  var _bgCount = 0;
+  var _bgMax = 7;
+
+  function buildBgIframe(id) {
+    var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+    var q = hash ? '?h=' + hash + '&' : '?';
+    var iframe = document.createElement('iframe');
+    iframe.src = 'https://player.vimeo.com/video/' + id + q +
+      'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1';
+    iframe.setAttribute('frameborder','0');
+    iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
+      'border:0;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.8s ease;';
+    return iframe;
+  }
+
+  function addBgVideo(bg, vid, thumbSel) {
+    if (_bgCount >= _bgMax) return;
+    if (bg.querySelector('iframe')) return;
+    _bgCount++;
+    bg.dataset.bgActive = '1';
+    var iframe = buildBgIframe(vid);
+    bg.appendChild(iframe);
+    setTimeout(function(){
+      iframe.style.opacity = '1';
+      var thumb = bg.querySelector(thumbSel);
+      if (thumb) thumb.style.opacity = '0';
+    }, 1800);
+  }
+
+  function removeBgVideo(bg, thumbSel) {
+    var iframe = bg.querySelector('iframe');
+    if (!iframe) return;
+    iframe.remove();
+    _bgCount = Math.max(0, _bgCount - 1);
+    delete bg.dataset.bgActive;
+    var thumb = bg.querySelector(thumbSel);
+    if (thumb) thumb.style.opacity = '1';
+  }
+
+  // Project cards
+  var cardObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      var bg = entry.target.querySelector('.fc-bg');
+      if (!bg) return;
+      var vid = bg.dataset.vid;
+      if (!vid) return;
+      if (entry.isIntersecting) { addBgVideo(bg, vid, '.fc-thumb-img'); }
+      else { removeBgVideo(bg, '.fc-thumb-img'); }
+    });
+  }, {threshold:0.35});
+  document.querySelectorAll('.folder-card[data-key]').forEach(function(c){ cardObs.observe(c); });
+
+  // Featured strip
+  var stripEl = document.querySelector('.featured-strip');
+  var featObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      var bg = entry.target.querySelector('.fi-bg');
+      if (!bg) return;
+      var vid = bg.dataset.vid;
+      if (!vid) return;
+      if (entry.isIntersecting) { addBgVideo(bg, vid, '.fi-thumb-img'); }
+      else { removeBgVideo(bg, '.fi-thumb-img'); }
+    });
+  }, {threshold:0.3, root: stripEl || null});
+  document.querySelectorAll('.featured-item[data-vid]').forEach(function(i){ featObs.observe(i); });
+})();
+
 // ================================================================
 // FEATURED SECTION SCROLL ARROWS
 // ================================================================
@@ -4021,7 +4123,9 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
   var vid = item.dataset.vid;
   var img = item.querySelector('.fi-thumb-img');
   if (!vid || !img) return;
-  fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' + vid)
+  var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
+  fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' +
+    vid + (hash ? '%3Fh%3D' + hash : ''))
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (!d || !d.thumbnail_url) return;
@@ -4030,8 +4134,8 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
       function apply(url) {
         if (done) return; done = true;
         img.src = url;
-        img.style.objectFit = 'cover';
-        img.style.background = 'transparent';
+        // pt-loaded class switches CSS to object-fit:cover
+        item.classList.add('pt-loaded');
       }
       var check = new Image();
       check.onload  = function() { apply(portraitUrl); };
