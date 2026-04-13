@@ -1387,6 +1387,37 @@ body::before{
     radial-gradient(ellipse 50vw 40vh at 50% 50%, rgba(12,25,70,0.12) 0%, transparent 70%);}
 }
 
+/* ── Project card thumbnail slideshow ── */
+.fc-slide-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  z-index:1;opacity:0;transition:opacity 0.85s ease;
+  pointer-events:none;
+}
+.fc-name-overlay{
+  position:absolute;inset:0;z-index:6;
+  pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.0) 0%,
+    rgba(0,0,0,0.28) 40%,
+    rgba(0,0,0,0.72) 100%
+  );
+}
+.fc-project-title{
+  font-family:var(--font-display);
+  font-size:17px;font-weight:700;
+  color:rgba(255,255,255,0.97);
+  text-align:center;
+  text-shadow:0 2px 20px rgba(0,0,0,1),0 0 40px rgba(0,0,0,0.7);
+  letter-spacing:0.2px;line-height:1.3;
+  padding:0 14px;
+}
+@media(max-width:768px){
+  .featured-section{display:none!important}
+}
+
 /* Grain texture overlay */
 body::after{
   content:'';
@@ -3056,10 +3087,10 @@ section::after{
   .folder-card,
   .folder-card.portrait,
   .folder-card:not(.portrait){
-    min-width:85vw!important;
-    max-width:85vw!important;
-    width:85vw!important;
-    flex:0 0 85vw!important;
+    min-width:75vw!important;
+    max-width:75vw!important;
+    width:75vw!important;
+    flex:0 0 75vw!important;
     scroll-snap-align:center!important;
     scroll-snap-stop:always!important;
     display:flex!important;
@@ -3765,6 +3796,35 @@ function makePvPlay() {
 // ── Load correct 1080x1920 portrait thumbnail from Vimeo CDN ──
 // oEmbed gives us the picture hash (e.g. _1280x720.jpg).
 // We replace dimensions with _1080x1920.jpg — Vimeo CDN serves this for portrait videos.
+// ── Modal video queue: loads pv-item Vimeo iframes 4 at a time ──
+var _pvQueue = [];
+var _pvActive = 0;
+var _pvMax = 4;
+function _pvNext() {
+  while (_pvActive < _pvMax && _pvQueue.length > 0) {
+    _pvActive++;
+    (function(job){
+      var fr = job.iframe, dv = job.div, th = job.thumb;
+      dv.appendChild(fr);
+      var done = false;
+      function finish() {
+        if (done) return; done = true;
+        _pvActive--;
+        if (!dv.isConnected) { _pvNext(); return; }
+        setTimeout(function(){
+          fr.style.opacity = '1';
+          if (th) th.style.opacity = '0';
+          dv.classList.add('pv-loaded');
+        }, 300);
+        _pvNext();
+      }
+      try { var vp = new Vimeo.Player(fr); vp.on('timeupdate', finish); }
+      catch(e) { fr.addEventListener('load', finish, {once:true}); }
+      setTimeout(finish, 12000);
+    })(_pvQueue.shift());
+  }
+}
+
 function loadPortraitThumb(imgEl, id, pvItem) {
   // Include secure hash if available (required for private/unlisted videos)
   var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
@@ -3845,6 +3905,18 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       else { thumb.addEventListener('load', function(){ div.classList.add('pv-loaded'); }, {once:true}); }
     }
 
+    // Queue Vimeo background iframe for loading when modal opens
+    const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+    const _q2 = _h2 ? '?h=' + _h2 + '&' : '?';
+    const _fr = document.createElement('iframe');
+    _fr.src = 'https://player.vimeo.com/video/' + id + _q2 +
+      'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1';
+    _fr.setAttribute('frameborder','0');
+    _fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+    _fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
+      'border:0;z-index:3;opacity:0;transition:opacity 0.9s ease;pointer-events:none;';
+    _pvQueue.push({iframe:_fr, div:div, thumb:thumb});
+
     // Shimmer overlay during load
     const shimmer = document.createElement('div');
     shimmer.className = 'pv-shimmer';
@@ -3874,6 +3946,8 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
 function openProject(key) {
   const p = PROJECT_DATA[key];
   if (!p) return;
+  // Reset modal video queue
+  _pvQueue = []; _pvActive = 0;
   const lang = typeof currentLang !== 'undefined' ? currentLang : 'en';
   const title = lang === 'he' ? p.he : p.en;
 
@@ -3902,6 +3976,8 @@ function openProject(key) {
 
   if (secH) container.appendChild(secH);
   if (secV) container.appendChild(secV);
+  // Start loading pv-item videos (staggered, 4 at a time)
+  setTimeout(function(){ _pvNext(); }, 100);
 
   // Open modal
   const overlay = document.getElementById('project-overlay');
@@ -3922,6 +3998,8 @@ function openProject(key) {
 function closeProject(e) {
   // Called directly (no arg) or from overlay background click
   if (e && e.target !== document.getElementById('project-overlay')) return;
+  // Stop loading queue
+  _pvQueue = []; _pvActive = 0;
   const overlay = document.getElementById('project-overlay');
   overlay.classList.remove('active');
   document.body.style.overflow = '';
@@ -4016,13 +4094,12 @@ window.addEventListener('scroll', () => {
 });
 
 // ================================================================
-// ─── BACKGROUND VIDEO AUTOPLAY via IntersectionObserver ────────────────────────────
+// ─── FEATURED STRIP AUTOPLAY via IntersectionObserver ───────────────────────────
 (function(){
-  // Shared limit: max concurrent background Vimeo iframes
-  var _bgCount = 0;
-  var _bgMax = 7;
+  var _fCount = 0;
+  var _fMax = 7;
 
-  function buildBgIframe(id) {
+  function _buildFi(id) {
     var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
     var q = hash ? '?h=' + hash + '&' : '?';
     var iframe = document.createElement('iframe');
@@ -4035,44 +4112,6 @@ window.addEventListener('scroll', () => {
     return iframe;
   }
 
-  function addBgVideo(bg, vid, thumbSel) {
-    if (_bgCount >= _bgMax) return;
-    if (bg.querySelector('iframe')) return;
-    _bgCount++;
-    bg.dataset.bgActive = '1';
-    var iframe = buildBgIframe(vid);
-    bg.appendChild(iframe);
-    setTimeout(function(){
-      iframe.style.opacity = '1';
-      var thumb = bg.querySelector(thumbSel);
-      if (thumb) thumb.style.opacity = '0';
-    }, 1800);
-  }
-
-  function removeBgVideo(bg, thumbSel) {
-    var iframe = bg.querySelector('iframe');
-    if (!iframe) return;
-    iframe.remove();
-    _bgCount = Math.max(0, _bgCount - 1);
-    delete bg.dataset.bgActive;
-    var thumb = bg.querySelector(thumbSel);
-    if (thumb) thumb.style.opacity = '1';
-  }
-
-  // Project cards
-  var cardObs = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      var bg = entry.target.querySelector('.fc-bg');
-      if (!bg) return;
-      var vid = bg.dataset.vid;
-      if (!vid) return;
-      if (entry.isIntersecting) { addBgVideo(bg, vid, '.fc-thumb-img'); }
-      else { removeBgVideo(bg, '.fc-thumb-img'); }
-    });
-  }, {threshold:0.35});
-  document.querySelectorAll('.folder-card[data-key]').forEach(function(c){ cardObs.observe(c); });
-
-  // Featured strip
   var stripEl = document.querySelector('.featured-strip');
   var featObs = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
@@ -4080,8 +4119,22 @@ window.addEventListener('scroll', () => {
       if (!bg) return;
       var vid = bg.dataset.vid;
       if (!vid) return;
-      if (entry.isIntersecting) { addBgVideo(bg, vid, '.fi-thumb-img'); }
-      else { removeBgVideo(bg, '.fi-thumb-img'); }
+      if (entry.isIntersecting) {
+        if (bg.querySelector('iframe') || _fCount >= _fMax) return;
+        _fCount++;
+        var iframe = _buildFi(vid);
+        bg.appendChild(iframe);
+        setTimeout(function(){
+          iframe.style.opacity = '1';
+          var thumb = bg.querySelector('.fi-thumb-img');
+          if (thumb) thumb.style.opacity = '0';
+        }, 1600);
+      } else {
+        var iframe = bg.querySelector('iframe');
+        if (iframe) { iframe.remove(); _fCount = Math.max(0,_fCount-1); }
+        var thumb = bg.querySelector('.fi-thumb-img');
+        if (thumb) thumb.style.opacity = '1';
+      }
     });
   }, {threshold:0.3, root: stripEl || null});
   document.querySelectorAll('.featured-item[data-vid]').forEach(function(i){ featObs.observe(i); });
@@ -4374,6 +4427,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+// ── Mobile: Favorites card in projects carousel (replaces hidden featured section) ──
+(function(){
+  if (window.innerWidth >= 768) return;
+  var seen = new Set();
+  var favVids = [];
+  document.querySelectorAll('#featuredTrack .featured-item[data-vid]').forEach(function(item){
+    var vid = item.dataset.vid;
+    if (!vid || seen.has(vid)) return;
+    seen.add(vid);
+    favVids.push([vid, item.classList.contains('portrait') ? 'p' : 'l']);
+  });
+  if (!favVids.length) return;
+  if (typeof PROJECT_DATA !== 'undefined') {
+    PROJECT_DATA['favorites'] = { en:'Highlights', he:'\u05de\u05d5\u05de\u05dc\u05e6\u05d9\u05dd', vids:favVids };
+  }
+  var vidIds = favVids.slice(0,6).map(function(v){return v[0];}).join(',');
+  var card = document.createElement('div');
+  card.className = 'folder-card';
+  card.setAttribute('onclick',"openProject('favorites')");
+  card.setAttribute('data-key','favorites');
+  card.setAttribute('data-vids', vidIds);
+  card.innerHTML =
+    '<div class="folder-thumb">' +
+      '<div class="fc-bg" data-vid="'+favVids[0][0]+'" data-vids="'+vidIds+'">' +
+        '<img class="fc-thumb-img" src="https://vumbnail.com/'+favVids[0][0]+'.jpg" ' +
+        'alt="Highlights" loading="lazy" draggable="false">' +
+      '</div>' +
+      '<div class="fc-overlay"><div class="fc-play-btn"></div></div>' +
+    '</div>' +
+    '<div class="folder-info"><h4 data-en="Highlights" data-he="\u05de\u05d5\u05de\u05dc\u05e6\u05d9\u05dd">Highlights</h4></div>';
+  var track = document.getElementById('foldersTrack');
+  if (track) track.appendChild(card);
+})();
+
+// ── Project card thumbnail slideshow + project name overlay ──
+(function(){
+  document.querySelectorAll('.folder-card[data-key][data-vids]').forEach(function(card){
+    var bg = card.querySelector('.fc-bg');
+    if (!bg || bg.querySelector('.fc-slide-img')) return;
+    var oldThumb = bg.querySelector('.fc-thumb-img');
+    if (oldThumb) oldThumb.style.display = 'none';
+    var oldIframe = bg.querySelector('iframe');
+    if (oldIframe) oldIframe.remove();
+    var vids = (card.dataset.vids || '').split(',').filter(Boolean).slice(0,5);
+    if (!vids.length) return;
+    var imgs = vids.map(function(vid){
+      var img = document.createElement('img');
+      img.className = 'fc-slide-img';
+      img.src = 'https://vumbnail.com/' + vid.trim() + '.jpg';
+      img.loading = 'lazy';
+      img.draggable = false;
+      bg.appendChild(img);
+      return img;
+    });
+    if (imgs[0]) imgs[0].style.opacity = '1';
+    var cur = 0;
+    setInterval(function(){
+      imgs[cur].style.opacity = '0';
+      cur = (cur + 1) % imgs.length;
+      imgs[cur].style.opacity = '1';
+    }, 3200);
+    var thumb = card.querySelector('.folder-thumb');
+    if (!thumb || thumb.querySelector('.fc-name-overlay')) return;
+    var nameDiv = document.createElement('div');
+    nameDiv.className = 'fc-name-overlay';
+    var h4 = card.querySelector('.folder-info h4');
+    var en = h4 ? (h4.dataset.en || h4.textContent.trim()) : '';
+    var he = h4 ? (h4.dataset.he || '') : '';
+    nameDiv.innerHTML = '<span class="fc-project-title" data-en="' +
+      en.replace(/"/g,'&quot;') + '" data-he="' + he.replace(/"/g,'&quot;') +
+      '">' + en + '</span>';
+    thumb.appendChild(nameDiv);
+    var btn = thumb.querySelector('.fc-play-btn');
+    if (btn) btn.style.display = 'none';
+  });
+})();
 
 // ─── PEEK STRIP: show video thumbnails on project card hover ─────────────────
 (function(){
