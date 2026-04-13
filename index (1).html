@@ -4446,6 +4446,15 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     _fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
       'border:0;z-index:3;opacity:0;transition:opacity 1.1s ease;pointer-events:none;';
     _pvQueue.push({iframe:_fr, div:div, thumb:null});
+    // Self-reveal when this specific iframe loads — no waiting for others
+    (function(fr, dv){
+      fr.addEventListener('load', function(){
+        setTimeout(function(){
+          fr.style.opacity = '1';
+          dv.classList.add('pv-loaded');
+        }, 500);
+      }, {once:true});
+    })(_fr, div);
 
     // Shimmer overlay during load
     const shimmer = document.createElement('div');
@@ -4521,34 +4530,28 @@ function openProject(key) {
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
 
-  // Show loading cover — dismiss only after videos have had time to buffer
+  // Loading cover — dismiss after 1st iframe loads + min 2s; iframes self-reveal per-item
   var lc = document.getElementById('pm-load-cover');
   if (lc) lc.classList.add('active');
   var _pvRevealDone = false;
-  var _pvLoadCount = 0;
-  var _pvTarget = Math.min(3, p.vids.length);
   var _pvOpenTime = Date.now();
-  var _pvMinWait = 4000; // always show cover at least 4s so videos buffer
+  var _pvMinWait = 2000;
   function _pvRevealAll() {
     if (_pvRevealDone) return; _pvRevealDone = true;
     if (lc) lc.classList.remove('active');
-    // Reveal all video iframes at once — no individual shimmer delays
+    // Ensure any remaining iframes also become visible
     container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
   container.addEventListener('load', function _pvLH(e){
     if (e.target.tagName !== 'IFRAME') return;
-    _pvLoadCount++;
-    if (_pvLoadCount >= _pvTarget){
-      container.removeEventListener('load', _pvLH, true);
-      // Wait for minimum time to ensure video has buffered before revealing
-      var elapsed = Date.now() - _pvOpenTime;
-      var remaining = Math.max(1200, _pvMinWait - elapsed);
-      setTimeout(_pvRevealAll, remaining);
-    }
+    container.removeEventListener('load', _pvLH, true); // 1st iframe triggers dismiss
+    var elapsed = Date.now() - _pvOpenTime;
+    var remaining = Math.max(400, _pvMinWait - elapsed);
+    setTimeout(_pvRevealAll, remaining);
   }, true);
-  // Hard fallback — never leave cover on screen more than 9s
-  setTimeout(_pvRevealAll, 9000);
+  // Hard fallback — never leave cover on screen more than 5s
+  setTimeout(_pvRevealAll, 5000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
@@ -4689,7 +4692,7 @@ window.addEventListener('scroll', () => {
 // ─── FEATURED STRIP AUTOPLAY — eager pre-load + site-loader signal ─────────────
 (function(){
   var _fCount = 0;
-  var _fMax = 16; // allow plenty for eager + observer load
+  var _fMax = 40; // allow plenty for eager + observer load (incl. duplicates)
 
   function _buildFiItem(item) {
     var bg = item.querySelector('.fi-bg');
@@ -4724,11 +4727,11 @@ window.addEventListener('scroll', () => {
     }, {once: true});
   }
 
-  // Eagerly pre-load first 7 unique items (no viewport check needed)
+  // Eagerly pre-load first 12 unique items (no viewport check needed)
   var allItems = Array.from(document.querySelectorAll('.featured-item[data-vid]'));
   var seenVids = {}, preCount = 0;
   allItems.forEach(function(item){
-    if (preCount >= 7) return;
+    if (preCount >= 12) return;
     var bg = item.querySelector('.fi-bg');
     var vid = bg && bg.dataset.vid;
     if (!vid || seenVids[vid]) return;
@@ -4743,7 +4746,7 @@ window.addEventListener('scroll', () => {
       if (!entry.isIntersecting) return;
       _buildFiItem(entry.target);
     });
-  }, {threshold: 0, rootMargin: '300px'});
+  }, {threshold: 0, rootMargin: '600px'});
   allItems.forEach(function(i){ featObs.observe(i); });
 })();
 
