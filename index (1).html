@@ -1387,6 +1387,84 @@ body::before{
     radial-gradient(ellipse 50vw 40vh at 50% 50%, rgba(12,25,70,0.12) 0%, transparent 70%);}
 }
 
+/* ── Update 93: Premium gradient project cards ── */
+
+/* Hide thumbnail grids/images — pure gradient approach */
+.folder-card .fc-thumb-grid{display:none!important}
+.folder-card .fc-thumb-img{display:none!important}
+.folder-card .fc-bg{
+  background-size:200% 200%!important;
+  transition:background-position 0.9s ease,filter 0.45s ease!important;
+}
+.folder-card:hover .fc-bg{
+  background-position:100% 100%!important;
+  filter:brightness(1.18)!important;
+}
+
+/* Per-project unique dark gradients */
+.folder-card[data-key="podcast-short"] .fc-bg{background:linear-gradient(145deg,#0d1a33 0%,#06101e 55%,#000000 100%)!important}
+.folder-card[data-key="real-estate"] .fc-bg{background:linear-gradient(145deg,#1a0d2e 0%,#0e0718 55%,#000000 100%)!important}
+.folder-card[data-key="hotels"] .fc-bg{background:linear-gradient(145deg,#0a1828 0%,#05111f 55%,#000510 100%)!important}
+.folder-card[data-key="travel-short"] .fc-bg{background:linear-gradient(145deg,#051412 0%,#031a17 55%,#000000 100%)!important}
+.folder-card[data-key="technology"] .fc-bg{background:linear-gradient(145deg,#0c0d1c 0%,#060810 55%,#000000 100%)!important}
+.folder-card[data-key="tourism-companies"] .fc-bg{background:linear-gradient(145deg,#0f1308 0%,#0a0f05 55%,#020400 100%)!important}
+.folder-card[data-key="kristian-najem"] .fc-bg{background:linear-gradient(145deg,#1f0a0a 0%,#130505 55%,#000000 100%)!important}
+.folder-card[data-key="naadned"] .fc-bg{background:linear-gradient(145deg,#120a1e 0%,#0a0512 55%,#000000 100%)!important}
+.folder-card[data-key="blendar"] .fc-bg{background:linear-gradient(145deg,#071508 0%,#040d05 55%,#000000 100%)!important}
+.folder-card[data-key="favorites"] .fc-bg{background:linear-gradient(145deg,#1a0e05 0%,#100a03 55%,#000000 100%)!important}
+
+/* Center project name perfectly in card */
+.fc-name-overlay{
+  align-items:center!important;
+  justify-content:center!important;
+  padding-bottom:0!important;
+  background:none!important;
+}
+.fc-project-title{
+  font-size:17px!important;
+  font-weight:700!important;
+  letter-spacing:0.8px!important;
+  text-align:center!important;
+  text-transform:uppercase!important;
+  color:rgba(255,255,255,0.92)!important;
+  text-shadow:0 2px 24px rgba(0,0,0,0.9),0 0 40px rgba(255,255,255,0.08)!important;
+}
+
+/* Mobile accordion in mobile nav */
+.mob-nav-accordion{width:100%;text-align:center}
+.mob-nav-accordion-btn{
+  background:none;border:none;cursor:pointer;
+  color:var(--white);font-size:26px;
+  font-family:var(--font-display);font-weight:600;
+  transition:opacity 0.3s;padding:0;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.mob-nav-accordion-btn:hover{opacity:0.6}
+.mob-acc-arrow{font-size:16px;transition:transform 0.3s ease;display:inline-block}
+.mob-nav-accordion-btn.open .mob-acc-arrow{transform:rotate(180deg)}
+.mob-nav-accordion-panel{
+  display:none;flex-direction:column;gap:12px;
+  margin-top:14px;padding:16px 20px;
+  background:rgba(255,255,255,0.05);
+  border-radius:14px;border:1px solid rgba(255,255,255,0.08);
+}
+.mob-nav-accordion-panel.open{display:flex}
+.mob-nav-accordion-panel a{
+  font-size:15px!important;
+  color:rgba(255,255,255,0.7)!important;
+  font-family:var(--font-display)!important;
+  font-weight:500!important;
+  text-decoration:none!important;
+  transition:color 0.2s!important;
+}
+.mob-nav-accordion-panel a:hover{color:rgba(255,255,255,1)!important}
+
+/* Reduce gap between brands and testimonials */
+.testimonials-header{
+  margin-top:24px!important;
+  padding-top:24px!important;
+}
+
 /* ── Project card mini-grid of thumbnails ── */
 .fc-thumb-grid{
   position:absolute;inset:0;
@@ -3167,12 +3245,12 @@ section::after{
 <nav class="navbar" id="navbar">
   <a href="#" class="nav-logo"><img src="logo.png" alt="SN" id="navLogo"></a>
   <ul class="nav-links">
+    <li><a href="#about" data-en="About" data-he="אודות">About</a></li>
+    <li><a href="#services" data-en="Services" data-he="שירותים">Services</a></li>
     <li><a href="#projects" data-en="Projects" data-he="פרויקטים">Projects</a></li>
     <li><a href="#highlights" data-en="Highlights" data-he="מועדפים">Highlights</a></li>
-    <li><a href="#services" data-en="Services" data-he="שירותים">Services</a></li>
     <li><a href="#brands" data-en="Brands" data-he="מותגים">Brands</a></li>
     <li><a href="#testimonials" data-en="Testimonials" data-he="המלצות">Testimonials</a></li>
-    <li><a href="#about" data-en="About" data-he="אודות">About</a></li>
     <li><a href="#contact" data-en="Contact" data-he="צרו קשר">Contact</a></li>
   </ul>
   <div class="nav-right">
@@ -3189,12 +3267,25 @@ section::after{
 
 <div class="mobile-nav-overlay" id="mobileNav">
   <button class="mobile-nav-close" onclick="closeMobileNav()">&times;</button>
-  <a href="#projects" onclick="closeMobileNav()" data-en="Projects" data-he="פרויקטים">Projects</a>
-  <a href="#highlights" onclick="closeMobileNav()" data-en="Highlights" data-he="מועדפים">Highlights</a>
+  <a href="#about" onclick="closeMobileNav()" data-en="About" data-he="אודות">About</a>
   <a href="#services" onclick="closeMobileNav()" data-en="Services" data-he="שירותים">Services</a>
+  <div class="mob-nav-accordion">
+    <button class="mob-nav-accordion-btn" onclick="toggleMobProjectsMenu(this)" data-en="Projects" data-he="פרויקטים">Projects <span class="mob-acc-arrow">&#9662;</span></button>
+    <div class="mob-nav-accordion-panel" id="mobProjectsPanel">
+      <a href="#projects" onclick="openProjectFromNav('podcast-short')" data-en="Podcast Short" data-he="פודקאסט קצר">Podcast Short</a>
+      <a href="#projects" onclick="openProjectFromNav('real-estate')" data-en="Real Estate" data-he="נדל&quot;ן">Real Estate</a>
+      <a href="#projects" onclick="openProjectFromNav('hotels')" data-en="Hotels" data-he="מלונות">Hotels</a>
+      <a href="#projects" onclick="openProjectFromNav('travel-short')" data-en="Travel Short" data-he="טריבל שורט">Travel Short</a>
+      <a href="#projects" onclick="openProjectFromNav('technology')" data-en="Technology" data-he="טכנולוגיה">Technology</a>
+      <a href="#projects" onclick="openProjectFromNav('tourism-companies')" data-en="Tourism &amp; Companies" data-he="תיירות וחברות">Tourism &amp; Companies</a>
+      <a href="#projects" onclick="openProjectFromNav('kristian-najem')" data-en="Kristian Najem" data-he="כריסטיאן נאג׳ם">Kristian Najem</a>
+      <a href="#projects" onclick="openProjectFromNav('naadned')" data-en="Naadned" data-he="נאדנד">Naadned</a>
+      <a href="#projects" onclick="openProjectFromNav('blendar')" data-en="Blendar" data-he="בלנד.אר">Blendar</a>
+    </div>
+  </div>
+  <a href="#highlights" onclick="closeMobileNav()" data-en="Highlights" data-he="מועדפים">Highlights</a>
   <a href="#brands" onclick="closeMobileNav()" data-en="Brands" data-he="מותגים">Brands</a>
   <a href="#testimonials" onclick="closeMobileNav()" data-en="Testimonials" data-he="המלצות">Testimonials</a>
-  <a href="#about" onclick="closeMobileNav()" data-en="About" data-he="אודות">About</a>
   <a href="#contact" onclick="closeMobileNav()" data-en="Contact" data-he="צרו קשר">Contact</a>
   <div class="mob-nav-socials">
     <a href="https://www.instagram.com/sharbel.najem" target="_blank" aria-label="Instagram" onclick="closeMobileNav()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
@@ -3340,15 +3431,26 @@ section::after{
         <h4 data-en="Kristian Najem" data-he="כריסטיאן נג&#39;ם">Kristian Najem</h4>
       </div>
     </div>
-    <div class="folder-card portrait" onclick="openProject('naadned')" data-key="naadned" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
+    <div class="folder-card portrait" onclick="openProject('naadned')" data-key="naadned" data-vids="1181228462,1181229662,1181231926,1181233630,1181236213,1181219025,1181222057,1181223604,1181225482">
       <div class="folder-thumb">
-        <div class="fc-bg" data-vid="1181236213" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
-          <img class="fc-thumb-img" src="https://vumbnail.com/1181236213.jpg" alt="Naadned" loading="eager" draggable="false">
+        <div class="fc-bg" data-vid="1181228462" data-vids="1181228462,1181229662,1181231926,1181233630,1181236213,1181219025,1181222057,1181223604,1181225482">
+          <img class="fc-thumb-img" src="https://vumbnail.com/1181228462.jpg" alt="Naadned" loading="eager" draggable="false">
         </div>
         <div class="fc-overlay"><div class="fc-play-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Naadned" data-he="נע עד נד">Naadned</h4>
+        <h4 data-en="Naadned" data-he="נאדנד">Naadned</h4>
+      </div>
+    </div>
+    <div class="folder-card portrait" onclick="openProject('blendar')" data-key="blendar" data-vids="1181129583,1181130233,1181130693,1181131121,1181131716,1181132783,1181133908,1181134696,1181135174">
+      <div class="folder-thumb">
+        <div class="fc-bg" data-vid="1181129583" data-vids="1181129583,1181130233,1181130693,1181131121,1181131716,1181132783,1181133908,1181134696,1181135174">
+          <img class="fc-thumb-img" src="https://vumbnail.com/1181129583.jpg" alt="Blendar" loading="lazy" draggable="false">
+        </div>
+        <div class="fc-overlay"><div class="fc-play-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div>
+      </div>
+      <div class="folder-info">
+        <h4 data-en="Blendar" data-he="בלנד.אר">Blendar</h4>
       </div>
     </div>
     <div class="folder-card portrait" onclick="openProject('podcast-short')" data-key="podcast-short" data-vids="1181247341,1181246622,1181245910,1181245016,1181244361,1181243866,1181242850,1181241565,1181240736,1181239956,1181238978,1181238149,1181237397">
@@ -3428,15 +3530,26 @@ section::after{
         <h4 data-en="Kristian Najem" data-he="כריסטיאן נג&#39;ם">Kristian Najem</h4>
       </div>
     </div>
-    <div class="folder-card portrait" onclick="openProject('naadned')" data-key="naadned" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
+    <div class="folder-card portrait" onclick="openProject('naadned')" data-key="naadned" data-vids="1181228462,1181229662,1181231926,1181233630,1181236213,1181219025,1181222057,1181223604,1181225482">
       <div class="folder-thumb">
-        <div class="fc-bg" data-vid="1181236213" data-vids="1181236213,1181233630,1181231926,1181229662,1181228462,1181227058,1181225482,1181223604,1181222057">
-          <img class="fc-thumb-img" src="https://vumbnail.com/1181236213.jpg" alt="Naadned" loading="eager" draggable="false">
+        <div class="fc-bg" data-vid="1181228462" data-vids="1181228462,1181229662,1181231926,1181233630,1181236213,1181219025,1181222057,1181223604,1181225482">
+          <img class="fc-thumb-img" src="https://vumbnail.com/1181228462.jpg" alt="Naadned" loading="eager" draggable="false">
         </div>
         <div class="fc-overlay"><div class="fc-play-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div>
       </div>
       <div class="folder-info">
-        <h4 data-en="Naadned" data-he="נע עד נד">Naadned</h4>
+        <h4 data-en="Naadned" data-he="נאדנד">Naadned</h4>
+      </div>
+    </div>
+    <div class="folder-card portrait" onclick="openProject('blendar')" data-key="blendar" data-vids="1181129583,1181130233,1181130693,1181131121,1181131716,1181132783,1181133908,1181134696,1181135174">
+      <div class="folder-thumb">
+        <div class="fc-bg" data-vid="1181129583" data-vids="1181129583,1181130233,1181130693,1181131121,1181131716,1181132783,1181133908,1181134696,1181135174">
+          <img class="fc-thumb-img" src="https://vumbnail.com/1181129583.jpg" alt="Blendar" loading="lazy" draggable="false">
+        </div>
+        <div class="fc-overlay"><div class="fc-play-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div>
+      </div>
+      <div class="folder-info">
+        <h4 data-en="Blendar" data-he="בלנד.אר">Blendar</h4>
       </div>
     </div>
     </div>
@@ -3602,7 +3715,7 @@ section::after{
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Working with him was wonderful, and the result - a video commercial and still photos that really make you want to pack a suitcase. He totally managed to capture and convey the true feeling of freedom waiting for our guests." data-he="העבודה מולו הייתה נהדרת והתוצאה - פרסומת וידאו ותמונות סטילס שממש עושות חשק לארוז מזוודה. הוא לגמרי הצליח ללכוד ולהעביר החוצה את תחושת החופש האמיתית שמחכה לאורחים שלנו.">Working with him was wonderful, and the result - a video commercial and still photos that really make you want to pack a suitcase. He totally managed to capture and convey the true feeling of freedom waiting for our guests.</p><div class="testimonial-brand" data-en="Levona" data-he="לבונה">Levona</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel created a high-quality, aesthetic, and very impressive commercial for us that exceeded all our expectations. Working with him was smooth and professional all the way through, and we simply love the result." data-he="שרבל יצר עבורנו פרסומת איכותית, אסתטית ומרשימה מאוד שהתעלתה על כל הציפיות שלנו. העבודה מולו הייתה חלקה ומקצועית לכל אורך הדרך, ואנחנו פשוט אוהבים את התוצאה.">Sharbel created a high-quality, aesthetic, and very impressive commercial for us that exceeded all our expectations. Working with him was smooth and professional all the way through, and we simply love the result.</p><div class="testimonial-brand" data-en="Hotel Indigo" data-he="הוטל אינדיגו">Hotel Indigo</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Thanks to him, I now have a very high-quality digital course at the highest level there is, comprising about 20 professional chapters. He made the entire production and filming process simple and flowing, and the final result is amazing." data-he="בזכותו יש לי היום קורס דיגיטלי איכותי מאוד ברמה הכי גבוהה שיש, שכולל כ-20 פרקים מקצועיים. הוא הפך את כל תהליך ההפקה והצילום לפשוט וזורם, והתוצאה הסופית מדהימה.">Thanks to him, I now have a very high-quality digital course at the highest level there is, comprising about 20 professional chapters. He made the entire production and filming process simple and flowing, and the final result is amazing.</p><div class="testimonial-brand" data-en="Dvir Tsobari" data-he="דביר צוברי">Dvir Tsobari</div></div>
-    <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="I've worked with Sharbel quite a bit, and he is simply a pro and thorough from A to Z. He connects with his clients on a personal level, which makes him one of the highest quality service providers I've worked with. Looking forward to our next projects together 💪🏼" data-he="עבדתי עם שרבל לא מעט והוא פשוט מקצוען ויסודי מא׳-ת׳. הוא מתחבר ללקוח שלו ברמה האישית וזה מה שהופך אותו לנותן שירות מהאיכותיים שיצא לי לעבוד איתם. מחכה לפרויקטים הבאים שלנו ביחד 💪🏼">I've worked with Sharbel quite a bit, and he is simply a pro and thorough from A to Z. He connects with his clients on a personal level, which makes him one of the highest quality service providers I've worked with. Looking forward to our next projects together 💪🏼</p><div class="testimonial-brand" data-en="Ohad Levi (Master Solo Traveler)" data-he="אוהד לוי (מאסטר סולו טרייבלר)">Ohad Levi (Master Solo Traveler)</div></div>
+    <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="I've worked with Sharbel quite a bit, and he is simply a pro and thorough from A to Z. He connects with his clients on a personal level, which makes him one of the highest quality service providers I've worked with. Looking forward to our next projects together 💪🏼" data-he="עבדתי עם שרבל לא מעט והוא פשוט מקצוען ויסודי מא׳-ת׳. הוא מתחבר ללקוח שלו ברמה האישית וזה מה שהופך אותו לנותן שירות מהאיכותיים שיצא לי לעבוד איתם. מחכה לפרויקטים הבאים שלנו ביחד 💪🏼">I've worked with Sharbel quite a bit, and he is simply a pro and thorough from A to Z. He connects with his clients on a personal level, which makes him one of the highest quality service providers I've worked with. Looking forward to our next projects together 💪🏼</p><div class="testimonial-brand" data-en="Ohad Levi" data-he="אוהד לוי">Ohad Levi</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Our shooting day together completely brought out the best in me, despite my many fears of being filmed and speaking to the camera. Sharbel knew how to guide and strengthen me throughout the day and even after! And of course, the videos turned out perfect and brought amazing results. Thank you for the journey and the professionalism." data-he="יום הצילום שלנו ביחד הוציא ממני לגמרי את המיטב, למרות החששות הרבים שלי מלהצטלם ולדבר למצלמה. שרבל ידע להדריך אותי ולחזק אותי לאורך כל היום וגם אחרי! וכמובן שהסרטונים יצאו מושלמים והביאו לתוצאות מדהימות. תודה על הדרך ועל המקצועיות.">Our shooting day together completely brought out the best in me, despite my many fears of being filmed and speaking to the camera. Sharbel knew how to guide and strengthen me throughout the day and even after! And of course, the videos turned out perfect and brought amazing results. Thank you for the journey and the professionalism.</p><div class="testimonial-brand" data-en="Shoham Maor" data-he="Shoham Maor">Shoham Maor</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel is a highly reliable professional who helped me triple my sales through precise personal branding and organic videos. Beyond his creativity, he is a highly disciplined person, both towards himself and his clients. He didn't let me 'scatter', helped me focus, and maximized the campaigns in the best way possible! Thank you Sharbel." data-he="שרבל הוא איש מקצוע אמין מאוד שעזר לי לשלש את המכירות שלי באמצעות מיתוג אישי מדויק וסרטונים אורגניים. מעבר ליצירתיות, הוא אדם בעל משמעת גבוהה, גם כלפי עצמו וגם כלפי הלקוחות. הוא לא נתן לי 'להתפזר', עזר לי להתמקד ומקסם את הקמפיינים בצורה הטובה ביותר! תודה שרבל.">Sharbel is a highly reliable professional who helped me triple my sales through precise personal branding and organic videos. Beyond his creativity, he is a highly disciplined person, both towards himself and his clients. He didn't let me 'scatter', helped me focus, and maximized the campaigns in the best way possible! Thank you Sharbel.</p><div class="testimonial-brand" data-en="Naadned" data-he="Naadned">Naadned</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="I must share that anyone who chooses Sharbel will gain a professional with a genuine passion for his craft. He pulled off a huge promotional project for us in just two days, with a result that looks like the work of an entire team over months. I was impressed by his ability to think outside the box, bring original ideas, and translate them into precise and effective content. He knows how to adapt to changing needs and tailor the right story." data-he="חייבת לשתף שכל מי שיבחר בשרבל ירוויח איש מקצוע עם תשוקה אמיתית לעשייה. הוא הרים עבורנו פרויקט תדמיתי ענק ביומיים בלבד, עם תוצאה שנראית כמו עבודה של צוות שלם במשך חודשים. התרשמתי מהיכולת שלו לחשוב מחוץ לקופסה, להביא רעיונות מקוריים ולתרגם אותם לתוכן מדויק ואפקטיבי. יודע להתאים עצמו לצרכים משתנים ולתפור את הסיפור הנכון.">I must share that anyone who chooses Sharbel will gain a professional with a genuine passion for his craft. He pulled off a huge promotional project for us in just two days, with a result that looks like the work of an entire team over months. I was impressed by his ability to think outside the box, bring original ideas, and translate them into precise and effective content. He knows how to adapt to changing needs and tailor the right story.</p><div class="testimonial-brand" data-en="ICT Corps" data-he="ICT Corps">ICT Corps</div></div>
@@ -3617,7 +3730,7 @@ section::after{
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Working with him was wonderful, and the result - a video commercial and still photos that really make you want to pack a suitcase. He totally managed to capture and convey the true feeling of freedom waiting for our guests." data-he="העבודה מולו הייתה נהדרת והתוצאה - פרסומת וידאו ותמונות סטילס שממש עושות חשק לארוז מזוודה. הוא לגמרי הצליח ללכוד ולהעביר החוצה את תחושת החופש האמיתית שמחכה לאורחים שלנו.">Working with him was wonderful, and the result - a video commercial and still photos that really make you want to pack a suitcase. He totally managed to capture and convey the true feeling of freedom waiting for our guests.</p><div class="testimonial-brand" data-en="Levona" data-he="לבונה">Levona</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel created a high-quality, aesthetic, and very impressive commercial for us that exceeded all our expectations. Working with him was smooth and professional all the way through, and we simply love the result." data-he="שרבל יצר עבורנו פרסומת איכותית, אסתטית ומרשימה מאוד שהתעלתה על כל הציפיות שלנו. העבודה מולו הייתה חלקה ומקצועית לכל אורך הדרך, ואנחנו פשוט אוהבים את התוצאה.">Sharbel created a high-quality, aesthetic, and very impressive commercial for us that exceeded all our expectations. Working with him was smooth and professional all the way through, and we simply love the result.</p><div class="testimonial-brand" data-en="Hotel Indigo" data-he="הוטל אינדיגו">Hotel Indigo</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Thanks to him, I now have a very high-quality digital course at the highest level there is, comprising about 20 professional chapters. He made the entire production and filming process simple and flowing, and the final result is amazing." data-he="בזכותו יש לי היום קורס דיגיטלי איכותי מאוד ברמה הכי גבוהה שיש, שכולל כ-20 פרקים מקצועיים. הוא הפך את כל תהליך ההפקה והצילום לפשוט וזורם, והתוצאה הסופית מדהימה.">Thanks to him, I now have a very high-quality digital course at the highest level there is, comprising about 20 professional chapters. He made the entire production and filming process simple and flowing, and the final result is amazing.</p><div class="testimonial-brand" data-en="Dvir Tsobari" data-he="דביר צוברי">Dvir Tsobari</div></div>
-    <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="I've worked with Sharbel quite a bit, and he is simply a pro and thorough from A to Z. He connects with his clients on a personal level, which makes him one of the highest quality service providers I've worked with. Looking forward to our next projects together 💪🏼" data-he="עבדתי עם שרבל לא מעט והוא פשוט מקצוען ויסודי מא׳-ת׳. הוא מתחבר ללקוח שלו ברמה האישית וזה מה שהופך אותו לנותן שירות מהאיכותיים שיצא לי לעבוד איתם. מחכה לפרויקטים הבאים שלנו ביחד 💪🏼">I've worked with Sharbel quite a bit, and he is simply a pro and thorough from A to Z. He connects with his clients on a personal level, which makes him one of the highest quality service providers I've worked with. Looking forward to our next projects together 💪🏼</p><div class="testimonial-brand" data-en="Ohad Levi (Master Solo Traveler)" data-he="אוהד לוי (מאסטר סולו טרייבלר)">Ohad Levi (Master Solo Traveler)</div></div>
+    <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="I've worked with Sharbel quite a bit, and he is simply a pro and thorough from A to Z. He connects with his clients on a personal level, which makes him one of the highest quality service providers I've worked with. Looking forward to our next projects together 💪🏼" data-he="עבדתי עם שרבל לא מעט והוא פשוט מקצוען ויסודי מא׳-ת׳. הוא מתחבר ללקוח שלו ברמה האישית וזה מה שהופך אותו לנותן שירות מהאיכותיים שיצא לי לעבוד איתם. מחכה לפרויקטים הבאים שלנו ביחד 💪🏼">I've worked with Sharbel quite a bit, and he is simply a pro and thorough from A to Z. He connects with his clients on a personal level, which makes him one of the highest quality service providers I've worked with. Looking forward to our next projects together 💪🏼</p><div class="testimonial-brand" data-en="Ohad Levi" data-he="אוהד לוי">Ohad Levi</div></div>
   </div></div>
   <div class="carousel-controls"><button class="carousel-btn" onclick="scrollCarousel('testTrack',-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button><button class="carousel-btn" onclick="scrollCarousel('testTrack',1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
 </section>
@@ -3796,14 +3909,17 @@ document.addEventListener('ended',function(e){
 // ================================================================
 // PROJECT MODAL + VIDEO LIGHTBOX
 // ================================================================
-const PROJECT_DATA = {'podcast-short':{en:'Podcast Short',he:'פודקאסט קצר',vids:[['1181247341','p'],['1181246622','p'],['1181245910','p'],['1181245016','p'],['1181244361','p'],['1181243866','p'],['1181242850','p'],['1181241565','p'],['1181240736','p'],['1181239956','p'],['1181238978','p'],['1181238149','p'],['1181237397','p']]},
-'real-estate':{en:'Real Estate & Interior Design',he:'נדל"ן ועיצוב פנים',vids:[['1181258640','p'],['1181258284','p'],['1181257746','p'],['1181257117','p'],['1181256366','p'],['1181255416','p'],['1181253289','p'],['1181251726','p'],['1181249987','p'],['1181251383','p'],['1181249674','p'],['1181248011','p']]},
-'hotels':{en:'Hotels',he:'מלונות',vids:[['1181178222','p'],['1181178707','l'],['1181179779','l'],['1181181189','l'],['1181181225','p'],['1181181511','p']]},
-'travel-short':{en:'Travel Short',he:'טריבל שורט',vids:[['1181282280','p'],['1181283204','l'],['1181279455','l'],['1181282252','l'],['1181278824','p'],['1181278497','l'],['1181278067','l'],['1181277743','l'],['1181277471','l'],['1181277254','l']]},
+const PROJECT_DATA = {
+'podcast-short':{en:'Podcast Short',he:'פודקאסט קצר',vids:[['1181243866','p'],['1181244361','p'],['1181237397','p'],['1181245016','p'],['1181245910','p'],['1181238149','p'],['1181246622','p'],['1181242850','p'],['1181247341','p'],['1181238978','p'],['1181239956','p'],['1181241565','p'],['1181240736','p']]},
+'real-estate':{en:'Real Estate & Interior Design',he:'נדל"ן ועיצוב פנים',vids:[['1181249674','p'],['1181248011','p'],['1181253289','p'],['1181251726','p'],['1181251383','p'],['1181249987','p'],['1181256366','p'],['1181255416','p'],['1181258284','p'],['1181257746','p'],['1181257117','p'],['1181258640','p']]},
+'hotels':{en:'Hotels',he:'מלונות',vids:[['1181178222','p'],['1181181225','p'],['1181181511','p'],['1181178707','l'],['1181179779','l'],['1181181189','l']]},
+'travel-short':{en:'Travel Short',he:'טריבל שורט',vids:[['1181282280','p'],['1181278824','p'],['1181283204','l'],['1181279455','l'],['1181282252','l'],['1181277471','l'],['1181277743','l'],['1181278067','l'],['1181278497','l'],['1181277254','l']]},
 'technology':{en:'Technology',he:'טכנולוגיה',vids:[['1181259173','l']]},
-'tourism-companies':{en:'Tourism & Companies',he:'תיירות וחברות',vids:[['1181271353','l'],['1181261937','p'],['1181263657','l'],['1181269909','l'],['1181270619','p']]},
-'kristian-najem':{en:'Kristian Najem',he:'כריסטיאן נאג׳ם',vids:[['1181214416','p'],['1181216090','p'],['1181212370','p'],['1181211716','p'],['1181209657','p'],['1181206645','p'],['1181205157','p'],['1181183766','p'],['1181182439','p']]},
-'naadned':{en:'Naadned',he:'נאדנד',vids:[['1181236213','p'],['1181233630','p'],['1181231926','p'],['1181229662','p'],['1181228462','p'],['1181227058','p'],['1181225482','p'],['1181223604','p'],['1181222057','p']]}};
+'tourism-companies':{en:'Tourism & Companies',he:'תיירות וחברות',vids:[['1181261937','p'],['1181270619','p'],['1181271353','l'],['1181263657','l'],['1181269909','l']]},
+'kristian-najem':{en:'Kristian Najem',he:'כריסטיאן נאג׳ם',vids:[['1181212370','p'],['1181214416','p'],['1181216090','p'],['1181182439','p'],['1181183766','p'],['1181205157','p'],['1181206645','p'],['1181209657','p'],['1181211716','p']]},
+'naadned':{en:'Naadned',he:'נאדנד',vids:[['1181228462','p'],['1181229662','p'],['1181231926','p'],['1181233630','p'],['1181236213','p'],['1181219025','p'],['1181222057','p'],['1181223604','p'],['1181225482','p'],['1181227058','p'],['1181217328','p']]},
+'blendar':{en:'Blendar',he:'בלנד.אר',vids:[['1181129583','p'],['1181130233','p'],['1181130693','p'],['1181131121','p'],['1181131716','p'],['1181132783','p'],['1181133908','p'],['1181134696','p'],['1181135174','p'],['1181136783','p'],['1181137269','p'],['1181138086','p'],['1181138794','p']]}
+};
 
 // ── Play SVG icon ──
 function makePvPlay() {
@@ -4033,6 +4149,7 @@ function closeProject(e) {
 
 // ── Vimeo secure hash map (h= parameter for private/unlisted videos) ──
 const VID_HASHES = {
+  // Featured / Highlights
   '1181143425':'0eae2eeb49','1181144568':'a096820ed0','1181144982':'303ff0cd3e',
   '1181146048':'7183552c67','1181158565':'91028ede7e','1181139973':'1b18a49a53',
   '1181140262':'c13a530058','1181141663':'fbfa196fac','1181141949':'2a876e2e9e',
@@ -4051,7 +4168,35 @@ const VID_HASHES = {
   '1181277254':'d15fe7a927',
   // Tourism & Companies
   '1181271353':'03afe4f912','1181261937':'9e2bbe49c9','1181263657':'9980864011',
-  '1181269909':'c812043855','1181270619':'89673580e3'
+  '1181269909':'c812043855','1181270619':'89673580e3',
+  // Podcast Short
+  '1181243866':'cf69e3b39b','1181244361':'d12987c3db','1181237397':'cbe600993f',
+  '1181245016':'b7e21c81df','1181245910':'a997376f43','1181238149':'9b70094435',
+  '1181246622':'3f752000d3','1181242850':'f6a6b21dcd','1181247341':'0addbf55c1',
+  '1181238978':'136c047b4f','1181239956':'58132b1fa9','1181241565':'859c47ad54',
+  '1181240736':'85676f60ee',
+  // Real Estate & Interior Design
+  '1181249674':'7c60e24c17','1181248011':'1bc32b0a1d','1181253289':'f2cb7c914f',
+  '1181251726':'065b684a0f','1181251383':'7753e87f51','1181249987':'a6abd98ba0',
+  '1181256366':'9bf9958f3e','1181255416':'755defaf4b','1181258284':'b37df51a3c',
+  '1181257746':'2e791d3653','1181257117':'331deb6b57','1181258640':'c5c924ccc6',
+  // Technology
+  '1181259173':'ecb3db2a7b',
+  // Kristian Najem
+  '1181212370':'29b5f6f22d','1181214416':'90d23f7cf0','1181216090':'7ff4767b8b',
+  '1181182439':'20a58cf827','1181183766':'0263fa6ea3','1181205157':'004ae9d676',
+  '1181206645':'d859007a19','1181209657':'f5f72ce40a','1181211716':'c753cb2f20',
+  // Naadned
+  '1181228462':'a7281190aa','1181229662':'ee9cf5e231','1181231926':'5df4c5f479',
+  '1181233630':'8a301f3e74','1181236213':'b43360e142','1181219025':'df6948f8d6',
+  '1181222057':'d72bfff7fc','1181223604':'43b0ce7390','1181225482':'b027619c83',
+  '1181227058':'8e87dfeb56','1181217328':'7d9e0a99cd',
+  // Blendar
+  '1181129583':'a4e0378bd0','1181130233':'96b9574b82','1181130693':'da58a7da47',
+  '1181131121':'e8d8564ed1','1181131716':'0c3d69d2b5','1181132783':'491d6401d9',
+  '1181133908':'2c08123abe','1181134696':'ecd5df1a9f','1181135174':'306e800366',
+  '1181136783':'83bda3a18f','1181137269':'25ff393e1e','1181138086':'97d38700a5',
+  '1181138794':'7f123dbbf0'
 };
 
 function openLightbox(vid, ratio) {
@@ -4126,7 +4271,7 @@ window.addEventListener('scroll', () => {
     var q = hash ? '?h=' + hash + '&' : '?';
     var iframe = document.createElement('iframe');
     iframe.src = 'https://player.vimeo.com/video/' + id + q +
-      'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1';
+      'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1';
     iframe.setAttribute('frameborder','0');
     iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
@@ -4134,7 +4279,6 @@ window.addEventListener('scroll', () => {
     return iframe;
   }
 
-  var stripEl = document.querySelector('.featured-strip');
   var featObs = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
       var bg = entry.target.querySelector('.fi-bg');
@@ -4150,7 +4294,7 @@ window.addEventListener('scroll', () => {
           iframe.style.opacity = '1';
           var thumb = bg.querySelector('.fi-thumb-img');
           if (thumb) thumb.style.opacity = '0';
-        }, 1600);
+        }, 1400);
       } else {
         var iframe = bg.querySelector('iframe');
         if (iframe) { iframe.remove(); _fCount = Math.max(0,_fCount-1); }
@@ -4158,7 +4302,7 @@ window.addEventListener('scroll', () => {
         if (thumb) thumb.style.opacity = '1';
       }
     });
-  }, {threshold:0.3, root: stripEl || null});
+  }, {threshold:0, rootMargin:'300px'});
   document.querySelectorAll('.featured-item[data-vid]').forEach(function(i){ featObs.observe(i); });
 })();
 
@@ -4624,6 +4768,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, {passive:true});
 })();
+
+// ── Mobile nav accordion for Projects ──
+function toggleMobProjectsMenu(btn) {
+  btn.classList.toggle('open');
+  var panel = btn.nextElementSibling;
+  if (panel) panel.classList.toggle('open');
+}
+function openProjectFromNav(key) {
+  closeMobileNav();
+  setTimeout(function() {
+    var el = document.getElementById('projects');
+    if (el) el.scrollIntoView({behavior:'smooth'});
+    setTimeout(function() { openProject(key); }, 420);
+  }, 200);
+}
 
 // ── Deep linking: #project-key opens modal, hash updates on open/close ──
 (function(){
