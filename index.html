@@ -1387,6 +1387,129 @@ body::before{
     radial-gradient(ellipse 50vw 40vh at 50% 50%, rgba(12,25,70,0.12) 0%, transparent 70%);}
 }
 
+/* ── Update 94: Apple-level global polish ── */
+
+/* ── Ambient background animation ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 55% at 12% 22%, rgba(14,30,72,0.24) 0%, transparent 68%),
+    radial-gradient(ellipse 65% 75% at 88% 78%, rgba(42,14,76,0.18) 0%, transparent 68%),
+    radial-gradient(ellipse 110% 40% at 50% 108%, rgba(6,22,52,0.16) 0%, transparent 65%);
+  animation:ambientShift 26s ease-in-out infinite alternate;
+  will-change:transform,opacity;
+}
+@keyframes ambientShift{
+  0%  {transform:scale(1) translate(0,0);opacity:.7}
+  33% {transform:scale(1.07) translate(1.5%,.8%);opacity:1}
+  66% {transform:scale(.97) translate(-1%,1.5%);opacity:.82}
+  100%{transform:scale(1.04) translate(.8%,-.8%);opacity:.95}
+}
+
+/* ── Unified H2 section titles ── */
+.section-title{
+  font-size:clamp(27px,3.8vw,46px)!important;
+  font-weight:600!important;
+  letter-spacing:-0.4px!important;
+  line-height:1.15!important;
+}
+
+/* ── Reduce Services → Projects gap ── */
+.services{padding-bottom:28px!important}
+.projects-section{padding-top:28px!important}
+
+/* ── Enhanced glassmorphism: service cards ── */
+.service-card{
+  background:rgba(255,255,255,0.042)!important;
+  border:1px solid rgba(255,255,255,0.09)!important;
+  backdrop-filter:blur(28px) saturate(1.7)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(1.7)!important;
+  box-shadow:0 4px 28px rgba(0,0,0,0.32),inset 0 1px 0 rgba(255,255,255,0.07)!important;
+}
+.service-card:hover{
+  background:rgba(255,255,255,0.072)!important;
+  border-color:rgba(255,255,255,0.16)!important;
+  box-shadow:0 18px 52px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.1)!important;
+}
+/* ── Enhanced glassmorphism: testimonial + about cards ── */
+.testimonial-card{
+  background:rgba(255,255,255,0.038)!important;
+  backdrop-filter:blur(24px) saturate(1.5)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(1.5)!important;
+  box-shadow:0 4px 24px rgba(0,0,0,0.28)!important;
+}
+.about-link{
+  backdrop-filter:blur(18px) saturate(1.5)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.5)!important;
+}
+
+/* ── Services mobile: horizontal snap carousel ── */
+@media(max-width:768px){
+  .services{padding-bottom:20px!important}
+  .services-grid{
+    flex-wrap:nowrap!important;
+    overflow-x:scroll!important;
+    scroll-snap-type:x mandatory!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding:0 20px 18px!important;
+    gap:14px!important;
+    scrollbar-width:none!important;
+    touch-action:pan-x!important;
+    cursor:grab!important;
+  }
+  .services-grid::-webkit-scrollbar{display:none!important}
+  .service-card{
+    flex:0 0 78vw!important;
+    min-width:78vw!important;
+    max-width:78vw!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:always!important;
+  }
+}
+
+/* ── Touch-action: all carousels ── */
+.folders-track,.featured-track,.testimonial-track,.brand-track{touch-action:pan-x!important}
+.folders-carousel,.testimonials-marquee,.brand-marquee{
+  touch-action:pan-x!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+
+/* ── Dot-grid texture on project card backgrounds ── */
+.folder-card .fc-bg::after{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(255,255,255,0.055) 1px,transparent 1px);
+  background-size:26px 26px;
+  opacity:.8;
+}
+.folder-card:hover .fc-bg::after{opacity:.4}
+
+/* ── Project card: background video shows on hover / touch-active ── */
+.folder-card .fc-bg .fc-card-vid{
+  opacity:0!important;
+  transition:opacity 0.65s ease!important;
+  z-index:4!important;
+}
+.folder-card:hover .fc-bg .fc-card-vid{opacity:1!important}
+.folder-card.touch-active .fc-bg .fc-card-vid{opacity:.88!important}
+
+/* ── Dynamic shimmer: more vibrant ── */
+@keyframes pvShimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+.pv-shimmer{
+  background:linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.07) 20%,
+    rgba(255,255,255,0.14) 50%,
+    rgba(255,255,255,0.07) 80%,
+    transparent 100%
+  )!important;
+  background-size:200% 100%!important;
+  animation:pvShimmer 1.4s ease-in-out infinite!important;
+}
+
 /* ── Update 93: Premium gradient project cards ── */
 
 /* Hide thumbnail grids/images — pure gradient approach */
@@ -3565,54 +3688,50 @@ section::after{
   </div>
   <div class="featured-strip">
     <div class="featured-track" id="featuredTrack">
-    <div class="featured-item portrait" onclick="openLightbox('1181143425','9:16')" data-vid="1181143425"><div class="fi-bg" data-vid="1181143425"><img class="fi-thumb-img" src="https://vumbnail.com/1181143425.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181144568','9:16')" data-vid="1181144568"><div class="fi-bg" data-vid="1181144568"><img class="fi-thumb-img" src="https://vumbnail.com/1181144568.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181144982','9:16')" data-vid="1181144982"><div class="fi-bg" data-vid="1181144982"><img class="fi-thumb-img" src="https://vumbnail.com/1181144982.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181146048','9:16')" data-vid="1181146048"><div class="fi-bg" data-vid="1181146048"><img class="fi-thumb-img" src="https://vumbnail.com/1181146048.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181158565','9:16')" data-vid="1181158565"><div class="fi-bg" data-vid="1181158565"><img class="fi-thumb-img" src="https://vumbnail.com/1181158565.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181139973','16:9')" data-vid="1181139973"><div class="fi-bg" data-vid="1181139973"><img class="fi-thumb-img" src="https://vumbnail.com/1181139973.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181140262','9:16')" data-vid="1181140262"><div class="fi-bg" data-vid="1181140262"><img class="fi-thumb-img" src="https://vumbnail.com/1181140262.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181141663','16:9')" data-vid="1181141663"><div class="fi-bg" data-vid="1181141663"><img class="fi-thumb-img" src="https://vumbnail.com/1181141663.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181141949','9:16')" data-vid="1181141949"><div class="fi-bg" data-vid="1181141949"><img class="fi-thumb-img" src="https://vumbnail.com/1181141949.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181141110','9:16')" data-vid="1181141110"><div class="fi-bg" data-vid="1181141110"><img class="fi-thumb-img" src="https://vumbnail.com/1181141110.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181143015','9:16')" data-vid="1181143015"><div class="fi-bg" data-vid="1181143015"><img class="fi-thumb-img" src="https://vumbnail.com/1181143015.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181171862','16:9')" data-vid="1181171862"><div class="fi-bg" data-vid="1181171862"><img class="fi-thumb-img" src="https://vumbnail.com/1181171862.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181171994','16:9')" data-vid="1181171994"><div class="fi-bg" data-vid="1181171994"><img class="fi-thumb-img" src="https://vumbnail.com/1181171994.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181176384','9:16')" data-vid="1181176384"><div class="fi-bg" data-vid="1181176384"><img class="fi-thumb-img" src="https://vumbnail.com/1181176384.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181177403','16:9')" data-vid="1181177403"><div class="fi-bg" data-vid="1181177403"><img class="fi-thumb-img" src="https://vumbnail.com/1181177403.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181174677','9:16')" data-vid="1181174677"><div class="fi-bg" data-vid="1181174677"><img class="fi-thumb-img" src="https://vumbnail.com/1181174677.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181171690','16:9')" data-vid="1181171690"><div class="fi-bg" data-vid="1181171690"><img class="fi-thumb-img" src="https://vumbnail.com/1181171690.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181171862','16:9')" data-vid="1181171862"><div class="fi-bg" data-vid="1181171862"><img class="fi-thumb-img" src="https://vumbnail.com/1181171862.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181169343','16:9')" data-vid="1181169343"><div class="fi-bg" data-vid="1181169343"><img class="fi-thumb-img" src="https://vumbnail.com/1181169343.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181168451','9:16')" data-vid="1181168451"><div class="fi-bg" data-vid="1181168451"><img class="fi-thumb-img" src="https://vumbnail.com/1181168451.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181167383','9:16')" data-vid="1181167383"><div class="fi-bg" data-vid="1181167383"><img class="fi-thumb-img" src="https://vumbnail.com/1181167383.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item portrait" onclick="openLightbox('1181166462','9:16')" data-vid="1181166462"><div class="fi-bg" data-vid="1181166462"><img class="fi-thumb-img" src="https://vumbnail.com/1181166462.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181167335','16:9')" data-vid="1181167335"><div class="fi-bg" data-vid="1181167335"><img class="fi-thumb-img" src="https://vumbnail.com/1181167335.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181167383','9:16')" data-vid="1181167383"><div class="fi-bg" data-vid="1181167383"><img class="fi-thumb-img" src="https://vumbnail.com/1181167383.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181168451','9:16')" data-vid="1181168451"><div class="fi-bg" data-vid="1181168451"><img class="fi-thumb-img" src="https://vumbnail.com/1181168451.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181169343','16:9')" data-vid="1181169343"><div class="fi-bg" data-vid="1181169343"><img class="fi-thumb-img" src="https://vumbnail.com/1181169343.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181171690','16:9')" data-vid="1181171690"><div class="fi-bg" data-vid="1181171690"><img class="fi-thumb-img" src="https://vumbnail.com/1181171690.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181159897','9:16')" data-vid="1181159897"><div class="fi-bg" data-vid="1181159897"><img class="fi-thumb-img" src="https://vumbnail.com/1181159897.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181160293','9:16')" data-vid="1181160293"><div class="fi-bg" data-vid="1181160293"><img class="fi-thumb-img" src="https://vumbnail.com/1181160293.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181161467','16:9')" data-vid="1181161467"><div class="fi-bg" data-vid="1181161467"><img class="fi-thumb-img" src="https://vumbnail.com/1181161467.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181143425','9:16')" data-vid="1181143425"><div class="fi-bg" data-vid="1181143425"><img class="fi-thumb-img" src="https://vumbnail.com/1181143425.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181144568','9:16')" data-vid="1181144568"><div class="fi-bg" data-vid="1181144568"><img class="fi-thumb-img" src="https://vumbnail.com/1181144568.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181144982','9:16')" data-vid="1181144982"><div class="fi-bg" data-vid="1181144982"><img class="fi-thumb-img" src="https://vumbnail.com/1181144982.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181146048','9:16')" data-vid="1181146048"><div class="fi-bg" data-vid="1181146048"><img class="fi-thumb-img" src="https://vumbnail.com/1181146048.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181160293','9:16')" data-vid="1181160293"><div class="fi-bg" data-vid="1181160293"><img class="fi-thumb-img" src="https://vumbnail.com/1181160293.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item portrait" onclick="openLightbox('1181158565','9:16')" data-vid="1181158565"><div class="fi-bg" data-vid="1181158565"><img class="fi-thumb-img" src="https://vumbnail.com/1181158565.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181139973','16:9')" data-vid="1181139973"><div class="fi-bg" data-vid="1181139973"><img class="fi-thumb-img" src="https://vumbnail.com/1181139973.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181140262','9:16')" data-vid="1181140262"><div class="fi-bg" data-vid="1181140262"><img class="fi-thumb-img" src="https://vumbnail.com/1181140262.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181141663','16:9')" data-vid="1181141663"><div class="fi-bg" data-vid="1181141663"><img class="fi-thumb-img" src="https://vumbnail.com/1181141663.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181146048','9:16')" data-vid="1181146048"><div class="fi-bg" data-vid="1181146048"><img class="fi-thumb-img" src="https://vumbnail.com/1181146048.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181144982','9:16')" data-vid="1181144982"><div class="fi-bg" data-vid="1181144982"><img class="fi-thumb-img" src="https://vumbnail.com/1181144982.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181144568','9:16')" data-vid="1181144568"><div class="fi-bg" data-vid="1181144568"><img class="fi-thumb-img" src="https://vumbnail.com/1181144568.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181143425','9:16')" data-vid="1181143425"><div class="fi-bg" data-vid="1181143425"><img class="fi-thumb-img" src="https://vumbnail.com/1181143425.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item portrait" onclick="openLightbox('1181141949','9:16')" data-vid="1181141949"><div class="fi-bg" data-vid="1181141949"><img class="fi-thumb-img" src="https://vumbnail.com/1181141949.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181141110','9:16')" data-vid="1181141110"><div class="fi-bg" data-vid="1181141110"><img class="fi-thumb-img" src="https://vumbnail.com/1181141110.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item portrait" onclick="openLightbox('1181143015','9:16')" data-vid="1181143015"><div class="fi-bg" data-vid="1181143015"><img class="fi-thumb-img" src="https://vumbnail.com/1181143015.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181171862','16:9')" data-vid="1181171862"><div class="fi-bg" data-vid="1181171862"><img class="fi-thumb-img" src="https://vumbnail.com/1181171862.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181171994','16:9')" data-vid="1181171994"><div class="fi-bg" data-vid="1181171994"><img class="fi-thumb-img" src="https://vumbnail.com/1181171994.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181176384','9:16')" data-vid="1181176384"><div class="fi-bg" data-vid="1181176384"><img class="fi-thumb-img" src="https://vumbnail.com/1181176384.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181141663','16:9')" data-vid="1181141663"><div class="fi-bg" data-vid="1181141663"><img class="fi-thumb-img" src="https://vumbnail.com/1181141663.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181141110','9:16')" data-vid="1181141110"><div class="fi-bg" data-vid="1181141110"><img class="fi-thumb-img" src="https://vumbnail.com/1181141110.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181140262','9:16')" data-vid="1181140262"><div class="fi-bg" data-vid="1181140262"><img class="fi-thumb-img" src="https://vumbnail.com/1181140262.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181139973','16:9')" data-vid="1181139973"><div class="fi-bg" data-vid="1181139973"><img class="fi-thumb-img" src="https://vumbnail.com/1181139973.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181177403','16:9')" data-vid="1181177403"><div class="fi-bg" data-vid="1181177403"><img class="fi-thumb-img" src="https://vumbnail.com/1181177403.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181174677','9:16')" data-vid="1181174677"><div class="fi-bg" data-vid="1181174677"><img class="fi-thumb-img" src="https://vumbnail.com/1181174677.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181171690','16:9')" data-vid="1181171690"><div class="fi-bg" data-vid="1181171690"><img class="fi-thumb-img" src="https://vumbnail.com/1181171690.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181171862','16:9')" data-vid="1181171862"><div class="fi-bg" data-vid="1181171862"><img class="fi-thumb-img" src="https://vumbnail.com/1181171862.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181169343','16:9')" data-vid="1181169343"><div class="fi-bg" data-vid="1181169343"><img class="fi-thumb-img" src="https://vumbnail.com/1181169343.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181168451','9:16')" data-vid="1181168451"><div class="fi-bg" data-vid="1181168451"><img class="fi-thumb-img" src="https://vumbnail.com/1181168451.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181167383','9:16')" data-vid="1181167383"><div class="fi-bg" data-vid="1181167383"><img class="fi-thumb-img" src="https://vumbnail.com/1181167383.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item portrait" onclick="openLightbox('1181166462','9:16')" data-vid="1181166462"><div class="fi-bg" data-vid="1181166462"><img class="fi-thumb-img" src="https://vumbnail.com/1181166462.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181167335','16:9')" data-vid="1181167335"><div class="fi-bg" data-vid="1181167335"><img class="fi-thumb-img" src="https://vumbnail.com/1181167335.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181167383','9:16')" data-vid="1181167383"><div class="fi-bg" data-vid="1181167383"><img class="fi-thumb-img" src="https://vumbnail.com/1181167383.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181168451','9:16')" data-vid="1181168451"><div class="fi-bg" data-vid="1181168451"><img class="fi-thumb-img" src="https://vumbnail.com/1181168451.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181169343','16:9')" data-vid="1181169343"><div class="fi-bg" data-vid="1181169343"><img class="fi-thumb-img" src="https://vumbnail.com/1181169343.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item landscape" onclick="openLightbox('1181171690','16:9')" data-vid="1181171690"><div class="fi-bg" data-vid="1181171690"><img class="fi-thumb-img" src="https://vumbnail.com/1181171690.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181159897','9:16')" data-vid="1181159897"><div class="fi-bg" data-vid="1181159897"><img class="fi-thumb-img" src="https://vumbnail.com/1181159897.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181160293','9:16')" data-vid="1181160293"><div class="fi-bg" data-vid="1181160293"><img class="fi-thumb-img" src="https://vumbnail.com/1181160293.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181161467','16:9')" data-vid="1181161467"><div class="fi-bg" data-vid="1181161467"><img class="fi-thumb-img" src="https://vumbnail.com/1181161467.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181160293','9:16')" data-vid="1181160293"><div class="fi-bg" data-vid="1181160293"><img class="fi-thumb-img" src="https://vumbnail.com/1181160293.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181158565','9:16')" data-vid="1181158565"><div class="fi-bg" data-vid="1181158565"><img class="fi-thumb-img" src="https://vumbnail.com/1181158565.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181146048','9:16')" data-vid="1181146048"><div class="fi-bg" data-vid="1181146048"><img class="fi-thumb-img" src="https://vumbnail.com/1181146048.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181144982','9:16')" data-vid="1181144982"><div class="fi-bg" data-vid="1181144982"><img class="fi-thumb-img" src="https://vumbnail.com/1181144982.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181144568','9:16')" data-vid="1181144568"><div class="fi-bg" data-vid="1181144568"><img class="fi-thumb-img" src="https://vumbnail.com/1181144568.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181143425','9:16')" data-vid="1181143425"><div class="fi-bg" data-vid="1181143425"><img class="fi-thumb-img" src="https://vumbnail.com/1181143425.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181141949','9:16')" data-vid="1181141949"><div class="fi-bg" data-vid="1181141949"><img class="fi-thumb-img" src="https://vumbnail.com/1181141949.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181143015','9:16')" data-vid="1181143015"><div class="fi-bg" data-vid="1181143015"><img class="fi-thumb-img" src="https://vumbnail.com/1181143015.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181141663','16:9')" data-vid="1181141663"><div class="fi-bg" data-vid="1181141663"><img class="fi-thumb-img" src="https://vumbnail.com/1181141663.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181141110','9:16')" data-vid="1181141110"><div class="fi-bg" data-vid="1181141110"><img class="fi-thumb-img" src="https://vumbnail.com/1181141110.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item portrait" onclick="openLightbox('1181140262','9:16')" data-vid="1181140262"><div class="fi-bg" data-vid="1181140262"><img class="fi-thumb-img" src="https://vumbnail.com/1181140262.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+    <div class="featured-item landscape" onclick="openLightbox('1181139973','16:9')" data-vid="1181139973"><div class="fi-bg" data-vid="1181139973"><img class="fi-thumb-img" src="https://vumbnail.com/1181139973.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     </div>
   </div>
   <div class="featured-controls"><button class="carousel-btn" onclick="scrollFeatured(-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button><button class="carousel-btn" onclick="scrollFeatured(1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
@@ -4150,7 +4269,7 @@ function closeProject(e) {
 // ── Vimeo secure hash map (h= parameter for private/unlisted videos) ──
 const VID_HASHES = {
   // Featured / Highlights
-  '1181143425':'0eae2eeb49','1181144568':'a096820ed0','1181144982':'303ff0cd3e',
+  '1181174677':'36c747184b','1181143425':'0eae2eeb49','1181144568':'a096820ed0','1181144982':'303ff0cd3e',
   '1181146048':'7183552c67','1181158565':'91028ede7e','1181139973':'1b18a49a53',
   '1181140262':'c13a530058','1181141663':'fbfa196fac','1181141949':'2a876e2e9e',
   '1181141110':'5a988f3abf','1181143015':'d020411f05','1181171862':'8d14096bc1',
@@ -4634,11 +4753,9 @@ document.addEventListener('DOMContentLoaded', () => {
     var bg = card.querySelector('.fc-bg');
     if (!bg || bg.querySelector('.fc-thumb-grid')) return;
 
-    // Clean up old content
+    // Hide legacy thumb image (grid hidden via CSS)
     var oldThumb = bg.querySelector('.fc-thumb-img');
     if (oldThumb) oldThumb.style.display = 'none';
-    var oldIframe = bg.querySelector('iframe');
-    if (oldIframe) oldIframe.remove();
 
     var rawVids = (card.dataset.vids || '').split(',').filter(Boolean);
     if (!rawVids.length) return;
@@ -4681,6 +4798,44 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) btn.style.display = 'none';
     var info = card.querySelector('.folder-info');
     if (info) info.style.display = 'none';
+  });
+})();
+
+// ── Project card: background video preloads near viewport, reveals on hover ──
+(function(){
+  var _cardVidBuilt = new WeakSet();
+  var _cardVidCount = 0;
+  var _cardVidMax = 8;
+
+  function buildCardVid(card) {
+    if (_cardVidBuilt.has(card) || _cardVidCount >= _cardVidMax) return;
+    var bg = card.querySelector('.fc-bg');
+    if (!bg || bg.querySelector('.fc-card-vid')) return;
+    var vid = bg.dataset.vid;
+    if (!vid) return;
+    _cardVidBuilt.add(card);
+    _cardVidCount++;
+    var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
+    var q = hash ? '?h=' + hash + '&' : '?';
+    var iframe = document.createElement('iframe');
+    iframe.className = 'fc-card-vid';
+    iframe.src = 'https://player.vimeo.com/video/' + vid + q +
+      'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1';
+    iframe.setAttribute('frameborder','0');
+    iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+    iframe.style.cssText = 'position:absolute;inset:-10%;width:120%;height:120%;' +
+      'border:0;pointer-events:none;';
+    bg.appendChild(iframe);
+  }
+
+  var cardVidObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) buildCardVid(e.target);
+    });
+  }, {rootMargin:'250px', threshold:0});
+
+  document.querySelectorAll('.folder-card[data-key]').forEach(function(c) {
+    cardVidObs.observe(c);
   });
 })();
 
