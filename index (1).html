@@ -1395,6 +1395,122 @@ body::before{
     radial-gradient(ellipse 50vw 40vh at 50% 50%, rgba(12,25,70,0.12) 0%, transparent 70%);}
 }
 
+/* ══ UPDATE 96: Mobile/Desktop Polish ══════════════════════════════════════ */
+
+/* ── Services mobile: carousel wrap + arrow buttons ── */
+.services-carousel-wrap{position:relative;width:100%}
+.services-arrow{
+  display:none; /* hidden on desktop */
+  position:absolute;top:50%;transform:translateY(-50%);z-index:10;
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,0.13);border:1.5px solid rgba(255,255,255,0.28);
+  color:#fff;font-size:26px;line-height:1;
+  cursor:pointer;align-items:center;justify-content:center;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 2px 12px rgba(0,0,0,0.35);
+  transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;
+  padding:0;
+}
+.services-arrow:hover{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.5);box-shadow:0 0 18px rgba(255,255,255,0.18)}
+.services-arrow-l{left:6px}
+.services-arrow-r{right:6px}
+@media(max-width:768px){
+  .services-arrow{display:flex!important}
+  /* Prevent arrows from overlapping first/last card */
+  .services-grid{padding-left:54px!important;padding-right:54px!important}
+}
+
+/* ── All carousel containers: strict horizontal scroll lock ── */
+.folders-carousel,
+.featured-strip,
+.testimonials-marquee,
+.brand-marquee{
+  overflow-x:scroll!important;
+  overflow-y:hidden!important;
+  touch-action:pan-x!important;
+  overscroll-behavior-x:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.folders-track,
+.featured-track,
+.testimonial-track,
+.brand-track{
+  touch-action:pan-x!important;
+  user-select:none!important;
+}
+.services-grid{
+  overflow-y:hidden!important;
+  overscroll-behavior-x:contain!important;
+}
+
+/* ── Project modal: fix scroll-to-top bug on mobile ── */
+.pm-videos{
+  scroll-behavior:auto!important;
+  overscroll-behavior-y:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  overflow-anchor:none!important;
+}
+
+/* ── Project cards: lighter, more distinct gradients + glow ring ── */
+.folder-card{
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 4px 20px rgba(0,0,0,0.5),
+    0 0 28px rgba(255,255,255,0.04)!important;
+  transition:box-shadow 0.35s ease,transform 0.35s ease!important;
+}
+.folder-card:hover{
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.12),
+    0 8px 36px rgba(0,0,0,0.55),
+    0 0 48px rgba(255,255,255,0.10)!important;
+  transform:translateY(-5px)!important;
+}
+
+/* Lighter, more vibrant per-project gradients */
+.folder-card[data-key="podcast-short"] .fc-bg{background:linear-gradient(145deg,#1a3560 0%,#0e2040 45%,#060d1e 100%)!important}
+.folder-card[data-key="real-estate"] .fc-bg{background:linear-gradient(145deg,#2e1450 0%,#1a0b30 45%,#0a0415 100%)!important}
+.folder-card[data-key="hotels"] .fc-bg{background:linear-gradient(145deg,#0e2840 0%,#07192d 45%,#020a18 100%)!important}
+.folder-card[data-key="travel-short"] .fc-bg{background:linear-gradient(145deg,#0a2824 0%,#062820 45%,#020f0c 100%)!important}
+.folder-card[data-key="technology"] .fc-bg{background:linear-gradient(145deg,#131530 0%,#0a0c20 45%,#040510 100%)!important}
+.folder-card[data-key="tourism-companies"] .fc-bg{background:linear-gradient(145deg,#182210 0%,#101808 45%,#060a02 100%)!important}
+.folder-card[data-key="kristian-najem"] .fc-bg{background:linear-gradient(145deg,#381514 0%,#220909 45%,#0e0303 100%)!important}
+.folder-card[data-key="naadned"] .fc-bg{background:linear-gradient(145deg,#201236 0%,#130820 45%,#06020e 100%)!important}
+.folder-card[data-key="blendar"] .fc-bg{background:linear-gradient(145deg,#0c2610 0%,#071808 45%,#020802 100%)!important}
+.folder-card[data-key="favorites"] .fc-bg{background:linear-gradient(145deg,#2e1a08 0%,#1c1005 45%,#0a0602 100%)!important}
+
+/* ── Technology: single video in modal — scale up and center ── */
+.pm-grid-h:has(>.pv-item:only-child){justify-content:center!important}
+.pm-grid-h>.pv-item:only-child{
+  flex:0 0 min(82%,720px)!important;
+  max-width:min(82%,720px)!important;
+  min-width:0!important;
+}
+@media(max-width:768px){
+  .pm-grid-h>.pv-item:only-child{flex:0 0 100%!important;max-width:100%!important}
+}
+
+/* ── Lightbox: faster open transition ── */
+.vid-lightbox{transition:opacity 0.15s cubic-bezier(0.4,0,0.2,1)!important}
+
+/* ── Color-coded shimmer per project ── */
+/* Default shimmer base already dark. Project-specific tints via data-project attr */
+#project-overlay[data-project="podcast-short"] .pv-shimmer::before{content:'';position:absolute;inset:0;background:#0a1428;z-index:-1;border-radius:inherit}
+#project-overlay[data-project="real-estate"] .pv-shimmer::before{content:'';position:absolute;inset:0;background:#130826;z-index:-1;border-radius:inherit}
+#project-overlay[data-project="hotels"] .pv-shimmer::before{content:'';position:absolute;inset:0;background:#070f1a;z-index:-1;border-radius:inherit}
+#project-overlay[data-project="travel-short"] .pv-shimmer::before{content:'';position:absolute;inset:0;background:#061412;z-index:-1;border-radius:inherit}
+#project-overlay[data-project="technology"] .pv-shimmer::before{content:'';position:absolute;inset:0;background:#090b1a;z-index:-1;border-radius:inherit}
+#project-overlay[data-project="tourism-companies"] .pv-shimmer::before{content:'';position:absolute;inset:0;background:#0a0f06;z-index:-1;border-radius:inherit}
+#project-overlay[data-project="kristian-najem"] .pv-shimmer::before{content:'';position:absolute;inset:0;background:#1a0808;z-index:-1;border-radius:inherit}
+#project-overlay[data-project="naadned"] .pv-shimmer::before{content:'';position:absolute;inset:0;background:#110819;z-index:-1;border-radius:inherit}
+#project-overlay[data-project="blendar"] .pv-shimmer::before{content:'';position:absolute;inset:0;background:#060e06;z-index:-1;border-radius:inherit}
+
+/* pv-shimmer needs relative position for ::before */
+.pv-shimmer{position:absolute!important;overflow:hidden!important}
+
+/* ── Card bg video: also show on touch-active (mobile) ── */
+.folder-card.touch-active{transform:translateY(-3px)!important}
+
 /* ── Update 95: Native scroll + premium shimmer ── */
 
 /* ── Featured item shimmer skeleton loader ── */
@@ -3504,12 +3620,16 @@ section::after{
     <h2 class="section-title" data-en="Services" data-he="השירותים שלי">Services</h2>
     <p class="section-subtitle" data-en="End-to-end visual solutions built around your brand's voice and goals." data-he="פתרונות שיווק וויזואליות מקצה לקצה, הבנויים סביב הקול והמטרות של המותג שלך.">End-to-end visual solutions built around your brand's voice and goals.</p>
   </div>
+  <div class="services-carousel-wrap">
+  <button class="services-arrow services-arrow-l" onclick="scrollServices(-1)" aria-label="Previous service">&#8249;</button>
   <div class="services-grid">
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><h3 data-en="Travel Content" data-he="תוכן תיירות">Travel Content</h3><p data-en="Visuals that capture the atmosphere and turn viewers into guests." data-he="סרטונים שלוכדים את האווירה והופכים צופים לאורחים.">Visuals that capture the atmosphere and turn viewers into guests.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><h3 data-en="Social Media Content" data-he="תוכן לרשתות חברתיות">Social Media Content</h3><p data-en="Scroll-stopping content designed to grow engagement and reach." data-he="תוכן שעוצר גלילה, בנוי להגדיל מעורבות וחשיפה.">Scroll-stopping content designed to grow engagement and reach.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><h3 data-en="Video Production" data-he="הפקת וידאו">Video Production</h3><p data-en="From short-form reels to full cinematic productions  -  storytelling at every scale." data-he="מרילסים קצרים ועד הפקות קולנועיות מלאות  -  סיפור בכל קנה מידה.">From short-form reels to full cinematic productions  -  storytelling at every scale.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></div><h3 data-en="Branded Collaborations" data-he="שיתופי פעולה">Branded Collaborations</h3><p data-en="Authentic partnerships that feel natural and resonate with your audience." data-he="שותפויות אותנטיות שנראות טבעיות ומהדהדות עם הקהל שלך.">Authentic partnerships that feel natural and resonate with your audience.</p></div>
     <div class="service-card"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 data-en="Marketing Strategy" data-he="אסטרטגיית שיווק">Marketing Strategy</h3><p data-en="In-depth brand analysis and tailored strategy to reach your target audience with precision." data-he="ניתוח מותג מעמיק ואסטרטגיה מותאמת אישית לתפיסת קהל היעד המדויק.">In-depth brand analysis and tailored strategy to reach the right audience with precision.</p></div>
+  </div>
+  <button class="services-arrow services-arrow-r" onclick="scrollServices(1)" aria-label="Next service">&#8250;</button>
   </div>
 </section>
 
@@ -3958,6 +4078,13 @@ document.querySelectorAll('.fade-in,.fade-in-left,.fade-in-right,.fade-in-scale'
 
 
 
+function scrollServices(dir){
+  var grid = document.querySelector('.services-grid');
+  if (!grid) return;
+  var card = grid.querySelector('.service-card');
+  var w = card ? card.offsetWidth + 14 : 280;
+  grid.scrollBy({left: dir * w, behavior: 'smooth'});
+}
 function scrollFolders(dir){
   var carousel = document.querySelector('.folders-carousel');
   var track = document.getElementById('foldersTrack');
@@ -4263,15 +4390,19 @@ function openProject(key) {
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', title + ' gallery');
+  overlay.setAttribute('data-project', key);
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
+
+  // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
+  container.scrollTop = 0;
 
   // Focus trap: move focus into modal
   setTimeout(() => {
     container.scrollTop = 0;
     const firstFocus = overlay.querySelector('[tabindex="0"]');
     if (firstFocus) firstFocus.focus({ preventScroll: true });
-  }, 60);
+  }, 80);
 }
 
 function closeProject(e) {
@@ -4811,7 +4942,7 @@ document.addEventListener('DOMContentLoaded', () => {
 (function(){
   var _cardVidBuilt = new WeakSet();
   var _cardVidCount = 0;
-  var _cardVidMax = 8;
+  var _cardVidMax = 12;
 
   function buildCardVid(card) {
     if (_cardVidBuilt.has(card) || _cardVidCount >= _cardVidMax) return;
@@ -4842,6 +4973,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.folder-card[data-key]').forEach(function(c) {
     cardVidObs.observe(c);
+  });
+})();
+
+// ── Touch hover: reveal card bg video on touchstart ──
+(function(){
+  document.querySelectorAll('.folder-card[data-key]').forEach(function(card){
+    card.addEventListener('touchstart', function(){
+      document.querySelectorAll('.folder-card.touch-active').forEach(function(c){
+        if (c !== card) c.classList.remove('touch-active');
+      });
+      card.classList.add('touch-active');
+    }, {passive:true});
+    card.addEventListener('touchend', function(){
+      setTimeout(function(){ card.classList.remove('touch-active'); }, 2000);
+    }, {passive:true});
   });
 })();
 
