@@ -1395,6 +1395,69 @@ body::before{
     radial-gradient(ellipse 50vw 40vh at 50% 50%, rgba(12,25,70,0.12) 0%, transparent 70%);}
 }
 
+/* ══ UPDATE 98: Site Loader + Auto-Scroll + Polish ════════════════════════ */
+
+/* ── Site Loader ── */
+#site-loader{
+  position:fixed;inset:0;z-index:99999;
+  background:#040712;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+  transition:opacity 0.7s ease, visibility 0.7s ease;
+}
+#site-loader.sl-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.sl-inner{display:flex;flex-direction:column;align-items:center;gap:24px}
+.sl-logo{width:90px;height:auto;opacity:0;animation:slLogoIn 0.8s ease 0.3s forwards}
+@keyframes slLogoIn{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
+.sl-bar-wrap{width:160px;height:2px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;opacity:0;animation:slFadeIn 0.6s ease 0.7s forwards}
+.sl-bar{height:100%;width:0%;background:linear-gradient(90deg,rgba(255,255,255,0.4),rgba(255,255,255,0.9));border-radius:2px;animation:slProgress 2.4s cubic-bezier(0.4,0,0.2,1) 0.8s forwards}
+@keyframes slProgress{0%{width:0%}60%{width:72%}85%{width:88%}100%{width:100%}}
+@keyframes slFadeIn{0%{opacity:0}100%{opacity:1}}
+.sl-tagline{color:rgba(255,255,255,0.35);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;margin:0;opacity:0;animation:slFadeIn 0.6s ease 1s forwards}
+
+/* ── Project Modal Load Cover ── */
+.pm-load-cover{
+  position:absolute;inset:0;z-index:500;
+  background:#040712;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:inherit;
+  transition:opacity 0.6s ease, visibility 0.6s ease;
+  pointer-events:none;
+  opacity:0;visibility:hidden;
+}
+.pm-load-cover.active{opacity:1;visibility:visible;pointer-events:all}
+.pm-lc-inner{display:flex;flex-direction:column;align-items:center;gap:20px}
+.pm-lc-shimmer{
+  width:48px;height:48px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.08);
+  border-top-color:rgba(255,255,255,0.6);
+  animation:pmLcSpin 0.9s linear infinite;
+}
+@keyframes pmLcSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+
+/* ── Remove scroll-snap from folders + featured for smooth auto-scroll ── */
+.folders-carousel{scroll-snap-type:none!important}
+.featured-strip{scroll-snap-type:none!important}
+.folder-card{scroll-snap-align:none!important}
+.featured-item{scroll-snap-align:none!important}
+
+/* ── Show duplicate items for infinite loop ── */
+#foldersTrack > .folder-card{display:flex!important}
+#featuredTrack > .featured-item{display:flex!important}
+#testTrack > .testimonial-card{display:flex!important}
+#brandTrack > .brand-item{display:flex!important}
+
+/* ── Mobile: hide card name overlay ("subtitles") ── */
+@media(max-width:768px){
+  .fc-name-overlay{display:none!important}
+}
+
+/* ── fc-card-vid: larger overflow to fill card on touch-active ── */
+.folder-card .fc-bg .fc-card-vid{
+  inset:-15%!important;width:130%!important;height:130%!important;
+  position:absolute!important;border:0!important;pointer-events:none!important;
+}
+
 /* ══ UPDATE 96: Mobile/Desktop Polish ══════════════════════════════════════ */
 
 /* ── Services mobile: carousel wrap + arrow buttons ── */
@@ -3509,6 +3572,14 @@ section::after{
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
 <body>
+<!-- ── Site Loader ── -->
+<div id="site-loader">
+  <div class="sl-inner">
+    <img src="logo.png" class="sl-logo" alt="Sharbel Najem">
+    <div class="sl-bar-wrap"><div class="sl-bar" id="slBar"></div></div>
+    <p class="sl-tagline" id="slTagline">Loading...</p>
+  </div>
+</div>
 <div class="scroll-progress" id="scrollProgress"></div>
 <div id="cursor-dot"></div>
 <div id="cursor-ring"></div>
@@ -3844,7 +3915,7 @@ section::after{
   <div class="featured-strip">
     <div class="featured-track" id="featuredTrack">
     <div class="featured-item landscape" onclick="openLightbox('1181177403','16:9')" data-vid="1181177403"><div class="fi-bg" data-vid="1181177403"><img class="fi-thumb-img" src="https://vumbnail.com/1181177403.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181174677','9:16')" data-vid="1181174677"><div class="fi-bg" data-vid="1181174677"><img class="fi-thumb-img" src="https://vumbnail.com/1181174677.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+
     <div class="featured-item landscape" onclick="openLightbox('1181171690','16:9')" data-vid="1181171690"><div class="fi-bg" data-vid="1181171690"><img class="fi-thumb-img" src="https://vumbnail.com/1181171690.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181171862','16:9')" data-vid="1181171862"><div class="fi-bg" data-vid="1181171862"><img class="fi-thumb-img" src="https://vumbnail.com/1181171862.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181169343','16:9')" data-vid="1181169343"><div class="fi-bg" data-vid="1181169343"><img class="fi-thumb-img" src="https://vumbnail.com/1181169343.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
@@ -3866,7 +3937,7 @@ section::after{
     <div class="featured-item portrait" onclick="openLightbox('1181140262','9:16')" data-vid="1181140262"><div class="fi-bg" data-vid="1181140262"><img class="fi-thumb-img" src="https://vumbnail.com/1181140262.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181139973','16:9')" data-vid="1181139973"><div class="fi-bg" data-vid="1181139973"><img class="fi-thumb-img" src="https://vumbnail.com/1181139973.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181177403','16:9')" data-vid="1181177403"><div class="fi-bg" data-vid="1181177403"><img class="fi-thumb-img" src="https://vumbnail.com/1181177403.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
-    <div class="featured-item portrait" onclick="openLightbox('1181174677','9:16')" data-vid="1181174677"><div class="fi-bg" data-vid="1181174677"><img class="fi-thumb-img" src="https://vumbnail.com/1181174677.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
+
     <div class="featured-item landscape" onclick="openLightbox('1181171690','16:9')" data-vid="1181171690"><div class="fi-bg" data-vid="1181171690"><img class="fi-thumb-img" src="https://vumbnail.com/1181171690.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181171862','16:9')" data-vid="1181171862"><div class="fi-bg" data-vid="1181171862"><img class="fi-thumb-img" src="https://vumbnail.com/1181171862.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
     <div class="featured-item landscape" onclick="openLightbox('1181169343','16:9')" data-vid="1181169343"><div class="fi-bg" data-vid="1181169343"><img class="fi-thumb-img" src="https://vumbnail.com/1181169343.jpg" alt="" loading="eager" draggable="false"></div><div class="fi-overlay"><div class="fi-play"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.55));margin-left:2px"><polygon points="6,3 20,12 6,21"/></svg></div></div></div>
@@ -4369,6 +4440,13 @@ function openProject(key) {
 
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
+
+  // Show loading cover, hide after 2s
+  var lc = document.getElementById('pm-load-cover');
+  if (lc) {
+    lc.classList.add('active');
+    setTimeout(function(){ lc.classList.remove('active'); }, 2000);
+  }
 
   // Focus trap: move focus into modal
   setTimeout(() => {
@@ -5117,6 +5195,11 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 <!-- PROJECT MODAL -->
 <div id="project-overlay" class="project-overlay" onclick="closeProject(event)">
   <div class="project-modal" onclick="event.stopPropagation()">
+    <div id="pm-load-cover" class="pm-load-cover">
+      <div class="pm-lc-inner">
+        <div class="pm-lc-shimmer"></div>
+      </div>
+    </div>
     <div class="pm-header" role="banner">
       <img src="logo.png" class="pm-logo" alt="Sharbel Najem">
       <div class="pm-title-group">
@@ -5194,76 +5277,133 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 
 
 
-<!-- ── Update-57: mobile carousel auto-scroller ── -->
+<!-- ── Update-98: universal carousel auto-scroller ── -->
 <script>
 (function(){
-  if(window.innerWidth > 768) return; // desktop only uses CSS animation
+  var isMobile = window.innerWidth <= 768;
 
-  // Config: [selector, direction] — 'right'=positive scrollLeft, 'left'=negative
-  // NOTE: .folders-carousel and .featured-strip are snap carousels (manual scroll).
-  // Including them caused jump-to-start when the loop-detection reset scrollLeft.
-  // Only marquees (infinite loops, no snap) are auto-scrolled.
+  // Config: [selector, dirDesktop, dirMobile, speedDesktop, speedMobile]
+  // dir: 'right'=scrollLeft+, 'left'=scrollLeft-, null=skip on that breakpoint
   var CAROUSELS = [
-    ['.brand-marquee',       'right', 0.55],  // Logos → right
-    ['.testimonials-marquee','left',  0.40],  // Testimonials → left
+    // selector                  desktop   mobile   spd-d  spd-m
+    ['.folders-carousel',        'right',  'left',  0.50,  0.45],
+    ['.featured-strip',          'left',   'left',  0.55,  0.50],
+    ['.brand-marquee',           'right',  'left',  0.55,  0.55],
+    ['.testimonials-marquee',    'left',   'right', 0.40,  0.40],
   ];
 
   CAROUSELS.forEach(function(cfg){
-    var sel = cfg[0], dir = cfg[1], speed = cfg[2];
-    var wrap = document.querySelector(sel);
-    if(!wrap) return;
+    var sel = cfg[0];
+    var dir   = isMobile ? cfg[2] : cfg[1];
+    var speed = isMobile ? cfg[4] : cfg[3];
+    if (!dir) return; // skip for this breakpoint
 
-    // Find the inner track so we know total scroll width
+    var wrap = document.querySelector(sel);
+    if (!wrap) return;
+
     var track = wrap.firstElementChild;
     var touching = false;
-    var rafId   = null;
-    var lastTs  = null;
+    var hovering = false;
+    var rafId = null;
+    var lastTs = null;
+
+    function getHalfWidth() {
+      return track ? track.scrollWidth / 2 : 0;
+    }
 
     function step(ts){
-      if(touching){ lastTs = null; rafId = requestAnimationFrame(step); return; }
-      if(lastTs === null){ lastTs = ts; rafId = requestAnimationFrame(step); return; }
-      var dt = Math.min(ts - lastTs, 50); // cap delta (e.g. tab was hidden)
+      if (touching || hovering){ lastTs = null; rafId = requestAnimationFrame(step); return; }
+      if (lastTs === null){ lastTs = ts; rafId = requestAnimationFrame(step); return; }
+      var dt = Math.min(ts - lastTs, 50);
       lastTs = ts;
-
-      var delta = speed * dt / 16.67; // speed px per 60fps frame
-      if(dir === 'right'){
+      var delta = speed * dt / 16.67;
+      var half = getHalfWidth();
+      if (dir === 'right'){
         wrap.scrollLeft += delta;
-        // Seamless loop: when we've scrolled past the first copy, jump back
-        if(track && wrap.scrollLeft >= track.scrollWidth / 2){
-          wrap.scrollLeft -= track.scrollWidth / 2;
+        if (half > 0 && wrap.scrollLeft >= half){
+          wrap.scrollLeft -= half;
         }
       } else {
         wrap.scrollLeft -= delta;
-        // Seamless loop going left: when at 0 jump to half-way
-        if(wrap.scrollLeft <= 0 && track){
-          wrap.scrollLeft = track.scrollWidth / 2;
+        if (wrap.scrollLeft <= 0 && half > 0){
+          wrap.scrollLeft = half;
         }
       }
       rafId = requestAnimationFrame(step);
     }
 
-    // Pause on touch
+    // Pause on touch (mobile)
     wrap.addEventListener('touchstart', function(){ touching = true; }, {passive:true});
-    wrap.addEventListener('touchend',   function(){
-      setTimeout(function(){ touching = false; }, 800); // 800ms grace
+    wrap.addEventListener('touchend', function(){
+      setTimeout(function(){ touching = false; }, 600);
     }, {passive:true});
 
-    // Start when track has content
-    if(track && track.scrollWidth > wrap.offsetWidth){
-      // For left-direction: start at mid-point so seamless left loop works
-      if(dir === 'left' && track.scrollWidth > 0){
-        wrap.scrollLeft = track.scrollWidth / 2;
-      }
-      rafId = requestAnimationFrame(step);
-    } else {
-      // Retry after content loads
-      setTimeout(function(){
-        if(dir === 'left' && track && track.scrollWidth > 0){
-          wrap.scrollLeft = track.scrollWidth / 2;
-        }
+    // Pause on hover (desktop)
+    wrap.addEventListener('mouseenter', function(){ hovering = true; });
+    wrap.addEventListener('mouseleave', function(){ hovering = false; });
+
+    function start(){
+      var half = getHalfWidth();
+      if (half > 0 && half > wrap.offsetWidth){
+        if (dir === 'left') wrap.scrollLeft = half;
         rafId = requestAnimationFrame(step);
-      }, 2000);
+      } else {
+        setTimeout(start, 1500);
+      }
     }
+
+    // Delay start slightly so DOM/images settle
+    setTimeout(start, 400);
+  });
+
+  // ── Services mobile auto-scroll (5 cards, bounce at ends) ──
+  if (isMobile) {
+    var svcGrid = document.querySelector('.services-grid');
+    if (svcGrid) {
+      var svcDir = -1; // start moving left
+      var svcSpeed = 0.45;
+      var svcTouching = false;
+      var svcLast = null;
+      svcGrid.addEventListener('touchstart', function(){ svcTouching = true; }, {passive:true});
+      svcGrid.addEventListener('touchend', function(){
+        setTimeout(function(){ svcTouching = false; }, 800);
+      }, {passive:true});
+      function svcStep(ts){
+        if (!svcTouching){
+          if (svcLast !== null){
+            var dt = Math.min(ts - svcLast, 50);
+            var delta = svcDir * svcSpeed * dt / 16.67;
+            svcGrid.scrollLeft += delta;
+            var max = svcGrid.scrollWidth - svcGrid.clientWidth;
+            if (svcGrid.scrollLeft <= 0){ svcGrid.scrollLeft = 0; svcDir = 1; }
+            if (svcGrid.scrollLeft >= max){ svcGrid.scrollLeft = max; svcDir = -1; }
+          }
+        } else {
+          svcLast = null;
+        }
+        svcLast = ts;
+        requestAnimationFrame(svcStep);
+      }
+      setTimeout(function(){ requestAnimationFrame(svcStep); }, 800);
+    }
+  }
+})();
+
+// ── Site loader dismiss ──
+(function(){
+  var loader = document.getElementById('site-loader');
+  if (!loader) return;
+  function dismiss(){
+    loader.classList.add('sl-hidden');
+    setTimeout(function(){ loader.style.display='none'; }, 800);
+  }
+  // Dismiss after 2.8s regardless, or after load event (whichever is later, max 4s)
+  var t1 = setTimeout(dismiss, 2800);
+  window.addEventListener('load', function(){
+    // If load fires late, cap at 4s
+    clearTimeout(t1);
+    var remaining = Math.max(0, 2800 - performance.now());
+    setTimeout(dismiss, remaining);
   });
 })();
 </script>
