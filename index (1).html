@@ -1475,13 +1475,14 @@ body::before{
 /* ── Mobile: ensure first video starts well below the pm-header ── */
 @media(max-width:768px){
   .pm-videos{
-    padding-top:20px!important;
+    padding-top:24px!important; /* enough space below pm-header */
   }
   /* Fix: pm-header has solid bg so videos behind it don't bleed through */
   .pm-header{
     background:rgba(4,7,18,0.97)!important;
-    position:relative;
-    z-index:20;
+    position:sticky!important;
+    top:0!important;
+    z-index:20!important;
   }
   .pm-videos{
     position:relative;
@@ -1493,6 +1494,14 @@ body::before{
 
 /* ── Hide fc-peek on desktop too — thumbnails were cropped and distracting ── */
 .fc-peek{display:none!important}
+
+/* ── scroll-margin-top: prevent fixed navbar from covering section headings ── */
+@media(max-width:768px){
+  section,
+  #hero, #about, #services, #projects, #highlights, #brands, #testimonials, #contact{
+    scroll-margin-top: 64px;
+  }
+}
 
 /* ── Thumbnail: portrait cards — show top portion (face/subject) ── */
 .folder-card.portrait .fc-thumb-img{
@@ -2347,6 +2356,7 @@ body::after{
     z-index:2!important;
     width:100%!important;
     padding:0 24px!important;
+    padding-top:64px!important; /* push below fixed navbar (58px) */
     gap:12px!important;
     text-align:center!important;
     align-items:center!important;
