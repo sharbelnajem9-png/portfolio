@@ -3707,7 +3707,7 @@ section::after{
     <img src="logo.png" class="sl-logo" alt="Sharbel Najem">
     <p class="sl-name">SHARBEL NAJEM</p>
     <div class="sl-bar-wrap"><div class="sl-bar" id="slBar"></div></div>
-    <p class="sl-tagline" id="slTagline">Loading...</p>
+    <p class="sl-tagline" id="slTagline" data-en="Loading..." data-he="...טוען">Loading...</p>
   </div>
 </div>
 <div class="scroll-progress" id="scrollProgress"></div>
@@ -4238,7 +4238,7 @@ section::after{
 </section>
 
 <footer class="footer">
-  <span class="footer-text">&copy; 2026 Sharbel Najem. All rights reserved.</span>
+  <span class="footer-text" data-en="© 2026 Sharbel Najem. All rights reserved." data-he="© 2026 שרבל נג'ם. כל הזכויות שמורות.">© 2026 Sharbel Najem. All rights reserved.</span>
   <div class="footer-legal">
     <a href="#" onclick="openLegal('access');return false;" data-en="Accessibility" data-he="נגישות">Accessibility</a>
     <span class="sep">|</span>
@@ -4460,7 +4460,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
   head.innerHTML =
     '<span class="pm-sec-label">' + label + '</span>' +
     '<span class="pm-sec-dot"></span>' +
-    '<span class="pm-sec-count">' + videos.length + (videos.length > 1 ? ' videos' : ' video') + '</span>';
+    '<span class="pm-sec-count">' + videos.length + (lang === 'he' ? ' סרטונים' : (videos.length > 1 ? ' videos' : ' video')) + '</span>';
   section.appendChild(head);
 
   // Grid
@@ -4474,7 +4474,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     div.setAttribute('role', 'listitem');
     div.setAttribute('tabindex', '0');
     div.setAttribute('aria-label',
-      (isPortrait ? 'Vertical short' : 'Horizontal video') + ' ' + (startIdx + i + 1));
+      (lang === 'he' ? (isPortrait ? 'שורט אנכי' : 'סרטון אופקי') : (isPortrait ? 'Vertical short' : 'Horizontal video')) + ' ' + (startIdx + i + 1));
 
     // No thumbnail — pure shimmer until video plays
     const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
@@ -5224,7 +5224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Badge: "12 videos"
     var badge = document.createElement('span');
     badge.className = 'fc-peek-badge';
-    badge.textContent = count + ' videos';
+    badge.textContent = count + (typeof currentLang !== 'undefined' && currentLang === 'he' ? ' סרטונים' : ' videos');
     peek.appendChild(badge);
 
     peekVids.forEach(function(vid){
@@ -5367,7 +5367,7 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
         <img src="logo.png" class="sl-logo" alt="">
         <p class="sl-name">SHARBEL NAJEM</p>
         <div class="pm-lc-bar-wrap"><div class="pm-lc-bar"></div></div>
-        <p class="sl-tagline">Loading...</p>
+        <p class="sl-tagline" data-en="Loading..." data-he="...טוען">Loading...</p>
       </div>
     </div>
     <div class="pm-header" role="banner">
