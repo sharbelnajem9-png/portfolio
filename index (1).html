@@ -4314,7 +4314,7 @@ function scrollCarousel(trackId, dir){
   var gap=parseInt(getComputedStyle(track).gap)||20;
   var itemW=(items[0].offsetWidth||300)+gap;
   window._carouselBtnPauseUntil = Date.now() + 2500;
-  container.scrollBy({left: dir * itemW * 3, behavior: 'smooth'});
+  container.scrollBy({left: dir * itemW, behavior: 'smooth'});
 }
 
 // Pause carousel animation when video plays
@@ -5409,10 +5409,10 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   // dir: 'right'=scrollLeft+, 'left'=scrollLeft-, null=skip on that breakpoint
   var CAROUSELS = [
     // selector                  desktop   mobile   spd-d  spd-m
-    ['.folders-carousel',        'right',  'left',  0.50,  0.45],
-    ['.featured-strip',          'left',   'left',  0.55,  0.50],
-    ['.brand-marquee',           'right',  'left',  0.55,  0.55],
-    ['.testimonials-marquee',    'left',   'right', 0.40,  0.40],
+    ['.folders-carousel',        'right',  'left',  0.65,  0.45],
+    ['.featured-strip',          'left',   'left',  0.65,  0.50],
+    ['.brand-marquee',           'right',  'left',  0.70,  0.55],
+    ['.testimonials-marquee',    'left',   'right', 0.55,  0.40],
   ];
 
   CAROUSELS.forEach(function(cfg){
