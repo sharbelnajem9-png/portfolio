@@ -364,7 +364,7 @@ footer::before{
   max-width:1440px;width:100%;margin:0 auto}
 .pm-header{display:flex;align-items:center;padding:18px 32px;
   border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;gap:20px}
-.pm-logo{height:34px;opacity:0.85;flex-shrink:0}
+.pm-logo{display:none!important;height:34px;opacity:0.85;flex-shrink:0}
 .pm-title{font-family:'Assistant',var(--font-display);
   font-size:clamp(22px,3vw,34px);font-weight:800;
   letter-spacing:1px;flex:1;text-align:center;
@@ -1475,13 +1475,20 @@ body::before{
 /* ── Mobile: ensure first video starts well below the pm-header ── */
 @media(max-width:768px){
   .pm-videos{
-    padding-top:24px!important; /* enough space below pm-header */
+    padding-top:20px!important;
+    padding-bottom:max(40px,env(safe-area-inset-bottom,40px))!important; /* iPhone home indicator */
   }
   /* pm-header: solid bg + notch-safe top padding (no sticky — flex keeps it at top) */
   .pm-header{
     background:rgba(4,7,18,0.97)!important;
     padding-top:max(16px,env(safe-area-inset-top,16px))!important;
     z-index:20!important;
+    justify-content:space-between!important; /* title centered, close right */
+  }
+  /* pm-title-group centered now that logo is gone */
+  .pm-header .pm-title-group{
+    flex:1!important;
+    text-align:center!important;
   }
   /* Hide peek strip on mobile — cleaner, prevents "image on side" */
   .fc-peek{display:none!important}
@@ -1606,10 +1613,9 @@ body::before{
   .services-grid{overflow-x:scroll!important;overflow-y:hidden!important}
 }
 
-/* ── Project modal: fix scroll-to-top bug on mobile ── */
+/* ── Project modal: free vertical scroll on iOS (no overscroll contain) ── */
 .pm-videos{
   scroll-behavior:auto!important;
-  overscroll-behavior-y:contain!important;
   -webkit-overflow-scrolling:touch!important;
   overflow-anchor:none!important;
 }
@@ -3372,7 +3378,6 @@ section::after{
 /* ── Modal smooth scroll ── */
 .pm-videos{
   -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior:contain!important;
   scroll-behavior:smooth!important;
 }
 
