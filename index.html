@@ -10,6 +10,7 @@
 <link rel="dns-prefetch" href="https://player.vimeo.com">
 <link rel="preconnect" href="https://player.vimeo.com" crossorigin>
 <link rel="preconnect" href="https://i.vimeocdn.com" crossorigin>
+<link rel="preconnect" href="https://f.vimeocdn.com" crossorigin>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -4405,9 +4406,6 @@ function makePvPlay() {
 // ── Modal video queue — all videos load immediately, batch-revealed when ready ──
 var _pvQueue = [];
 var _pvActive = 0;
-var _pvMax = 4;
-// _pvNext kept for compatibility; actual loading driven by openProject
-function _pvNext() {}
 function _pvDrainAll() {
   while (_pvQueue.length > 0) {
     (function(job){
@@ -4483,7 +4481,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     const _q2 = _h2 ? '?h=' + _h2 + '&' : '?';
     const _fr = document.createElement('iframe');
     _fr.src = 'https://player.vimeo.com/video/' + id + _q2 +
-      'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1';
+      'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1';
     _fr.setAttribute('frameborder','0');
     _fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
     _fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
@@ -4495,7 +4493,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
         setTimeout(function(){
           fr.style.opacity = '1';
           dv.classList.add('pv-loaded');
-        }, 500);
+        }, 100);
       }, {once:true});
     })(_fr, div);
 
@@ -4558,8 +4556,8 @@ function openProject(key) {
 
   if (secH) container.appendChild(secH);
   if (secV) container.appendChild(secV);
-  // Load ALL videos immediately
-  setTimeout(function(){ _pvDrainAll(); }, 60);
+  // Load ALL videos immediately — append to DOM now (no delay needed)
+  _pvDrainAll();
 
   // Open modal
   const overlay = document.getElementById('project-overlay');
@@ -4572,13 +4570,8 @@ function openProject(key) {
   if (lc) lc.classList.add('active');
   container.scrollTop = 0;
   overlay.classList.add('active');
-  // iOS Safari scroll lock: position:fixed prevents background scroll on iOS
-  var _pmSY = window.scrollY || window.pageYOffset || 0;
-  document.body.setAttribute('data-scroll-y', String(_pmSY));
-  document.body.style.position = 'fixed';
-  document.body.style.top = '-' + _pmSY + 'px';
-  document.body.style.width = '100%';
-  document.body.style.overflowY = 'hidden';
+  // Lock background scroll — overflow:hidden on html, no layout shift/jump
+  document.documentElement.style.overflow = 'hidden';
 
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
@@ -4586,7 +4579,7 @@ function openProject(key) {
   // Loading cover — already activated above
   var _pvRevealDone = false;
   var _pvOpenTime = Date.now();
-  var _pvMinWait = 2000;
+  var _pvMinWait = 600;
   function _pvRevealAll() {
     if (_pvRevealDone) return; _pvRevealDone = true;
     if (lc) lc.classList.remove('active');
@@ -4598,7 +4591,7 @@ function openProject(key) {
     if (e.target.tagName !== 'IFRAME') return;
     container.removeEventListener('load', _pvLH, true); // 1st iframe triggers dismiss
     var elapsed = Date.now() - _pvOpenTime;
-    var remaining = Math.max(400, _pvMinWait - elapsed);
+    var remaining = Math.max(150, _pvMinWait - elapsed);
     setTimeout(_pvRevealAll, remaining);
   }, true);
   // Hard fallback — never leave cover on screen more than 5s
@@ -4619,13 +4612,8 @@ function closeProject(e) {
   _pvQueue = []; _pvActive = 0;
   const overlay = document.getElementById('project-overlay');
   overlay.classList.remove('active');
-  // Restore iOS scroll position
-  var _pmSavedY = parseInt(document.body.getAttribute('data-scroll-y') || '0', 10);
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.width = '';
-  document.body.style.overflowY = '';
-  window.scrollTo(0, _pmSavedY);
+  // Restore background scroll
+  document.documentElement.style.overflow = '';
   setTimeout(() => {
     const grid = document.getElementById('pm-videos');
     if (grid) grid.innerHTML = '';
@@ -4708,30 +4696,18 @@ function openLightbox(vid, ratio) {
   var _h = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
   var _q = _h ? '?h=' + _h + '&' : '?';
   container.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vid +
-    _q + 'title=0&byline=0&portrait=0&autoplay=1&badge=0" frameborder="0" ' +
+    _q + 'title=0&byline=0&portrait=0&autoplay=1&badge=0&playsinline=1" frameborder="0" ' +
     'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen ' +
     'style="width:100%;height:100%;border:0;border-radius:10px"></iframe>';
   lb.classList.add('active');
-  // iOS Safari scroll lock for lightbox
-  var _lbSY = window.scrollY || window.pageYOffset || 0;
-  document.body.setAttribute('data-scroll-y', String(_lbSY));
-  document.body.style.position = 'fixed';
-  document.body.style.top = '-' + _lbSY + 'px';
-  document.body.style.width = '100%';
-  document.body.style.overflowY = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
 }
 
 function closeLightbox(e) {
   if (e && e.target !== document.getElementById('vid-lightbox')) return;
   const lb = document.getElementById('vid-lightbox');
   lb.classList.remove('active');
-  // Restore iOS scroll position
-  var _lbSavedY = parseInt(document.body.getAttribute('data-scroll-y') || '0', 10);
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.width = '';
-  document.body.style.overflowY = '';
-  window.scrollTo(0, _lbSavedY);
+  document.documentElement.style.overflow = '';
   setTimeout(() => { document.getElementById('vlb-video').innerHTML = ''; }, 320);
 }
 
