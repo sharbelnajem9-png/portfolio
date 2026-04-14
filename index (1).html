@@ -139,6 +139,7 @@ section{padding:64px 60px}
 .folders-track{display:flex;gap:20px;width:max-content;padding:8px 24px}
 .folders-carousel:hover .folders-track{}
 @keyframes foldersScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes scrollRight{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
 #foldersTrack > .folder-card:nth-child(n+10){display:none!important}
 .folder-card{border-radius:12px;overflow:hidden;background:var(--card);border:1px solid var(--card-border);flex-shrink:0;cursor:pointer;transition:transform 0.4s,box-shadow 0.4s}
 .folder-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.4)}
@@ -1106,6 +1107,11 @@ html{scroll-behavior:smooth}
   -webkit-backface-visibility:hidden;
   transform:translateZ(0)
 }
+/* ── Animation names: projects+brands RIGHT (ימינה), featured+testimonials LEFT (שמאלה) */
+.folders-track    { animation-name:scrollRight;    animation-duration:45s; }
+.featured-track   { animation-name:featuredScroll; animation-duration:40s; }
+.brand-track      { animation-name:scrollRight;    animation-duration:55s; }
+.testimonial-track{ animation-name:testScroll;     animation-duration:75s; }
 /* Pause on hover */
 .folders-carousel:hover .folders-track,
 .featured-strip:hover .featured-track,
@@ -1557,6 +1563,17 @@ body::before{
 .services-controls{display:none!important}
 @media(max-width:768px){
   .services-controls{display:flex!important}
+}
+
+/* ── Desktop: overflow:hidden so CSS transform animation clips correctly ── */
+@media(min-width:769px){
+  .folders-carousel,
+  .featured-strip,
+  .testimonials-marquee,
+  .brand-marquee{
+    overflow:hidden!important;
+    scroll-snap-type:none!important;
+  }
 }
 
 /* ── All carousel containers: strict horizontal scroll lock ── */
@@ -5417,10 +5434,11 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
     ['.testimonials-marquee',    'right',  'right', 0.55,  0.40],  // LEFT  שמאלה
   ];
 
-  CAROUSELS.forEach(function(cfg){
+  // rAF scroller: mobile only — desktop uses CSS animation (animation-name on tracks)
+  if (isMobile) CAROUSELS.forEach(function(cfg){
     var sel = cfg[0];
-    var dir   = isMobile ? cfg[2] : cfg[1];
-    var speed = isMobile ? cfg[4] : cfg[3];
+    var dir   = cfg[2]; // mobile direction
+    var speed = cfg[4]; // mobile speed
     if (!dir) return; // skip for this breakpoint
 
     var wrap = document.querySelector(sel);
@@ -5486,7 +5504,7 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 
     // Delay start slightly so DOM/images settle
     setTimeout(start, 400);
-  });
+  }); // end if(isMobile) CAROUSELS
 
   // ── Services mobile auto-scroll — continuous LEFT (שמאלה), seamless ──
   if (isMobile) {
