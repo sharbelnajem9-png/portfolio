@@ -961,15 +961,15 @@ html{scroll-behavior:smooth}
 @media(max-width:768px){
   .about-grid{grid-template-columns:1fr!important;gap:32px!important;padding:0 20px!important}
   .about-image-wrapper{max-width:260px!important;margin:0 auto!important}
-  .services-grid{flex-wrap:wrap!important;gap:12px!important}
-  .service-card{flex:1 1 calc(50% - 12px)!important;min-width:140px!important}
+  .services-grid{flex-wrap:nowrap!important;gap:16px!important;overflow-x:scroll!important;overflow-y:hidden!important;padding:8px 20px!important}
+  .service-card{flex:0 0 260px!important;min-width:260px!important;width:260px!important}
   .testimonial-card{min-width:300px!important;width:310px!important}
   .dream-words{gap:12px!important}
   .folder-card{min-width:260px!important;max-width:280px!important}
   .folders-track{gap:14px!important}
 }
 @media(max-width:480px){
-  .service-card{flex:1 1 100%!important}
+  .service-card{flex:0 0 240px!important;min-width:240px!important}
   .hero-content{padding:0 18px!important}
   .about-grid{padding:0 16px!important}
 
@@ -5409,10 +5409,12 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   // dir: 'right'=scrollLeft+, 'left'=scrollLeft-, null=skip on that breakpoint
   var CAROUSELS = [
     // selector                  desktop   mobile   spd-d  spd-m
-    ['.folders-carousel',        'right',  'left',  0.65,  0.45],
-    ['.featured-strip',          'left',   'left',  0.65,  0.50],
-    ['.brand-marquee',           'right',  'left',  0.70,  0.55],
-    ['.testimonials-marquee',    'left',   'right', 0.55,  0.40],
+    // dir='left'  → scrollLeft decreases → content moves RIGHT (ימינה)
+    // dir='right' → scrollLeft increases → content moves LEFT  (שמאלה)
+    ['.folders-carousel',        'left',   'left',  0.65,  0.45],  // RIGHT ימינה
+    ['.featured-strip',          'right',  'right', 0.65,  0.50],  // LEFT  שמאלה
+    ['.brand-marquee',           'left',   'left',  0.70,  0.55],  // RIGHT ימינה
+    ['.testimonials-marquee',    'right',  'right', 0.55,  0.40],  // LEFT  שמאלה
   ];
 
   CAROUSELS.forEach(function(cfg){
@@ -5486,12 +5488,14 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
     setTimeout(start, 400);
   });
 
-  // ── Services mobile auto-scroll (5 cards, bounce at ends) ──
+  // ── Services mobile auto-scroll — continuous LEFT (שמאלה), seamless ──
   if (isMobile) {
     var svcGrid = document.querySelector('.services-grid');
     if (svcGrid) {
-      var svcDir = -1; // start moving left
-      var svcSpeed = 0.45;
+      // Clone cards for seamless infinite loop
+      var svcOriginals = Array.from(svcGrid.children);
+      svcOriginals.forEach(function(c){ svcGrid.appendChild(c.cloneNode(true)); });
+      var svcSpeed = 0.50;
       var svcTouching = false;
       var svcLast = null;
       svcGrid.addEventListener('touchstart', function(){ svcTouching = true; }, {passive:true});
@@ -5499,19 +5503,16 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
         setTimeout(function(){ svcTouching = false; }, 800);
       }, {passive:true});
       function svcStep(ts){
-        var svcBtnPaused = window._carouselBtnPauseUntil && Date.now() < window._carouselBtnPauseUntil;
-        if (!svcTouching && !svcBtnPaused){
+        if (!svcTouching){
           if (svcLast !== null){
             var dt = Math.min(ts - svcLast, 50);
-            var delta = svcDir * svcSpeed * dt / 16.67;
-            svcGrid.scrollLeft += delta;
-            var max = svcGrid.scrollWidth - svcGrid.clientWidth;
-            if (svcGrid.scrollLeft <= 0){ svcGrid.scrollLeft = 0; svcDir = 1; }
-            if (svcGrid.scrollLeft >= max){ svcGrid.scrollLeft = max; svcDir = -1; }
+            svcGrid.scrollLeft += svcSpeed * dt / 16.67; // LEFT (שמאלה)
+            var half = svcGrid.scrollWidth / 2;
+            if (half > 0 && svcGrid.scrollLeft >= half){
+              svcGrid.scrollLeft -= half; // seamless jump
+            }
           }
-        } else {
-          svcLast = null;
-        }
+        } else { svcLast = null; }
         svcLast = ts;
         requestAnimationFrame(svcStep);
       }
