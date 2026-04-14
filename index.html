@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Sharbel Najem  -  Filmmaker & Content Creator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="image" href="about.jpg" fetchpriority="high">
@@ -355,12 +355,12 @@ footer::before{
 .featured-item:hover .fi-play{opacity:1;transform:scale(1)}
 
 /* ===== PROJECT MODAL ===== */
-.project-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.93);
+.project-overlay{position:fixed;inset:0;padding-bottom:env(safe-area-inset-bottom,0);background:rgba(0,0,0,0.93);
   z-index:2000;display:flex;flex-direction:column;align-items:stretch;
   opacity:0;pointer-events:none;transition:opacity 0.35s ease;
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .project-overlay.active{opacity:1;pointer-events:all}
-.project-modal{display:flex;flex-direction:column;height:100vh;
+.project-modal{display:flex;flex-direction:column;height:100dvh;
   max-width:1440px;width:100%;margin:0 auto}
 .pm-header{display:flex;align-items:center;padding:18px 32px;
   border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;gap:20px}
@@ -1477,16 +1477,11 @@ body::before{
   .pm-videos{
     padding-top:24px!important; /* enough space below pm-header */
   }
-  /* Fix: pm-header has solid bg so videos behind it don't bleed through */
+  /* pm-header: solid bg + notch-safe top padding (no sticky — flex keeps it at top) */
   .pm-header{
     background:rgba(4,7,18,0.97)!important;
-    position:sticky!important;
-    top:0!important;
+    padding-top:max(16px,env(safe-area-inset-top,16px))!important;
     z-index:20!important;
-  }
-  .pm-videos{
-    position:relative;
-    z-index:1;
   }
   /* Hide peek strip on mobile — cleaner, prevents "image on side" */
   .fc-peek{display:none!important}
@@ -3760,6 +3755,9 @@ section::after{
 <section class="hero" id="hero">
   <div class="hero-video-bg" id="heroBg">
   <div class="hero-vid-item active" id="heroVid0" data-vid="1182382291"><iframe src="https://player.vimeo.com/video/1182382291?h=4d10b0f514&background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+  <div class="hero-vid-item" id="heroVid1" data-vid="1181282252"><iframe src="https://player.vimeo.com/video/1181282252?background=1&autoplay=0&loop=0&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+  <div class="hero-vid-item" id="heroVid2" data-vid="1181279455"><iframe src="https://player.vimeo.com/video/1181279455?background=1&autoplay=0&loop=0&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+  <div class="hero-vid-item" id="heroVid3" data-vid="1181277743"><iframe src="https://player.vimeo.com/video/1181277743?background=1&autoplay=0&loop=0&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
@@ -4886,7 +4884,7 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
 // HERO VIDEO SEQUENCER  (4 Vimeo BG videos loop sequentially)
 // ================================================================
 (function initHeroSequencer(){
-  const VIDS = ['1181277254','1181282252','1181279455','1181277743'];
+  const VIDS = ['1182382291','1181282252','1181279455','1181277743']; // [0] matches heroVid0 in HTML
   let current = 0;
   let players = [];
   let initiated = false;
