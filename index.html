@@ -30,8 +30,8 @@
 }
 [dir="rtl"]{--font-display:var(--font-he-title);--font-body:var(--font-he-body)}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--white-15) transparent}
-body{font-family:var(--font-body);background:var(--black);color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--white-15) transparent;overscroll-behavior-y:none}
+body{font-family:var(--font-body);background:var(--black);color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased;touch-action:manipulation;overscroll-behavior-y:none}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--white-15);border-radius:3px}
 
 .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);background:rgba(10,14,26,0.42);border-bottom:1px solid rgba(255,255,255,0.10);transition:background 0.4s,box-shadow 0.4s}
@@ -1452,8 +1452,8 @@ body::before{
 .testimonials-marquee{scroll-snap-type:none!important}
 .folder-card{scroll-snap-align:none!important}
 .featured-item{scroll-snap-align:none!important}
-.brand-item{scroll-snap-align:none!important}
-.testimonial-card{scroll-snap-align:none!important}
+.brand-item{scroll-snap-align:center}
+.testimonial-card{scroll-snap-align:center}
 
 /* ── Show duplicate items for infinite loop ── */
 #foldersTrack > .folder-card{display:flex!important}
@@ -1463,16 +1463,13 @@ body::before{
 
 /* fc-name-overlay shown on all devices — see Update 100 above */
 
-/* ── fc-card-vid: centered, 177.8% to fill any aspect-ratio card ── */
+/* ── fc-card-vid: fill container — Vimeo background=1 mode handles internal object-fit:cover ── */
 .folder-card .fc-bg .fc-card-vid{
   position:absolute!important;
-  top:50%!important;
-  left:50%!important;
-  right:auto!important;
-  bottom:auto!important;
-  width:177.8%!important;
-  height:177.8%!important;
-  transform:translate(-50%,-50%)!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  transform:none!important;
   border:0!important;
   pointer-events:none!important;
 }
@@ -1569,6 +1566,8 @@ body::before{
 @media(max-width:768px){
   .folders-carousel.snap-touch{scroll-snap-type:x mandatory!important}
   .featured-strip.snap-touch{scroll-snap-type:x mandatory!important}
+  .brand-marquee.snap-touch{scroll-snap-type:x mandatory!important}
+  .testimonials-marquee.snap-touch{scroll-snap-type:x mandatory!important}
   .folder-card{scroll-snap-align:center!important}
   .featured-item{scroll-snap-align:center!important}
 }
@@ -4250,6 +4249,9 @@ section::after{
 </footer>
 
 <script>
+// Prevent iOS Safari from restoring scroll position after reload — always start at top
+if (history.scrollRestoration) history.scrollRestoration = 'manual';
+window.addEventListener('load', function(){ if (!window.location.hash) window.scrollTo(0, 0); });
 let currentLang='en';
 function toggleLang(){
   currentLang=currentLang==='en'?'he':'en';
@@ -4561,6 +4563,10 @@ function openProject(key) {
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', title + ' gallery');
   overlay.setAttribute('data-project', key);
+  // Activate loading cover FIRST — modal opens with cover visible from frame 1 (no content flash)
+  var lc = document.getElementById('pm-load-cover');
+  if (lc) lc.classList.add('active');
+  container.scrollTop = 0;
   overlay.classList.add('active');
   // iOS Safari scroll lock: position:fixed prevents background scroll on iOS
   var _pmSY = window.scrollY || window.pageYOffset || 0;
@@ -4573,9 +4579,7 @@ function openProject(key) {
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
 
-  // Loading cover — dismiss after 1st iframe loads + min 2s; iframes self-reveal per-item
-  var lc = document.getElementById('pm-load-cover');
-  if (lc) lc.classList.add('active');
+  // Loading cover — already activated above
   var _pvRevealDone = false;
   var _pvOpenTime = Date.now();
   var _pvMinWait = 2000;
@@ -5193,7 +5197,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1';
     iframe.setAttribute('frameborder','0');
     iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-    iframe.style.cssText = 'position:absolute;inset:-10%;width:120%;height:120%;' +
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
       'border:0;pointer-events:none;';
     bg.appendChild(iframe);
   }
@@ -5530,7 +5534,7 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
       setTimeout(function(){
         touching = false;
         wrap.classList.remove('snap-touch');
-      }, 900);
+      }, 1500);
     }, {passive:true});
 
     // Pause on hover (desktop)
@@ -5609,7 +5613,7 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   if (!loader) return;
   var _slDismissed = false;
   var _slStart = Date.now();
-  var _slMinMs = 4000; // show at least 4s so videos have time to buffer and play
+  var _slMinMs = 6000; // show at least 6s so hero + featured videos have time to buffer
 
   function dismiss(){
     if (_slDismissed) return;
@@ -5626,7 +5630,7 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   // Shared counters read by featured IIFE (defined above)
   window._slFeatLoaded = 0;
   var _slHeroReady = false;
-  var _slNeededFeat = 2; // need at least 2 featured iframes to have loaded
+  var _slNeededFeat = 3; // need at least 3 featured iframes to have loaded
 
   window._slCheckReady = function(){
     if (_slHeroReady && window._slFeatLoaded >= _slNeededFeat) dismiss();
