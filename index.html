@@ -1463,13 +1463,17 @@ body::before{
 
 /* fc-name-overlay shown on all devices — see Update 100 above */
 
-/* ── fc-card-vid: fill container — Vimeo background=1 mode handles internal object-fit:cover ── */
+/* ── fc-card-vid: 177.8% oversized + centered → covers container for any aspect ratio ── */
+/* Vimeo iframe must be bigger than its container so the video fills without letterboxing */
 .folder-card .fc-bg .fc-card-vid{
   position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  transform:none!important;
+  top:50%!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:177.8%!important;
+  height:177.8%!important;
+  transform:translate(-50%,-50%)!important;
   border:0!important;
   pointer-events:none!important;
 }
@@ -5197,7 +5201,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1';
     iframe.setAttribute('frameborder','0');
     iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
+    iframe.style.cssText = 'position:absolute;top:50%;left:50%;' +
+      'width:177.8%;height:177.8%;transform:translate(-50%,-50%);' +
       'border:0;pointer-events:none;';
     bg.appendChild(iframe);
   }
