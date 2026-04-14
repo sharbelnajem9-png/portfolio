@@ -184,7 +184,7 @@ section{padding:64px 60px}
 .fade-in-scale.visible{opacity:1;transform:scale(1)}
 
 .mobile-nav-overlay{position:fixed;inset:0;z-index:999;background:rgba(11,11,11,0.97);backdrop-filter:blur(30px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;opacity:0;pointer-events:none;transition:opacity 0.3s}
-.mobile-nav-overlay.open{opacity:1;pointer-events:all}
+.mobile-nav-overlay.open{opacity:1;pointer-events:all;z-index:1001}
 .mobile-nav-overlay a{color:var(--white);text-decoration:none;font-size:26px;font-family:var(--font-display);font-weight:600;transition:opacity 0.3s}
 .mobile-nav-overlay a:hover{opacity:0.6}
 .mobile-nav-close{position:absolute;top:24px;right:32px;background:none;border:none;color:var(--white);font-size:28px;cursor:pointer}
@@ -384,7 +384,9 @@ footer::before{
   flex:1;overflow-y:auto;scroll-behavior:smooth;
   padding:40px 40px 64px;
   display:flex;flex-direction:row;flex-wrap:wrap;
-  align-items:flex-start;justify-content:center;gap:48px
+  align-items:flex-start;justify-content:center;gap:48px;
+  touch-action:pan-y;
+  -webkit-overflow-scrolling:touch
 }
 .pm-videos::-webkit-scrollbar{width:4px}
 .pm-videos::-webkit-scrollbar-track{background:transparent}
@@ -823,6 +825,7 @@ html{scroll-behavior:smooth}
   overflow:hidden
 }
 .hero-vid-item.active{opacity:1}
+.hero-vid-item.vid-error iframe{opacity:0!important;pointer-events:none!important}
 
 .hero-overlay{background:linear-gradient(to bottom,
   rgba(8,8,8,0.35) 0%,
@@ -2239,9 +2242,9 @@ body::after{
     padding:12px 12px 32px!important;
     gap:12px!important;
     -webkit-overflow-scrolling:touch;
-    scroll-snap-type:y mandatory;
+    touch-action:pan-y;
+    scroll-snap-type:none; /* removed y mandatory — was blocking free scroll on iOS */
   }
-  .pv-item{scroll-snap-align:start}
 
   /* Project cards on mobile: slightly narrower portrait cards */
   .folder-card.portrait{min-width:140px!important;max-width:150px!important}
@@ -4555,7 +4558,13 @@ function openProject(key) {
   overlay.setAttribute('aria-label', title + ' gallery');
   overlay.setAttribute('data-project', key);
   overlay.classList.add('active');
-  document.body.style.overflow = 'hidden';
+  // iOS Safari scroll lock: position:fixed prevents background scroll on iOS
+  var _pmSY = window.scrollY || window.pageYOffset || 0;
+  document.body.setAttribute('data-scroll-y', String(_pmSY));
+  document.body.style.position = 'fixed';
+  document.body.style.top = '-' + _pmSY + 'px';
+  document.body.style.width = '100%';
+  document.body.style.overflowY = 'hidden';
 
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
@@ -4598,7 +4607,13 @@ function closeProject(e) {
   _pvQueue = []; _pvActive = 0;
   const overlay = document.getElementById('project-overlay');
   overlay.classList.remove('active');
-  document.body.style.overflow = '';
+  // Restore iOS scroll position
+  var _pmSavedY = parseInt(document.body.getAttribute('data-scroll-y') || '0', 10);
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  document.body.style.overflowY = '';
+  window.scrollTo(0, _pmSavedY);
   setTimeout(() => {
     const grid = document.getElementById('pm-videos');
     if (grid) grid.innerHTML = '';
@@ -4685,14 +4700,26 @@ function openLightbox(vid, ratio) {
     'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen ' +
     'style="width:100%;height:100%;border:0;border-radius:10px"></iframe>';
   lb.classList.add('active');
-  document.body.style.overflow = 'hidden';
+  // iOS Safari scroll lock for lightbox
+  var _lbSY = window.scrollY || window.pageYOffset || 0;
+  document.body.setAttribute('data-scroll-y', String(_lbSY));
+  document.body.style.position = 'fixed';
+  document.body.style.top = '-' + _lbSY + 'px';
+  document.body.style.width = '100%';
+  document.body.style.overflowY = 'hidden';
 }
 
 function closeLightbox(e) {
   if (e && e.target !== document.getElementById('vid-lightbox')) return;
   const lb = document.getElementById('vid-lightbox');
   lb.classList.remove('active');
-  document.body.style.overflow = '';
+  // Restore iOS scroll position
+  var _lbSavedY = parseInt(document.body.getAttribute('data-scroll-y') || '0', 10);
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  document.body.style.overflowY = '';
+  window.scrollTo(0, _lbSavedY);
   setTimeout(() => { document.getElementById('vlb-video').innerHTML = ''; }, 320);
 }
 
@@ -4906,6 +4933,7 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
         const p = new Vimeo.Player(iframe);
         players[i] = p;
         p.on('ended', () => nextVid());
+        p.on('error', () => { if(el) el.classList.add('vid-error'); });
       } catch(e){}
     });
   }
