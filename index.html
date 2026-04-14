@@ -139,6 +139,7 @@ section{padding:64px 60px}
 .folders-track{display:flex;gap:20px;width:max-content;padding:8px 24px}
 .folders-carousel:hover .folders-track{}
 @keyframes foldersScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes scrollRight{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
 #foldersTrack > .folder-card:nth-child(n+10){display:none!important}
 .folder-card{border-radius:12px;overflow:hidden;background:var(--card);border:1px solid var(--card-border);flex-shrink:0;cursor:pointer;transition:transform 0.4s,box-shadow 0.4s}
 .folder-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.4)}
@@ -961,15 +962,15 @@ html{scroll-behavior:smooth}
 @media(max-width:768px){
   .about-grid{grid-template-columns:1fr!important;gap:32px!important;padding:0 20px!important}
   .about-image-wrapper{max-width:260px!important;margin:0 auto!important}
-  .services-grid{flex-wrap:wrap!important;gap:12px!important}
-  .service-card{flex:1 1 calc(50% - 12px)!important;min-width:140px!important}
+  .services-grid{flex-wrap:nowrap!important;gap:16px!important;overflow-x:scroll!important;overflow-y:hidden!important;padding:8px 20px!important}
+  .service-card{flex:0 0 260px!important;min-width:260px!important;width:260px!important}
   .testimonial-card{min-width:300px!important;width:310px!important}
   .dream-words{gap:12px!important}
   .folder-card{min-width:260px!important;max-width:280px!important}
   .folders-track{gap:14px!important}
 }
 @media(max-width:480px){
-  .service-card{flex:1 1 100%!important}
+  .service-card{flex:0 0 240px!important;min-width:240px!important}
   .hero-content{padding:0 18px!important}
   .about-grid{padding:0 16px!important}
 
@@ -1106,6 +1107,11 @@ html{scroll-behavior:smooth}
   -webkit-backface-visibility:hidden;
   transform:translateZ(0)
 }
+/* ── Animation names: projects+brands RIGHT (ימינה), featured+testimonials LEFT (שמאלה) */
+.folders-track    { animation-name:scrollRight;    animation-duration:45s; }
+.featured-track   { animation-name:featuredScroll; animation-duration:40s; }
+.brand-track      { animation-name:scrollRight;    animation-duration:55s; }
+.testimonial-track{ animation-name:testScroll;     animation-duration:75s; }
 /* Pause on hover */
 .folders-carousel:hover .folders-track,
 .featured-strip:hover .featured-track,
@@ -1557,6 +1563,17 @@ body::before{
 .services-controls{display:none!important}
 @media(max-width:768px){
   .services-controls{display:flex!important}
+}
+
+/* ── Desktop: overflow:hidden so CSS transform animation clips correctly ── */
+@media(min-width:769px){
+  .folders-carousel,
+  .featured-strip,
+  .testimonials-marquee,
+  .brand-marquee{
+    overflow:hidden!important;
+    scroll-snap-type:none!important;
+  }
 }
 
 /* ── All carousel containers: strict horizontal scroll lock ── */
@@ -4314,7 +4331,7 @@ function scrollCarousel(trackId, dir){
   var gap=parseInt(getComputedStyle(track).gap)||20;
   var itemW=(items[0].offsetWidth||300)+gap;
   window._carouselBtnPauseUntil = Date.now() + 2500;
-  container.scrollBy({left: dir * itemW * 3, behavior: 'smooth'});
+  container.scrollBy({left: dir * itemW, behavior: 'smooth'});
 }
 
 // Pause carousel animation when video plays
@@ -5409,16 +5426,19 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   // dir: 'right'=scrollLeft+, 'left'=scrollLeft-, null=skip on that breakpoint
   var CAROUSELS = [
     // selector                  desktop   mobile   spd-d  spd-m
-    ['.folders-carousel',        'right',  'left',  0.50,  0.45],
-    ['.featured-strip',          'left',   'left',  0.55,  0.50],
-    ['.brand-marquee',           'right',  'left',  0.55,  0.55],
-    ['.testimonials-marquee',    'left',   'right', 0.40,  0.40],
+    // dir='left'  → scrollLeft decreases → content moves RIGHT (ימינה)
+    // dir='right' → scrollLeft increases → content moves LEFT  (שמאלה)
+    ['.folders-carousel',        'left',   'left',  0.65,  0.45],  // RIGHT ימינה
+    ['.featured-strip',          'right',  'right', 0.65,  0.50],  // LEFT  שמאלה
+    ['.brand-marquee',           'left',   'left',  0.70,  0.55],  // RIGHT ימינה
+    ['.testimonials-marquee',    'right',  'right', 0.55,  0.40],  // LEFT  שמאלה
   ];
 
-  CAROUSELS.forEach(function(cfg){
+  // rAF scroller: mobile only — desktop uses CSS animation (animation-name on tracks)
+  if (isMobile) CAROUSELS.forEach(function(cfg){
     var sel = cfg[0];
-    var dir   = isMobile ? cfg[2] : cfg[1];
-    var speed = isMobile ? cfg[4] : cfg[3];
+    var dir   = cfg[2]; // mobile direction
+    var speed = cfg[4]; // mobile speed
     if (!dir) return; // skip for this breakpoint
 
     var wrap = document.querySelector(sel);
@@ -5484,14 +5504,16 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 
     // Delay start slightly so DOM/images settle
     setTimeout(start, 400);
-  });
+  }); // end if(isMobile) CAROUSELS
 
-  // ── Services mobile auto-scroll (5 cards, bounce at ends) ──
+  // ── Services mobile auto-scroll — continuous LEFT (שמאלה), seamless ──
   if (isMobile) {
     var svcGrid = document.querySelector('.services-grid');
     if (svcGrid) {
-      var svcDir = -1; // start moving left
-      var svcSpeed = 0.45;
+      // Clone cards for seamless infinite loop
+      var svcOriginals = Array.from(svcGrid.children);
+      svcOriginals.forEach(function(c){ svcGrid.appendChild(c.cloneNode(true)); });
+      var svcSpeed = 0.50;
       var svcTouching = false;
       var svcLast = null;
       svcGrid.addEventListener('touchstart', function(){ svcTouching = true; }, {passive:true});
@@ -5499,19 +5521,16 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
         setTimeout(function(){ svcTouching = false; }, 800);
       }, {passive:true});
       function svcStep(ts){
-        var svcBtnPaused = window._carouselBtnPauseUntil && Date.now() < window._carouselBtnPauseUntil;
-        if (!svcTouching && !svcBtnPaused){
+        if (!svcTouching){
           if (svcLast !== null){
             var dt = Math.min(ts - svcLast, 50);
-            var delta = svcDir * svcSpeed * dt / 16.67;
-            svcGrid.scrollLeft += delta;
-            var max = svcGrid.scrollWidth - svcGrid.clientWidth;
-            if (svcGrid.scrollLeft <= 0){ svcGrid.scrollLeft = 0; svcDir = 1; }
-            if (svcGrid.scrollLeft >= max){ svcGrid.scrollLeft = max; svcDir = -1; }
+            svcGrid.scrollLeft += svcSpeed * dt / 16.67; // LEFT (שמאלה)
+            var half = svcGrid.scrollWidth / 2;
+            if (half > 0 && svcGrid.scrollLeft >= half){
+              svcGrid.scrollLeft -= half; // seamless jump
+            }
           }
-        } else {
-          svcLast = null;
-        }
+        } else { svcLast = null; }
         svcLast = ts;
         requestAnimationFrame(svcStep);
       }
