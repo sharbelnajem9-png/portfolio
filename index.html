@@ -3766,7 +3766,7 @@ section::after{
 <!-- HERO -->
 <section class="hero" id="hero">
   <div class="hero-video-bg" id="heroBg">
-  <div class="hero-vid-item active" id="heroVidA"><iframe src="https://player.vimeo.com/video/1182382291?background=1&autoplay=1&loop=0&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+  <div class="hero-vid-item active" id="heroVidA"><iframe src="https://player.vimeo.com/video/1182382291?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
   <div class="hero-vid-item" id="heroVidB"><iframe src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
 </div>
   <div class="hero-overlay"></div>
@@ -4908,8 +4908,29 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
 
   function makeSrc(id){
     return 'https://player.vimeo.com/video/' + id +
-      '?background=1&autoplay=1&loop=0&muted=1&transparent=1&playsinline=1' +
+      '?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1' +
       '&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0';
+  }
+
+  // Attach a load-guard to an iframe: if it reloads unexpectedly
+  // (Vimeo error page), reload it with the correct video src
+  function guardIframe(fr, expectedVidIdx){
+    function onLoad(){
+      fr.removeEventListener('load', onLoad);
+      // Re-attach guard for future unexpected reloads
+      setTimeout(function(){
+        fr.addEventListener('load', function onErr(){
+          fr.removeEventListener('load', onErr);
+          // Unexpected reload = Vimeo error — recover immediately
+          if(fr._guardVidIdx !== undefined){
+            var recoverSrc = makeSrc(VIDS[fr._guardVidIdx]);
+            fr.src = recoverSrc;
+          }
+        });
+      }, 500);
+    }
+    fr._guardVidIdx = expectedVidIdx;
+    fr.addEventListener('load', onLoad);
   }
 
   // Load next video into the idle slot
@@ -4918,7 +4939,7 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
     var idleEl = document.getElementById(slots[1 - activeIdx]);
     if(!idleEl) return;
     var fr = idleEl.querySelector('iframe');
-    if(fr) fr.src = makeSrc(VIDS[nextVidIdx]);
+    if(fr){ guardIframe(fr, nextVidIdx); fr.src = makeSrc(VIDS[nextVidIdx]); }
   }
 
   // Crossfade: show idle slot, hide active slot, then clear old src
