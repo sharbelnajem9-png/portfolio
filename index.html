@@ -3693,10 +3693,13 @@ section::after{
     max-width:calc(50% - 4px)!important;
   }
 }
+/* Luxury background fade overlay — fixed, covers full viewport */
+.luxury-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;background:radial-gradient(ellipse 100% 55% at 50% 0%,rgba(50,90,210,0.09) 0%,transparent 55%),radial-gradient(ellipse 80% 45% at 50% 110%,rgba(5,8,20,0.35) 0%,transparent 55%);}
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
 <body>
+<div class="luxury-overlay"></div>
 <!-- ── Site Loader ── -->
 <div id="site-loader">
   <div class="sl-inner">
@@ -3766,8 +3769,10 @@ section::after{
 <!-- HERO -->
 <section class="hero" id="hero">
   <div class="hero-video-bg" id="heroBg">
-  <div class="hero-vid-item active" id="heroVidA"><iframe src="https://player.vimeo.com/video/1182382291?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
-  <div class="hero-vid-item" id="heroVidB"><iframe src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+  <div class="hero-vid-item active" id="heroVid0"><iframe src="https://player.vimeo.com/video/1182382291?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+  <div class="hero-vid-item" id="heroVid1"><iframe src="https://player.vimeo.com/video/1181282252?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+  <div class="hero-vid-item" id="heroVid2"><iframe src="https://player.vimeo.com/video/1181279455?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+  <div class="hero-vid-item" id="heroVid3"><iframe src="https://player.vimeo.com/video/1181277743?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
@@ -4894,93 +4899,54 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
   })(document);
 
 // ================================================================
-// HERO SHOWREEL — A/B crossfade, single active player
-// Only ONE iframe plays at a time. The idle slot preloads the next
-// clip ~5s before the switch. After crossfade the old iframe gets
-// src="" — a cleared iframe can never show a Vimeo "Sorry" error.
+// HERO SHOWREEL — 4 clips, always loaded, rotate every 15s
+// 15s interval means clips are swapped before most reach their end
+// so Vimeo's loop mechanism almost never fires.
+// If a clip does finish, the message listener catches it and reloads
+// that iframe — preventing "Sorry" from ever appearing.
 // ================================================================
 (function(){
-  var VIDS = ['1182382291','1181282252','1181279455','1181277743'];
-  var INTERVAL = 20000;
+  var N   = 4;
   var cur = 0;
-  var slots = ['heroVidA','heroVidB'];
-  var activeIdx = 0;
 
-  function makeSrc(id){
-    return 'https://player.vimeo.com/video/' + id +
-      '?background=1&autoplay=1&loop=1&muted=1&transparent=1&playsinline=1' +
-      '&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0';
-  }
-
-  // Attach a load-guard to an iframe: if it reloads unexpectedly
-  // (Vimeo error page), reload it with the correct video src
-  function guardIframe(fr, expectedVidIdx){
-    function onLoad(){
-      fr.removeEventListener('load', onLoad);
-      // Re-attach guard for future unexpected reloads
-      setTimeout(function(){
-        fr.addEventListener('load', function onErr(){
-          fr.removeEventListener('load', onErr);
-          // Unexpected reload = Vimeo error — recover immediately
-          if(fr._guardVidIdx !== undefined){
-            var recoverSrc = makeSrc(VIDS[fr._guardVidIdx]);
-            fr.src = recoverSrc;
-          }
-        });
-      }, 500);
-    }
-    fr._guardVidIdx = expectedVidIdx;
-    fr.addEventListener('load', onLoad);
-  }
-
-  // Load next video into the idle slot
-  function preloadNext(){
-    var nextVidIdx = (cur + 1) % VIDS.length;
-    var idleEl = document.getElementById(slots[1 - activeIdx]);
-    if(!idleEl) return;
-    var fr = idleEl.querySelector('iframe');
-    if(fr){ guardIframe(fr, nextVidIdx); fr.src = makeSrc(VIDS[nextVidIdx]); }
-  }
-
-  // Crossfade: show idle slot, hide active slot, then clear old src
-  function advance(){
-    cur = (cur + 1) % VIDS.length;
-    var prevIdx = activeIdx;
-    activeIdx = 1 - activeIdx;
-    var prevEl = document.getElementById(slots[prevIdx]);
-    var nextEl = document.getElementById(slots[activeIdx]);
-    if(nextEl) nextEl.classList.add('active');
-    setTimeout(function(){
-      if(prevEl){
-        prevEl.classList.remove('active');
-        // Clear src after fade — prevents Vimeo loop request + "Sorry" error
-        setTimeout(function(){
-          var fr = prevEl.querySelector('iframe');
-          if(fr) fr.src = '';
-        }, 300);
-      }
-    }, 1400);
-  }
-
-  // Keepalive: ping only the active iframe every 2s
+  // Rotate visible clip every 15s
   setInterval(function(){
-    var el = document.getElementById(slots[activeIdx]);
-    if(!el) return;
-    var fr = el.querySelector('iframe');
-    if(fr && fr.contentWindow){
-      try{ fr.contentWindow.postMessage('{"method":"play"}', 'https://player.vimeo.com'); }catch(e){}
+    var prev = cur;
+    cur = (cur + 1) % N;
+    var prevEl = document.getElementById('heroVid' + prev);
+    var nextEl = document.getElementById('heroVid' + cur);
+    if(nextEl) nextEl.classList.add('active');
+    setTimeout(function(){ if(prevEl) prevEl.classList.remove('active'); }, 1400);
+  }, 15000);
+
+  // Keepalive: ping every iframe every 2s so browser never throttles them
+  setInterval(function(){
+    for(var i = 0; i < N; i++){
+      var el = document.getElementById('heroVid' + i);
+      if(!el) continue;
+      var fr = el.querySelector('iframe');
+      if(fr && fr.contentWindow){
+        try{ fr.contentWindow.postMessage('{"method":"play"}','https://player.vimeo.com'); }catch(e){}
+      }
     }
   }, 2000);
 
-  // Preload 5s before first transition
-  setTimeout(preloadNext, INTERVAL - 5000);
-
-  // Main cycle
-  setTimeout(function tick(){
-    advance();
-    setTimeout(preloadNext, INTERVAL - 5000);
-    setTimeout(tick, INTERVAL);
-  }, INTERVAL);
+  // Finish recovery: if a clip ends before we rotate, reload it cleanly
+  // so Vimeo's own loop request (which can fail) never runs
+  window.addEventListener('message', function(evt){
+    if(evt.origin !== 'https://player.vimeo.com') return;
+    var d; try{ d = JSON.parse(evt.data); }catch(x){ return; }
+    if(d.event !== 'finish') return;
+    for(var i = 0; i < N; i++){
+      var el = document.getElementById('heroVid' + i);
+      if(!el) continue;
+      var fr = el.querySelector('iframe');
+      if(fr && fr.contentWindow && fr.contentWindow === evt.source && fr.src){
+        fr.src = fr.src; // reassign same src = clean iframe reload
+        break;
+      }
+    }
+  });
 })();
 
 // ================================================================
