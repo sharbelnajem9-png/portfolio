@@ -4512,6 +4512,13 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
           if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
             try {
               var p = new Vimeo.Player(fr);
+              // First timeupdate = video is actually rendering frames — dismiss cover
+              var _tuFired = false;
+              p.on('timeupdate', function _onTu(){
+                if (_tuFired) return; _tuFired = true;
+                p.off('timeupdate', _onTu);
+                if (window._pvTriggerReveal) window._pvTriggerReveal();
+              });
               // background=1 loops internally, but catch any finish edge case
               p.on('ended', function(){
                 p.setCurrentTime(0).then(function(){ p.play().catch(function(){}); }).catch(function(){});
@@ -4606,26 +4613,24 @@ function openProject(key) {
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
 
-  // Loading cover — already activated above
+  // Loading cover — dismissed only when first video is actually playing (timeupdate)
   var _pvRevealDone = false;
   var _pvOpenTime = Date.now();
-  var _pvMinWait = 600;
   function _pvRevealAll() {
     if (_pvRevealDone) return; _pvRevealDone = true;
+    window._pvTriggerReveal = null;
     if (lc) lc.classList.remove('active');
-    // Ensure any remaining iframes also become visible
     container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
-  container.addEventListener('load', function _pvLH(e){
-    if (e.target.tagName !== 'IFRAME') return;
-    container.removeEventListener('load', _pvLH, true); // 1st iframe triggers dismiss
+  // Vimeo Player fires this when first real frame is displayed
+  window._pvTriggerReveal = function() {
+    window._pvTriggerReveal = null;
     var elapsed = Date.now() - _pvOpenTime;
-    var remaining = Math.max(150, _pvMinWait - elapsed);
-    setTimeout(_pvRevealAll, remaining);
-  }, true);
-  // Hard fallback — never leave cover on screen more than 5s
-  setTimeout(_pvRevealAll, 5000);
+    setTimeout(_pvRevealAll, Math.max(0, 300 - elapsed));
+  };
+  // Hard fallback — never leave cover past 9s
+  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, 9000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
@@ -4638,9 +4643,10 @@ function openProject(key) {
 function closeProject(e) {
   // Called directly (no arg) or from overlay background click
   if (e && e.target !== document.getElementById('project-overlay')) return;
-  // Stop loading queue and release player references
+  // Stop loading queue, release player references, cancel pending reveal
   _pvQueue = []; _pvActive = 0;
   window._pvPlayers = [];
+  window._pvTriggerReveal = null;
   const overlay = document.getElementById('project-overlay');
   overlay.classList.remove('active');
   // Restore background scroll
