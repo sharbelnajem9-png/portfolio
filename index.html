@@ -4502,12 +4502,27 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     _fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
       'border:0;z-index:3;opacity:0;transition:opacity 1.1s ease;pointer-events:none;';
     _pvQueue.push({iframe:_fr, div:div, thumb:null});
-    // Self-reveal when this specific iframe loads — no waiting for others
+    // Self-reveal + Vimeo SDK init when this specific iframe loads
     (function(fr, dv){
       fr.addEventListener('load', function(){
         setTimeout(function(){
           fr.style.opacity = '1';
           dv.classList.add('pv-loaded');
+          // Wrap with Vimeo Player SDK for error + ended recovery
+          if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
+            try {
+              var p = new Vimeo.Player(fr);
+              // background=1 loops internally, but catch any finish edge case
+              p.on('ended', function(){
+                p.setCurrentTime(0).then(function(){ p.play().catch(function(){}); }).catch(function(){});
+              });
+              // On Vimeo error hide iframe — no "Sorry" banner ever shows
+              p.on('error', function(){ fr.style.opacity = '0'; });
+              p.play().catch(function(){});
+              if (!window._pvPlayers) window._pvPlayers = [];
+              window._pvPlayers.push(p);
+            } catch(e) {}
+          }
         }, 100);
       }, {once:true});
     })(_fr, div);
@@ -4623,8 +4638,9 @@ function openProject(key) {
 function closeProject(e) {
   // Called directly (no arg) or from overlay background click
   if (e && e.target !== document.getElementById('project-overlay')) return;
-  // Stop loading queue
+  // Stop loading queue and release player references
   _pvQueue = []; _pvActive = 0;
+  window._pvPlayers = [];
   const overlay = document.getElementById('project-overlay');
   overlay.classList.remove('active');
   // Restore background scroll
@@ -4973,6 +4989,17 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
     if (document.visibilityState === 'visible' && ended) doPlay();
   });
 })();
+
+// ================================================================
+// PROJECT MODAL KEEPALIVE — ping every open project video every 8s
+// so browsers never throttle or suspend the background-mode iframes
+// ================================================================
+setInterval(function(){
+  if (!window._pvPlayers || !window._pvPlayers.length) return;
+  var overlay = document.getElementById('project-overlay');
+  if (!overlay || !overlay.classList.contains('active')) return;
+  window._pvPlayers.forEach(function(p){ try{ p.play().catch(function(){}); }catch(e){} });
+}, 8000);
 
 // ================================================================
 // RTL-AWARE SCROLL ARROWS
