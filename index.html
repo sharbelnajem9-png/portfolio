@@ -2918,8 +2918,13 @@ function openProject(key) {
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
 
-  // Mobile: start observer — loads up to 2 muted iframes as user scrolls (safe, no crash)
+  // Mobile: pause hero iframe to free decoder slot, then start scroll observer
   if (_pvIsMobileNow) {
+    var _heroFr = document.getElementById('heroShowreelIframe');
+    if (_heroFr && _heroFr.src && _heroFr.src.indexOf('vimeo') !== -1) {
+      _heroFr.setAttribute('data-hero-src', _heroFr.src);
+      _heroFr.src = 'about:blank';
+    }
     requestAnimationFrame(function(){ _setupMobileObs(container); });
   }
 
@@ -2971,6 +2976,12 @@ function closeProject(e) {
   }
   window._pvPlayers = [];
   window._pvTriggerReveal = null;
+  // Restore hero iframe on mobile
+  var _heroFr = document.getElementById('heroShowreelIframe');
+  if (_heroFr && _heroFr.hasAttribute('data-hero-src')) {
+    _heroFr.src = _heroFr.getAttribute('data-hero-src');
+    _heroFr.removeAttribute('data-hero-src');
+  }
   const overlay = document.getElementById('project-overlay');
   overlay.classList.remove('active');
   setTimeout(() => {
@@ -3522,13 +3533,15 @@ document.addEventListener('DOMContentLoaded', () => {
     bg.appendChild(iframe);
   }
 
-  // Build bg video for all 9 unique cards immediately (no lazy-loading lag)
-  var _builtCount = 0;
-  document.querySelectorAll('.folder-card[data-key]').forEach(function(c) {
-    if (_builtCount >= 9) return;
-    buildCardVid(c);
-    _builtCount++;
-  });
+  // Build bg video for all 9 unique cards immediately (desktop only — mobile skips to save memory)
+  if (!window.matchMedia || !window.matchMedia('(pointer:coarse)').matches) {
+    var _builtCount = 0;
+    document.querySelectorAll('.folder-card[data-key]').forEach(function(c) {
+      if (_builtCount >= 9) return;
+      buildCardVid(c);
+      _builtCount++;
+    });
+  }
 })();
 
 // ── Touch hover: reveal card bg video on touchstart (desktop/non-coarse only) ──
