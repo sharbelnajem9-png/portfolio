@@ -3785,7 +3785,7 @@ section::after{
   <div class="hero-video-bg" id="heroBg">
   <div class="hero-showreel-wrap" id="heroShowreelWrap">
     <iframe id="heroShowreelIframe"
-      src="https://player.vimeo.com/video/1182382291?h=4d10b0f514&autoplay=1&muted=1&loop=0&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0&transparent=1&app_id=58479"
+      src="https://player.vimeo.com/video/1182382291?h=4d10b0f514&background=1&autoplay=1&muted=1&loop=0&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0&transparent=1&texttrack=false&app_id=58479"
       frameborder="0"
       allow="autoplay; fullscreen; picture-in-picture"
       allowfullscreen></iframe>
@@ -4733,7 +4733,7 @@ function openLightbox(vid, ratio) {
   var _h = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
   var _q = _h ? '?h=' + _h + '&' : '?';
   container.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vid +
-    _q + 'title=0&byline=0&portrait=0&autoplay=1&badge=0&playsinline=1" frameborder="0" ' +
+    _q + 'title=0&byline=0&portrait=0&autoplay=1&badge=0&playsinline=1&texttrack=false" frameborder="0" ' +
     'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen ' +
     'style="width:100%;height:100%;border:0;border-radius:10px"></iframe>';
   lb.classList.add('active');
@@ -4965,6 +4965,8 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
 
   waitForVimeo(function(){
     player = new Vimeo.Player(iframe);
+    player.setLoop(false).catch(function(){});
+    player.disableTextTrack().catch(function(){});
     player.play().catch(function(){});
 
     // After the showreel ends — fade out, show site dark background
@@ -5342,49 +5344,17 @@ function openProjectFromNav(key) {
   }, 200);
 }
 
-// ── Deep linking: #project-key opens modal, hash updates on open/close ──
+// ── Deep linking: clean hash from URL on page load to prevent auto-modal on refresh ──
 (function(){
-  // Update hash when project opens
-  var _origOpen = window.openProject;
-  if (_origOpen) {
-    window.openProject = function(key) {
-      _origOpen(key);
-      if (history.replaceState) history.replaceState(null, '', '#' + key);
-    };
-  }
-  // Clear hash when modal closes
-  var _origClose = window.closeProject;
-  if (_origClose) {
-    window.closeProject = function(e) {
-      _origClose(e);
+  // On page load — clear any leftover project hash silently so refresh is always clean
+  if (window.location.hash) {
+    var key = window.location.hash.replace('#','');
+    if (typeof PROJECT_DATA !== 'undefined' && PROJECT_DATA[key]) {
+      // Remove hash without triggering hashchange or reload
       if (history.replaceState) history.replaceState(null, '', window.location.pathname);
-    };
-  }
-  // On page load — open project if hash matches a key
-  function handleHash() {
-    var key = window.location.hash.replace('#','');
-    if (!key || typeof PROJECT_DATA === 'undefined') return;
-    if (!PROJECT_DATA[key]) return;
-    // Scroll to projects section first, then open
-    var sec = document.getElementById('projects');
-    if (sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
-    setTimeout(function(){ openProject(key); }, 400);
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(handleHash, 300); });
-  } else {
-    setTimeout(handleHash, 300);
-  }
-  window.addEventListener('hashchange', function(){
-    var key = window.location.hash.replace('#','');
-    if (key && typeof PROJECT_DATA !== 'undefined' && PROJECT_DATA[key]) {
-      openProject(key);
     }
-  });
+  }
 })();
-// ── Scroll to top on every page load/refresh ──
-if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 
 // ─── RTL ARROW FIX ───────────────────────────────────────────
 document.querySelectorAll('.carousel-btn').forEach(btn => {
@@ -5697,7 +5667,7 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   };
 
   // Hero showreel iframe (already embedded in HTML)
-  var heroIframe = document.querySelector('.hero-vid-item iframe');
+  var heroIframe = document.getElementById('heroShowreelIframe');
   if (heroIframe) {
     heroIframe.addEventListener('load', function(){
       _slHeroReady = true;
