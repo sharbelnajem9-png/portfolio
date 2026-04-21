@@ -2663,32 +2663,61 @@ function _pvDrainAll() {
   }
 }
 
-// ── Mobile: load ALL project videos sequentially (2 at a time), reveal only when enough are ready ──
+// ── Mobile: load ALL project videos sequentially.
+// The loading cover stays until videos are ACTUALLY playing (Vimeo timeupdate = real frames).
+// Falls back to iframe load + 2s buffer if Vimeo API unavailable.
 function _loadAllMobileVideos(container) {
   var items = Array.from(container.querySelectorAll('.pv-item[data-vid]'));
   if (!items.length) return;
   var queue = items.slice();
-  var loadedCount = 0;
-  var REVEAL_AT = Math.min(4, items.length); // reveal after 4 videos loaded (or all if fewer)
+  var playingCount = 0;
+  var REVEAL_AT = Math.min(4, items.length);
 
-  function tryReveal() {
-    loadedCount++;
-    if (loadedCount >= REVEAL_AT && window._pvTriggerReveal) window._pvTriggerReveal();
+  function markPlaying(item) {
+    if (item._pvMPlaying) return;
+    item._pvMPlaying = true;
+    item.classList.add('pv-loaded');
+    playingCount++;
+    if (playingCount >= REVEAL_AT && window._pvTriggerReveal) window._pvTriggerReveal();
+  }
+
+  function attachToIframe(fr, item) {
+    // Show iframe as soon as it loads
+    fr.addEventListener('load', function() {
+      fr.style.opacity = '1';
+      // True signal: wait for Vimeo timeupdate (first frame playing)
+      if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
+        try {
+          var p = new Vimeo.Player(fr);
+          var fired = false;
+          p.on('timeupdate', function onTu() {
+            if (fired) return; fired = true;
+            p.off('timeupdate', onTu);
+            markPlaying(item);
+          });
+          p.play().catch(function(){});
+          // Fallback if timeupdate never fires (e.g. slow decode)
+          setTimeout(function() { if (!fired) { fired = true; markPlaying(item); } }, 5000);
+          return;
+        } catch(e) {}
+      }
+      // No Vimeo API: mark after 2s buffer (video likely rendering by then)
+      setTimeout(function() { markPlaying(item); }, 2000);
+    }, {once: true});
+    // Per-iframe hard fallback
+    setTimeout(function() { markPlaying(item); }, 10000);
   }
 
   function loadBatch() {
     var batch = queue.splice(0, 2);
     if (!batch.length) return;
     var done = 0;
-    function onDone() {
-      done++;
-      if (done >= batch.length) setTimeout(loadBatch, 150);
-    }
+    function onLoaded() { done++; if (done >= batch.length) setTimeout(loadBatch, 150); }
     batch.forEach(function(item) {
-      if (!item.isConnected) { onDone(); return; }
+      if (!item.isConnected) { onLoaded(); return; }
       var vid = item.getAttribute('data-vid');
       var hash = item.getAttribute('data-hash') || '';
-      if (!vid) { onDone(); return; }
+      if (!vid) { onLoaded(); return; }
       var q = hash ? '?h=' + hash + '&' : '?';
       var fr = document.createElement('iframe');
       fr.className = 'pv-m-fr';
@@ -2698,13 +2727,8 @@ function _loadAllMobileVideos(container) {
       fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
       fr.setAttribute('playsinline','');
       fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4;opacity:0;transition:opacity 0.8s;pointer-events:none;';
-      fr.addEventListener('load', function() {
-        fr.style.opacity = '1';
-        item.classList.add('pv-loaded');
-        tryReveal();
-        onDone();
-      }, {once: true});
-      setTimeout(function() { if (!item.classList.contains('pv-loaded')) { tryReveal(); onDone(); } }, 7000);
+      attachToIframe(fr, item);
+      fr.addEventListener('load', onLoaded, {once: true});
       item.appendChild(fr);
     });
   }
@@ -2981,11 +3005,11 @@ function openProject(key) {
   }
   window._pvTriggerReveal = function() {
     window._pvTriggerReveal = null;
-    var elapsed = Date.now() - _pvOpenTime;
-    setTimeout(_pvRevealAll, Math.max(0, 300 - elapsed));
+    // Reveal immediately — timeupdate already confirms video is playing
+    _pvRevealAll();
   };
-  // Fallback: mobile 5s, desktop 9s — in case iframe never fires load
-  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 5000 : 9000);
+  // Hard fallback: mobile 10s, desktop 9s
+  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 10000 : 9000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
