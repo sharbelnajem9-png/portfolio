@@ -362,7 +362,7 @@ footer::before{
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .project-overlay.active{opacity:1;pointer-events:all}
 .project-modal{display:flex;flex-direction:column;height:100dvh;
-  max-width:1440px;width:100%;margin:0 auto}
+  max-width:1440px;width:100%;margin:0 auto;position:relative}
 .pm-header{display:flex;align-items:center;padding:18px 32px;
   border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;gap:20px}
 .pm-logo{display:none!important;height:34px;opacity:0.85;flex-shrink:0}
@@ -1638,11 +1638,13 @@ body::before{
   .services-grid{overflow-x:scroll!important;overflow-y:hidden!important}
 }
 
-/* ── Project modal: free vertical scroll on iOS (no overscroll contain) ── */
+/* ── Project modal: free vertical scroll on iOS ── */
 .pm-videos{
   scroll-behavior:auto!important;
   -webkit-overflow-scrolling:touch!important;
   overflow-anchor:none!important;
+  overscroll-behavior:contain!important;
+  touch-action:pan-y!important;
 }
 
 /* ── Project cards: lighter, more distinct gradients + glow ring ── */
@@ -4967,8 +4969,7 @@ function _pvDrainAll() {
 var _pvMobileObs = null;
 function _setupMobileObs(container) {
   if (_pvMobileObs) { _pvMobileObs.disconnect(); _pvMobileObs = null; }
-  var activeCount = 0;
-  var MAX_ACTIVE  = 4;
+  var MAX_ACTIVE = 6;
   _pvMobileObs = new IntersectionObserver(function(entries) {
     // Unload off-screen iframes first to free decoder slots
     entries.forEach(function(entry) {
@@ -4978,8 +4979,9 @@ function _setupMobileObs(container) {
       if (!fr) return;
       try { fr.src = 'about:blank'; } catch(ex){}
       fr.remove();
-      activeCount = Math.max(0, activeCount - 1);
     });
+    // Count active iframes from DOM (source of truth — avoids counter drift)
+    var activeCount = container.querySelectorAll('iframe.pv-m-fr').length;
     // Load iframes for items now in viewport
     entries.forEach(function(entry) {
       if (!entry.isIntersecting) return;
@@ -5006,7 +5008,7 @@ function _setupMobileObs(container) {
       dv.appendChild(fr);
       activeCount++;
     });
-  }, { rootMargin: '120px 0px 120px 0px', threshold: 0 });
+  }, { rootMargin: '200px 0px 200px 0px', threshold: 0 });
   container.querySelectorAll('.pv-item[data-vid]').forEach(function(dv) {
     _pvMobileObs.observe(dv);
   });
@@ -5206,9 +5208,6 @@ function openProject(key) {
   window._modalScrollY = window.pageYOffset || 0;
   document.body.style.position = 'fixed';
   document.body.style.top = '-' + window._modalScrollY + 'px';
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.width = '100%';
   document.body.style.overflow = 'hidden';
 
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
@@ -5235,9 +5234,9 @@ function openProject(key) {
     document.querySelectorAll('.fc-card-vid, .fi-bg iframe, .hero-vid-item iframe').forEach(function(fr){
       try { fr.src = 'about:blank'; } catch(ex){}
     });
-    // Observer loads iframes as user scrolls — dismiss cover quickly, videos appear in viewport
-    setTimeout(_pvRevealAll, 600);
-    setTimeout(function(){ _setupMobileObs(container); }, 80);
+    // Dismiss cover after thumbnails show (800ms), then set up observer for video iframes
+    setTimeout(_pvRevealAll, 800);
+    setTimeout(function(){ _setupMobileObs(container); }, 120);
   } else {
     // Desktop: wait for first iframe to render, hard fallback at 9s
     setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, 9000);
@@ -5272,9 +5271,6 @@ function closeProject(e) {
   // Restore background scroll (iOS-safe)
   document.body.style.position = '';
   document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.width = '';
   document.body.style.overflow = '';
   if (typeof window._modalScrollY !== 'undefined') {
     window.scrollTo(0, window._modalScrollY);
@@ -5371,9 +5367,6 @@ function openLightbox(vid, ratio) {
     window._lbScrollY = window.pageYOffset || 0;
     document.body.style.position = 'fixed';
     document.body.style.top = '-' + window._lbScrollY + 'px';
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
   }
 }
@@ -5386,9 +5379,6 @@ function closeLightbox(e) {
   if (!document.getElementById('project-overlay').classList.contains('active')) {
     document.body.style.position = '';
     document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.style.width = '';
     document.body.style.overflow = '';
     if (typeof window._lbScrollY !== 'undefined') {
       window.scrollTo(0, window._lbScrollY);
@@ -5855,8 +5845,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })();
 
-// ── Touch hover: reveal card bg video on touchstart ──
+// ── Touch hover: reveal card bg video on touchstart (desktop/non-coarse only) ──
 (function(){
+  // On mobile (pointer:coarse) the two-tap IIFE below manages touch-active
+  if (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) return;
   document.querySelectorAll('.folder-card[data-key]').forEach(function(card){
     card.addEventListener('touchstart', function(){
       document.querySelectorAll('.folder-card.touch-active').forEach(function(c){
@@ -5923,8 +5915,9 @@ document.addEventListener('DOMContentLoaded', () => {
       var dy = Math.abs(e.changedTouches[0].clientY - startY);
       if (dx > 8 || dy > 8) return; // swipe — let scroll handle
 
-      var hasPeek = !!card.querySelector('.fc-peek');
-      if (!hasPeek) return; // no thumbnails to preview, open directly
+      var peekEl = card.querySelector('.fc-peek');
+      var hasPeek = !!(peekEl && peekEl.offsetWidth > 0 && peekEl.offsetHeight > 0);
+      if (!hasPeek) return; // no visible peek strip — open directly on this tap
 
       if (!card.classList.contains('touch-active')) {
         // First tap: show peek strip, prevent click
