@@ -1266,7 +1266,10 @@ html{scroll-behavior:smooth}
 }
 
 /* ─── 12. MODAL IMPROVEMENTS ────────────────────────────── */
-.project-overlay{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
+.project-overlay{backdrop-filter:blur(6px)!important;-webkit-backdrop-filter:blur(6px)!important}
+@media(max-width:768px){
+  .project-overlay{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
 .pm-header{
   background:rgba(8,8,15,0.8)!important;
   border-bottom:1px solid rgba(255,255,255,0.06)!important;
@@ -1609,14 +1612,14 @@ body::before{
   .brand-marquee:active{ cursor:grabbing; }
 }
 
-/* ── All carousel containers: strict horizontal scroll lock ── */
+/* ── All carousel containers: horizontal scroll, vertical passes to page ── */
 .folders-carousel,
 .featured-strip,
 .testimonials-marquee,
 .brand-marquee{
   overflow-x:scroll!important;
   overflow-y:hidden!important;
-  touch-action:pan-x!important;
+  touch-action:pan-x pan-y!important;
   overscroll-behavior-x:contain!important;
   -webkit-overflow-scrolling:touch!important;
 }
@@ -1624,7 +1627,7 @@ body::before{
 .featured-track,
 .testimonial-track,
 .brand-track{
-  touch-action:pan-x!important;
+  touch-action:pan-x pan-y!important;
   user-select:none!important;
 }
 .services-grid{
@@ -1818,10 +1821,10 @@ body::before{
   }
 }
 
-/* ── Touch-action: all carousels ── */
-.folders-track,.featured-track,.testimonial-track,.brand-track{touch-action:pan-x!important}
+/* ── Touch-action: all carousels — pan-y passes through to page scroll ── */
+.folders-track,.featured-track,.testimonial-track,.brand-track{touch-action:pan-x pan-y!important}
 .folders-carousel,.testimonials-marquee,.brand-marquee{
-  touch-action:pan-x!important;
+  touch-action:pan-x pan-y!important;
   -webkit-overflow-scrolling:touch!important;
 }
 
@@ -5199,8 +5202,14 @@ function openProject(key) {
   if (lc) lc.classList.add('active');
   container.scrollTop = 0;
   overlay.classList.add('active');
-  // Lock background scroll — overflow:hidden on html, no layout shift/jump
-  document.documentElement.style.overflow = 'hidden';
+  // iOS-safe scroll lock: position:fixed avoids Safari layout/jump bug
+  window._modalScrollY = window.pageYOffset || 0;
+  document.body.style.position = 'fixed';
+  document.body.style.top = '-' + window._modalScrollY + 'px';
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.style.overflow = 'hidden';
 
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
@@ -5222,7 +5231,11 @@ function openProject(key) {
     setTimeout(_pvRevealAll, Math.max(0, 300 - elapsed));
   };
   if (_pvIsMobile) {
-    // Mobile: observer loads iframes as user scrolls — dismiss cover quickly, videos appear in viewport
+    // Mobile: free hardware decoder slots — stop background iframes before loading project videos
+    document.querySelectorAll('.fc-card-vid, .fi-bg iframe, .hero-vid-item iframe').forEach(function(fr){
+      try { fr.src = 'about:blank'; } catch(ex){}
+    });
+    // Observer loads iframes as user scrolls — dismiss cover quickly, videos appear in viewport
     setTimeout(_pvRevealAll, 600);
     setTimeout(function(){ _setupMobileObs(container); }, 80);
   } else {
@@ -5256,8 +5269,17 @@ function closeProject(e) {
   window._pvTriggerReveal = null;
   const overlay = document.getElementById('project-overlay');
   overlay.classList.remove('active');
-  // Restore background scroll
-  document.documentElement.style.overflow = '';
+  // Restore background scroll (iOS-safe)
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  document.body.style.overflow = '';
+  if (typeof window._modalScrollY !== 'undefined') {
+    window.scrollTo(0, window._modalScrollY);
+    window._modalScrollY = undefined;
+  }
   setTimeout(() => {
     const grid = document.getElementById('pm-videos');
     if (grid) grid.innerHTML = '';
@@ -5344,14 +5366,35 @@ function openLightbox(vid, ratio) {
     'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen ' +
     'style="width:100%;height:100%;border:0;border-radius:10px"></iframe>';
   lb.classList.add('active');
-  document.documentElement.style.overflow = 'hidden';
+  // Scroll is already locked by project modal; only lock if opened standalone
+  if (!document.getElementById('project-overlay').classList.contains('active')) {
+    window._lbScrollY = window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = '-' + window._lbScrollY + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+  }
 }
 
 function closeLightbox(e) {
   if (e && e.target !== document.getElementById('vid-lightbox')) return;
   const lb = document.getElementById('vid-lightbox');
   lb.classList.remove('active');
-  document.documentElement.style.overflow = '';
+  // Only restore scroll if we locked it (standalone lightbox, no project modal)
+  if (!document.getElementById('project-overlay').classList.contains('active')) {
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    document.body.style.overflow = '';
+    if (typeof window._lbScrollY !== 'undefined') {
+      window.scrollTo(0, window._lbScrollY);
+      window._lbScrollY = undefined;
+    }
+  }
   setTimeout(() => { document.getElementById('vlb-video').innerHTML = ''; }, 320);
 }
 
