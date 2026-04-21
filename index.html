@@ -2657,7 +2657,8 @@ function _pvDrainAll() {
 var _pvMobileObs = null;
 function _loadAllMobileVideos(container) {
   if (_pvMobileObs) { _pvMobileObs.disconnect(); _pvMobileObs = null; }
-  var items = Array.from(container.querySelectorAll('.pv-item[data-vid]')).slice(0, 4);
+  // Only 2 iframes on mobile — rest show cover thumbnails
+  var items = Array.from(container.querySelectorAll('.pv-item[data-vid]')).slice(0, 2);
   if (!items.length) return;
   var playing = 0;
   var total = items.length;
@@ -2670,38 +2671,27 @@ function _loadAllMobileVideos(container) {
     if (playing >= total && window._pvTriggerReveal) window._pvTriggerReveal();
   }
 
-  // Load 2 at a time to avoid OOM
-  var queue = items.slice();
-  function loadBatch() {
-    var batch = queue.splice(0, 2);
-    if (!batch.length) return;
-    var done = 0;
-    function next() { done++; if (done >= batch.length) setTimeout(loadBatch, 200); }
-    batch.forEach(function(item) {
-      if (!item.isConnected) { next(); return; }
-      var vid = item.getAttribute('data-vid');
-      var hash = item.getAttribute('data-hash') || '';
-      if (!vid) { next(); return; }
-      var fr = document.createElement('iframe');
-      fr.className = 'pv-m-fr';
-      fr.src = 'https://player.vimeo.com/video/' + vid +
-        (hash ? '?h=' + hash + '&' : '?') +
-        'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
-      fr.setAttribute('frameborder','0');
-      fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-      fr.setAttribute('playsinline','');
-      fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4;opacity:0;transition:opacity 0.8s;pointer-events:none;';
-      fr.addEventListener('load', function() {
-        fr.style.opacity = '1';
-        next();
-        setTimeout(function() { markPlaying(item); }, 2500);
-      }, {once: true});
-      // Hard fallback per iframe
-      setTimeout(function() { markPlaying(item); next(); }, 9000);
-      item.appendChild(fr);
-    });
-  }
-  loadBatch();
+  items.forEach(function(item) {
+    if (!item.isConnected) { markPlaying(item); return; }
+    var vid = item.getAttribute('data-vid');
+    var hash = item.getAttribute('data-hash') || '';
+    if (!vid) { markPlaying(item); return; }
+    var fr = document.createElement('iframe');
+    fr.className = 'pv-m-fr';
+    fr.src = 'https://player.vimeo.com/video/' + vid +
+      (hash ? '?h=' + hash + '&' : '?') +
+      'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
+    fr.setAttribute('frameborder','0');
+    fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+    fr.setAttribute('playsinline','');
+    fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4;opacity:0;transition:opacity 0.8s;pointer-events:none;';
+    fr.addEventListener('load', function() {
+      fr.style.opacity = '1';
+      setTimeout(function() { markPlaying(item); }, 2500);
+    }, {once: true});
+    setTimeout(function() { markPlaying(item); }, 9000);
+    item.appendChild(fr);
+  });
 }
 
 // ── Thumbnail loader: vumbnail.com (simple, fast, no API calls) ──
