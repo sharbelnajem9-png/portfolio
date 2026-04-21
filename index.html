@@ -1037,7 +1037,12 @@ html{scroll-behavior:smooth}
   border:0;pointer-events:none
 }
 @media(max-width:768px){
-  .hero-showreel-wrap iframe{width:100vw;height:177.78vw;min-width:unset}
+  .hero-showreel-wrap iframe{
+    width:177.78svh!important;
+    height:100svh!important;
+    min-width:100%!important;
+    min-height:unset!important;
+  }
 }
 .hero-overlay{
   position:absolute;inset:0;z-index:1;
@@ -3722,19 +3727,19 @@ section::after{
   overflow:hidden!important;
 }
 
-/* Hero content: bottom-anchored via absolute positioning — works regardless of flex-direction */
+/* Hero content: centered both axes */
 .hero-content{
   position:absolute!important;
-  bottom:0!important;
-  left:0!important;
-  right:0!important;
-  top:auto!important;
-  transform:none!important;
-  padding:0 60px 80px!important;
-  text-align:left!important;
-  align-items:flex-start!important;
+  top:50%!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  padding:0 48px!important;
+  text-align:center!important;
+  align-items:center!important;
   gap:16px!important;
-  max-width:none!important;
+  max-width:860px!important;
   width:100%!important;
   animation:heroIn 1.1s cubic-bezier(0.16,1,0.3,1) both!important;
   box-sizing:border-box!important;
@@ -3754,7 +3759,7 @@ section::after{
   text-shadow:0 1px 12px rgba(0,0,0,0.5)!important;
 }
 .hero-cta-row{
-  justify-content:flex-start!important;
+  justify-content:center!important;
   margin-top:8px!important;
 }
 
@@ -3823,17 +3828,17 @@ section::after{
   }
   .hero-content{
     position:absolute!important;
-    bottom:0!important;
-    left:0!important;
-    right:0!important;
-    top:auto!important;
+    top:50%!important;
+    left:50%!important;
+    right:auto!important;
+    bottom:auto!important;
+    transform:translate(-50%,-50%)!important;
     z-index:2!important;
-    padding:0 28px 18px!important;
-    text-align:left!important;
-    align-items:flex-start!important;
+    padding:0 28px!important;
+    text-align:center!important;
+    align-items:center!important;
     width:100%!important;
     gap:5px!important;
-    transform:none!important;
     animation:none!important;
     box-sizing:border-box!important;
   }
@@ -3854,7 +3859,7 @@ section::after{
   .hero-cta-row{
     margin-top:4px!important;
     gap:8px!important;
-    justify-content:flex-start!important;
+    justify-content:center!important;
   }
   .hero-btn-primary{
     padding:8px 18px!important;
@@ -3865,20 +3870,10 @@ section::after{
 
 /* ── 3. SECTION LABELS: premium accent line ── */
 .section-label{
-  display:inline-flex!important;
-  align-items:center!important;
-  gap:10px!important;
+  display:inline-block!important;
   font-size:10px!important;
   letter-spacing:5px!important;
   color:rgba(255,255,255,0.38)!important;
-}
-.section-label::before{
-  content:'';
-  display:inline-block;
-  width:28px;
-  height:1px;
-  background:rgba(255,255,255,0.3);
-  flex-shrink:0;
 }
 
 /* ── 4. SECTION TITLES: tighter cinematic feel ── */
@@ -3973,24 +3968,29 @@ section::after{
   outline:none!important;
 }
 
-/* ── 13. MOBILE: tighter hero content (portrait) ── */
+/* ── 13. MOBILE: centered hero content (portrait) ── */
 @media(max-width:768px){
   .hero-content{
     position:absolute!important;
-    bottom:0!important;
-    left:0!important;
-    right:0!important;
-    top:auto!important;
-    transform:none!important;
-    text-align:left!important;
-    align-items:flex-start!important;
-    padding:0 22px 52px!important;
-    padding-top:0!important;
+    top:50%!important;
+    left:50%!important;
+    right:auto!important;
+    bottom:auto!important;
+    transform:translate(-50%,-50%)!important;
+    padding:0 24px!important;
+    text-align:center!important;
+    align-items:center!important;
     gap:10px!important;
+    width:100%!important;
     box-sizing:border-box!important;
   }
   .hero-cta-row{
-    justify-content:flex-start!important;
+    justify-content:center!important;
+  }
+  /* About section: zero gap directly below hero */
+  .about{
+    padding-top:0!important;
+    margin-top:0!important;
   }
 }
 </style>
@@ -4780,7 +4780,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     const _q2 = _h2 ? '?h=' + _h2 + '&' : '?';
     const _fr = document.createElement('iframe');
     _fr.src = 'https://player.vimeo.com/video/' + id + _q2 +
-      'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1';
+      'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
     _fr.setAttribute('frameborder','0');
     _fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
     _fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
@@ -5071,7 +5071,7 @@ window.addEventListener('scroll', () => {
     var q = hash ? '?h=' + hash + '&' : '?';
     var iframe = document.createElement('iframe');
     iframe.src = 'https://player.vimeo.com/video/' + vid + q +
-      'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1';
+      'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1&texttrack=false';
     iframe.setAttribute('frameborder','0');
     iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
@@ -5495,7 +5495,7 @@ document.addEventListener('DOMContentLoaded', () => {
     var iframe = document.createElement('iframe');
     iframe.className = 'fc-card-vid';
     iframe.src = 'https://player.vimeo.com/video/' + vid + q +
-      'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1';
+      'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1&texttrack=false';
     iframe.setAttribute('frameborder','0');
     iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
     iframe.style.cssText = 'position:absolute;top:50%;left:50%;' +
