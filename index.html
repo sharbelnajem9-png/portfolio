@@ -5225,11 +5225,6 @@ function openProject(key) {
   if (lc && !_pvIsMobileNow) lc.classList.add('active');
   container.scrollTop = 0;
   overlay.classList.add('active');
-  // iOS-safe scroll lock: position:fixed avoids Safari layout/jump bug
-  window._modalScrollY = window.pageYOffset || 0;
-  document.body.style.position = 'fixed';
-  document.body.style.top = '-' + window._modalScrollY + 'px';
-  document.body.style.overflow = 'hidden';
 
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
@@ -5284,14 +5279,6 @@ function closeProject(e) {
   window._pvTriggerReveal = null;
   const overlay = document.getElementById('project-overlay');
   overlay.classList.remove('active');
-  // Restore background scroll (iOS-safe)
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.overflow = '';
-  if (typeof window._modalScrollY !== 'undefined') {
-    window.scrollTo(0, window._modalScrollY);
-    window._modalScrollY = undefined;
-  }
   setTimeout(() => {
     const grid = document.getElementById('pm-videos');
     if (grid) grid.innerHTML = '';
@@ -5371,29 +5358,12 @@ function openLightbox(vid, ratio) {
     'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen playsinline ' +
     'style="width:100%;height:100%;border:0;aspect-ratio:' + (isPortrait ? '9/16' : '16/9') + ';max-height:80vh;display:block"></iframe>';
   lb.classList.add('active');
-  // Scroll lock: only if no project modal is already locking it
-  if (!document.getElementById('project-overlay').classList.contains('active')) {
-    window._lbScrollY = window.pageYOffset || 0;
-    document.body.style.position = 'fixed';
-    document.body.style.top = '-' + window._lbScrollY + 'px';
-    document.body.style.overflow = 'hidden';
-  }
 }
 
 function closeLightbox(e) {
   if (e && e.target !== document.getElementById('vid-lightbox')) return;
   const lb = document.getElementById('vid-lightbox');
   lb.classList.remove('active');
-  // Only restore scroll if we locked it (standalone lightbox, no project modal)
-  if (!document.getElementById('project-overlay').classList.contains('active')) {
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.overflow = '';
-    if (typeof window._lbScrollY !== 'undefined') {
-      window.scrollTo(0, window._lbScrollY);
-      window._lbScrollY = undefined;
-    }
-  }
   setTimeout(() => { document.getElementById('vlb-video').innerHTML = ''; }, 320);
 }
 
