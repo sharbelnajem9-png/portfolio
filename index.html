@@ -2663,12 +2663,18 @@ function _pvDrainAll() {
   }
 }
 
-// ── Mobile: load ALL project videos sequentially (2 at a time) so all play when ready ──
+// ── Mobile: load ALL project videos sequentially (2 at a time), reveal only when enough are ready ──
 function _loadAllMobileVideos(container) {
   var items = Array.from(container.querySelectorAll('.pv-item[data-vid]'));
   if (!items.length) return;
   var queue = items.slice();
-  var firstRevealed = false;
+  var loadedCount = 0;
+  var REVEAL_AT = Math.min(4, items.length); // reveal after 4 videos loaded (or all if fewer)
+
+  function tryReveal() {
+    loadedCount++;
+    if (loadedCount >= REVEAL_AT && window._pvTriggerReveal) window._pvTriggerReveal();
+  }
 
   function loadBatch() {
     var batch = queue.splice(0, 2);
@@ -2676,7 +2682,7 @@ function _loadAllMobileVideos(container) {
     var done = 0;
     function onDone() {
       done++;
-      if (done >= batch.length) setTimeout(loadBatch, 200); // slight pause between batches
+      if (done >= batch.length) setTimeout(loadBatch, 150);
     }
     batch.forEach(function(item) {
       if (!item.isConnected) { onDone(); return; }
@@ -2695,10 +2701,10 @@ function _loadAllMobileVideos(container) {
       fr.addEventListener('load', function() {
         fr.style.opacity = '1';
         item.classList.add('pv-loaded');
-        if (!firstRevealed && window._pvTriggerReveal) { firstRevealed = true; window._pvTriggerReveal(); }
+        tryReveal();
         onDone();
       }, {once: true});
-      setTimeout(function() { if (!item.classList.contains('pv-loaded')) onDone(); }, 8000);
+      setTimeout(function() { if (!item.classList.contains('pv-loaded')) { tryReveal(); onDone(); } }, 7000);
       item.appendChild(fr);
     });
   }
@@ -2817,17 +2823,10 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       (lang === 'he' ? (isPortrait ? 'שורט אנכי' : 'סרטון אופקי') : (isPortrait ? 'Vertical short' : 'Horizontal video')) + ' ' + (startIdx + i + 1));
 
     if (isMobile) {
-      // ── Mobile: thumbnail + data attrs; IntersectionObserver loads iframes (max 2 active) ──
+      // ── Mobile: no thumbnail — dark background + shimmer only. Videos load behind the loading cover. ──
       var _mh = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
       div.setAttribute('data-vid', id);
       if (_mh) div.setAttribute('data-hash', _mh);
-      const img = document.createElement('img');
-      img.alt = '';
-      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
-      img.onload  = function(){ div.classList.add('pv-loaded'); };
-      img.onerror = function(){ div.classList.add('pv-loaded'); };
-      img.src = 'https://vumbnail.com/' + id + '.jpg';
-      div.appendChild(img);
     } else {
       // ── Desktop: live autoplay iframe ──
       const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
