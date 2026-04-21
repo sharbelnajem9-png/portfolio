@@ -5087,17 +5087,33 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       (lang === 'he' ? (isPortrait ? 'שורט אנכי' : 'סרטון אופקי') : (isPortrait ? 'Vertical short' : 'Horizontal video')) + ' ' + (startIdx + i + 1));
 
     if (isMobile) {
-      // ── Mobile: instant vumbnail thumbnail + observer-driven iframe ──
+      // ── Mobile: first 2 videos get live autoplay iframe (muted); rest get thumbnail ──
       var _mh = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
-      div.setAttribute('data-vid', id);
-      if (_mh) div.setAttribute('data-hash', _mh);
-      const img = document.createElement('img');
-      img.alt = '';
-      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
-      img.onload  = function(){ div.classList.add('pv-loaded'); };
-      img.onerror = function(){ div.classList.add('pv-loaded'); };
-      img.src = 'https://vumbnail.com/' + id + '.jpg';
-      div.appendChild(img);
+      var _mq = _mh ? '?h=' + _mh + '&' : '?';
+      if ((startIdx + i) < 2) {
+        // First 2: live autoplay iframe (same as desktop but max 2 on mobile)
+        var _mfr = document.createElement('iframe');
+        _mfr.src = 'https://player.vimeo.com/video/' + id + _mq +
+          'background=1&autoplay=1&loop=1&muted=1&autopause=0&playsinline=1&texttrack=false';
+        _mfr.setAttribute('frameborder','0');
+        _mfr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+        _mfr.setAttribute('playsinline','');
+        _mfr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
+          'border:0;z-index:3;opacity:0;transition:opacity 1s ease;pointer-events:none;';
+        _mfr.addEventListener('load', function(){ _mfr.style.opacity='1'; div.classList.add('pv-loaded'); }, {once:true});
+        div.appendChild(_mfr);
+      } else {
+        // Rest: static thumbnail
+        div.setAttribute('data-vid', id);
+        if (_mh) div.setAttribute('data-hash', _mh);
+        const img = document.createElement('img');
+        img.alt = '';
+        img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
+        img.onload  = function(){ div.classList.add('pv-loaded'); };
+        img.onerror = function(){ div.classList.add('pv-loaded'); };
+        img.src = 'https://vumbnail.com/' + id + '.jpg';
+        div.appendChild(img);
+      }
     } else {
       // ── Desktop: live autoplay iframe ──
       const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
@@ -5353,11 +5369,24 @@ function openLightbox(vid, ratio) {
 
   var _h = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
   var _q = _h ? '?h=' + _h + '&' : '?';
-  container.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vid +
-    _q + 'autoplay=1&playsinline=1&title=0&byline=0&portrait=0&badge=0&texttrack=false" frameborder="0" ' +
-    'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen playsinline ' +
-    'style="width:100%;height:100%;border:0;aspect-ratio:' + (isPortrait ? '9/16' : '16/9') + ';max-height:80vh;display:block"></iframe>';
+  var _fr = document.createElement('iframe');
+  _fr.src = 'https://player.vimeo.com/video/' + vid + _q +
+    'autoplay=1&playsinline=1&title=0&byline=0&portrait=0&badge=0&texttrack=false';
+  _fr.setAttribute('frameborder','0');
+  _fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture; clipboard-write');
+  _fr.setAttribute('allowfullscreen','');
+  _fr.setAttribute('playsinline','');
+  _fr.style.cssText = 'width:100%;height:100%;border:0;display:block;border-radius:8px';
+  container.innerHTML = '';
+  container.appendChild(_fr);
   lb.classList.add('active');
+  // Vimeo API fallback: force play if autoplay was blocked
+  if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
+    try {
+      var _lbPlayer = new Vimeo.Player(_fr);
+      _lbPlayer.play().catch(function(){});
+    } catch(ex){}
+  }
 }
 
 function closeLightbox(e) {
