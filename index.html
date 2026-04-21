@@ -2795,8 +2795,29 @@ function loadPortraitThumb(imgEl, id, pvItem) {
     .catch(function(){ if (pvItem) pvItem.classList.add('pv-loaded'); });
 }
 
+function loadLandscapeThumb(imgEl, id, pvItem) {
+  var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+  fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' + id + (hash ? '%3Fh%3D' + hash : ''))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d || !d.thumbnail_url) { if (pvItem) pvItem.classList.add('pv-loaded'); return; }
+      var wideUrl = d.thumbnail_url.replace(/_\d+x\d+(\.\w+)$/, '_1920x1080$1');
+      var done = false;
+      function apply(url) {
+        if (done) return; done = true;
+        imgEl.src = url;
+        if (pvItem) pvItem.classList.add('pv-loaded');
+      }
+      var check = new Image();
+      check.onload  = function() { apply(wideUrl); };
+      check.onerror = function() { apply(d.thumbnail_url); };
+      check.src = wideUrl;
+    })
+    .catch(function(){ if (pvItem) pvItem.classList.add('pv-loaded'); });
+}
+
 // ── Build one section (label + count + grid) ──
-// Mobile: static thumbnails (no iframes) — tap opens lightbox. Desktop: live autoplay iframes.
+// Mobile: thumbnails from Vimeo oEmbed (first 6 items also get live iframes). Desktop: live autoplay iframes.
 function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
   if (!videos.length) return null;
   var isMobile = window.innerWidth <= 768;
@@ -2829,10 +2850,15 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       (lang === 'he' ? (isPortrait ? 'שורט אנכי' : 'סרטון אופקי') : (isPortrait ? 'Vertical short' : 'Horizontal video')) + ' ' + (startIdx + i + 1));
 
     if (isMobile) {
-      // ── Mobile: no thumbnail — dark background + shimmer only. Videos load behind the loading cover. ──
+      // ── Mobile: thumbnail from Vimeo oEmbed (correct aspect). First 6 items also get live iframes on top. ──
       var _mh = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
       div.setAttribute('data-vid', id);
       if (_mh) div.setAttribute('data-hash', _mh);
+      var _tImg = document.createElement('img');
+      _tImg.alt = '';
+      div.appendChild(_tImg);
+      if (isPortrait) loadPortraitThumb(_tImg, id, div);
+      else loadLandscapeThumb(_tImg, id, div);
     } else {
       // ── Desktop: live autoplay iframe ──
       const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
