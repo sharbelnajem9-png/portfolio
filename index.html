@@ -1875,17 +1875,21 @@ body::before{
   filter:brightness(1.18)!important;
 }
 
-/* Per-project unique dark gradients */
-.folder-card[data-key="podcast-short"] .fc-bg{background:linear-gradient(145deg,#0d1a33 0%,#06101e 55%,#000000 100%)!important}
-.folder-card[data-key="real-estate"] .fc-bg{background:linear-gradient(145deg,#1a0d2e 0%,#0e0718 55%,#000000 100%)!important}
-.folder-card[data-key="hotels"] .fc-bg{background:linear-gradient(145deg,#0a1828 0%,#05111f 55%,#000510 100%)!important}
-.folder-card[data-key="travel-short"] .fc-bg{background:linear-gradient(145deg,#051412 0%,#031a17 55%,#000000 100%)!important}
-.folder-card[data-key="technology"] .fc-bg{background:linear-gradient(145deg,#0c0d1c 0%,#060810 55%,#000000 100%)!important}
-.folder-card[data-key="tourism-companies"] .fc-bg{background:linear-gradient(145deg,#0f1308 0%,#0a0f05 55%,#020400 100%)!important}
-.folder-card[data-key="kristian-najem"] .fc-bg{background:linear-gradient(145deg,#1f0a0a 0%,#130505 55%,#000000 100%)!important}
-.folder-card[data-key="naadned"] .fc-bg{background:linear-gradient(145deg,#120a1e 0%,#0a0512 55%,#000000 100%)!important}
-.folder-card[data-key="blendar"] .fc-bg{background:linear-gradient(145deg,#071508 0%,#040d05 55%,#000000 100%)!important}
-.folder-card[data-key="favorites"] .fc-bg{background:linear-gradient(145deg,#1a0e05 0%,#100a03 55%,#000000 100%)!important}
+/* Per-project vibrant gradients — brighter, rich color */
+.folder-card[data-key="podcast-short"] .fc-bg{background:linear-gradient(145deg,#2c5490 0%,#1a3468 45%,#0d1e40 100%)!important}
+.folder-card[data-key="real-estate"] .fc-bg{background:linear-gradient(145deg,#4a2080 0%,#2c1458 45%,#160a30 100%)!important}
+.folder-card[data-key="hotels"] .fc-bg{background:linear-gradient(145deg,#1c4870 0%,#102e50 45%,#071e38 100%)!important}
+.folder-card[data-key="travel-short"] .fc-bg{background:linear-gradient(145deg,#184840 0%,#0e3830 45%,#062018 100%)!important}
+.folder-card[data-key="technology"] .fc-bg{background:linear-gradient(145deg,#222660 0%,#181c48 45%,#0c0e28 100%)!important}
+.folder-card[data-key="tourism-companies"] .fc-bg{background:linear-gradient(145deg,#2c3e1a 0%,#1e2c10 45%,#0e1808 100%)!important}
+.folder-card[data-key="kristian-najem"] .fc-bg{background:linear-gradient(145deg,#5c1a1a 0%,#3c1010 45%,#1e0808 100%)!important}
+.folder-card[data-key="naadned"] .fc-bg{background:linear-gradient(145deg,#361e5c 0%,#221238 45%,#100820 100%)!important}
+.folder-card[data-key="blendar"] .fc-bg{background:linear-gradient(145deg,#163e1a 0%,#0e2a12 45%,#06140a 100%)!important}
+.folder-card[data-key="favorites"] .fc-bg{background:linear-gradient(145deg,#4e2c10 0%,#361e08 45%,#1a0e04 100%)!important}
+
+/* Bright visible border around every project card */
+.folder-card{border:1px solid rgba(255,255,255,0.32)!important;box-shadow:0 0 0 0.5px rgba(255,255,255,0.10),inset 0 1px 0 rgba(255,255,255,0.10),0 8px 32px rgba(0,0,0,0.45)!important}
+.folder-card:hover{border-color:rgba(255,255,255,0.50)!important;box-shadow:0 20px 50px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.22),0 0 35px rgba(255,255,255,0.08)!important}
 
 /* Center project name perfectly in card */
 .fc-name-overlay{
@@ -5038,29 +5042,32 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       (lang === 'he' ? (isPortrait ? 'שורט אנכי' : 'סרטון אופקי') : (isPortrait ? 'Vertical short' : 'Horizontal video')) + ' ' + (startIdx + i + 1));
 
     if (isMobile) {
-      // ── Mobile: thumbnail image only — zero iframes, zero memory pressure ──
+      // ── Mobile: instant thumbnail via vumbnail CDN, no iframes ──
       const img = document.createElement('img');
       img.alt = '';
       img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
-      const _h2m = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
-      (function(imgEl, divEl, vidId, hHash, portrait){
-        fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' + vidId + (hHash ? '%3Fh%3D' + hHash : ''))
-          .then(function(r){ return r.json(); })
-          .then(function(d){
-            if (!d || !d.thumbnail_url) { divEl.classList.add('pv-loaded'); return; }
-            var url = portrait
-              ? d.thumbnail_url.replace(/_\d+x\d+(\.\w+)$/, '_1080x1920$1')
-              : d.thumbnail_url.replace(/_\d+x\d+(\.\w+)$/, '_1280x720$1');
-            imgEl.onload = function(){ divEl.classList.add('pv-loaded'); };
-            imgEl.onerror = function(){
-              imgEl.src = d.thumbnail_url;
-              divEl.classList.add('pv-loaded');
-            };
-            imgEl.src = url;
-          })
-          .catch(function(){ divEl.classList.add('pv-loaded'); });
-      })(img, div, id, _h2m, isPortrait);
+      img.onload  = function(){ div.classList.add('pv-loaded'); };
+      img.onerror = function(){ div.classList.add('pv-loaded'); };
+      // vumbnail CDN: instant 16:9 thumbnail, no API call required
+      img.src = 'https://vumbnail.com/' + id + '.jpg';
       div.appendChild(img);
+      // Portrait: upgrade to proper 9:16 via oEmbed (async, won't delay display)
+      if (isPortrait) {
+        (function(imgEl, vidId){
+          var hh = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vidId]) ? VID_HASHES[vidId] : '';
+          fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' + vidId + (hh ? '%3Fh%3D' + hh : ''))
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+              if (!d || !d.thumbnail_url) return;
+              var url = d.thumbnail_url.replace(/_\d+x\d+(\.\w+)$/, '_1080x1920$1');
+              var chk = new Image();
+              chk.onload = function(){ imgEl.src = url; };
+              chk.onerror = function(){};
+              chk.src = url;
+            })
+            .catch(function(){});
+        })(img, id);
+      }
     } else {
       // ── Desktop: live autoplay iframe ──
       const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
@@ -5114,9 +5121,36 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     // Stagger entrance animation
     div.style.animationDelay = ((startIdx + i) * 0.05) + 's';
 
-    // Click / keyboard → lightbox (handles both portrait 9:16 and landscape 16:9)
+    // Click / keyboard → lightbox (desktop) or tap-to-play (mobile)
     const openLb = () => openLightbox(id, isPortrait ? '9:16' : '16:9');
-    div.addEventListener('click', openLb);
+    if (isMobile) {
+      div.addEventListener('click', function() {
+        // Second tap on already-playing item → open in lightbox with audio
+        if (div.classList.contains('pv-inline-playing')) { openLb(); return; }
+        // Stop any previous inline player (1 iframe at a time)
+        var prev = document.querySelector('#pm-videos .pv-inline-playing');
+        if (prev) {
+          var prevFr = prev.querySelector('iframe.pv-inline-fr');
+          if (prevFr) { try { prevFr.src = 'about:blank'; } catch(e){} prevFr.remove(); }
+          prev.classList.remove('pv-inline-playing');
+        }
+        // Play inline: muted background loop, tap again for lightbox
+        var _hI = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+        var _qI = _hI ? '?h=' + _hI + '&' : '?';
+        var fr = document.createElement('iframe');
+        fr.className = 'pv-inline-fr';
+        fr.src = 'https://player.vimeo.com/video/' + id + _qI +
+          'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
+        fr.setAttribute('frameborder', '0');
+        fr.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+        fr.setAttribute('playsinline', '');
+        fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4;';
+        div.appendChild(fr);
+        div.classList.add('pv-inline-playing');
+      });
+    } else {
+      div.addEventListener('click', openLb);
+    }
     div.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(); }
     });
@@ -5220,6 +5254,12 @@ function closeProject(e) {
   // Stop loading queue, release player references, cancel pending reveal
   _pvQueue = []; _pvActive = 0;
   if (_pvObserver) { _pvObserver.disconnect(); _pvObserver = null; }
+  // Stop any mobile inline player immediately (releases network)
+  document.querySelectorAll('#pm-videos .pv-inline-playing').forEach(function(dv){
+    var fr = dv.querySelector('iframe.pv-inline-fr');
+    if (fr) { try { fr.src = 'about:blank'; } catch(e){} fr.remove(); }
+    dv.classList.remove('pv-inline-playing');
+  });
   if (window._pvPlayers && window._pvPlayers.length) {
     window._pvPlayers.forEach(function(p){ try { p.pause().catch(function(){}); } catch(e){} });
   }
