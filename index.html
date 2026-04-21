@@ -4979,7 +4979,7 @@ function _pvDrainAll() {
 var _pvMobileObs = null;
 function _setupMobileObs(container) {
   if (_pvMobileObs) { _pvMobileObs.disconnect(); _pvMobileObs = null; }
-  var MAX_ACTIVE = 6;
+  var MAX_ACTIVE = 2;
   _pvMobileObs = new IntersectionObserver(function(entries) {
     // Unload off-screen iframes first to free decoder slots
     entries.forEach(function(entry) {
@@ -5018,7 +5018,7 @@ function _setupMobileObs(container) {
       dv.appendChild(fr);
       activeCount++;
     });
-  }, { rootMargin: '200px 0px 200px 0px', threshold: 0 });
+  }, { root: container, rootMargin: '0px 0px 120px 0px', threshold: 0.05 });
   container.querySelectorAll('.pv-item[data-vid]').forEach(function(dv) {
     _pvMobileObs.observe(dv);
   });
@@ -5087,33 +5087,17 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       (lang === 'he' ? (isPortrait ? 'שורט אנכי' : 'סרטון אופקי') : (isPortrait ? 'Vertical short' : 'Horizontal video')) + ' ' + (startIdx + i + 1));
 
     if (isMobile) {
-      // ── Mobile: first 2 videos get live autoplay iframe (muted); rest get thumbnail ──
+      // ── Mobile: thumbnail + data attrs; IntersectionObserver loads iframes (max 2 active) ──
       var _mh = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
-      var _mq = _mh ? '?h=' + _mh + '&' : '?';
-      if ((startIdx + i) < 2) {
-        // First 2: live autoplay iframe (same as desktop but max 2 on mobile)
-        var _mfr = document.createElement('iframe');
-        _mfr.src = 'https://player.vimeo.com/video/' + id + _mq +
-          'background=1&autoplay=1&loop=1&muted=1&autopause=0&playsinline=1&texttrack=false';
-        _mfr.setAttribute('frameborder','0');
-        _mfr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-        _mfr.setAttribute('playsinline','');
-        _mfr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
-          'border:0;z-index:3;opacity:0;transition:opacity 1s ease;pointer-events:none;';
-        _mfr.addEventListener('load', function(){ _mfr.style.opacity='1'; div.classList.add('pv-loaded'); }, {once:true});
-        div.appendChild(_mfr);
-      } else {
-        // Rest: static thumbnail
-        div.setAttribute('data-vid', id);
-        if (_mh) div.setAttribute('data-hash', _mh);
-        const img = document.createElement('img');
-        img.alt = '';
-        img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
-        img.onload  = function(){ div.classList.add('pv-loaded'); };
-        img.onerror = function(){ div.classList.add('pv-loaded'); };
-        img.src = 'https://vumbnail.com/' + id + '.jpg';
-        div.appendChild(img);
-      }
+      div.setAttribute('data-vid', id);
+      if (_mh) div.setAttribute('data-hash', _mh);
+      const img = document.createElement('img');
+      img.alt = '';
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
+      img.onload  = function(){ div.classList.add('pv-loaded'); };
+      img.onerror = function(){ div.classList.add('pv-loaded'); };
+      img.src = 'https://vumbnail.com/' + id + '.jpg';
+      div.appendChild(img);
     } else {
       // ── Desktop: live autoplay iframe ──
       const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
@@ -5244,6 +5228,11 @@ function openProject(key) {
 
   // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
   container.scrollTop = 0;
+
+  // Mobile: start observer — loads up to 2 muted iframes as user scrolls (safe, no crash)
+  if (_pvIsMobileNow) {
+    requestAnimationFrame(function(){ _setupMobileObs(container); });
+  }
 
   // Loading cover — on mobile dismissed quickly (thumbnails), on desktop when first iframe plays
   var _pvRevealDone = false;
