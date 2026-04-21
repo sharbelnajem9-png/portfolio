@@ -2910,12 +2910,11 @@ function openProject(key) {
   overlay.setAttribute('data-project', key);
   var lc = document.getElementById('pm-load-cover');
   var _pvIsMobileNow = window.innerWidth <= 768;
-  // On mobile: skip loading cover entirely — thumbnails load instantly, no need for spinner
-  if (lc && !_pvIsMobileNow) lc.classList.add('active');
+  if (lc) lc.classList.add('active');
   container.scrollTop = 0;
   overlay.classList.add('active');
 
-  // Instant scroll reset (smooth scroll disabled via CSS auto on pm-videos)
+  // Instant scroll reset
   container.scrollTop = 0;
 
   // Mobile: pause hero iframe to free decoder slot, then start scroll observer
@@ -2928,7 +2927,7 @@ function openProject(key) {
     requestAnimationFrame(function(){ _setupMobileObs(container); });
   }
 
-  // Loading cover — on mobile dismissed quickly (thumbnails), on desktop when first iframe plays
+  // Loading cover — hides when first iframe fires load (both desktop and mobile)
   var _pvRevealDone = false;
   var _pvOpenTime = Date.now();
   var _pvIsMobile = window.innerWidth <= 768;
@@ -2944,13 +2943,8 @@ function openProject(key) {
     var elapsed = Date.now() - _pvOpenTime;
     setTimeout(_pvRevealAll, Math.max(0, 300 - elapsed));
   };
-  if (_pvIsMobile) {
-    // Mobile: thumbnails render immediately, no cover, no iframes
-    _pvRevealAll();
-  } else {
-    // Desktop: wait for first iframe to render, hard fallback at 9s
-    setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, 9000);
-  }
+  // Fallback: mobile 5s, desktop 9s — in case iframe never fires load
+  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 5000 : 9000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
