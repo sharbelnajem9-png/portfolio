@@ -1596,23 +1596,13 @@ section::after{
 
 
 .pv-item > img,
+.pv-item.portrait > img,
 .pv-item.landscape > img{
   position:absolute!important; inset:0!important;
   width:100%!important; height:100%!important;
   object-fit:cover!important;
   object-position:center center!important;
   background:#0e1420!important;
-}
-.pv-item.portrait > img{
-  position:absolute!important; inset:0!important;
-  width:100%!important; height:100%!important;
-  object-fit:contain!important;
-  object-position:center center!important;
-  background:#0e1420!important;
-}
-
-.pv-item.portrait.pt-loaded > img{
-  object-fit:cover!important;
 }
 
 
@@ -2766,54 +2756,68 @@ function _setupMobileObs(container) {
   });
 }
 
-function loadPortraitThumb(imgEl, id, pvItem) {
-  // Include secure hash if available (required for private/unlisted videos)
+// ── Shared oEmbed fetcher ──
+function _pvOEmbed(id) {
   var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
-  var vidUrl = hash
-    ? 'https://vimeo.com/' + id + '%3Fh%3D' + hash
-    : 'https://vimeo.com/' + id;
-  fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2F' +
-    'vimeo.com%2F' + id + (hash ? '%3Fh%3D' + hash : ''))
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (!d || !d.thumbnail_url) { if (pvItem) pvItem.classList.add('pv-loaded'); return; }
-      // Build 1080x1920 portrait URL from the CDN hash
-      var portraitUrl = d.thumbnail_url.replace(/_\d+x\d+(\.\w+)$/, '_1080x1920$1');
-      var done = false;
-      function apply(url) {
-        if (done) return; done = true;
-        imgEl.src = url;
-        // Mark as portrait-loaded so CSS switches to object-fit:cover
-        if (pvItem) { pvItem.classList.add('pv-loaded'); pvItem.classList.add('pt-loaded'); }
-      }
-      // Try 1080x1920 first; fall back to oEmbed default if CDN rejects it
-      var check = new Image();
-      check.onload  = function() { apply(portraitUrl); };
-      check.onerror = function() { apply(d.thumbnail_url); };
-      check.src = portraitUrl;
+  var enc = 'https%3A%2F%2Fvimeo.com%2F' + id + (hash ? '%3Fh%3D' + hash : '');
+  return fetch('https://vimeo.com/api/oembed.json?url=' + enc)
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+}
+
+// ── Try an image URL, resolves with url if loads, rejects on error ──
+function _pvTryImg(url) {
+  return new Promise(function(res, rej) {
+    var c = new Image();
+    c.onload = function() { res(url); };
+    c.onerror = rej;
+    c.src = url;
+  });
+}
+
+// ── Apply thumbnail: set src, reveal with fade, mark item loaded ──
+function _pvApplyThumb(imgEl, url, pvItem, addPtLoaded) {
+  imgEl.src = url;
+  imgEl.onload = function() { imgEl.style.opacity = '1'; };
+  if (pvItem) { pvItem.classList.add('pv-loaded'); if (addPtLoaded) pvItem.classList.add('pt-loaded'); }
+}
+
+function loadPortraitThumb(imgEl, id, pvItem) {
+  var done = false;
+  function fallback() { if (!done) { done = true; if (pvItem) pvItem.classList.add('pv-loaded'); } }
+  setTimeout(fallback, 5000); // hard cap: don't wait forever
+  _pvOEmbed(id)
+    .then(function(d) {
+      if (done || !d || !d.thumbnail_url) return fallback();
+      var base = d.thumbnail_url;
+      // Detect if oEmbed already gave a portrait thumbnail
+      var isPortraitThumb = (d.thumbnail_height || 0) > (d.thumbnail_width || 0);
+      // Try 1080x1920 → 540x960 → original
+      _pvTryImg(base.replace(/_\d+x\d+(\.\w+)$/, '_1080x1920$1'))
+        .then(function(url) { if (!done) { done=true; _pvApplyThumb(imgEl, url, pvItem, true); } })
+        .catch(function() {
+          _pvTryImg(base.replace(/_\d+x\d+(\.\w+)$/, '_540x960$1'))
+            .then(function(url) { if (!done) { done=true; _pvApplyThumb(imgEl, url, pvItem, true); } })
+            .catch(function() {
+              if (!done) { done=true; _pvApplyThumb(imgEl, base, pvItem, isPortraitThumb); }
+            });
+        });
     })
-    .catch(function(){ if (pvItem) pvItem.classList.add('pv-loaded'); });
+    .catch(fallback);
 }
 
 function loadLandscapeThumb(imgEl, id, pvItem) {
-  var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
-  fetch('https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F' + id + (hash ? '%3Fh%3D' + hash : ''))
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (!d || !d.thumbnail_url) { if (pvItem) pvItem.classList.add('pv-loaded'); return; }
-      var wideUrl = d.thumbnail_url.replace(/_\d+x\d+(\.\w+)$/, '_1920x1080$1');
-      var done = false;
-      function apply(url) {
-        if (done) return; done = true;
-        imgEl.src = url;
-        if (pvItem) pvItem.classList.add('pv-loaded');
-      }
-      var check = new Image();
-      check.onload  = function() { apply(wideUrl); };
-      check.onerror = function() { apply(d.thumbnail_url); };
-      check.src = wideUrl;
+  var done = false;
+  function fallback() { if (!done) { done = true; if (pvItem) pvItem.classList.add('pv-loaded'); } }
+  setTimeout(fallback, 5000);
+  _pvOEmbed(id)
+    .then(function(d) {
+      if (done || !d || !d.thumbnail_url) return fallback();
+      var base = d.thumbnail_url;
+      _pvTryImg(base.replace(/_\d+x\d+(\.\w+)$/, '_1920x1080$1'))
+        .then(function(url) { if (!done) { done=true; _pvApplyThumb(imgEl, url, pvItem, false); } })
+        .catch(function() { if (!done) { done=true; _pvApplyThumb(imgEl, base, pvItem, false); } });
     })
-    .catch(function(){ if (pvItem) pvItem.classList.add('pv-loaded'); });
+    .catch(fallback);
 }
 
 // ── Build one section (label + count + grid) ──
@@ -2856,6 +2860,8 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       if (_mh) div.setAttribute('data-hash', _mh);
       var _tImg = document.createElement('img');
       _tImg.alt = '';
+      // Explicit inline style guarantees position/size regardless of CSS specificity
+      _tImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;transition:opacity 0.4s;';
       div.appendChild(_tImg);
       if (isPortrait) loadPortraitThumb(_tImg, id, div);
       else loadLandscapeThumb(_tImg, id, div);
@@ -2900,10 +2906,10 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       })(_fr, div);
     }
 
-    // Shimmer overlay during load (z-index 2 on mobile so it doesn't cover the thumbnail img)
+    // Shimmer: mobile z-index:2 so it covers thumbnail while loading, hides when pv-loaded
     const shimmer = document.createElement('div');
     shimmer.className = 'pv-shimmer';
-    shimmer.style.zIndex = isMobile ? '1' : '3';
+    shimmer.style.zIndex = isMobile ? '2' : '3';
     div.appendChild(shimmer);
 
     // Play overlay
