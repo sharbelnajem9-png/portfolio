@@ -2663,8 +2663,49 @@ function _pvDrainAll() {
   }
 }
 
+// ── Mobile: load ALL project videos sequentially (2 at a time) so all play when ready ──
+function _loadAllMobileVideos(container) {
+  var items = Array.from(container.querySelectorAll('.pv-item[data-vid]'));
+  if (!items.length) return;
+  var queue = items.slice();
+  var firstRevealed = false;
+
+  function loadBatch() {
+    var batch = queue.splice(0, 2);
+    if (!batch.length) return;
+    var done = 0;
+    function onDone() {
+      done++;
+      if (done >= batch.length) setTimeout(loadBatch, 200); // slight pause between batches
+    }
+    batch.forEach(function(item) {
+      if (!item.isConnected) { onDone(); return; }
+      var vid = item.getAttribute('data-vid');
+      var hash = item.getAttribute('data-hash') || '';
+      if (!vid) { onDone(); return; }
+      var q = hash ? '?h=' + hash + '&' : '?';
+      var fr = document.createElement('iframe');
+      fr.className = 'pv-m-fr';
+      fr.src = 'https://player.vimeo.com/video/' + vid + q +
+        'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
+      fr.setAttribute('frameborder','0');
+      fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+      fr.setAttribute('playsinline','');
+      fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4;opacity:0;transition:opacity 0.8s;pointer-events:none;';
+      fr.addEventListener('load', function() {
+        fr.style.opacity = '1';
+        item.classList.add('pv-loaded');
+        if (!firstRevealed && window._pvTriggerReveal) { firstRevealed = true; window._pvTriggerReveal(); }
+        onDone();
+      }, {once: true});
+      setTimeout(function() { if (!item.classList.contains('pv-loaded')) onDone(); }, 8000);
+      item.appendChild(fr);
+    });
+  }
+  loadBatch();
+}
+
 // ── Mobile: IntersectionObserver — load iframe when visible, unload when off-screen ──
-// Max 4 concurrent iframes (iOS hardware decoder limit). Videos play as you scroll.
 var _pvMobileObs = null;
 function _setupMobileObs(container) {
   if (_pvMobileObs) { _pvMobileObs.disconnect(); _pvMobileObs = null; }
@@ -2913,6 +2954,7 @@ function openProject(key) {
   if (lc) lc.classList.add('active');
   container.scrollTop = 0;
   overlay.classList.add('active');
+  if (history.pushState) history.pushState({project: key}, '', '#' + key);
 
   // Instant scroll reset
   container.scrollTop = 0;
@@ -2924,7 +2966,7 @@ function openProject(key) {
       _heroFr.setAttribute('data-hero-src', _heroFr.src);
       _heroFr.src = 'about:blank';
     }
-    requestAnimationFrame(function(){ _setupMobileObs(container); });
+    requestAnimationFrame(function(){ _loadAllMobileVideos(container); });
   }
 
   // Loading cover — hides when first iframe fires load (both desktop and mobile)
@@ -2978,6 +3020,7 @@ function closeProject(e) {
   }
   const overlay = document.getElementById('project-overlay');
   overlay.classList.remove('active');
+  if (history.pushState) history.pushState(null, '', location.pathname + location.search);
   setTimeout(() => {
     const grid = document.getElementById('pm-videos');
     if (grid) grid.innerHTML = '';
@@ -3966,6 +4009,26 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   setTimeout(dismiss, 8000);
   // Secondary: dismiss at 6s if hero loaded and enough featured ready
   setTimeout(function(){ if (_slHeroReady && window._slFeatLoaded >= 1) dismiss(); }, 6000);
+})();
+
+// ── Project URL routing — deep links & browser back/forward ──
+(function() {
+  // Browser back/forward button
+  window.addEventListener('popstate', function(e) {
+    var overlay = document.getElementById('project-overlay');
+    if (e.state && e.state.project) {
+      openProject(e.state.project);
+    } else if (overlay && overlay.classList.contains('active')) {
+      closeProject();
+    }
+  });
+  // Deep link: open project from URL hash on load (e.g. sharbelnajem.pro/#naadned)
+  var hash = window.location.hash.replace('#', '');
+  if (hash && typeof PROJECT_DATA !== 'undefined' && PROJECT_DATA[hash]) {
+    window.addEventListener('load', function() {
+      setTimeout(function() { openProject(hash); }, 900);
+    });
+  }
 })();
 </script>
 </body>
