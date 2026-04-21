@@ -142,7 +142,7 @@ section{padding:64px 60px}
 @keyframes foldersScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes scrollRight{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
 #foldersTrack > .folder-card:nth-child(n+10){display:none!important}
-.folder-card{border-radius:12px;overflow:hidden;background:var(--card);border:1px solid var(--card-border);flex-shrink:0;cursor:pointer;transition:transform 0.4s,box-shadow 0.4s}
+.folder-card{border-radius:12px;overflow:hidden;background:var(--card);border:1px solid var(--card-border);flex-shrink:0;cursor:pointer;transition:transform 0.4s,box-shadow 0.4s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .folder-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.4)}
 .folder-thumb{width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#141418,#1c1c28);display:flex;align-items:center;justify-content:center;color:var(--white-15);font-size:11px;letter-spacing:2px;text-transform:uppercase;position:relative}
 .folder-thumb::after{content:'▶';position:absolute;font-size:28px;color:var(--white-15)}
@@ -5209,9 +5209,10 @@ function openProject(key) {
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', title + ' gallery');
   overlay.setAttribute('data-project', key);
-  // Activate loading cover FIRST — modal opens with cover visible from frame 1 (no content flash)
   var lc = document.getElementById('pm-load-cover');
-  if (lc) lc.classList.add('active');
+  var _pvIsMobileNow = window.innerWidth <= 768;
+  // On mobile: skip loading cover entirely — thumbnails load instantly, no need for spinner
+  if (lc && !_pvIsMobileNow) lc.classList.add('active');
   container.scrollTop = 0;
   overlay.classList.add('active');
   // iOS-safe scroll lock: position:fixed avoids Safari layout/jump bug
@@ -5240,9 +5241,8 @@ function openProject(key) {
     setTimeout(_pvRevealAll, Math.max(0, 300 - elapsed));
   };
   if (_pvIsMobile) {
-    // Mobile: thumbnails only — no iframes loaded in the grid (prevents OOM crash on Chrome)
-    // Videos play one at a time via lightbox when user taps a thumbnail
-    setTimeout(_pvRevealAll, 350);
+    // Mobile: thumbnails render immediately, no cover, no iframes
+    _pvRevealAll();
   } else {
     // Desktop: wait for first iframe to render, hard fallback at 9s
     setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, 9000);
@@ -6164,6 +6164,9 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
     });
 
     wrap.addEventListener('mousedown', function(e){
+      // Skip entirely on touch devices — mousedown fires after touchend on mobile
+      // and calling preventDefault() here blocks the click event → openProject never fires
+      if (window.matchMedia('(pointer:coarse)').matches) return;
       if (e.button !== 0) return;
       // Don't intercept clicks on buttons or links
       if (e.target.closest('button,.carousel-btn,a')) return;
@@ -6196,9 +6199,9 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
       window._carouselBtnPauseUntil = Date.now() + 800;
     });
 
-    // Suppress click on cards if it was a drag (not a click)
+    // Suppress click on cards if it was a mouse drag (desktop only)
     wrap.addEventListener('click', function(e){
-      if (didDrag){
+      if (didDrag && !window.matchMedia('(pointer:coarse)').matches){
         e.stopPropagation();
         e.preventDefault();
         didDrag = false;
