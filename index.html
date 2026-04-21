@@ -5151,12 +5151,22 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
     // Stagger entrance animation
     div.style.animationDelay = ((startIdx + i) * 0.05) + 's';
 
-    // Click / keyboard → lightbox (both mobile and desktop)
+    // Click / keyboard → lightbox
     const openLb = () => openLightbox(id, isPortrait ? '9:16' : '16:9');
     div.addEventListener('click', openLb);
     div.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(); }
     });
+    // Mobile: direct touchend → lightbox (no click relay needed, instant response)
+    if (isMobile) {
+      var _ts = {x:0, y:0};
+      div.addEventListener('touchstart', function(e){ _ts.x=e.touches[0].clientX; _ts.y=e.touches[0].clientY; }, {passive:true});
+      div.addEventListener('touchend', function(e){
+        if (Math.abs(e.changedTouches[0].clientX-_ts.x)>10 || Math.abs(e.changedTouches[0].clientY-_ts.y)>10) return;
+        e.preventDefault();
+        openLb();
+      }, {passive:false});
+    }
 
     grid.appendChild(div);
   });
@@ -5357,8 +5367,8 @@ function openLightbox(vid, ratio) {
   var _h = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
   var _q = _h ? '?h=' + _h + '&' : '?';
   container.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vid +
-    _q + 'autoplay=1&playsinline=1&title=0&byline=0&portrait=0&badge=0&dnt=1" frameborder="0" ' +
-    'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen ' +
+    _q + 'autoplay=1&playsinline=1&title=0&byline=0&portrait=0&badge=0&texttrack=false" frameborder="0" ' +
+    'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen playsinline ' +
     'style="width:100%;height:100%;border:0;aspect-ratio:' + (isPortrait ? '9/16' : '16/9') + ';max-height:80vh;display:block"></iframe>';
   lb.classList.add('active');
   // Scroll lock: only if no project modal is already locking it
@@ -5895,56 +5905,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })();
 
-// ── Mobile touch-reveal: first tap shows peek strip, second tap opens project ──
+// ── Mobile: direct touchend on folder-card → openProject (no two-tap, no click reliance) ──
 (function(){
-  // Only run on touch devices
   if (!window.matchMedia || !window.matchMedia('(pointer:coarse)').matches) return;
-  var active = null;
-  var activeTimer = null;
-  var startX = 0, startY = 0;
-
   document.querySelectorAll('.folder-card[data-key]').forEach(function(card){
+    var sx = 0, sy = 0;
     card.addEventListener('touchstart', function(e){
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
     }, {passive:true});
-
     card.addEventListener('touchend', function(e){
-      var dx = Math.abs(e.changedTouches[0].clientX - startX);
-      var dy = Math.abs(e.changedTouches[0].clientY - startY);
-      if (dx > 8 || dy > 8) return; // swipe — let scroll handle
-
-      var peekEl = card.querySelector('.fc-peek');
-      var hasPeek = !!(peekEl && peekEl.offsetWidth > 0 && peekEl.offsetHeight > 0);
-      if (!hasPeek) return; // no visible peek strip — open directly on this tap
-
-      if (!card.classList.contains('touch-active')) {
-        // First tap: show peek strip, prevent click
-        e.preventDefault();
-        if (active && active !== card) {
-          active.classList.remove('touch-active');
-          clearTimeout(activeTimer);
-        }
-        card.classList.add('touch-active');
-        active = card;
-        clearTimeout(activeTimer);
-        activeTimer = setTimeout(function(){
-          card.classList.remove('touch-active');
-          if (active === card) active = null;
-        }, 2400);
-      }
-      // Second tap (touch-active already): don't prevent → onclick fires → openProject
-    });
+      var dx = Math.abs(e.changedTouches[0].clientX - sx);
+      var dy = Math.abs(e.changedTouches[0].clientY - sy);
+      if (dx > 10 || dy > 10) return; // was a scroll, ignore
+      e.preventDefault(); // block synthetic click — we open directly here
+      var key = card.getAttribute('data-key');
+      if (key) openProject(key);
+    }, {passive:false});
   });
-
-  // Dismiss peek when touching outside a card
-  document.addEventListener('touchstart', function(e){
-    if (active && !active.contains(e.target)) {
-      active.classList.remove('touch-active');
-      clearTimeout(activeTimer);
-      active = null;
-    }
-  }, {passive:true});
 })();
 
 // ── Mobile nav accordion for Projects ──
