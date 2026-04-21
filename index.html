@@ -2694,18 +2694,34 @@ function _loadAllMobileVideos(container) {
   });
 }
 
-// ── Thumbnail loader: vumbnail.com (simple, fast, no API calls) ──
-// Used for both project modal items and featured section portrait items.
-function loadPortraitThumb(imgEl, id, pvItem) {
-  imgEl.onload  = function() { imgEl.style.opacity = '1'; if (pvItem) pvItem.classList.add('pv-loaded', 'pt-loaded'); };
-  imgEl.onerror = function() { imgEl.style.opacity = '1'; if (pvItem) pvItem.classList.add('pv-loaded'); };
+// ── Thumbnail loader ──
+// Try vumbnail.com first (no API). If it fails (unlisted video), fall back to Vimeo oEmbed with hash.
+function _loadThumb(imgEl, id, pvItem, isPortrait) {
+  var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+  function done() {
+    imgEl.style.opacity = '1';
+    if (pvItem) pvItem.classList.add('pv-loaded', isPortrait ? 'pt-loaded' : '');
+  }
+  function tryOembed() {
+    imgEl.onload = null; imgEl.onerror = null;
+    if (!hash) { done(); return; }
+    fetch('https://vimeo.com/api/oembed.json?url=' + encodeURIComponent('https://vimeo.com/' + id + '/' + hash))
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+      .then(function(d){
+        if (d && d.thumbnail_url) {
+          var size = isPortrait ? '_640x1136' : '_1280x720';
+          imgEl.onload = done; imgEl.onerror = done;
+          imgEl.src = d.thumbnail_url.replace(/_\d+x\d+/, size);
+        } else { done(); }
+      })
+      .catch(done);
+  }
+  imgEl.onload = done;
+  imgEl.onerror = tryOembed;
   imgEl.src = 'https://vumbnail.com/' + id + '.jpg';
 }
-function loadLandscapeThumb(imgEl, id, pvItem) {
-  imgEl.onload  = function() { imgEl.style.opacity = '1'; if (pvItem) pvItem.classList.add('pv-loaded'); };
-  imgEl.onerror = function() { imgEl.style.opacity = '1'; if (pvItem) pvItem.classList.add('pv-loaded'); };
-  imgEl.src = 'https://vumbnail.com/' + id + '.jpg';
-}
+function loadPortraitThumb(imgEl, id, pvItem)  { _loadThumb(imgEl, id, pvItem, true);  }
+function loadLandscapeThumb(imgEl, id, pvItem) { _loadThumb(imgEl, id, pvItem, false); }
 
 // ── Build one section (label + count + grid) ──
 // Mobile: thumbnails from Vimeo oEmbed (first 6 items also get live iframes). Desktop: live autoplay iframes.
