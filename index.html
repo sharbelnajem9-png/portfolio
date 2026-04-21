@@ -2756,12 +2756,22 @@ function _setupMobileObs(container) {
   });
 }
 
-// ── Shared oEmbed fetcher ──
+// ── Shared oEmbed fetcher — tries oEmbed first (needs hash for unlisted), falls back to Vimeo v2 API ──
 function _pvOEmbed(id) {
   var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
   var enc = 'https%3A%2F%2Fvimeo.com%2F' + id + (hash ? '%3Fh%3D' + hash : '');
   return fetch('https://vimeo.com/api/oembed.json?url=' + enc)
-    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .catch(function() {
+      // oEmbed failed (403 / network) — try Vimeo v2 API (thumbnails are CDN-public even for unlisted)
+      return fetch('https://vimeo.com/api/v2/video/' + id + '.json')
+        .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(arr) {
+          var v = arr && arr[0];
+          if (!v || !v.thumbnail_large) throw new Error('no data');
+          return { thumbnail_url: v.thumbnail_large, thumbnail_width: v.width, thumbnail_height: v.height };
+        });
+    });
 }
 
 // ── Try an image URL, resolves with url if loads, rejects on error ──
