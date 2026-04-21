@@ -4069,7 +4069,7 @@ section::after{
   <div class="hero-video-bg" id="heroBg">
   <div class="hero-showreel-wrap" id="heroShowreelWrap">
     <iframe id="heroShowreelIframe"
-      src="https://player.vimeo.com/video/1182382291?h=4d10b0f514&background=1&autoplay=1&muted=1&loop=0&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0&transparent=1&texttrack=false&app_id=58479"
+      src="https://player.vimeo.com/video/1182382291?h=4d10b0f514&background=1&autoplay=1&muted=1&loop=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0&badge=0&controls=0&transparent=1&texttrack=false&app_id=58479"
       frameborder="0"
       allow="autoplay; fullscreen; picture-in-picture"
       allowfullscreen></iframe>
@@ -5222,8 +5222,7 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
   })(document);
 
 // ================================================================
-// HERO SHOWREEL — single clip, plays once, fades to dark bg,
-// replays whenever the viewer scrolls back to the hero section.
+// HERO SHOWREEL — loops continuously, replays on tab re-focus
 // ================================================================
 (function(){
   var wrap   = document.getElementById('heroShowreelWrap');
@@ -5231,7 +5230,6 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
   if (!wrap || !iframe) return;
 
   var player = null;
-  var ended  = false;
 
   function waitForVimeo(cb) {
     if (typeof Vimeo !== 'undefined' && Vimeo.Player) { cb(); return; }
@@ -5240,45 +5238,23 @@ document.querySelectorAll('.featured-item.portrait[data-vid]').forEach(function(
     }, 100);
   }
 
-  function doPlay() {
-    if (!player) return;
-    ended = false;
-    wrap.classList.remove('sr-ended');
-    player.setCurrentTime(0).then(function(){ player.play().catch(function(){}); }).catch(function(){ player.play().catch(function(){}); });
-  }
-
   waitForVimeo(function(){
     player = new Vimeo.Player(iframe);
-    player.setLoop(false).catch(function(){});
+    player.setLoop(true).catch(function(){});
     player.disableTextTrack().catch(function(){});
     player.play().catch(function(){});
 
-    // After the showreel ends — fade out, show site dark background
-    player.on('ended', function(){
-      ended = true;
-      wrap.classList.add('sr-ended');
-    });
-
-    // On Vimeo error — hide wrapper immediately so no "Sorry" banner appears
+    // On Vimeo error — hide wrapper so no error banner shows
     player.on('error', function(){
       wrap.classList.add('sr-ended');
     });
   });
 
-  // Replay when hero scrolls back into view
-  if ('IntersectionObserver' in window) {
-    var obs = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if (e.isIntersecting && ended) doPlay();
-      });
-    }, { threshold: 0.4 });
-    var hero = document.getElementById('hero');
-    if (hero) obs.observe(hero);
-  }
-
-  // Replay on tab re-focus if video had ended
+  // Resume play on tab re-focus (browser may have paused background tabs)
   document.addEventListener('visibilitychange', function(){
-    if (document.visibilityState === 'visible' && ended) doPlay();
+    if (document.visibilityState === 'visible' && player) {
+      player.play().catch(function(){});
+    }
   });
 })();
 
