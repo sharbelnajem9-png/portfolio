@@ -2756,78 +2756,83 @@ function _setupMobileObs(container) {
   });
 }
 
-// ── Shared oEmbed fetcher — tries oEmbed first (needs hash for unlisted), falls back to Vimeo v2 API ──
+// ── Try an image URL, returns promise that resolves(url) or rejects ──
+function _pvTryImg(url) {
+  return new Promise(function(res, rej) {
+    var c = new Image(); c.onload = function(){ res(url); }; c.onerror = rej; c.src = url;
+  });
+}
+
+// ── oEmbed fetch (with hash for unlisted videos) ──
 function _pvOEmbed(id) {
   var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
   var enc = 'https%3A%2F%2Fvimeo.com%2F' + id + (hash ? '%3Fh%3D' + hash : '');
   return fetch('https://vimeo.com/api/oembed.json?url=' + enc)
-    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .catch(function() {
-      // oEmbed failed (403 / network) — try Vimeo v2 API (thumbnails are CDN-public even for unlisted)
-      return fetch('https://vimeo.com/api/v2/video/' + id + '.json')
-        .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then(function(arr) {
-          var v = arr && arr[0];
-          if (!v || !v.thumbnail_large) throw new Error('no data');
-          return { thumbnail_url: v.thumbnail_large, thumbnail_width: v.width, thumbnail_height: v.height };
-        });
-    });
+    .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); });
 }
 
-// ── Try an image URL, resolves with url if loads, rejects on error ──
-function _pvTryImg(url) {
-  return new Promise(function(res, rej) {
-    var c = new Image();
-    c.onload = function() { res(url); };
-    c.onerror = rej;
-    c.src = url;
-  });
-}
-
-// ── Apply thumbnail: set src, reveal with fade, mark item loaded ──
-function _pvApplyThumb(imgEl, url, pvItem, addPtLoaded) {
-  imgEl.src = url;
-  imgEl.onload = function() { imgEl.style.opacity = '1'; };
-  if (pvItem) { pvItem.classList.add('pv-loaded'); if (addPtLoaded) pvItem.classList.add('pt-loaded'); }
-}
-
+// ── Load thumbnail for a portrait (9:16) card ──
+// Strategy: vumbnail.com INSTANTLY (fast, always works for unlisted) →
+//           background upgrade to proper 9:16 portrait URL via oEmbed.
 function loadPortraitThumb(imgEl, id, pvItem) {
-  var done = false;
-  function fallback() { if (!done) { done = true; if (pvItem) pvItem.classList.add('pv-loaded'); } }
-  setTimeout(fallback, 5000); // hard cap: don't wait forever
-  _pvOEmbed(id)
-    .then(function(d) {
-      if (done || !d || !d.thumbnail_url) return fallback();
+  function markLoaded() { if (pvItem) pvItem.classList.add('pv-loaded'); }
+  function showImg(url) { imgEl.style.opacity = '1'; imgEl.src = url; }
+
+  // Immediate: vumbnail gives a frame (16:9, cropped but instant)
+  imgEl.onload  = function() { showImg(imgEl.src); markLoaded(); tryPortraitUpgrade(); };
+  imgEl.onerror = function() { imgEl.onload = imgEl.onerror = null; tryOEmbedDirect(); };
+  imgEl.src = 'https://vumbnail.com/' + id + '.jpg';
+
+  // Background: try to upgrade to true 9:16 portrait thumbnail
+  function tryPortraitUpgrade() {
+    _pvOEmbed(id).then(function(d) {
+      if (!d || !d.thumbnail_url) return;
       var base = d.thumbnail_url;
-      // Detect if oEmbed already gave a portrait thumbnail
-      var isPortraitThumb = (d.thumbnail_height || 0) > (d.thumbnail_width || 0);
-      // Try 1080x1920 → 540x960 → original
       _pvTryImg(base.replace(/_\d+x\d+(\.\w+)$/, '_1080x1920$1'))
-        .then(function(url) { if (!done) { done=true; _pvApplyThumb(imgEl, url, pvItem, true); } })
+        .then(function(url) { imgEl.src = url; if (pvItem) pvItem.classList.add('pt-loaded'); })
         .catch(function() {
           _pvTryImg(base.replace(/_\d+x\d+(\.\w+)$/, '_540x960$1'))
-            .then(function(url) { if (!done) { done=true; _pvApplyThumb(imgEl, url, pvItem, true); } })
+            .then(function(url) { imgEl.src = url; if (pvItem) pvItem.classList.add('pt-loaded'); })
             .catch(function() {
-              if (!done) { done=true; _pvApplyThumb(imgEl, base, pvItem, isPortraitThumb); }
+              // Use oEmbed original only if it IS portrait (taller than wide)
+              if ((d.thumbnail_height || 0) > (d.thumbnail_width || 0)) {
+                imgEl.src = base;
+                if (pvItem) pvItem.classList.add('pt-loaded');
+              }
             });
         });
-    })
-    .catch(fallback);
+    }).catch(function(){});
+  }
+
+  // Fallback if vumbnail fails: try oEmbed directly
+  function tryOEmbedDirect() {
+    _pvOEmbed(id).then(function(d) {
+      if (!d || !d.thumbnail_url) { markLoaded(); return; }
+      var base = d.thumbnail_url;
+      var isP = (d.thumbnail_height || 0) > (d.thumbnail_width || 0);
+      _pvTryImg(base.replace(/_\d+x\d+(\.\w+)$/, '_1080x1920$1'))
+        .then(function(url) { showImg(url); markLoaded(); if (pvItem) pvItem.classList.add('pt-loaded'); })
+        .catch(function() {
+          showImg(base); markLoaded(); if (isP && pvItem) pvItem.classList.add('pt-loaded');
+        });
+    }).catch(markLoaded);
+  }
 }
 
+// ── Load thumbnail for a landscape (16:9) card ──
 function loadLandscapeThumb(imgEl, id, pvItem) {
-  var done = false;
-  function fallback() { if (!done) { done = true; if (pvItem) pvItem.classList.add('pv-loaded'); } }
-  setTimeout(fallback, 5000);
-  _pvOEmbed(id)
-    .then(function(d) {
-      if (done || !d || !d.thumbnail_url) return fallback();
-      var base = d.thumbnail_url;
-      _pvTryImg(base.replace(/_\d+x\d+(\.\w+)$/, '_1920x1080$1'))
-        .then(function(url) { if (!done) { done=true; _pvApplyThumb(imgEl, url, pvItem, false); } })
-        .catch(function() { if (!done) { done=true; _pvApplyThumb(imgEl, base, pvItem, false); } });
-    })
-    .catch(fallback);
+  function markLoaded() { if (pvItem) pvItem.classList.add('pv-loaded'); }
+  imgEl.onload  = function() { imgEl.style.opacity = '1'; markLoaded(); };
+  imgEl.onerror = function() {
+    imgEl.onload = imgEl.onerror = null;
+    _pvOEmbed(id).then(function(d) {
+      if (!d || !d.thumbnail_url) { markLoaded(); return; }
+      imgEl.onload  = function() { imgEl.style.opacity = '1'; markLoaded(); };
+      imgEl.onerror = markLoaded;
+      imgEl.src = d.thumbnail_url;
+    }).catch(markLoaded);
+  };
+  imgEl.src = 'https://vumbnail.com/' + id + '.jpg';
 }
 
 // ── Build one section (label + count + grid) ──
@@ -3016,22 +3021,19 @@ function openProject(key) {
     requestAnimationFrame(function(){ _loadAllMobileVideos(container); });
   }
 
-  // Loading cover — hides when first iframe fires load (both desktop and mobile)
+  // Loading cover — hides when iframes are playing
   var _pvRevealDone = false;
-  var _pvOpenTime = Date.now();
   var _pvIsMobile = window.innerWidth <= 768;
   function _pvRevealAll() {
     if (_pvRevealDone) return; _pvRevealDone = true;
     window._pvTriggerReveal = null;
     if (lc) lc.classList.remove('active');
+    // Make all iframes visible
     container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
+    // Remove shimmer from all items (thumbnails or iframes will show)
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
-  window._pvTriggerReveal = function() {
-    window._pvTriggerReveal = null;
-    // Reveal immediately — timeupdate already confirms video is playing
-    _pvRevealAll();
-  };
+  window._pvTriggerReveal = function() { window._pvTriggerReveal = null; _pvRevealAll(); };
   // Hard fallback: mobile 10s, desktop 9s
   setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 10000 : 9000);
 
