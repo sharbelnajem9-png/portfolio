@@ -2663,11 +2663,10 @@ function _pvDrainAll() {
   }
 }
 
-// ── Mobile: load ALL project videos sequentially.
-// The loading cover stays until videos are ACTUALLY playing (Vimeo timeupdate = real frames).
-// Falls back to iframe load + 2s buffer if Vimeo API unavailable.
+// ── Mobile: load up to 6 project videos sequentially (cap prevents OOM when switching projects).
+// Loading cover stays until videos are playing (iframe load + 2.5s buffer = first frame rendered).
 function _loadAllMobileVideos(container) {
-  var items = Array.from(container.querySelectorAll('.pv-item[data-vid]'));
+  var items = Array.from(container.querySelectorAll('.pv-item[data-vid]')).slice(0, 6);
   if (!items.length) return;
   var queue = items.slice();
   var playingCount = 0;
@@ -2682,27 +2681,10 @@ function _loadAllMobileVideos(container) {
   }
 
   function attachToIframe(fr, item) {
-    // Show iframe as soon as it loads
     fr.addEventListener('load', function() {
       fr.style.opacity = '1';
-      // True signal: wait for Vimeo timeupdate (first frame playing)
-      if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
-        try {
-          var p = new Vimeo.Player(fr);
-          var fired = false;
-          p.on('timeupdate', function onTu() {
-            if (fired) return; fired = true;
-            p.off('timeupdate', onTu);
-            markPlaying(item);
-          });
-          p.play().catch(function(){});
-          // Fallback if timeupdate never fires (e.g. slow decode)
-          setTimeout(function() { if (!fired) { fired = true; markPlaying(item); } }, 5000);
-          return;
-        } catch(e) {}
-      }
-      // No Vimeo API: mark after 2s buffer (video likely rendering by then)
-      setTimeout(function() { markPlaying(item); }, 2000);
+      // 2.5s buffer: iframe loads → Vimeo JS init → first frame decode
+      setTimeout(function() { markPlaying(item); }, 2500);
     }, {once: true});
     // Per-iframe hard fallback
     setTimeout(function() { markPlaying(item); }, 10000);
