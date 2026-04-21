@@ -466,6 +466,11 @@ footer::before{
 }
 .pv-item:hover .pv-play{background:rgba(0,0,0,0.3)}
 .pv-item:hover .pv-play svg{opacity:1;transform:scale(1)}
+/* Mobile: always show play icon — no hover on touch */
+@media(max-width:768px){
+  .pv-play svg{opacity:0.85!important;transform:scale(1)!important;width:48px!important;height:48px!important}
+  .pv-item:active .pv-play{background:rgba(0,0,0,0.4)!important}
+}
 /* shimmer loading state */
 .pv-shimmer{
   position:absolute;inset:0;z-index:1;
@@ -508,42 +513,47 @@ footer::before{
   pointer-events:none;transition:opacity 0.4s}
 
 /* ===== VIDEO LIGHTBOX ===== */
-.vid-lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.97);
+.vid-lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.98);
   z-index:3000;display:flex;align-items:center;justify-content:center;
-  opacity:0;pointer-events:none;transition:opacity 0.28s cubic-bezier(0.4,0,0.2,1);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+  opacity:0;pointer-events:none;transition:opacity 0.22s ease;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .vid-lightbox.active{opacity:1;pointer-events:all}
-/* Lightbox: perfectly contained, never zoomed or clipped */
+@media(max-width:768px){
+  .vid-lightbox{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
 .vlb-inner{
   position:relative;
-  max-width:90vw;
-  max-height:90vh;
-  width:auto;
-  height:auto;
+  width:100%;
+  height:100%;
   display:flex;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
+  padding:56px 12px 20px;
+  box-sizing:border-box;
 }
 .vlb-video{
   width:100%;
   height:100%;
-  max-width:90vw;
-  max-height:90vh;
-  object-fit:contain;
+  max-width:min(90vw, calc(90vh * 16/9));
   display:flex;
   align-items:center;
   justify-content:center;
 }
-.vlb-close{position:absolute;top:-46px;right:0;
-  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
-  color:white;font-size:18px;width:36px;height:36px;border-radius:50%;
+.vlb-video.portrait-mode{
+  max-width:min(90vw, calc(90vh * 9/16));
+}
+.vlb-close{
+  position:absolute;top:14px;right:14px;
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);
+  color:white;font-size:20px;width:40px;height:40px;border-radius:50%;
   cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:all 0.2s;font-family:sans-serif}
-.vlb-close:hover{background:rgba(255,255,255,0.22)}
+  transition:background 0.2s;font-family:sans-serif;z-index:10;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.vlb-close:hover,.vlb-close:active{background:rgba(255,255,255,0.28)}
 .vlb-video iframe{
-  border:0;display:block;border-radius:10px;
+  border:0;display:block;border-radius:8px;
   width:100%;height:100%;
-  max-width:90vw;max-height:90vh;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -5129,10 +5139,10 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       })(_fr, div);
     }
 
-    // Shimmer overlay during load
+    // Shimmer overlay during load (z-index 2 on mobile so it doesn't cover the thumbnail img)
     const shimmer = document.createElement('div');
     shimmer.className = 'pv-shimmer';
-    shimmer.style.zIndex = '3';
+    shimmer.style.zIndex = isMobile ? '1' : '3';
     div.appendChild(shimmer);
 
     // Play overlay
@@ -5230,13 +5240,9 @@ function openProject(key) {
     setTimeout(_pvRevealAll, Math.max(0, 300 - elapsed));
   };
   if (_pvIsMobile) {
-    // Mobile: free hardware decoder slots — stop background iframes before loading project videos
-    document.querySelectorAll('.fc-card-vid, .fi-bg iframe, .hero-vid-item iframe').forEach(function(fr){
-      try { fr.src = 'about:blank'; } catch(ex){}
-    });
-    // Dismiss cover after thumbnails show (800ms), then set up observer for video iframes
-    setTimeout(_pvRevealAll, 800);
-    setTimeout(function(){ _setupMobileObs(container); }, 120);
+    // Mobile: thumbnails only — no iframes loaded in the grid (prevents OOM crash on Chrome)
+    // Videos play one at a time via lightbox when user taps a thumbnail
+    setTimeout(_pvRevealAll, 350);
   } else {
     // Desktop: wait for first iframe to render, hard fallback at 9s
     setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, 9000);
@@ -5338,31 +5344,24 @@ function openLightbox(vid, ratio) {
   const lb = document.getElementById('vid-lightbox');
   const container = document.getElementById('vlb-video');
   const isPortrait = ratio === '9:16';
-  // Responsive: use 90% of the limiting screen dimension
-  const maxW = window.innerWidth  * 0.90;
-  const maxH = window.innerHeight * 0.88;
-  let w, h;
+
+  // Let CSS handle sizing — just mark portrait vs landscape
+  container.style.width  = '';
+  container.style.height = '';
   if (isPortrait) {
-    // 9:16 portrait — height limited
-    h = maxH;
-    w = Math.round(h * 9 / 16);
-    if (w > maxW) { w = maxW; h = Math.round(w * 16 / 9); }
+    container.classList.add('portrait-mode');
   } else {
-    // 16:9 landscape — width limited
-    w = maxW;
-    h = Math.round(w * 9 / 16);
-    if (h > maxH) { h = maxH; w = Math.round(h * 16 / 9); }
+    container.classList.remove('portrait-mode');
   }
-  container.style.width  = w + 'px';
-  container.style.height = h + 'px';
+
   var _h = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
   var _q = _h ? '?h=' + _h + '&' : '?';
   container.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vid +
-    _q + 'title=0&byline=0&portrait=0&autoplay=1&badge=0&playsinline=1&texttrack=false" frameborder="0" ' +
+    _q + 'autoplay=1&playsinline=1&title=0&byline=0&portrait=0&badge=0&dnt=1" frameborder="0" ' +
     'allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen ' +
-    'style="width:100%;height:100%;border:0;border-radius:10px"></iframe>';
+    'style="width:100%;height:100%;border:0;aspect-ratio:' + (isPortrait ? '9/16' : '16/9') + ';max-height:80vh;display:block"></iframe>';
   lb.classList.add('active');
-  // Scroll is already locked by project modal; only lock if opened standalone
+  // Scroll lock: only if no project modal is already locking it
   if (!document.getElementById('project-overlay').classList.contains('active')) {
     window._lbScrollY = window.pageYOffset || 0;
     document.body.style.position = 'fixed';
