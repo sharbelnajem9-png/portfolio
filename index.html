@@ -2694,8 +2694,36 @@ function _loadAllMobileVideos(container) {
   });
 }
 
+// ── Static thumbnail map (local files, no API needed) ──
+const THUMB_STATIC = {
+  '1181129583':'thumbs/1181129583.jpg','1181130233':'thumbs/1181130233.jpg','1181130693':'thumbs/1181130693.jpg',
+  '1181131121':'thumbs/1181131121.jpg','1181131716':'thumbs/1181131716.jpg','1181132783':'thumbs/1181132783.jpg',
+  '1181133908':'thumbs/1181133908.jpg','1181134696':'thumbs/1181134696.jpg','1181135174':'thumbs/1181135174.jpg',
+  '1181136783':'thumbs/1181136783.jpg','1181137269':'thumbs/1181137269.jpg','1181138086':'thumbs/1181138086.jpg',
+  '1181138794':'thumbs/1181138794.jpg',
+  '1181178222':'thumbs/1181178222.jpg','1181181225':'thumbs/1181181225.jpg','1181181511':'thumbs/1181181511.jpg',
+  '1181282280':'thumbs/1181282280.jpg','1181278824':'thumbs/1181278824.jpg',
+  '1181261937':'thumbs/1181261937.jpg','1181270619':'thumbs/1181270619.jpg',
+  '1181212370':'thumbs/1181212370.jpg','1181214416':'thumbs/1181214416.jpg','1181216090':'thumbs/1181216090.jpg',
+  '1181182439':'thumbs/1181182439.jpg','1181183766':'thumbs/1181183766.jpg','1181205157':'thumbs/1181205157.jpg',
+  '1181206645':'thumbs/1181206645.jpg','1181209657':'thumbs/1181209657.jpg','1181211716':'thumbs/1181211716.jpg',
+  '1181228462':'thumbs/1181228462.jpg','1181229662':'thumbs/1181229662.jpg','1181231926':'thumbs/1181231926.jpg',
+  '1181233630':'thumbs/1181233630.jpg','1181236213':'thumbs/1181236213.jpg','1181219025':'thumbs/1181219025.jpg',
+  '1181222057':'thumbs/1181222057.jpg','1181223604':'thumbs/1181223604.jpg','1181225482':'thumbs/1181225482.jpg',
+  '1181227058':'thumbs/1181227058.jpg','1181217328':'thumbs/1181217328.jpg',
+  '1181243866':'thumbs/1181243866.jpg','1181244361':'thumbs/1181244361.jpg','1181237397':'thumbs/1181237397.jpg',
+  '1181245016':'thumbs/1181245016.jpg','1181245910':'thumbs/1181245910.jpg','1181238149':'thumbs/1181238149.jpg',
+  '1181246622':'thumbs/1181246622.jpg','1181242850':'thumbs/1181242850.jpg','1181247341':'thumbs/1181247341.jpg',
+  '1181238978':'thumbs/1181238978.jpg','1181239956':'thumbs/1181239956.jpg','1181241565':'thumbs/1181241565.jpg',
+  '1181240736':'thumbs/1181240736.jpg',
+  '1181249674':'thumbs/1181249674.jpg','1181248011':'thumbs/1181248011.jpg','1181253289':'thumbs/1181253289.jpg',
+  '1181251726':'thumbs/1181251726.jpg','1181251383':'thumbs/1181251383.jpg','1181249987':'thumbs/1181249987.jpg',
+  '1181256366':'thumbs/1181256366.jpg','1181255416':'thumbs/1181255416.jpg','1181258284':'thumbs/1181258284.jpg',
+  '1181257746':'thumbs/1181257746.jpg','1181257117':'thumbs/1181257117.jpg','1181258640':'thumbs/1181258640.jpg'
+};
+
 // ── Thumbnail loader ──
-// Try vumbnail.com first (no API). If it fails (unlisted video), fall back to Vimeo oEmbed with hash.
+// Priority: static local file → vumbnail.com → oEmbed API with hash
 function _loadThumb(imgEl, id, pvItem, isPortrait) {
   var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
   function done() {
@@ -2716,9 +2744,16 @@ function _loadThumb(imgEl, id, pvItem, isPortrait) {
       })
       .catch(done);
   }
-  imgEl.onload = done;
-  imgEl.onerror = tryOembed;
-  imgEl.src = 'https://vumbnail.com/' + id + '.jpg';
+  function tryVumbnail() {
+    imgEl.onload = done; imgEl.onerror = tryOembed;
+    imgEl.src = 'https://vumbnail.com/' + id + '.jpg';
+  }
+  if (THUMB_STATIC[id]) {
+    imgEl.onload = done; imgEl.onerror = tryVumbnail;
+    imgEl.src = THUMB_STATIC[id];
+  } else {
+    tryVumbnail();
+  }
 }
 function loadPortraitThumb(imgEl, id, pvItem)  { _loadThumb(imgEl, id, pvItem, true);  }
 function loadLandscapeThumb(imgEl, id, pvItem) { _loadThumb(imgEl, id, pvItem, false); }
