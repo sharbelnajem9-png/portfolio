@@ -1,6 +1,33 @@
 // Prevent iOS Safari from restoring scroll position after reload — always start at top
 if (history.scrollRestoration) history.scrollRestoration = 'manual';
 window.addEventListener('load', function(){ if (!window.location.hash) window.scrollTo(0, 0); });
+
+// ── Page Visibility: pause every Vimeo iframe when the tab is hidden,
+// resume the ones currently in view when it becomes visible again. Saves
+// significant CPU/network when the user switches tabs. ─────────────────────
+document.addEventListener('visibilitychange', function(){
+  var hidden = document.hidden;
+  // Featured strip
+  document.querySelectorAll('.featured-item iframe').forEach(function(fr){
+    if (!fr._fiPlayer) return;
+    try {
+      if (hidden) fr._fiPlayer.pause().catch(function(){});
+      else if (_isInViewport(fr)) fr._fiPlayer.play().catch(function(){});
+    } catch(e) {}
+  });
+  // Project modal
+  document.querySelectorAll('#pm-videos iframe').forEach(function(fr){
+    if (!fr._pvPlayer) return;
+    try {
+      if (hidden) fr._pvPlayer.pause().catch(function(){});
+      else if (_isInViewport(fr)) fr._pvPlayer.play().catch(function(){});
+    } catch(e) {}
+  });
+});
+function _isInViewport(el){
+  var r = el.getBoundingClientRect();
+  return r.bottom > 0 && r.top < (window.innerHeight || document.documentElement.clientHeight);
+}
 let currentLang='en';
 function toggleLang(){
   currentLang=currentLang==='en'?'he':'en';
@@ -293,21 +320,36 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       _pvQueue.push({iframe:_fr, div:div, thumb:null});
       (function(fr, dv){
         fr.addEventListener('load', function(){
-          // iframe network-loaded — count it. When all are loaded, reveal at once.
-          if (typeof window._pvLoadedCount === 'number') {
-            window._pvLoadedCount++;
-            if (window._pvCheckAllLoaded) window._pvCheckAllLoaded();
-          }
           if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
             try {
               var p = new Vimeo.Player(fr);
+              fr._pvPlayer = p;
+              if (!window._pvPlayers) window._pvPlayers = [];
+              window._pvPlayers.push(p);
+              // Smart eye: count when video is ACTUALLY playing (timeupdate fired)
+              var _played = false;
+              p.on('timeupdate', function _onTu(){
+                if (_played) return; _played = true;
+                p.off('timeupdate', _onTu);
+                if (typeof window._pvPlayingCount === 'number') {
+                  window._pvPlayingCount++;
+                  if (window._pvCheckPlaying) window._pvCheckPlaying();
+                }
+              });
               p.on('ended', function(){
                 p.setCurrentTime(0).then(function(){ p.play().catch(function(){}); }).catch(function(){});
               });
+              p.on('error', function(){ fr.style.opacity = '0'; });
               p.play().catch(function(){});
-              if (!window._pvPlayers) window._pvPlayers = [];
-              window._pvPlayers.push(p);
+              // Pause when scrolled off-screen, resume when back in view
+              if (window._pvScrollPauseObs) window._pvScrollPauseObs.observe(fr);
             } catch(e) {}
+          } else {
+            // Fallback if SDK didn't load — count load event as "playing"
+            if (typeof window._pvPlayingCount === 'number') {
+              window._pvPlayingCount++;
+              if (window._pvCheckPlaying) window._pvCheckPlaying();
+            }
           }
         }, {once:true});
       })(_fr, div);
@@ -352,12 +394,26 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
 function openProject(key) {
   const p = PROJECT_DATA[key];
   if (!p) return;
-  // Reset modal video queue, observers, and load counters
+  // Reset modal video queue, observers, and play counters
   _pvQueue = []; _pvActive = 0;
-  window._pvLoadedCount = 0;
+  window._pvPlayingCount = 0;
   window._pvTotalCount = 0;
   if (_pvObserver)   { _pvObserver.disconnect();   _pvObserver   = null; }
   if (_pvMobileObs)  { _pvMobileObs.disconnect();  _pvMobileObs  = null; }
+  // Recreate scroll-pause observer fresh for this project
+  if (window._pvScrollPauseObs) { window._pvScrollPauseObs.disconnect(); }
+  if ('IntersectionObserver' in window) {
+    window._pvScrollPauseObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        var fr = e.target;
+        if (!fr._pvPlayer) return;
+        try {
+          if (e.isIntersecting) fr._pvPlayer.play().catch(function(){});
+          else fr._pvPlayer.pause().catch(function(){});
+        } catch(err) {}
+      });
+    }, {threshold: 0.1, rootMargin: '200px'});
+  }
   const lang = typeof currentLang !== 'undefined' ? currentLang : 'en';
   const title = lang === 'he' ? p.he : p.en;
 
@@ -420,33 +476,34 @@ function openProject(key) {
     requestAnimationFrame(function(){ _loadAllMobileVideos(container); });
   }
 
-  // Loading cover — hides when all iframes have network-loaded (load event fired)
+  // Loading cover — smart eye: dismisses only when videos are actually PLAYING
   var _pvRevealDone = false;
   var _pvIsMobile = window.innerWidth <= 768;
   function _pvRevealAll() {
     if (_pvRevealDone) return; _pvRevealDone = true;
     window._pvTriggerReveal = null;
-    window._pvCheckAllLoaded = null;
+    window._pvCheckPlaying = null;
     if (lc) lc.classList.remove('active');
-    // Make all iframes visible together — synchronized fade-in
+    // Synchronized fade-in: all videos appear together, all already playing
     container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
   window._pvTriggerReveal = function() { _pvRevealAll(); };
-  // Reveal once all iframes (or 90%) have fired their load event — they're all buffered
-  window._pvCheckAllLoaded = function() {
+  // Smart eye: reveal once the first visible row of videos are confirmed playing
+  // (items below the fold load and pause via IntersectionObserver — no need to wait)
+  window._pvCheckPlaying = function() {
     if (_pvRevealDone) return;
     var total = window._pvTotalCount || 0;
     if (total === 0) { _pvRevealAll(); return; }
-    var loaded = window._pvLoadedCount || 0;
-    // 90% threshold so a single slow iframe doesn't block the whole reveal
-    if (loaded >= Math.ceil(total * 0.9)) {
-      // Small grace so the last frames buffer before fade-in
-      setTimeout(_pvRevealAll, 250);
+    var playing = window._pvPlayingCount || 0;
+    var threshold = Math.min(3, total); // first row visible
+    if (playing >= threshold) {
+      // Tiny grace so first frames are rendered before the cover fades
+      setTimeout(_pvRevealAll, 200);
     }
   };
-  // Hard fallback: mobile 8s, desktop 7s
-  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 8000 : 7000);
+  // Hard fallback — never block longer than 8s desktop / 9s mobile
+  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 9000 : 8000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
@@ -472,9 +529,10 @@ function closeProject(e) {
   }
   window._pvPlayers = [];
   window._pvTriggerReveal = null;
-  window._pvCheckAllLoaded = null;
-  window._pvLoadedCount = 0;
+  window._pvCheckPlaying = null;
+  window._pvPlayingCount = 0;
   window._pvTotalCount = 0;
+  if (window._pvScrollPauseObs) { window._pvScrollPauseObs.disconnect(); window._pvScrollPauseObs = null; }
   // Restore hero iframe on mobile
   var _heroFr = document.getElementById('heroShowreelIframe');
   if (_heroFr && _heroFr.hasAttribute('data-hero-src')) {
@@ -674,20 +732,62 @@ window.addEventListener('scroll', () => {
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
       'border:0;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.8s ease;';
     bg.appendChild(iframe);
-    // Reveal on iframe load (real signal) — small delay so first frame renders
+    // Smart "eye" — reveal only when video is actually playing (timeupdate fires)
     iframe.addEventListener('load', function(){
-      setTimeout(function(){
-        iframe.style.opacity = '1';
-        var thumb = bg.querySelector('.fi-thumb-img');
-        if (thumb) thumb.style.opacity = '0';
-        item.classList.add('fi-loaded');
-      }, 300);
-      // Signal site loader that a featured video is ready
-      if (typeof window._slFeatLoaded !== 'undefined'){
-        window._slFeatLoaded++;
-        if (window._slCheckReady) window._slCheckReady();
+      // Initialize Vimeo Player to listen for actual playback
+      if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
+        try {
+          var p = new Vimeo.Player(iframe);
+          iframe._fiPlayer = p; // store ref for IntersectionObserver pause/resume
+          var _played = false;
+          p.on('timeupdate', function _onTu(){
+            if (_played) return; _played = true;
+            p.off('timeupdate', _onTu);
+            // Truly playing — reveal smoothly
+            iframe.style.opacity = '1';
+            var thumb = bg.querySelector('.fi-thumb-img');
+            if (thumb) thumb.style.opacity = '0';
+            item.classList.add('fi-loaded');
+            // Signal site loader that a featured video is actually playing
+            if (typeof window._slFeatPlaying !== 'undefined'){
+              window._slFeatPlaying++;
+              if (window._slCheckReady) window._slCheckReady();
+            }
+          });
+          p.on('error', function(){ iframe.style.opacity = '0'; });
+          p.play().catch(function(){});
+          // Track for off-screen pause
+          if (window._featPauseObs) window._featPauseObs.observe(iframe);
+        } catch(e) {}
+      } else {
+        // Fallback if Vimeo SDK didn't load — reveal anyway after a short delay
+        setTimeout(function(){
+          iframe.style.opacity = '1';
+          var thumb = bg.querySelector('.fi-thumb-img');
+          if (thumb) thumb.style.opacity = '0';
+          item.classList.add('fi-loaded');
+          if (typeof window._slFeatPlaying !== 'undefined'){
+            window._slFeatPlaying++;
+            if (window._slCheckReady) window._slCheckReady();
+          }
+        }, 600);
       }
     }, {once: true});
+  }
+
+  // IntersectionObserver: pause featured iframes when scrolled off-screen
+  // (saves bandwidth + decoder slots; resumes when back in view)
+  if ('IntersectionObserver' in window) {
+    window._featPauseObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        var fr = e.target;
+        if (!fr._fiPlayer) return;
+        try {
+          if (e.isIntersecting) fr._fiPlayer.play().catch(function(){});
+          else fr._fiPlayer.pause().catch(function(){});
+        } catch(err) {}
+      });
+    }, {threshold: 0.15, rootMargin: '100px'});
   }
 
   // Eagerly pre-load first 12 unique items (no viewport check needed)

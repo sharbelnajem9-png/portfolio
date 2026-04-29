@@ -184,15 +184,15 @@
 
 
 
-// ── Site loader: smart dismiss when hero + featured videos are ready ──
+// ── Site loader: smart "eye" — dismiss only when hero + featured videos are PLAYING ──
 (function(){
   var loader = document.getElementById('site-loader');
   if (!loader) return;
   var _slDismissed = false;
   var _slStart = Date.now();
   var _isMob = window.innerWidth <= 768;
-  // Mobile: featured section is hidden so don't wait for it; show loader only 2.5s minimum
-  var _slMinMs = _isMob ? 2500 : 6000;
+  // Minimum loader display so the progress bar animation completes
+  var _slMinMs = _isMob ? 2500 : 5000;
 
   function dismiss(){
     if (_slDismissed) return;
@@ -206,33 +206,49 @@
     }, wait);
   }
 
-  // Shared counters read by featured IIFE (defined above)
-  window._slFeatLoaded = 0;
-  var _slHeroReady = false;
-  // Mobile: featured section is hidden — don't block on featured iframes loading
-  var _slNeededFeat = _isMob ? 0 : 3;
+  // Smart eye counters — featured IIFE bumps _slFeatPlaying when timeupdate fires
+  window._slFeatPlaying = 0;
+  window._slFeatLoaded = 0; // legacy alias for compatibility
+  var _slHeroPlaying = false;
+  // Mobile: featured iframes are skipped — only require hero
+  var _slNeededFeat = _isMob ? 0 : 1;
 
   window._slCheckReady = function(){
-    if (_slHeroReady && window._slFeatLoaded >= _slNeededFeat) dismiss();
+    if (_slHeroPlaying && window._slFeatPlaying >= _slNeededFeat) dismiss();
   };
 
-  // Hero showreel iframe (already embedded in HTML)
+  // Hero showreel — eye watches for actual playback via Vimeo timeupdate
   var heroIframe = document.getElementById('heroShowreelIframe');
   if (heroIframe) {
     heroIframe.addEventListener('load', function(){
-      _slHeroReady = true;
-      window._slCheckReady();
+      if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
+        try {
+          var hp = new Vimeo.Player(heroIframe);
+          var _heroPlayed = false;
+          hp.on('timeupdate', function _onHeroTu(){
+            if (_heroPlayed) return; _heroPlayed = true;
+            hp.off('timeupdate', _onHeroTu);
+            _slHeroPlaying = true;
+            window._slCheckReady();
+          });
+          hp.play().catch(function(){});
+        } catch(e) {
+          _slHeroPlaying = true;
+          window._slCheckReady();
+        }
+      } else {
+        // Fallback: assume playing 500ms after load
+        setTimeout(function(){ _slHeroPlaying = true; window._slCheckReady(); }, 500);
+      }
     }, {once: true});
-    // Iframe may have loaded before this listener was added — set ready after 1s anyway
-    setTimeout(function(){ _slHeroReady = true; window._slCheckReady(); }, 1000);
+    // Safety: hero might be slow — assume playing after 4s no matter what
+    setTimeout(function(){ _slHeroPlaying = true; window._slCheckReady(); }, 4000);
   } else {
-    _slHeroReady = true; // no hero iframe found — don't block
+    _slHeroPlaying = true;
   }
 
-  // Hard fallback — mobile: 4s, desktop: 8s
-  setTimeout(dismiss, _isMob ? 4000 : 8000);
-  // Secondary: dismiss early if hero loaded and enough featured ready
-  setTimeout(function(){ if (_slHeroReady && (_isMob || window._slFeatLoaded >= 1)) dismiss(); }, _isMob ? 2500 : 6000);
+  // Hard fallback — never keep loader past 8s desktop / 5s mobile
+  setTimeout(dismiss, _isMob ? 5000 : 8000);
 })();
 
 // ── Project URL routing — deep links & browser back/forward ──
