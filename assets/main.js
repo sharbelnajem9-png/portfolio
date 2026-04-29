@@ -279,53 +279,37 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       if (isPortrait) loadPortraitThumb(_tImg, id, div);
       else loadLandscapeThumb(_tImg, id, div);
     } else {
-      // ── Desktop: reuse pre-warmed iframe if available, else create fresh ──
-      var _warm = window._pvWarm && window._pvWarm[window._pvActiveKey];
-      const _fr = (_warm && _warm[id]) ? _warm[id] : (function(){
-        const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
-        const _q2 = _h2 ? '?h=' + _h2 + '&' : '?';
-        var f = document.createElement('iframe');
-        f.src = 'https://player.vimeo.com/video/' + id + _q2 +
-          'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
-        f.setAttribute('frameborder','0');
-        f.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-        f.setAttribute('playsinline','');
-        return f;
-      })();
-      if (_warm) delete _warm[id]; // claim it
+      // ── Desktop: live autoplay iframe ──
+      const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+      const _q2 = _h2 ? '?h=' + _h2 + '&' : '?';
+      const _fr = document.createElement('iframe');
+      _fr.src = 'https://player.vimeo.com/video/' + id + _q2 +
+        'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
+      _fr.setAttribute('frameborder','0');
+      _fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+      _fr.setAttribute('playsinline','');
       _fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
-        'border:0;z-index:3;opacity:0;transition:opacity 1.1s ease;pointer-events:none;';
+        'border:0;z-index:3;opacity:0;transition:opacity 0.6s ease;pointer-events:none;';
       _pvQueue.push({iframe:_fr, div:div, thumb:null});
       (function(fr, dv){
-        var _done = false;
-        function onLoad() {
-          if (_done) return; _done = true;
-          setTimeout(function(){
-            fr.style.opacity = '1';
-            dv.classList.add('pv-loaded');
-            if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
-              try {
-                var p = new Vimeo.Player(fr);
-                var _tuFired = false;
-                p.on('timeupdate', function _onTu(){
-                  if (_tuFired) return; _tuFired = true;
-                  p.off('timeupdate', _onTu);
-                  if (window._pvTriggerReveal) window._pvTriggerReveal();
-                });
-                p.on('ended', function(){
-                  p.setCurrentTime(0).then(function(){ p.play().catch(function(){}); }).catch(function(){});
-                });
-                p.on('error', function(){ fr.style.opacity = '0'; });
-                p.play().catch(function(){});
-                if (!window._pvPlayers) window._pvPlayers = [];
-                window._pvPlayers.push(p);
-              } catch(e) {}
-            }
-          }, 100);
-        }
-        // Pre-warmed iframe: load event already fired — init player immediately
-        if (fr.dataset.pvLoaded) { onLoad(); }
-        else { fr.addEventListener('load', onLoad, {once:true}); }
+        fr.addEventListener('load', function(){
+          // iframe network-loaded — count it. When all are loaded, reveal at once.
+          if (typeof window._pvLoadedCount === 'number') {
+            window._pvLoadedCount++;
+            if (window._pvCheckAllLoaded) window._pvCheckAllLoaded();
+          }
+          if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
+            try {
+              var p = new Vimeo.Player(fr);
+              p.on('ended', function(){
+                p.setCurrentTime(0).then(function(){ p.play().catch(function(){}); }).catch(function(){});
+              });
+              p.play().catch(function(){});
+              if (!window._pvPlayers) window._pvPlayers = [];
+              window._pvPlayers.push(p);
+            } catch(e) {}
+          }
+        }, {once:true});
       })(_fr, div);
     }
 
@@ -368,9 +352,10 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
 function openProject(key) {
   const p = PROJECT_DATA[key];
   if (!p) return;
-  window._pvActiveKey = key; // used by buildSection to claim pre-warmed iframes
-  // Reset modal video queue and observers
+  // Reset modal video queue, observers, and load counters
   _pvQueue = []; _pvActive = 0;
+  window._pvLoadedCount = 0;
+  window._pvTotalCount = 0;
   if (_pvObserver)   { _pvObserver.disconnect();   _pvObserver   = null; }
   if (_pvMobileObs)  { _pvMobileObs.disconnect();  _pvMobileObs  = null; }
   const lang = typeof currentLang !== 'undefined' ? currentLang : 'en';
@@ -404,6 +389,8 @@ function openProject(key) {
 
   if (secH) container.appendChild(secH);
   if (secV) container.appendChild(secV);
+  // Track total iframes that need to load before we can reveal
+  window._pvTotalCount = _pvQueue.length;
   // Desktop: append all iframes now. Mobile: observer handles loading below.
   _pvDrainAll();
 
@@ -433,21 +420,33 @@ function openProject(key) {
     requestAnimationFrame(function(){ _loadAllMobileVideos(container); });
   }
 
-  // Loading cover — hides when iframes are playing
+  // Loading cover — hides when all iframes have network-loaded (load event fired)
   var _pvRevealDone = false;
   var _pvIsMobile = window.innerWidth <= 768;
   function _pvRevealAll() {
     if (_pvRevealDone) return; _pvRevealDone = true;
     window._pvTriggerReveal = null;
+    window._pvCheckAllLoaded = null;
     if (lc) lc.classList.remove('active');
-    // Make all iframes visible
+    // Make all iframes visible together — synchronized fade-in
     container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
-    // Remove shimmer from all items (thumbnails or iframes will show)
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
-  window._pvTriggerReveal = function() { window._pvTriggerReveal = null; _pvRevealAll(); };
-  // Hard fallback: mobile 8s, desktop 6s — dismissed early by timeupdate when video plays
-  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 8000 : 6000);
+  window._pvTriggerReveal = function() { _pvRevealAll(); };
+  // Reveal once all iframes (or 90%) have fired their load event — they're all buffered
+  window._pvCheckAllLoaded = function() {
+    if (_pvRevealDone) return;
+    var total = window._pvTotalCount || 0;
+    if (total === 0) { _pvRevealAll(); return; }
+    var loaded = window._pvLoadedCount || 0;
+    // 90% threshold so a single slow iframe doesn't block the whole reveal
+    if (loaded >= Math.ceil(total * 0.9)) {
+      // Small grace so the last frames buffer before fade-in
+      setTimeout(_pvRevealAll, 250);
+    }
+  };
+  // Hard fallback: mobile 8s, desktop 7s
+  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 8000 : 7000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
@@ -473,9 +472,9 @@ function closeProject(e) {
   }
   window._pvPlayers = [];
   window._pvTriggerReveal = null;
-  // Clear pre-warm cache for this project so next hover re-warms fresh iframes
-  if (window._pvWarm && window._pvActiveKey) delete window._pvWarm[window._pvActiveKey];
-  window._pvActiveKey = null;
+  window._pvCheckAllLoaded = null;
+  window._pvLoadedCount = 0;
+  window._pvTotalCount = 0;
   // Restore hero iframe on mobile
   var _heroFr = document.getElementById('heroShowreelIframe');
   if (_heroFr && _heroFr.hasAttribute('data-hero-src')) {
@@ -712,40 +711,6 @@ window.addEventListener('scroll', () => {
     });
   }, {threshold: 0, rootMargin: '600px'});
   allItems.forEach(function(i){ featObs.observe(i); });
-})();
-
-// ── Desktop: pre-warm project iframes on folder-card hover ──────────────────
-// Iframes start loading in a 1px hidden box the moment the cursor touches the
-// card. By the time the user clicks (~200-500ms later) they are already buffered.
-(function(){
-  if (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) return;
-  var box = document.createElement('div');
-  box.style.cssText = 'position:fixed;left:-2px;top:-2px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;';
-  document.body.appendChild(box);
-  window._pvWarm = {};
-
-  function warm(key) {
-    if (window._pvWarm[key]) return;
-    var p = typeof PROJECT_DATA !== 'undefined' && PROJECT_DATA[key];
-    if (!p) return;
-    var map = window._pvWarm[key] = {};
-    p.vids.forEach(function(v) {
-      var id = v[0];
-      var h = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
-      var fr = document.createElement('iframe');
-      fr.src = 'https://player.vimeo.com/video/' + id + (h ? '?h='+h+'&' : '?') +
-        'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
-      fr.setAttribute('frameborder','0');
-      fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-      fr.addEventListener('load', function(){ fr.dataset.pvLoaded = '1'; }, {once:true});
-      box.appendChild(fr);
-      map[id] = fr;
-    });
-  }
-
-  document.querySelectorAll('.folder-card[data-key]').forEach(function(c) {
-    c.addEventListener('mouseenter', function(){ warm(c.dataset.key); });
-  });
 })();
 
 // ================================================================

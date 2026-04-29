@@ -184,16 +184,15 @@
 
 
 
-// ── Site loader: dismiss as soon as hero + first featured video are ready ──
+// ── Site loader: smart dismiss when hero + featured videos are ready ──
 (function(){
   var loader = document.getElementById('site-loader');
   if (!loader) return;
   var _slDismissed = false;
   var _slStart = Date.now();
   var _isMob = window.innerWidth <= 768;
-  // Desktop: 3s minimum so the progress bar animation feels complete.
-  // Mobile: 2.5s minimum.
-  var _slMinMs = _isMob ? 2500 : 3000;
+  // Mobile: featured section is hidden so don't wait for it; show loader only 2.5s minimum
+  var _slMinMs = _isMob ? 2500 : 6000;
 
   function dismiss(){
     if (_slDismissed) return;
@@ -210,31 +209,30 @@
   // Shared counters read by featured IIFE (defined above)
   window._slFeatLoaded = 0;
   var _slHeroReady = false;
-  // Desktop: only need 1 featured iframe to have signalled — don't block on all 12 loading.
-  // Mobile: featured iframes are skipped entirely.
-  var _slNeededFeat = _isMob ? 0 : 1;
+  // Mobile: featured section is hidden — don't block on featured iframes loading
+  var _slNeededFeat = _isMob ? 0 : 3;
 
   window._slCheckReady = function(){
     if (_slHeroReady && window._slFeatLoaded >= _slNeededFeat) dismiss();
   };
 
-  // Hero showreel iframe
+  // Hero showreel iframe (already embedded in HTML)
   var heroIframe = document.getElementById('heroShowreelIframe');
   if (heroIframe) {
     heroIframe.addEventListener('load', function(){
       _slHeroReady = true;
       window._slCheckReady();
     }, {once: true});
-    // Fallback: mark ready after 1s in case load fired before listener attached
+    // Iframe may have loaded before this listener was added — set ready after 1s anyway
     setTimeout(function(){ _slHeroReady = true; window._slCheckReady(); }, 1000);
   } else {
-    _slHeroReady = true;
+    _slHeroReady = true; // no hero iframe found — don't block
   }
 
-  // Hard fallback — mobile: 4s, desktop: 5s
-  setTimeout(dismiss, _isMob ? 4000 : 5000);
-  // Early dismiss: as soon as hero is ready (desktop min 3s, mobile min 2.5s)
-  setTimeout(function(){ if (_slHeroReady) dismiss(); }, _isMob ? 2500 : 3000);
+  // Hard fallback — mobile: 4s, desktop: 8s
+  setTimeout(dismiss, _isMob ? 4000 : 8000);
+  // Secondary: dismiss early if hero loaded and enough featured ready
+  setTimeout(function(){ if (_slHeroReady && (_isMob || window._slFeatLoaded >= 1)) dismiss(); }, _isMob ? 2500 : 6000);
 })();
 
 // ── Project URL routing — deep links & browser back/forward ──
