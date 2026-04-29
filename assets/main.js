@@ -404,7 +404,9 @@ function openProject(key) {
   overlay.setAttribute('data-project', key);
   var lc = document.getElementById('pm-load-cover');
   var _pvIsMobileNow = window.innerWidth <= 768;
-  if (lc) lc.classList.add('active');
+  // Desktop: skip the loading cover — iframes and shimmers are already in the DOM,
+  // so the modal opens instantly and videos fade in as they load.
+  if (lc && _pvIsMobileNow) lc.classList.add('active');
   container.scrollTop = 0;
   overlay.classList.add('active');
   if (history.pushState) history.pushState({project: key}, '', '#' + key);
@@ -435,8 +437,8 @@ function openProject(key) {
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
   window._pvTriggerReveal = function() { window._pvTriggerReveal = null; _pvRevealAll(); };
-  // Hard fallback: mobile 10s, desktop 9s
-  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 10000 : 9000);
+  // Hard fallback: mobile 8s, desktop 2s (iframes and shimmers already visible — just clear shimmer fast)
+  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 8000 : 2000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
