@@ -2,32 +2,6 @@
 if (history.scrollRestoration) history.scrollRestoration = 'manual';
 window.addEventListener('load', function(){ if (!window.location.hash) window.scrollTo(0, 0); });
 
-// ── Page Visibility: pause every Vimeo iframe when the tab is hidden,
-// resume the ones currently in view when it becomes visible again. Saves
-// significant CPU/network when the user switches tabs. ─────────────────────
-document.addEventListener('visibilitychange', function(){
-  var hidden = document.hidden;
-  // Featured strip
-  document.querySelectorAll('.featured-item iframe').forEach(function(fr){
-    if (!fr._fiPlayer) return;
-    try {
-      if (hidden) fr._fiPlayer.pause().catch(function(){});
-      else if (_isInViewport(fr)) fr._fiPlayer.play().catch(function(){});
-    } catch(e) {}
-  });
-  // Project modal
-  document.querySelectorAll('#pm-videos iframe').forEach(function(fr){
-    if (!fr._pvPlayer) return;
-    try {
-      if (hidden) fr._pvPlayer.pause().catch(function(){});
-      else if (_isInViewport(fr)) fr._pvPlayer.play().catch(function(){});
-    } catch(e) {}
-  });
-});
-function _isInViewport(el){
-  var r = el.getBoundingClientRect();
-  return r.bottom > 0 && r.top < (window.innerHeight || document.documentElement.clientHeight);
-}
 let currentLang='en';
 function toggleLang(){
   currentLang=currentLang==='en'?'he':'en';
@@ -320,36 +294,11 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       _pvQueue.push({iframe:_fr, div:div, thumb:null});
       (function(fr, dv){
         fr.addEventListener('load', function(){
-          var _counted = false;
-          function countAsReady(){
-            if (_counted) return; _counted = true;
-            if (typeof window._pvPlayingCount === 'number') {
-              window._pvPlayingCount++;
-              if (window._pvCheckPlaying) window._pvCheckPlaying();
-            }
+          // Network-loaded — count it. Vimeo URL params handle autoplay+loop natively.
+          if (typeof window._pvPlayingCount === 'number') {
+            window._pvPlayingCount++;
+            if (window._pvCheckPlaying) window._pvCheckPlaying();
           }
-          if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
-            try {
-              var p = new Vimeo.Player(fr);
-              fr._pvPlayer = p;
-              if (!window._pvPlayers) window._pvPlayers = [];
-              window._pvPlayers.push(p);
-              // Smart eye: count when video is actually playing (timeupdate fires)
-              p.on('timeupdate', function _onTu(){
-                p.off('timeupdate', _onTu);
-                countAsReady();
-              });
-              p.on('ended', function(){
-                p.setCurrentTime(0).then(function(){ p.play().catch(function(){}); }).catch(function(){});
-              });
-              p.on('error', function(){ fr.style.opacity = '0'; });
-              p.play().catch(function(){});
-              if (window._pvScrollPauseObs) window._pvScrollPauseObs.observe(fr);
-            } catch(e) {}
-          }
-          // Safety: count this iframe as ready 2s after load, even if timeupdate
-          // never fires (autoplay blocked, slow connection, SDK glitch).
-          setTimeout(countAsReady, 2000);
         }, {once:true});
       })(_fr, div);
     }
@@ -399,20 +348,6 @@ function openProject(key) {
   window._pvTotalCount = 0;
   if (_pvObserver)   { _pvObserver.disconnect();   _pvObserver   = null; }
   if (_pvMobileObs)  { _pvMobileObs.disconnect();  _pvMobileObs  = null; }
-  // Recreate scroll-pause observer fresh for this project
-  if (window._pvScrollPauseObs) { window._pvScrollPauseObs.disconnect(); }
-  if ('IntersectionObserver' in window) {
-    window._pvScrollPauseObs = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        var fr = e.target;
-        if (!fr._pvPlayer) return;
-        try {
-          if (e.isIntersecting) fr._pvPlayer.play().catch(function(){});
-          else fr._pvPlayer.pause().catch(function(){});
-        } catch(err) {}
-      });
-    }, {threshold: 0.1, rootMargin: '200px'});
-  }
   const lang = typeof currentLang !== 'undefined' ? currentLang : 'en';
   const title = lang === 'he' ? p.he : p.en;
 
@@ -483,36 +418,20 @@ function openProject(key) {
     window._pvTriggerReveal = null;
     window._pvCheckPlaying = null;
     if (lc) lc.classList.remove('active');
-    // Synchronized fade-in: all videos appear together
-    container.querySelectorAll('.pv-item iframe').forEach(function(fr){
-      fr.style.opacity = '1';
-      // Force-play every video from the start so the user sees each one running
-      // when the cover disappears (autoplay URL params alone aren't always enough
-      // — Vimeo can throttle background-load iframes).
-      if (fr._pvPlayer) {
-        try {
-          fr._pvPlayer.setCurrentTime(0).then(function(){
-            fr._pvPlayer.play().catch(function(){});
-          }).catch(function(){
-            try { fr._pvPlayer.play().catch(function(){}); } catch(e) {}
-          });
-        } catch(e) {}
-      }
-    });
+    // Synchronized fade-in: all videos appear together (autoplay URL params keep them playing)
+    container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
   window._pvTriggerReveal = function() { _pvRevealAll(); };
-  // Smart eye: reveal once the first visible row of videos are confirmed playing
-  // (items below the fold load and pause via IntersectionObserver — no need to wait)
+  // Reveal when enough iframes have network-loaded (90% threshold so a single
+  // slow iframe doesn't block the rest). Tiny grace so the first frame paints.
   window._pvCheckPlaying = function() {
     if (_pvRevealDone) return;
     var total = window._pvTotalCount || 0;
     if (total === 0) { _pvRevealAll(); return; }
-    var playing = window._pvPlayingCount || 0;
-    var threshold = Math.min(3, total); // first row visible
-    if (playing >= threshold) {
-      // Tiny grace so first frames are rendered before the cover fades
-      setTimeout(_pvRevealAll, 200);
+    var loaded = window._pvPlayingCount || 0;
+    if (loaded >= Math.ceil(total * 0.9)) {
+      setTimeout(_pvRevealAll, 300);
     }
   };
   // Hard fallback — never block longer than 8s desktop / 9s mobile
@@ -545,7 +464,6 @@ function closeProject(e) {
   window._pvCheckPlaying = null;
   window._pvPlayingCount = 0;
   window._pvTotalCount = 0;
-  if (window._pvScrollPauseObs) { window._pvScrollPauseObs.disconnect(); window._pvScrollPauseObs = null; }
   // Restore hero iframe on mobile
   var _heroFr = document.getElementById('heroShowreelIframe');
   if (_heroFr && _heroFr.hasAttribute('data-hero-src')) {
@@ -760,38 +678,13 @@ window.addEventListener('scroll', () => {
           if (window._slCheckReady) window._slCheckReady();
         }
       }
-      if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
-        try {
-          var p = new Vimeo.Player(iframe);
-          iframe._fiPlayer = p;
-          p.on('timeupdate', function _onTu(){
-            p.off('timeupdate', _onTu);
-            reveal();
-          });
-          p.on('error', function(){ iframe.style.opacity = '0'; });
-          p.play().catch(function(){});
-          if (window._featPauseObs) window._featPauseObs.observe(iframe);
-        } catch(e) {}
-      }
-      // Safety: reveal after 2s even if timeupdate doesn't fire
-      setTimeout(reveal, 2000);
+      // Reveal as soon as the iframe HTML is network-loaded — autoplay URL
+      // params (autoplay=1&muted=1&loop=1&autopause=0) handle playback natively.
+      // Tiny delay so first frame paints before the thumbnail fades.
+      setTimeout(reveal, 250);
     }, {once: true});
   }
 
-  // IntersectionObserver: pause featured iframes when scrolled off-screen
-  // (saves bandwidth + decoder slots; resumes when back in view)
-  if ('IntersectionObserver' in window) {
-    window._featPauseObs = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        var fr = e.target;
-        if (!fr._fiPlayer) return;
-        try {
-          if (e.isIntersecting) fr._fiPlayer.play().catch(function(){});
-          else fr._fiPlayer.pause().catch(function(){});
-        } catch(err) {}
-      });
-    }, {threshold: 0.15, rootMargin: '100px'});
-  }
 
   // Eagerly pre-load first 12 unique items (no viewport check needed)
   var allItems = Array.from(document.querySelectorAll('.featured-item[data-vid]'));

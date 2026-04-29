@@ -1927,3 +1927,13 @@ body{background:transparent!important}
   pointer-events: none;
 }
 @keyframes vlbSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+/* Hero title — match the loader's "SHARBEL NAJEM" styling: uppercase, spaced, lighter weight */
+.hero-name {
+  text-transform: uppercase !important;
+  letter-spacing: 8px !important;
+  font-weight: 500 !important;
+}
+@media (max-width: 768px) {
+  .hero-name { letter-spacing: 4px !important; }
+}
