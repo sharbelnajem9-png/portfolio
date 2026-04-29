@@ -1928,18 +1928,20 @@ body{background:transparent!important}
 }
 @keyframes vlbSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
 
-/* Hero title — refined, luxurious styling matching the loader vibe */
+/* Hero title — refined serif (Cormorant Garamond, weight 300, light) */
 .hero-name {
+  font-family: 'Cormorant Garamond', 'Almoni', serif !important;
   text-transform: uppercase !important;
-  font-size: clamp(38px, 6.2vw, 72px) !important;
-  letter-spacing: 0.32em !important;
+  font-size: clamp(40px, 7vw, 84px) !important;
+  letter-spacing: 0.06em !important;
   font-weight: 300 !important;
-  text-indent: 0.32em !important; /* compensate so the spacing looks centered */
+  white-space: nowrap !important;
+  text-indent: 0 !important;
+  line-height: 1 !important;
 }
 @media (max-width: 768px) {
   .hero-name {
-    font-size: clamp(30px, 9vw, 46px) !important;
-    letter-spacing: 0.24em !important;
-    text-indent: 0.24em !important;
+    font-size: clamp(30px, 9vw, 52px) !important;
+    letter-spacing: 0.05em !important;
   }
 }
