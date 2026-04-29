@@ -217,32 +217,29 @@
     if (_slHeroPlaying && window._slFeatPlaying >= _slNeededFeat) dismiss();
   };
 
-  // Hero showreel — eye watches for actual playback via Vimeo timeupdate
+  // Hero showreel — initialize Vimeo Player IMMEDIATELY (the iframe is in static
+  // HTML and may have already fired its load event before this script runs, so
+  // attaching a load listener is unreliable). The Vimeo SDK handles the handshake
+  // internally regardless of iframe load state.
   var heroIframe = document.getElementById('heroShowreelIframe');
   if (heroIframe) {
-    heroIframe.addEventListener('load', function(){
-      if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
-        try {
-          var hp = new Vimeo.Player(heroIframe);
-          var _heroPlayed = false;
-          hp.on('timeupdate', function _onHeroTu(){
-            if (_heroPlayed) return; _heroPlayed = true;
-            hp.off('timeupdate', _onHeroTu);
-            _slHeroPlaying = true;
-            window._slCheckReady();
-          });
-          hp.play().catch(function(){});
-        } catch(e) {
+    if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
+      try {
+        var hp = new Vimeo.Player(heroIframe);
+        var _heroPlayed = false;
+        hp.on('timeupdate', function _onHeroTu(){
+          if (_heroPlayed) return; _heroPlayed = true;
+          hp.off('timeupdate', _onHeroTu);
           _slHeroPlaying = true;
           window._slCheckReady();
-        }
-      } else {
-        // Fallback: assume playing 500ms after load
-        setTimeout(function(){ _slHeroPlaying = true; window._slCheckReady(); }, 500);
+        });
+        hp.play().catch(function(){});
+      } catch(e) {
+        _slHeroPlaying = true; window._slCheckReady();
       }
-    }, {once: true});
-    // Safety: hero might be slow — assume playing after 4s no matter what
-    setTimeout(function(){ _slHeroPlaying = true; window._slCheckReady(); }, 4000);
+    }
+    // Safety: assume playing after 2.5s if timeupdate didn't fire (autoplay blocked etc.)
+    setTimeout(function(){ _slHeroPlaying = true; window._slCheckReady(); }, 2500);
   } else {
     _slHeroPlaying = true;
   }

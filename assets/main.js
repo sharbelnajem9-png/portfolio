@@ -320,37 +320,36 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       _pvQueue.push({iframe:_fr, div:div, thumb:null});
       (function(fr, dv){
         fr.addEventListener('load', function(){
+          var _counted = false;
+          function countAsReady(){
+            if (_counted) return; _counted = true;
+            if (typeof window._pvPlayingCount === 'number') {
+              window._pvPlayingCount++;
+              if (window._pvCheckPlaying) window._pvCheckPlaying();
+            }
+          }
           if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
             try {
               var p = new Vimeo.Player(fr);
               fr._pvPlayer = p;
               if (!window._pvPlayers) window._pvPlayers = [];
               window._pvPlayers.push(p);
-              // Smart eye: count when video is ACTUALLY playing (timeupdate fired)
-              var _played = false;
+              // Smart eye: count when video is actually playing (timeupdate fires)
               p.on('timeupdate', function _onTu(){
-                if (_played) return; _played = true;
                 p.off('timeupdate', _onTu);
-                if (typeof window._pvPlayingCount === 'number') {
-                  window._pvPlayingCount++;
-                  if (window._pvCheckPlaying) window._pvCheckPlaying();
-                }
+                countAsReady();
               });
               p.on('ended', function(){
                 p.setCurrentTime(0).then(function(){ p.play().catch(function(){}); }).catch(function(){});
               });
               p.on('error', function(){ fr.style.opacity = '0'; });
               p.play().catch(function(){});
-              // Pause when scrolled off-screen, resume when back in view
               if (window._pvScrollPauseObs) window._pvScrollPauseObs.observe(fr);
             } catch(e) {}
-          } else {
-            // Fallback if SDK didn't load — count load event as "playing"
-            if (typeof window._pvPlayingCount === 'number') {
-              window._pvPlayingCount++;
-              if (window._pvCheckPlaying) window._pvCheckPlaying();
-            }
           }
+          // Safety: count this iframe as ready 2s after load, even if timeupdate
+          // never fires (autoplay blocked, slow connection, SDK glitch).
+          setTimeout(countAsReady, 2000);
         }, {once:true});
       })(_fr, div);
     }
@@ -732,46 +731,36 @@ window.addEventListener('scroll', () => {
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
       'border:0;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.8s ease;';
     bg.appendChild(iframe);
-    // Smart "eye" — reveal only when video is actually playing (timeupdate fires)
+    // Smart eye + reliable safety: reveal as soon as video plays (timeupdate),
+    // but always reveal within 2s of load even if timeupdate never fires.
     iframe.addEventListener('load', function(){
-      // Initialize Vimeo Player to listen for actual playback
+      var _revealed = false;
+      function reveal(){
+        if (_revealed) return; _revealed = true;
+        iframe.style.opacity = '1';
+        var thumb = bg.querySelector('.fi-thumb-img');
+        if (thumb) thumb.style.opacity = '0';
+        item.classList.add('fi-loaded');
+        if (typeof window._slFeatPlaying !== 'undefined'){
+          window._slFeatPlaying++;
+          if (window._slCheckReady) window._slCheckReady();
+        }
+      }
       if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
         try {
           var p = new Vimeo.Player(iframe);
-          iframe._fiPlayer = p; // store ref for IntersectionObserver pause/resume
-          var _played = false;
+          iframe._fiPlayer = p;
           p.on('timeupdate', function _onTu(){
-            if (_played) return; _played = true;
             p.off('timeupdate', _onTu);
-            // Truly playing — reveal smoothly
-            iframe.style.opacity = '1';
-            var thumb = bg.querySelector('.fi-thumb-img');
-            if (thumb) thumb.style.opacity = '0';
-            item.classList.add('fi-loaded');
-            // Signal site loader that a featured video is actually playing
-            if (typeof window._slFeatPlaying !== 'undefined'){
-              window._slFeatPlaying++;
-              if (window._slCheckReady) window._slCheckReady();
-            }
+            reveal();
           });
           p.on('error', function(){ iframe.style.opacity = '0'; });
           p.play().catch(function(){});
-          // Track for off-screen pause
           if (window._featPauseObs) window._featPauseObs.observe(iframe);
         } catch(e) {}
-      } else {
-        // Fallback if Vimeo SDK didn't load — reveal anyway after a short delay
-        setTimeout(function(){
-          iframe.style.opacity = '1';
-          var thumb = bg.querySelector('.fi-thumb-img');
-          if (thumb) thumb.style.opacity = '0';
-          item.classList.add('fi-loaded');
-          if (typeof window._slFeatPlaying !== 'undefined'){
-            window._slFeatPlaying++;
-            if (window._slCheckReady) window._slCheckReady();
-          }
-        }, 600);
       }
+      // Safety: reveal after 2s even if timeupdate doesn't fire
+      setTimeout(reveal, 2000);
     }, {once: true});
   }
 
