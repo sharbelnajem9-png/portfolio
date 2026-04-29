@@ -618,8 +618,8 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const overlay = document.getElementById('project-overlay');
     const lb = document.getElementById('vid-lightbox');
-    if (overlay && overlay.classList.contains('active')) closeProject();
-    else if (lb && lb.classList.contains('active')) closeLightbox();
+    if (lb && lb.classList.contains('active')) closeLightbox();
+    else if (overlay && overlay.classList.contains('active')) closeProject();
     else closeLegal();
   }
 });
