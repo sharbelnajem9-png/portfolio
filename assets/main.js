@@ -279,15 +279,20 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       if (isPortrait) loadPortraitThumb(_tImg, id, div);
       else loadLandscapeThumb(_tImg, id, div);
     } else {
-      // ── Desktop: live autoplay iframe ──
-      const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
-      const _q2 = _h2 ? '?h=' + _h2 + '&' : '?';
-      const _fr = document.createElement('iframe');
-      _fr.src = 'https://player.vimeo.com/video/' + id + _q2 +
-        'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
-      _fr.setAttribute('frameborder','0');
-      _fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-      _fr.setAttribute('playsinline','');
+      // ── Desktop: reuse pre-warmed iframe if available, else create fresh ──
+      var _warm = window._pvWarm && window._pvWarm[window._pvActiveKey];
+      const _fr = (_warm && _warm[id]) ? _warm[id] : (function(){
+        const _h2 = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+        const _q2 = _h2 ? '?h=' + _h2 + '&' : '?';
+        var f = document.createElement('iframe');
+        f.src = 'https://player.vimeo.com/video/' + id + _q2 +
+          'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
+        f.setAttribute('frameborder','0');
+        f.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+        f.setAttribute('playsinline','');
+        return f;
+      })();
+      if (_warm) delete _warm[id]; // claim it
       _fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
         'border:0;z-index:3;opacity:0;transition:opacity 1.1s ease;pointer-events:none;';
       _pvQueue.push({iframe:_fr, div:div, thumb:null});
@@ -358,6 +363,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
 function openProject(key) {
   const p = PROJECT_DATA[key];
   if (!p) return;
+  window._pvActiveKey = key; // used by buildSection to claim pre-warmed iframes
   // Reset modal video queue and observers
   _pvQueue = []; _pvActive = 0;
   if (_pvObserver)   { _pvObserver.disconnect();   _pvObserver   = null; }
@@ -464,6 +470,9 @@ function closeProject(e) {
   }
   window._pvPlayers = [];
   window._pvTriggerReveal = null;
+  // Clear pre-warm cache for this project so next hover re-warms fresh iframes
+  if (window._pvWarm && window._pvActiveKey) delete window._pvWarm[window._pvActiveKey];
+  window._pvActiveKey = null;
   // Restore hero iframe on mobile
   var _heroFr = document.getElementById('heroShowreelIframe');
   if (_heroFr && _heroFr.hasAttribute('data-hero-src')) {
@@ -700,6 +709,39 @@ window.addEventListener('scroll', () => {
     });
   }, {threshold: 0, rootMargin: '600px'});
   allItems.forEach(function(i){ featObs.observe(i); });
+})();
+
+// ── Desktop: pre-warm project iframes on folder-card hover ──────────────────
+// Iframes start loading in a 1px hidden box the moment the cursor touches the
+// card. By the time the user clicks (~200-500ms later) they are already buffered.
+(function(){
+  if (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) return;
+  var box = document.createElement('div');
+  box.style.cssText = 'position:fixed;left:-2px;top:-2px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;';
+  document.body.appendChild(box);
+  window._pvWarm = {};
+
+  function warm(key) {
+    if (window._pvWarm[key]) return;
+    var p = typeof PROJECT_DATA !== 'undefined' && PROJECT_DATA[key];
+    if (!p) return;
+    var map = window._pvWarm[key] = {};
+    p.vids.forEach(function(v) {
+      var id = v[0];
+      var h = (typeof VID_HASHES !== 'undefined' && VID_HASHES[id]) ? VID_HASHES[id] : '';
+      var fr = document.createElement('iframe');
+      fr.src = 'https://player.vimeo.com/video/' + id + (h ? '?h='+h+'&' : '?') +
+        'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
+      fr.setAttribute('frameborder','0');
+      fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+      box.appendChild(fr);
+      map[id] = fr;
+    });
+  }
+
+  document.querySelectorAll('.folder-card[data-key]').forEach(function(c) {
+    c.addEventListener('mouseenter', function(){ warm(c.dataset.key); });
+  });
 })();
 
 // ================================================================
