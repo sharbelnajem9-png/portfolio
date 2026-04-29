@@ -1934,7 +1934,7 @@ body{background:transparent!important}
   text-transform: uppercase !important;
   font-size: clamp(36px, 6.5vw, 76px) !important;
   letter-spacing: 0.04em !important;
-  font-weight: 300 !important;
+  font-weight: 500 !important;
   white-space: nowrap !important;
   text-indent: 0 !important;
   line-height: 1 !important;
