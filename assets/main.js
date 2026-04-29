@@ -290,15 +290,32 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
       _fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
       _fr.setAttribute('playsinline','');
       _fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
-        'border:0;z-index:3;opacity:0;transition:opacity 0.6s ease;pointer-events:none;';
+        'border:0;z-index:3;opacity:0;transition:opacity 1.1s ease;pointer-events:none;';
       _pvQueue.push({iframe:_fr, div:div, thumb:null});
       (function(fr, dv){
         fr.addEventListener('load', function(){
-          // Network-loaded — count it. Vimeo URL params handle autoplay+loop natively.
-          if (typeof window._pvPlayingCount === 'number') {
-            window._pvPlayingCount++;
-            if (window._pvCheckPlaying) window._pvCheckPlaying();
-          }
+          setTimeout(function(){
+            fr.style.opacity = '1';
+            dv.classList.add('pv-loaded');
+            if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
+              try {
+                var p = new Vimeo.Player(fr);
+                var _tuFired = false;
+                p.on('timeupdate', function _onTu(){
+                  if (_tuFired) return; _tuFired = true;
+                  p.off('timeupdate', _onTu);
+                  if (window._pvTriggerReveal) window._pvTriggerReveal();
+                });
+                p.on('ended', function(){
+                  p.setCurrentTime(0).then(function(){ p.play().catch(function(){}); }).catch(function(){});
+                });
+                p.on('error', function(){ fr.style.opacity = '0'; });
+                p.play().catch(function(){});
+                if (!window._pvPlayers) window._pvPlayers = [];
+                window._pvPlayers.push(p);
+              } catch(e) {}
+            }
+          }, 100);
         }, {once:true});
       })(_fr, div);
     }
@@ -342,10 +359,8 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
 function openProject(key) {
   const p = PROJECT_DATA[key];
   if (!p) return;
-  // Reset modal video queue, observers, and play counters
+  // Reset modal video queue and observers
   _pvQueue = []; _pvActive = 0;
-  window._pvPlayingCount = 0;
-  window._pvTotalCount = 0;
   if (_pvObserver)   { _pvObserver.disconnect();   _pvObserver   = null; }
   if (_pvMobileObs)  { _pvMobileObs.disconnect();  _pvMobileObs  = null; }
   const lang = typeof currentLang !== 'undefined' ? currentLang : 'en';
@@ -379,8 +394,6 @@ function openProject(key) {
 
   if (secH) container.appendChild(secH);
   if (secV) container.appendChild(secV);
-  // Track total iframes that need to load before we can reveal
-  window._pvTotalCount = _pvQueue.length;
   // Desktop: append all iframes now. Mobile: observer handles loading below.
   _pvDrainAll();
 
@@ -410,32 +423,21 @@ function openProject(key) {
     requestAnimationFrame(function(){ _loadAllMobileVideos(container); });
   }
 
-  // Loading cover — smart eye: dismisses only when videos are actually PLAYING
+  // Loading cover — hides when iframes are playing
   var _pvRevealDone = false;
   var _pvIsMobile = window.innerWidth <= 768;
   function _pvRevealAll() {
     if (_pvRevealDone) return; _pvRevealDone = true;
     window._pvTriggerReveal = null;
-    window._pvCheckPlaying = null;
     if (lc) lc.classList.remove('active');
-    // Synchronized fade-in: all videos appear together (autoplay URL params keep them playing)
+    // Make all iframes visible
     container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
+    // Remove shimmer from all items (thumbnails or iframes will show)
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
-  window._pvTriggerReveal = function() { _pvRevealAll(); };
-  // Reveal when enough iframes have network-loaded (90% threshold so a single
-  // slow iframe doesn't block the rest). Tiny grace so the first frame paints.
-  window._pvCheckPlaying = function() {
-    if (_pvRevealDone) return;
-    var total = window._pvTotalCount || 0;
-    if (total === 0) { _pvRevealAll(); return; }
-    var loaded = window._pvPlayingCount || 0;
-    if (loaded >= Math.ceil(total * 0.9)) {
-      setTimeout(_pvRevealAll, 300);
-    }
-  };
-  // Hard fallback — never block longer than 8s desktop / 9s mobile
-  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 9000 : 8000);
+  window._pvTriggerReveal = function() { window._pvTriggerReveal = null; _pvRevealAll(); };
+  // Hard fallback: mobile 10s, desktop 9s
+  setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 10000 : 9000);
 
   // Focus trap: move focus into modal
   setTimeout(() => {
@@ -461,9 +463,6 @@ function closeProject(e) {
   }
   window._pvPlayers = [];
   window._pvTriggerReveal = null;
-  window._pvCheckPlaying = null;
-  window._pvPlayingCount = 0;
-  window._pvTotalCount = 0;
   // Restore hero iframe on mobile
   var _heroFr = document.getElementById('heroShowreelIframe');
   if (_heroFr && _heroFr.hasAttribute('data-hero-src')) {
@@ -663,25 +662,19 @@ window.addEventListener('scroll', () => {
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
       'border:0;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.8s ease;';
     bg.appendChild(iframe);
-    // Smart eye + reliable safety: reveal as soon as video plays (timeupdate),
-    // but always reveal within 2s of load even if timeupdate never fires.
+    // Reveal on iframe load (real signal) — small delay so first frame renders
     iframe.addEventListener('load', function(){
-      var _revealed = false;
-      function reveal(){
-        if (_revealed) return; _revealed = true;
+      setTimeout(function(){
         iframe.style.opacity = '1';
         var thumb = bg.querySelector('.fi-thumb-img');
         if (thumb) thumb.style.opacity = '0';
         item.classList.add('fi-loaded');
-        if (typeof window._slFeatPlaying !== 'undefined'){
-          window._slFeatPlaying++;
-          if (window._slCheckReady) window._slCheckReady();
-        }
+      }, 300);
+      // Signal site loader that a featured video is ready
+      if (typeof window._slFeatLoaded !== 'undefined'){
+        window._slFeatLoaded++;
+        if (window._slCheckReady) window._slCheckReady();
       }
-      // Reveal as soon as the iframe HTML is network-loaded — autoplay URL
-      // params (autoplay=1&muted=1&loop=1&autopause=0) handle playback natively.
-      // Tiny delay so first frame paints before the thumbnail fades.
-      setTimeout(reveal, 250);
     }, {once: true});
   }
 

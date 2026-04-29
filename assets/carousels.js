@@ -184,15 +184,15 @@
 
 
 
-// ── Site loader: smart "eye" — dismiss only when hero + featured videos are PLAYING ──
+// ── Site loader: smart dismiss when hero + featured videos are ready ──
 (function(){
   var loader = document.getElementById('site-loader');
   if (!loader) return;
   var _slDismissed = false;
   var _slStart = Date.now();
   var _isMob = window.innerWidth <= 768;
-  // Minimum loader display so the progress bar animation completes
-  var _slMinMs = _isMob ? 2500 : 5000;
+  // Mobile: featured section is hidden so don't wait for it; show loader only 2.5s minimum
+  var _slMinMs = _isMob ? 2500 : 6000;
 
   function dismiss(){
     if (_slDismissed) return;
@@ -201,7 +201,7 @@
     setTimeout(function(){
       if (_slDismissed) return;
       _slDismissed = true;
-      // Restart hero showreel from time 0 so the user sees it from the start
+      // Rewind hero to time 0 so the user sees it from the start, not mid-clip
       if (window._heroPlayer) {
         try { window._heroPlayer.setCurrentTime(0).then(function(){
           window._heroPlayer.play().catch(function(){});
@@ -212,47 +212,36 @@
     }, wait);
   }
 
-  // Smart eye counters — featured IIFE bumps _slFeatPlaying when timeupdate fires
-  window._slFeatPlaying = 0;
-  window._slFeatLoaded = 0; // legacy alias for compatibility
-  var _slHeroPlaying = false;
-  // Mobile: featured iframes are skipped — only require hero
-  var _slNeededFeat = _isMob ? 0 : 1;
+  // Shared counters read by featured IIFE (defined above)
+  window._slFeatLoaded = 0;
+  var _slHeroReady = false;
+  // Mobile: featured section is hidden — don't block on featured iframes loading
+  var _slNeededFeat = _isMob ? 0 : 3;
 
   window._slCheckReady = function(){
-    if (_slHeroPlaying && window._slFeatPlaying >= _slNeededFeat) dismiss();
+    if (_slHeroReady && window._slFeatLoaded >= _slNeededFeat) dismiss();
   };
 
-  // Hero showreel — initialize Vimeo Player IMMEDIATELY (the iframe is in static
-  // HTML and may have already fired its load event before this script runs, so
-  // attaching a load listener is unreliable). The Vimeo SDK handles the handshake
-  // internally regardless of iframe load state.
+  // Hero showreel iframe — store Vimeo Player ref so dismiss() can rewind to 0
   var heroIframe = document.getElementById('heroShowreelIframe');
   if (heroIframe) {
     if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
-      try {
-        var hp = new Vimeo.Player(heroIframe);
-        window._heroPlayer = hp; // exposed so dismiss() can rewind to 0
-        var _heroPlayed = false;
-        hp.on('timeupdate', function _onHeroTu(){
-          if (_heroPlayed) return; _heroPlayed = true;
-          hp.off('timeupdate', _onHeroTu);
-          _slHeroPlaying = true;
-          window._slCheckReady();
-        });
-        hp.play().catch(function(){});
-      } catch(e) {
-        _slHeroPlaying = true; window._slCheckReady();
-      }
+      try { window._heroPlayer = new Vimeo.Player(heroIframe); } catch(e) {}
     }
-    // Safety: assume playing after 2.5s if timeupdate didn't fire (autoplay blocked etc.)
-    setTimeout(function(){ _slHeroPlaying = true; window._slCheckReady(); }, 2500);
+    heroIframe.addEventListener('load', function(){
+      _slHeroReady = true;
+      window._slCheckReady();
+    }, {once: true});
+    // Iframe may have loaded before this listener was added — set ready after 1s anyway
+    setTimeout(function(){ _slHeroReady = true; window._slCheckReady(); }, 1000);
   } else {
-    _slHeroPlaying = true;
+    _slHeroReady = true; // no hero iframe found — don't block
   }
 
-  // Hard fallback — never keep loader past 8s desktop / 5s mobile
-  setTimeout(dismiss, _isMob ? 5000 : 8000);
+  // Hard fallback — mobile: 4s, desktop: 8s
+  setTimeout(dismiss, _isMob ? 4000 : 8000);
+  // Secondary: dismiss early if hero loaded (mobile: 2.5s, desktop: 6s)
+  setTimeout(function(){ if (_slHeroReady && (_isMob || window._slFeatLoaded >= 1)) dismiss(); }, _isMob ? 2500 : 6000);
 })();
 
 // ── Project URL routing — deep links & browser back/forward ──

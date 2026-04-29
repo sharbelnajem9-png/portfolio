@@ -1928,12 +1928,18 @@ body{background:transparent!important}
 }
 @keyframes vlbSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
 
-/* Hero title — match the loader's "SHARBEL NAJEM" styling: uppercase, spaced, lighter weight */
+/* Hero title — refined, luxurious styling matching the loader vibe */
 .hero-name {
   text-transform: uppercase !important;
-  letter-spacing: 8px !important;
-  font-weight: 500 !important;
+  font-size: clamp(38px, 6.2vw, 72px) !important;
+  letter-spacing: 0.32em !important;
+  font-weight: 300 !important;
+  text-indent: 0.32em !important; /* compensate so the spacing looks centered */
 }
 @media (max-width: 768px) {
-  .hero-name { letter-spacing: 4px !important; }
+  .hero-name {
+    font-size: clamp(30px, 9vw, 46px) !important;
+    letter-spacing: 0.24em !important;
+    text-indent: 0.24em !important;
+  }
 }
