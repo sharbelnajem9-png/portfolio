@@ -435,7 +435,14 @@ function openProject(key) {
     // Remove shimmer from all items (thumbnails or iframes will show)
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
-  window._pvTriggerReveal = function() { window._pvTriggerReveal = null; _pvRevealAll(); };
+  // First video confirmed playing → wait a short grace so the rest of the row
+  // also buffers and gets its first frame ready, then dismiss the cover.
+  // Without this grace the cover lifts when only 1 video is playing and the
+  // others briefly show black until they catch up.
+  window._pvTriggerReveal = function() {
+    window._pvTriggerReveal = null;
+    setTimeout(_pvRevealAll, 1200);
+  };
   // Hard fallback: mobile 10s, desktop 9s
   setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 10000 : 9000);
 
