@@ -297,7 +297,9 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
         'border:0;z-index:3;opacity:0;transition:opacity 1.1s ease;pointer-events:none;';
       _pvQueue.push({iframe:_fr, div:div, thumb:null});
       (function(fr, dv){
-        fr.addEventListener('load', function(){
+        var _done = false;
+        function onLoad() {
+          if (_done) return; _done = true;
           setTimeout(function(){
             fr.style.opacity = '1';
             dv.classList.add('pv-loaded');
@@ -320,7 +322,10 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
               } catch(e) {}
             }
           }, 100);
-        }, {once:true});
+        }
+        // Pre-warmed iframe: load event already fired — init player immediately
+        if (fr.dataset.pvLoaded) { onLoad(); }
+        else { fr.addEventListener('load', onLoad, {once:true}); }
       })(_fr, div);
     }
 
@@ -732,6 +737,7 @@ window.addEventListener('scroll', () => {
         'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
       fr.setAttribute('frameborder','0');
       fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+      fr.addEventListener('load', function(){ fr.dataset.pvLoaded = '1'; }, {once:true});
       box.appendChild(fr);
       map[id] = fr;
     });
