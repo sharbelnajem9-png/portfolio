@@ -304,7 +304,7 @@ function buildSection(videos, label, gridClass, isPortrait, startIdx, lang) {
                 p.on('timeupdate', function _onTu(){
                   if (_tuFired) return; _tuFired = true;
                   p.off('timeupdate', _onTu);
-                  if (window._pvTriggerReveal) window._pvTriggerReveal(p);
+                  if (window._pvTriggerReveal) window._pvTriggerReveal();
                 });
                 p.on('ended', function(){
                   p.setCurrentTime(0).then(function(){ p.play().catch(function(){}); }).catch(function(){});
@@ -423,41 +423,19 @@ function openProject(key) {
     requestAnimationFrame(function(){ _loadAllMobileVideos(container); });
   }
 
-  // Loading cover — synchronized reveal: wait for the first row of videos to
-  // confirm playback (timeupdate), then rewind every ready player to time 0
-  // and start them simultaneously, then fade out the cover. This guarantees
-  // every visible video starts on the same frame at the same instant.
+  // Loading cover — hides when iframes are playing
   var _pvRevealDone = false;
   var _pvIsMobile = window.innerWidth <= 768;
-  var _pvReadyPlayers = [];
-  var _pvNeededReady = _pvIsMobile ? 1 : 4; // first visible row
-
   function _pvRevealAll() {
     if (_pvRevealDone) return; _pvRevealDone = true;
     window._pvTriggerReveal = null;
-    // Sync every ready player to frame 0, then play() them all together
-    var syncs = _pvReadyPlayers.map(function(p){
-      try { return p.setCurrentTime(0).catch(function(){}); }
-      catch(e) { return Promise.resolve(); }
-    });
-    Promise.all(syncs).then(function(){
-      _pvReadyPlayers.forEach(function(p){
-        try { p.play().catch(function(){}); } catch(e) {}
-      });
-      if (lc) lc.classList.remove('active');
-      container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
-      container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
-    });
+    if (lc) lc.classList.remove('active');
+    // Make all iframes visible
+    container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
+    // Remove shimmer from all items (thumbnails or iframes will show)
+    container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
-
-  window._pvTriggerReveal = function(player) {
-    if (player && _pvReadyPlayers.indexOf(player) === -1) {
-      _pvReadyPlayers.push(player);
-    }
-    if (_pvReadyPlayers.length >= _pvNeededReady) {
-      _pvRevealAll();
-    }
-  };
+  window._pvTriggerReveal = function() { window._pvTriggerReveal = null; _pvRevealAll(); };
   // Hard fallback: mobile 10s, desktop 9s
   setTimeout(function(){ if (!_pvRevealDone) _pvRevealAll(); }, _pvIsMobile ? 10000 : 9000);
 
