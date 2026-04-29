@@ -92,8 +92,11 @@ to bottom,transparent 0%,transparent 45%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.82) 1
 
 
 @media(max-width:768px){
-  
-  
+
+  /* Loader progress bar completes faster on mobile (matches 2.5s loader) */
+  .sl-bar{animation-duration:1.9s!important}
+
+
   body::before{
     animation:ambientShift 30s ease-in-out infinite alternate!important;
     will-change:background!important;
@@ -2655,45 +2658,13 @@ function _pvDrainAll() {
   }
 }
 
-// ── Mobile: load first 4 project videos as live iframes, rest show cover thumbnails ──
+// ── Mobile: thumbnails only — no background autoplay iframes in project modal.
+// Loading even 2 background iframes while the lightbox video plays crashes Safari on iOS.
 var _pvMobileObs = null;
 function _loadAllMobileVideos(container) {
   if (_pvMobileObs) { _pvMobileObs.disconnect(); _pvMobileObs = null; }
-  // Only 2 iframes on mobile — rest show cover thumbnails
-  var items = Array.from(container.querySelectorAll('.pv-item[data-vid]')).slice(0, 2);
-  if (!items.length) return;
-  var playing = 0;
-  var total = items.length;
-
-  function markPlaying(item) {
-    if (item._pvPlaying) return;
-    item._pvPlaying = true;
-    item.classList.add('pv-loaded');
-    playing++;
-    if (playing >= total && window._pvTriggerReveal) window._pvTriggerReveal();
-  }
-
-  items.forEach(function(item) {
-    if (!item.isConnected) { markPlaying(item); return; }
-    var vid = item.getAttribute('data-vid');
-    var hash = item.getAttribute('data-hash') || '';
-    if (!vid) { markPlaying(item); return; }
-    var fr = document.createElement('iframe');
-    fr.className = 'pv-m-fr';
-    fr.src = 'https://player.vimeo.com/video/' + vid +
-      (hash ? '?h=' + hash + '&' : '?') +
-      'background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1&playsinline=1&texttrack=false';
-    fr.setAttribute('frameborder','0');
-    fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-    fr.setAttribute('playsinline','');
-    fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4;opacity:0;transition:opacity 0.8s;pointer-events:none;';
-    fr.addEventListener('load', function() {
-      fr.style.opacity = '1';
-      setTimeout(function() { markPlaying(item); }, 2500);
-    }, {once: true});
-    setTimeout(function() { markPlaying(item); }, 9000);
-    item.appendChild(fr);
-  });
+  // Thumbnails are already rendered; immediately signal reveal so the loading cover lifts.
+  if (window._pvTriggerReveal) window._pvTriggerReveal();
 }
 
 // ── Static thumbnail map (local files, no API needed) ──
@@ -3063,6 +3034,7 @@ function openLightbox(vid, ratio) {
   const lb = document.getElementById('vid-lightbox');
   const container = document.getElementById('vlb-video');
   const isPortrait = ratio === '9:16';
+  const isMobile = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
 
   // Let CSS handle sizing — just mark portrait vs landscape
   container.style.width  = '';
@@ -3071,6 +3043,20 @@ function openLightbox(vid, ratio) {
     container.classList.add('portrait-mode');
   } else {
     container.classList.remove('portrait-mode');
+  }
+
+  // Mobile: blank ALL background Vimeo iframes to free decoder/memory slots for the
+  // lightbox video. Safari iOS supports only ~3 concurrent video decoders — without
+  // this the lightbox video never loads and the page freezes.
+  if (isMobile) {
+    document.querySelectorAll('iframe').forEach(function(fr) {
+      if (fr.id === 'heroShowreelIframe') return; // already handled by openProject
+      var s = fr.src || '';
+      if (s.indexOf('vimeo') !== -1 && s.indexOf('about:blank') === -1) {
+        fr.setAttribute('data-lbsrc', s);
+        fr.src = 'about:blank';
+      }
+    });
   }
 
   var _h = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
@@ -3082,10 +3068,25 @@ function openLightbox(vid, ratio) {
   _fr.setAttribute('allow','autoplay; fullscreen; picture-in-picture; clipboard-write');
   _fr.setAttribute('allowfullscreen','');
   _fr.setAttribute('playsinline','');
-  _fr.style.cssText = 'width:100%;height:100%;border:0;display:block;border-radius:8px';
+  _fr.style.cssText = 'width:100%;height:100%;border:0;display:block;border-radius:8px;opacity:0;transition:opacity 0.4s;';
+
+  // Show spinner while loading, fade in iframe when ready
   container.innerHTML = '';
+  var _spinner = document.createElement('div');
+  _spinner.className = 'vlb-spinner';
+  container.appendChild(_spinner);
   container.appendChild(_fr);
+
+  function _onReady() {
+    if (_spinner.parentNode) _spinner.remove();
+    _fr.style.opacity = '1';
+  }
+  _fr.addEventListener('load', _onReady, {once: true});
+  // Hard fallback: show video after 12s even if load event never fires
+  setTimeout(_onReady, 12000);
+
   lb.classList.add('active');
+
   // Vimeo API fallback: force play if autoplay was blocked
   if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
     try {
@@ -3099,7 +3100,14 @@ function closeLightbox(e) {
   if (e && e.target !== document.getElementById('vid-lightbox')) return;
   const lb = document.getElementById('vid-lightbox');
   lb.classList.remove('active');
-  setTimeout(() => { document.getElementById('vlb-video').innerHTML = ''; }, 320);
+  setTimeout(function() {
+    document.getElementById('vlb-video').innerHTML = '';
+    // Mobile: restore background iframes that were paused when lightbox opened
+    document.querySelectorAll('iframe[data-lbsrc]').forEach(function(fr) {
+      fr.src = fr.getAttribute('data-lbsrc');
+      fr.removeAttribute('data-lbsrc');
+    });
+  }, 320);
 }
 
 document.addEventListener('keydown', (e) => {
@@ -3127,6 +3135,10 @@ window.addEventListener('scroll', () => {
 // ================================================================
 // ─── FEATURED STRIP AUTOPLAY — eager pre-load + site-loader signal ─────────────
 (function(){
+  // Mobile: skip autoplay iframes entirely — too many concurrent videos crash the browser.
+  // Thumbnails are already rendered in the HTML; this IIFE only adds live iframes on desktop.
+  if (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) return;
+
   var _fCount = 0;
   var _fMax = 40; // allow plenty for eager + observer load (incl. duplicates)
 
@@ -3667,6 +3679,22 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
 </script>
 <noscript>Please ensure Javascript is enabled for purposes of <a href="https://userway.org">website accessibility</a></noscript>
 
+<style>
+/* Lightbox loading spinner */
+.vlb-spinner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+  border: 3px solid rgba(255,255,255,0.15);
+  border-top-color: rgba(255,255,255,0.85);
+  border-radius: 50%;
+  animation: vlbSpin 0.75s linear infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+@keyframes vlbSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+</style>
 <!-- PROJECT MODAL -->
 <div id="project-overlay" class="project-overlay" onclick="closeProject(event)">
   <div class="project-modal" onclick="event.stopPropagation()">
@@ -3949,7 +3977,9 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   if (!loader) return;
   var _slDismissed = false;
   var _slStart = Date.now();
-  var _slMinMs = 6000; // show at least 6s so hero + featured videos have time to buffer
+  var _isMob = window.innerWidth <= 768;
+  // Mobile: featured section is hidden so don't wait for it; show loader only 2.5s minimum
+  var _slMinMs = _isMob ? 2500 : 6000;
 
   function dismiss(){
     if (_slDismissed) return;
@@ -3966,7 +3996,8 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
   // Shared counters read by featured IIFE (defined above)
   window._slFeatLoaded = 0;
   var _slHeroReady = false;
-  var _slNeededFeat = 3; // need at least 3 featured iframes to have loaded
+  // Mobile: featured section is hidden — don't block on featured iframes loading
+  var _slNeededFeat = _isMob ? 0 : 3;
 
   window._slCheckReady = function(){
     if (_slHeroReady && window._slFeatLoaded >= _slNeededFeat) dismiss();
@@ -3985,10 +4016,10 @@ document.querySelectorAll('.carousel-btn').forEach(btn => {
     _slHeroReady = true; // no hero iframe found — don't block
   }
 
-  // Hard fallback — never keep loader past 8s
-  setTimeout(dismiss, 8000);
-  // Secondary: dismiss at 6s if hero loaded and enough featured ready
-  setTimeout(function(){ if (_slHeroReady && window._slFeatLoaded >= 1) dismiss(); }, 6000);
+  // Hard fallback — mobile: 4s, desktop: 8s
+  setTimeout(dismiss, _isMob ? 4000 : 8000);
+  // Secondary: dismiss early if hero loaded (mobile: 2.5s, desktop: 6s)
+  setTimeout(function(){ if (_slHeroReady && (_isMob || window._slFeatLoaded >= 1)) dismiss(); }, _isMob ? 2500 : 6000);
 })();
 
 // ── Project URL routing — deep links & browser back/forward ──
