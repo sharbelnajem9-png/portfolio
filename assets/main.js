@@ -483,8 +483,22 @@ function openProject(key) {
     window._pvTriggerReveal = null;
     window._pvCheckPlaying = null;
     if (lc) lc.classList.remove('active');
-    // Synchronized fade-in: all videos appear together, all already playing
-    container.querySelectorAll('.pv-item iframe').forEach(function(fr){ fr.style.opacity = '1'; });
+    // Synchronized fade-in: all videos appear together
+    container.querySelectorAll('.pv-item iframe').forEach(function(fr){
+      fr.style.opacity = '1';
+      // Force-play every video from the start so the user sees each one running
+      // when the cover disappears (autoplay URL params alone aren't always enough
+      // — Vimeo can throttle background-load iframes).
+      if (fr._pvPlayer) {
+        try {
+          fr._pvPlayer.setCurrentTime(0).then(function(){
+            fr._pvPlayer.play().catch(function(){});
+          }).catch(function(){
+            try { fr._pvPlayer.play().catch(function(){}); } catch(e) {}
+          });
+        } catch(e) {}
+      }
+    });
     container.querySelectorAll('.pv-item').forEach(function(dv){ dv.classList.add('pv-loaded'); });
   }
   window._pvTriggerReveal = function() { _pvRevealAll(); };

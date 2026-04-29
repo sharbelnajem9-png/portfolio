@@ -201,6 +201,12 @@
     setTimeout(function(){
       if (_slDismissed) return;
       _slDismissed = true;
+      // Restart hero showreel from time 0 so the user sees it from the start
+      if (window._heroPlayer) {
+        try { window._heroPlayer.setCurrentTime(0).then(function(){
+          window._heroPlayer.play().catch(function(){});
+        }).catch(function(){}); } catch(e) {}
+      }
       loader.classList.add('sl-hidden');
       setTimeout(function(){ if (loader.parentNode) loader.style.display = 'none'; }, 800);
     }, wait);
@@ -226,6 +232,7 @@
     if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
       try {
         var hp = new Vimeo.Player(heroIframe);
+        window._heroPlayer = hp; // exposed so dismiss() can rewind to 0
         var _heroPlayed = false;
         hp.on('timeupdate', function _onHeroTu(){
           if (_heroPlayed) return; _heroPlayed = true;
