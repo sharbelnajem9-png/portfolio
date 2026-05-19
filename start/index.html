@@ -156,12 +156,21 @@ section { position: relative; z-index: 2; }
   min-width: 100%; min-height: 56.25vw;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  opacity: 0.45;
-  filter: brightness(0.65) saturate(1.25);
+  opacity: 0.78;
+  filter: saturate(1.15) contrast(1.02);
 }
 .hero-overlay {
   position: absolute; inset: 0; z-index: 1;
-  background: linear-gradient(180deg, rgba(13,15,19,0.5) 0%, rgba(13,15,19,0.85) 60%, var(--black) 100%);
+  background: linear-gradient(180deg, rgba(13,15,19,0.18) 0%, rgba(13,15,19,0.4) 55%, rgba(13,15,19,0.85) 88%, var(--black) 100%);
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 140px;
+  background: linear-gradient(180deg, transparent, var(--black) 90%);
+  z-index: 3;
+  pointer-events: none;
 }
 .hero-content {
   position: relative; z-index: 2;
@@ -254,7 +263,9 @@ section { position: relative; z-index: 2; }
 .about-avatar img {
   width: 100%; height: 100%;
   object-fit: cover;
-  object-position: center 30%;
+  object-position: 50% 22%;
+  transform: scale(1.5);
+  transform-origin: 50% 22%;
   display: block;
 }
 .about h2 {
@@ -364,21 +375,22 @@ section { position: relative; z-index: 2; }
   font-weight: 700;
 }
 .marquee-wrap {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   position: relative;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
 }
+.marquee-wrap::-webkit-scrollbar { display: none; }
 .marquee {
   display: flex;
   gap: 38px;
   align-items: center;
   width: max-content;
-  animation: scrollMarquee 50s linear infinite;
-  will-change: transform;
-}
-.marquee:hover { animation-play-state: paused; }
-@keyframes scrollMarquee {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(calc(-100% / 3), 0, 0); }
+  padding: 0 20px;
 }
 .brand-item {
   display: flex;
@@ -399,14 +411,7 @@ section { position: relative; z-index: 2; }
 }
 @media (max-width: 768px) {
   .brands { padding: 34px 0; }
-  .marquee-wrap {
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .marquee-wrap::-webkit-scrollbar { display: none; }
-  .marquee { animation: none; gap: 24px; }
+  .marquee { gap: 24px; }
   .brand-item { min-width: 95px; height: 56px; padding: 4px 10px; }
 }
 
@@ -964,18 +969,72 @@ footer {
 </footer>
 
 <script>
-// ─── Brands: build + duplicate for seamless CSS animation loop ───
+// ─── Brands: build + JS auto-scroll loop (mirrors main site behavior) ───
 const brandsContainer = document.getElementById('brandsMarquee');
+const brandsWrap = brandsContainer.parentElement;
 const brandLogos = [];
 for (let i = 46; i <= 81; i++) brandLogos.push('../logos/Untitled-' + i + '.png');
+
 function buildBrands() {
   const html = brandLogos.map(src =>
-    `<div class="brand-item"><img src="${src}" alt="" loading="eager"></div>`
+    `<div class="brand-item"><img src="${src}" alt="" loading="eager" onerror="this.parentElement.style.display='none'"></div>`
   ).join('');
-  // Triple the content: CSS animation translates -100%/3, looping seamlessly
   brandsContainer.innerHTML = html + html + html;
 }
 buildBrands();
+
+// Auto-scroll + manual swipe support
+let isUserInteracting = false;
+let userTimer;
+function pauseAutoScroll() {
+  isUserInteracting = true;
+  clearTimeout(userTimer);
+  userTimer = setTimeout(() => { isUserInteracting = false; }, 1800);
+}
+brandsWrap.addEventListener('pointerdown', pauseAutoScroll);
+brandsWrap.addEventListener('wheel', pauseAutoScroll, { passive: true });
+brandsWrap.addEventListener('touchstart', pauseAutoScroll, { passive: true });
+
+let scrollStarted = false;
+function startBrandsAutoScroll() {
+  if (scrollStarted) return;
+  scrollStarted = true;
+  const oneThird = brandsContainer.scrollWidth / 3;
+  // Start from middle so we can loop both directions
+  brandsWrap.scrollLeft = oneThird;
+
+  function tick() {
+    if (!isUserInteracting) {
+      brandsWrap.scrollLeft += 0.6;
+    }
+    if (brandsWrap.scrollLeft >= oneThird * 2) {
+      brandsWrap.scrollLeft -= oneThird;
+    } else if (brandsWrap.scrollLeft < 1) {
+      brandsWrap.scrollLeft += oneThird;
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+// Wait for first batch of images to load
+const allImgs = brandsContainer.querySelectorAll('img');
+const need = Math.min(allImgs.length, 12);
+let loadedCount = 0;
+function onImgReady() {
+  loadedCount++;
+  if (loadedCount >= need) startBrandsAutoScroll();
+}
+allImgs.forEach((img, i) => {
+  if (i >= need) return;
+  if (img.complete && img.naturalWidth > 0) onImgReady();
+  else {
+    img.addEventListener('load', onImgReady);
+    img.addEventListener('error', onImgReady);
+  }
+});
+// Failsafe: start anyway after 2.5s
+setTimeout(startBrandsAutoScroll, 2500);
 
 // ─── Testimonials data ───
 const TESTIMONIALS = [
