@@ -295,8 +295,8 @@ section { position: relative; z-index: 2; }
 .about-avatar img {
   width: 100%; height: 100%;
   object-fit: cover;
-  object-position: center 28%;
-  transform: scale(1.18);
+  object-position: center 25%;
+  transform: scale(1.45);
   display: block;
 }
 .about h2 {
@@ -376,10 +376,13 @@ section { position: relative; z-index: 2; }
 }
 .step:hover::before { opacity: 1; }
 .step .num {
-  font-size: 11px; font-weight: 800; letter-spacing: 2.5px;
-  color: var(--accent); margin-bottom: 10px;
-  display: inline-block; padding-bottom: 5px;
-  border-bottom: 1px solid rgba(81, 131, 223, 0.35);
+  font-size: 22px; font-weight: 800; letter-spacing: 0;
+  color: var(--accent); margin-bottom: 12px;
+  display: inline-block; padding-bottom: 6px;
+  border-bottom: 2px solid rgba(81, 131, 223, 0.45);
+  font-family: 'Alumni Sans', 'Assistant', sans-serif;
+  line-height: 1;
+  min-width: 28px;
 }
 .step h3 {
   font-size: 17px; font-weight: 700;
@@ -406,22 +409,23 @@ section { position: relative; z-index: 2; }
   font-weight: 700;
 }
 .marquee-wrap {
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   position: relative;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
   mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
 }
-.marquee-wrap::-webkit-scrollbar { display: none; }
 .marquee {
   display: flex;
   gap: 38px;
   align-items: center;
   width: max-content;
-  padding: 0 20px;
+  animation: marqueeScroll 55s linear infinite;
+  will-change: transform;
+}
+.marquee:hover { animation-play-state: paused; }
+@keyframes marqueeScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(calc(-100% / 3)); }
 }
 .brand-item {
   display: flex;
@@ -442,7 +446,13 @@ section { position: relative; z-index: 2; }
 }
 @media (max-width: 768px) {
   .brands { padding: 34px 0; }
-  .marquee { gap: 24px; }
+  .marquee-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .marquee-wrap::-webkit-scrollbar { display: none; }
+  .marquee { gap: 24px; animation: none; }
   .brand-item { min-width: 95px; height: 56px; padding: 4px 10px; }
 }
 
@@ -871,28 +881,28 @@ footer {
     </p>
     <div class="steps">
       <div class="step reveal">
-        <span class="num">01</span>
+        <span class="num">1</span>
         <h3 data-he="אפיון אישי ועסקי" data-en="Personal & Business Discovery">אפיון אישי ועסקי</h3>
         <p data-he="שני מפגשי עומק שמוציאים את ה-DNA האמיתי שלכם.<br>מי אתם, מה אתם מציעים, ולמי." data-en="Two deep sessions that surface your true DNA.<br>Who you are, what you offer, and for whom.">
           שני מפגשי עומק שמוציאים את ה-DNA האמיתי שלכם.<br>מי אתם, מה אתם מציעים, ולמי.
         </p>
       </div>
       <div class="step reveal">
-        <span class="num">02</span>
+        <span class="num">2</span>
         <h3 data-he="אסטרטגיה שיווקית מקיפה ובנק מסרים" data-en="Comprehensive Marketing Strategy & Message Bank">אסטרטגיה שיווקית מקיפה ובנק מסרים</h3>
         <p data-he="בניית אסטרטגיה מלאה.<br>תוכנית שיווקית, מסרי על, ערוצים, וטון אישי." data-en="Building a complete strategy.<br>Marketing plan, core messages, channels, and a voice that's yours.">
           בניית אסטרטגיה מלאה.<br>תוכנית שיווקית, מסרי על, ערוצים, וטון אישי.
         </p>
       </div>
       <div class="step reveal">
-        <span class="num">03</span>
+        <span class="num">3</span>
         <h3 data-he="תוצרים מוכנים" data-en="Finished Deliverables">תוצרים מוכנים</h3>
         <p data-he="האסטרטגיה הופכת לתוצרים.<br>תסריטים, סרטונים, תמונות, וחומרי שיווק שמייצרים בידול אמיתי." data-en="Strategy becomes deliverables.<br>Scripts, videos, photos, and marketing assets that create real differentiation.">
           האסטרטגיה הופכת לתוצרים.<br>תסריטים, סרטונים, תמונות, וחומרי שיווק שמייצרים בידול אמיתי.
         </p>
       </div>
       <div class="step reveal">
-        <span class="num">04</span>
+        <span class="num">4</span>
         <h3 data-he="ליווי וחידוד" data-en="Ongoing Refinement">ליווי וחידוד</h3>
         <p data-he="אחרי המסירה, ממשיכים יחד.<br>בודקים מה עובד, מחדדים, ומכוונים את המהלכים הבאים." data-en="After delivery, we continue together.<br>Measuring what works, refining, and directing the next moves.">
           אחרי המסירה, ממשיכים יחד.<br>בודקים מה עובד, מחדדים, ומכוונים את המהלכים הבאים.
@@ -1000,72 +1010,18 @@ footer {
 </footer>
 
 <script>
-// ─── Brands: build + JS auto-scroll loop (mirrors main site behavior) ───
+// ─── Brands: build markup (CSS animation handles the scroll loop) ───
 const brandsContainer = document.getElementById('brandsMarquee');
-const brandsWrap = brandsContainer.parentElement;
 const brandLogos = [];
 for (let i = 46; i <= 81; i++) brandLogos.push('../logos/Untitled-' + i + '.png');
-
 function buildBrands() {
   const html = brandLogos.map(src =>
     `<div class="brand-item"><img src="${src}" alt="" loading="eager" onerror="this.parentElement.style.display='none'"></div>`
   ).join('');
+  // Triple: CSS translates -100%/3 for seamless loop
   brandsContainer.innerHTML = html + html + html;
 }
 buildBrands();
-
-// Auto-scroll + manual swipe support
-let isUserInteracting = false;
-let userTimer;
-function pauseAutoScroll() {
-  isUserInteracting = true;
-  clearTimeout(userTimer);
-  userTimer = setTimeout(() => { isUserInteracting = false; }, 1800);
-}
-brandsWrap.addEventListener('pointerdown', pauseAutoScroll);
-brandsWrap.addEventListener('wheel', pauseAutoScroll, { passive: true });
-brandsWrap.addEventListener('touchstart', pauseAutoScroll, { passive: true });
-
-let scrollStarted = false;
-function startBrandsAutoScroll() {
-  if (scrollStarted) return;
-  scrollStarted = true;
-  const oneThird = brandsContainer.scrollWidth / 3;
-  // Start from middle so we can loop both directions
-  brandsWrap.scrollLeft = oneThird;
-
-  function tick() {
-    if (!isUserInteracting) {
-      brandsWrap.scrollLeft += 0.6;
-    }
-    if (brandsWrap.scrollLeft >= oneThird * 2) {
-      brandsWrap.scrollLeft -= oneThird;
-    } else if (brandsWrap.scrollLeft < 1) {
-      brandsWrap.scrollLeft += oneThird;
-    }
-    requestAnimationFrame(tick);
-  }
-  tick();
-}
-
-// Wait for first batch of images to load
-const allImgs = brandsContainer.querySelectorAll('img');
-const need = Math.min(allImgs.length, 12);
-let loadedCount = 0;
-function onImgReady() {
-  loadedCount++;
-  if (loadedCount >= need) startBrandsAutoScroll();
-}
-allImgs.forEach((img, i) => {
-  if (i >= need) return;
-  if (img.complete && img.naturalWidth > 0) onImgReady();
-  else {
-    img.addEventListener('load', onImgReady);
-    img.addEventListener('error', onImgReady);
-  }
-});
-// Failsafe: start anyway after 2.5s
-setTimeout(startBrandsAutoScroll, 2500);
 
 // ─── Testimonials data ───
 const TESTIMONIALS = [
