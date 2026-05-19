@@ -3,6 +3,7 @@
     s.setAttribute("data-language", "he");
     s.setAttribute("data-widget_layout", "full");
     s.setAttribute("data-account", "yZwFbWSvDL");
+    s.setAttribute("data-trigger", "userwayTrigger");
     s.setAttribute("src", "https://cdn.userway.org/widget.js");
     (d.body || d.head).appendChild(s);
   })(document);

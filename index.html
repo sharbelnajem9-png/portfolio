@@ -153,12 +153,12 @@ body {
   background: transparent !important;
 }
 /* Soft gradient bands between sections for extra polish */
-.featured-section::before, .testimonials::before, .contact::before {
+.featured-section::before, .testimonials::before {
   content: '';
   position: absolute;
   top: -1px; left: 0; right: 0;
   height: 120px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
   pointer-events: none;
   z-index: 0;
 }
@@ -190,16 +190,24 @@ body {
   font-family: sans-serif;
 }
 
-/* ─── Blue accent: highlight <em>/<strong> in brand blue (clean - no underline bar) ─── */
+/* ─── Blue accent on em/strong (no underline, no bar, no background) ─── */
 .contact .contact-big-text em,
 .contact .contact-big-text strong {
   color: #7aa2ea !important;
   font-style: normal !important;
-  font-weight: 700;
+  font-weight: 700 !important;
   background: none !important;
+  background-image: none !important;
   padding: 0 !important;
-  text-shadow: 0 0 24px rgba(81,131,223,0.35);
+  margin: 0 !important;
+  text-decoration: none !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  text-shadow: 0 0 18px rgba(81,131,223,0.3) !important;
 }
+/* Kill the blue radial glow under the contact section (showed up as a faint line under "makes an impact") */
+.contact::before, .contact::after { display: none !important; content: none !important; }
 .about-text em, .about-text strong,
 .hero-tagline em, .hero-tagline strong,
 .section-subtitle em, .section-subtitle strong {
@@ -302,7 +310,7 @@ body {
       <a href="https://www.tiktok.com/@sharbelnajem" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.75a8.18 8.18 0 004.76 1.52V6.84a4.86 4.86 0 01-1-.15z"/></svg></a>
     </div>
     <button class="lang-toggle" id="langToggle" onclick="toggleLang()">עב</button>
-    <button class="nav-a11y-btn" onclick="openA11y()" aria-label="Accessibility"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
+    <button id="userwayTrigger" class="nav-a11y-btn" aria-label="Accessibility menu" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
     <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileNav()" aria-label="Menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
@@ -921,24 +929,7 @@ body {
 <!-- ── Update-98: universal carousel auto-scroller ── -->
 <script src="assets/carousels.js"></script>
 
-<!-- ── A11y trigger (works whether UserWay loaded yet or not) ── -->
-<script>
-function openA11y() {
-  const tryClick = () => {
-    const icon = document.getElementById('userwayAccessibilityIcon');
-    if (icon) { icon.click(); return true; }
-    if (window.UserWay && typeof window.UserWay.iconVisibilityOn === 'function') {
-      window.UserWay.iconVisibilityOn();
-      setTimeout(() => document.getElementById('userwayAccessibilityIcon')?.click(), 250);
-      return true;
-    }
-    return false;
-  };
-  if (tryClick()) return;
-  let tries = 0;
-  const iv = setInterval(() => { if (tryClick() || ++tries > 20) clearInterval(iv); }, 250);
-}
-</script>
+<!-- A11y: button id="userwayTrigger" is wired to UserWay via data-trigger on the loader script. -->
 
 <!-- ── Showreel keep-alive + thumbnail fallback + lazy loading ── -->
 <script>

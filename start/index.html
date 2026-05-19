@@ -104,23 +104,32 @@ html[lang="en"] .footer-link {
 .navbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   padding: 0 32px; height: 60px;
-  display: flex; align-items: center; justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   backdrop-filter: blur(20px) saturate(1.5);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
   background: rgba(13, 15, 19, 0.7);
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-.nav-logo img { height: 34px; transition: opacity 0.3s; }
+.nav-logo { justify-self: start; }
+.nav-logo img { height: 34px; transition: opacity 0.3s; display: block; }
 .nav-logo:hover img { opacity: 0.7; }
 .nav-back {
+  justify-self: center;
   display: inline-flex; align-items: center; gap: 8px;
   color: var(--white-70);
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
   transition: color 0.2s;
+  white-space: nowrap;
 }
 .nav-back:hover { color: var(--white); }
+.nav-right {
+  justify-self: end;
+  display: inline-flex; align-items: center; gap: 8px;
+}
 .lang-toggle {
   background: transparent; color: var(--white-70);
   border: 1px solid var(--white-15);
@@ -138,22 +147,13 @@ html[lang="en"] .footer-link {
   display: inline-flex; align-items: center; justify-content: center;
   color: var(--white-70);
   cursor: pointer;
-  margin-inline-start: 8px;
   transition: all 0.2s;
   padding: 0;
 }
 .nav-a11y-btn:hover { border-color: var(--white-30); color: var(--white); }
 .nav-a11y-btn svg { width: 15px; height: 15px; display: block; }
-/* UserWay icon: keep in DOM (so .click() works) but hide off-screen */
-#userwayAccessibilityIcon,
-.uwy.userway_p1,
-.uwy {
-  position: fixed !important;
-  bottom: -200px !important;
-  right: -200px !important;
-  opacity: 0 !important;
-  pointer-events: auto !important;
-}
+/* UserWay default icon hidden — our nav button (id="userwayTrigger") opens the widget via data-trigger */
+.uwy, #userwayAccessibilityIcon { display: none !important; }
 @media (max-width: 600px) {
   .navbar { padding: 0 18px; height: 56px; }
   .nav-logo img { height: 28px; }
@@ -336,8 +336,10 @@ section { position: relative; z-index: 2; }
 }
 .about h2 strong { font-weight: 900; }
 .mob-br { display: none; }
+.mob-only-break { display: none; }
 @media (max-width: 600px) {
   .mob-br { display: block; }
+  .mob-only-break { display: block; height: 0; }
   .about h2 { font-size: 22px; }
 }
 .about p {
@@ -371,9 +373,13 @@ section { position: relative; z-index: 2; }
   color: var(--white-70);
   font-weight: 300;
   margin-bottom: 44px;
-  max-width: 480px;
+  max-width: 900px;
   margin-inline: auto;
   line-height: 1.6;
+  text-wrap: balance;
+}
+@media (max-width: 768px) {
+  .process .lead { max-width: 520px; }
 }
 .steps {
   display: grid;
@@ -443,22 +449,23 @@ section { position: relative; z-index: 2; }
 .marquee-wrap {
   overflow: hidden;
   position: relative;
+  direction: ltr;
   mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
 }
 .marquee {
   display: flex;
-  gap: 38px;
   align-items: center;
   width: max-content;
-  animation: marqueeLoop 50s linear infinite;
+  direction: ltr;
+  animation: marqueeLoop 60s linear infinite;
   will-change: transform;
   transform: translateZ(0);
 }
 .marquee:hover { animation-play-state: paused; }
 @keyframes marqueeLoop {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(calc(-100% / 3), 0, 0); }
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 .brand-item {
   display: flex;
@@ -467,6 +474,7 @@ section { position: relative; z-index: 2; }
   min-width: 110px;
   height: 70px;
   padding: 6px 14px;
+  margin-right: 38px;
   flex-shrink: 0;
   opacity: 0.92;
   transition: opacity 0.3s, transform 0.3s;
@@ -479,8 +487,8 @@ section { position: relative; z-index: 2; }
 }
 @media (max-width: 768px) {
   .brands { padding: 34px 0; }
-  .marquee { gap: 24px; animation-duration: 35s; }
-  .brand-item { min-width: 95px; height: 56px; padding: 4px 10px; }
+  .marquee { animation-duration: 40s; }
+  .brand-item { min-width: 95px; height: 56px; padding: 4px 10px; margin-right: 24px; }
 }
 
 /* ─── TESTIMONIALS (static grid desktop, swipe carousel mobile) ─── */
@@ -853,10 +861,12 @@ footer {
 <nav class="navbar">
   <a href="https://sharbelnajem.pro/" class="nav-logo"><img src="../logo.png" alt="SN"></a>
   <a class="nav-back" href="https://sharbelnajem.pro/">
-    <span data-he="חזרה לאתר" data-en="Back to site">חזרה לאתר</span>
+    <span data-he="לתיק עבודות" data-en="To portfolio">לתיק עבודות</span>
   </a>
-  <button class="lang-toggle" onclick="toggleLang()">EN</button>
-  <button class="nav-a11y-btn" onclick="openA11y()" aria-label="Accessibility"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
+  <div class="nav-right">
+    <button class="lang-toggle" onclick="toggleLang()">EN</button>
+    <button id="userwayTrigger" class="nav-a11y-btn" aria-label="Accessibility menu" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -886,8 +896,8 @@ footer {
   <div class="container reveal">
     <div class="about-avatar"><img src="../about-new.jpg" alt="Sharbel Najem"></div>
     <span class="eyebrow" data-he="אודות" data-en="About">אודות</span>
-    <h2 data-he="צלם מקצועי, יוצר תוכן מסחרי<br class='mob-br'>ואסטרטג שיווקי." data-en="Professional filmmaker, commercial creator,<br class='mob-br'>and marketing strategist.">
-      צלם מקצועי, יוצר תוכן מסחרי<br class="mob-br">ואסטרטג שיווקי.
+    <h2 data-he="צלם מקצועי, יוצר תוכן מסחרי <span class='mob-only-break'></span>ואסטרטג שיווקי." data-en="Professional filmmaker, commercial creator, <span class='mob-only-break'></span>and marketing strategist.">
+      צלם מקצועי, יוצר תוכן מסחרי <span class="mob-only-break"></span>ואסטרטג שיווקי.
     </h2>
     <p data-he="מתמחה בהפקת וידאו ברמה גבוהה בתחומי הסושיאל, לייף סטייל, תיירות ותוכן מותגי.<br>עם ניסיון מוכח בפרויקטים עשירים ויזואלית, כל אחד בנוי סביב מטרה אסטרטגית ברורה." data-en="Specializing in high-end video production for social, lifestyle, tourism, and brand storytelling.<br>A proven track record in visually rich projects, each built around a clear strategic goal.">
       מתמחה בהפקת וידאו ברמה גבוהה בתחומי הסושיאל, לייף סטייל, תיירות ותוכן מותגי.<br>עם ניסיון מוכח בפרויקטים עשירים ויזואלית, כל אחד בנוי סביב מטרה אסטרטגית ברורה.
@@ -906,8 +916,8 @@ footer {
       <span data-he="ארבעה שלבים" data-en="Four stages">ארבעה שלבים</span>
       <strong data-he="עד התוצר הסופי" data-en="to the final deliverable">עד התוצר הסופי</strong>
     </h2>
-    <p class="lead reveal" data-he="ארבעה שלבים שמובילים מעסק עם מוצר איכותי לעסק שבולט בשוק.<br>בלי קיצורי דרך, בלי קלישאות." data-en="Four stages that take a quality business and make it stand out.<br>No shortcuts, no clichés.">
-      ארבעה שלבים שמובילים מעסק עם מוצר איכותי לעסק שבולט בשוק.<br>בלי קיצורי דרך, בלי קלישאות.
+    <p class="lead reveal" data-he="ארבעה שלבים שמובילים מעסק עם מוצר איכותי לעסק שבולט בשוק. בלי קיצורי דרך, בלי קלישאות." data-en="Four stages that take a quality business and make it stand out. No shortcuts, no clichés.">
+      ארבעה שלבים שמובילים מעסק עם מוצר איכותי לעסק שבולט בשוק. בלי קיצורי דרך, בלי קלישאות.
     </p>
     <div class="steps">
       <div class="step reveal">
@@ -1036,29 +1046,12 @@ function buildBrands() {
   const html = brandLogos.map(src =>
     `<div class="brand-item"><img src="${src}" alt="" loading="eager"></div>`
   ).join('');
-  brandsContainer.innerHTML = html + html + html;
+  // Two identical copies — CSS animates translateX(-50%) for a seamless loop
+  brandsContainer.innerHTML = html + html;
 }
 buildBrands();
 
-// ─── Accessibility button: clicks UserWay's hidden icon ───
-function openA11y() {
-  const tryClick = () => {
-    const icon = document.getElementById('userwayAccessibilityIcon');
-    if (icon) { icon.click(); return true; }
-    if (window.UserWay && typeof window.UserWay.iconVisibilityOn === 'function') {
-      window.UserWay.iconVisibilityOn();
-      setTimeout(() => document.getElementById('userwayAccessibilityIcon')?.click(), 250);
-      return true;
-    }
-    return false;
-  };
-  if (tryClick()) return;
-  // UserWay not loaded yet - wait and retry
-  let tries = 0;
-  const iv = setInterval(() => {
-    if (tryClick() || ++tries > 20) clearInterval(iv);
-  }, 250);
-}
+// Accessibility: nav button with id="userwayTrigger" is wired to UserWay via data-trigger on the loader script.
 
 // ─── Showreel keep-alive ───
 (function() {
