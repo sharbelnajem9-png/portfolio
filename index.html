@@ -41,48 +41,47 @@
 :root { --font-en: 'Alumni Sans', 'Almoni', sans-serif; }
 .hero-name {
   font-family: 'Alumni Sans', 'Almoni', sans-serif !important;
-  display: inline-block !important;
-  line-height: 1 !important;
-  letter-spacing: normal !important;
-  direction: ltr !important;
-  unicode-bidi: isolate !important;
+  display: block !important;
+  width: auto !important;
+  max-width: 100% !important;
   text-align: center !important;
   white-space: nowrap !important;
-  margin: 0 auto !important;
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
 }
-.hero-name-first {
-  display: inline-block !important;
-  font-size: clamp(34px, 5.5vw, 78px) !important;
-  font-weight: 200 !important;
+.hero-name .hn-first {
+  display: inline !important;
+  white-space: nowrap !important;
+  writing-mode: horizontal-tb !important;
   font-style: italic !important;
-  letter-spacing: 2px !important;
+  font-weight: 200 !important;
+  font-size: clamp(30px, 5vw, 68px) !important;
+  letter-spacing: 1px !important;
   text-transform: uppercase !important;
   color: rgba(242, 242, 240, 0.72) !important;
-  line-height: 1 !important;
-  margin-inline-end: 14px !important;
-  vertical-align: baseline !important;
+  font-family: inherit !important;
 }
-.hero-name-last {
-  display: inline-block !important;
-  font-size: clamp(48px, 8vw, 104px) !important;
+.hero-name .hn-last {
+  display: inline !important;
+  white-space: nowrap !important;
+  writing-mode: horizontal-tb !important;
+  font-style: normal !important;
   font-weight: 800 !important;
+  font-size: clamp(44px, 7vw, 96px) !important;
   letter-spacing: -1px !important;
   text-transform: uppercase !important;
-  line-height: 1 !important;
-  vertical-align: baseline !important;
+  margin-inline-start: 0.25em !important;
+  font-family: inherit !important;
 }
 [dir="rtl"] .hero-name { font-family: 'Assistant', sans-serif !important; direction: rtl !important; }
-[dir="rtl"] .hero-name-first {
-  font-weight: 300 !important;
-  font-style: normal !important;
-  letter-spacing: 0 !important;
-  font-size: clamp(30px, 5vw, 68px) !important;
-}
-[dir="rtl"] .hero-name-last {
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  font-size: clamp(44px, 7.2vw, 96px) !important;
-}
+[dir="rtl"] .hero-name .hn-first { font-style: normal !important; letter-spacing: 0 !important; }
+[dir="rtl"] .hero-name .hn-last { letter-spacing: 0 !important; }
 /* Use Alumni Sans for English section titles, keep Assistant for Hebrew */
 [dir="ltr"] .section-title,
 [dir="ltr"] .hero-tagline { font-family: 'Alumni Sans', sans-serif; }
@@ -217,10 +216,7 @@
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <h1 class="hero-name">
-      <span class="hero-name-first" data-en="Sharbel" data-he="שרבל">Sharbel</span>
-      <span class="hero-name-last" data-en="Najem" data-he="נג'ם">Najem</span>
-    </h1>
+    <h1 class="hero-name"><em class="hn-first" data-en="Sharbel" data-he="שרבל">Sharbel</em><span class="hn-last" data-en="Najem" data-he="נג'ם">Najem</span></h1>
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
       <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
