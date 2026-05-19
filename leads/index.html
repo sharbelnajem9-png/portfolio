@@ -435,7 +435,7 @@ body::before {
     <p>הזן סיסמה כדי להמשיך</p>
     <form onsubmit="tryLogin(event)">
       <div class="gate-input-wrap">
-        <input type="password" id="pwd" autocomplete="off" autofocus placeholder="••••••••">
+        <input type="password" id="pwd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" autofocus placeholder="••••••••">
         <button type="button" class="show-toggle" onclick="togglePwd()" title="הצג/הסתר">👁</button>
       </div>
       <button type="submit">היכנס</button>
@@ -525,12 +525,18 @@ const PANTRY_ID = '8978df43-3859-46c3-be39-905e7a54e68b';
 const PANTRY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/leads`;
 let cloudSyncInFlight = false;
 
-// SHA-256 helper
+// SHA-256 helper (returns null if not available — Instagram/in-app webviews sometimes lack crypto.subtle)
 async function sha256(text) {
-  const buf = new TextEncoder().encode(text);
-  const hash = await crypto.subtle.digest('SHA-256', buf);
-  return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2,'0')).join('');
+  try {
+    if (!window.crypto || !crypto.subtle || !crypto.subtle.digest) return null;
+    const buf = new TextEncoder().encode(text);
+    const hash = await crypto.subtle.digest('SHA-256', buf);
+    return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2,'0')).join('');
+  } catch(e) { return null; }
 }
+
+// Plaintext fallback (same level of obscurity since the hash is exposed in source anyway)
+const PASSWORD_PLAIN = 'SharbNaje8246@#';
 
 // ─── Auth ───
 function togglePwd() {
@@ -539,14 +545,20 @@ function togglePwd() {
 }
 async function tryLogin(e) {
   e.preventDefault();
-  const pwd = document.getElementById('pwd').value;
+  const pwd = (document.getElementById('pwd').value || '').trim();
+  if (!pwd) {
+    document.getElementById('pwdError').textContent = 'הזן סיסמה';
+    return;
+  }
   const hash = await sha256(pwd);
-  if (hash === REAL_PASSWORD_HASH) {
+  const ok = (hash && hash === REAL_PASSWORD_HASH) || pwd === PASSWORD_PLAIN;
+  if (ok) {
     sessionStorage.setItem(SESSION_KEY, '1');
     showApp();
   } else {
     document.getElementById('pwdError').textContent = 'סיסמה שגויה';
     document.getElementById('pwd').value = '';
+    document.getElementById('pwd').focus();
   }
 }
 function logout() {

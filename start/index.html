@@ -237,23 +237,33 @@ section { position: relative; z-index: 2; }
   z-index: 3;
   pointer-events: none;
 }
-/* Mobile: TRUE fade — mask-image fades the video pixels themselves to transparent,
-   so the body bg shows through. No rectangular edge, no color band, real blend. */
+/* Mobile: TRUE fade — mask both the iframe and the wrapper, with a long
+   gradual gradient so there is NO defined bottom edge. The about section
+   gets the same dark color as the bg behind the fade so the eye reads it
+   as continuous. */
 @media (max-width: 768px) {
-  .hero { overflow: hidden; }
-  .hero-video-bg {
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, rgba(0,0,0,0.55) 80%, transparent 100%);
-            mask-image: linear-gradient(180deg, #000 0%, #000 55%, rgba(0,0,0,0.55) 80%, transparent 100%);
-    -webkit-mask-size: 100% 100%;
-            mask-size: 100% 100%;
-    -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
+  .hero { overflow: hidden !important; background: transparent !important; }
+  .hero-video-bg,
+  .hero-video-bg iframe {
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 30%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.25) 85%, transparent 100%) !important;
+            mask-image: linear-gradient(180deg, #000 0%, #000 30%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.25) 85%, transparent 100%) !important;
+    -webkit-mask-size: 100% 100% !important;
+            mask-size: 100% 100% !important;
+    -webkit-mask-repeat: no-repeat !important;
+            mask-repeat: no-repeat !important;
+    -webkit-mask-position: 0 0 !important;
+            mask-position: 0 0 !important;
   }
-  /* hero-overlay must NOT cover the bottom or it defeats the mask */
+  /* hero-overlay must NOT cover the fade region */
   .hero-overlay {
-    background: linear-gradient(180deg, rgba(10,13,24,0.05) 0%, rgba(10,13,24,0.2) 40%, transparent 80%) !important;
+    background: linear-gradient(180deg, rgba(10,13,24,0.05) 0%, rgba(10,13,24,0.18) 35%, transparent 70%) !important;
   }
   .hero::after { display: none !important; }
+  /* About section starts on the SAME dark color as the body bg's deepest stop —
+     no contrast band between hero fade and about top. */
+  .about {
+    background: linear-gradient(180deg, #08090f 0%, transparent 30%) !important;
+  }
   /* Tighten ALL section spacing — landing mobile feels too airy */
   .about         { padding: 38px 0 24px !important; }
   .process       { padding: 26px 0 28px !important; }
