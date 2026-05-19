@@ -137,30 +137,31 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
 .folder-card:nth-of-type(6n+5) .folder-thumb { background: linear-gradient(135deg,#1d263a 0%,#11192a 100%) !important; }
 .folder-card:nth-of-type(6n) .folder-thumb { background: linear-gradient(135deg,#172333 0%,#0c141f 100%) !important; }
 
-/* ─── Smooth section transitions (no more hard cuts) ─── */
+/* ─── Smooth section transitions everywhere ─── */
 .about, .services-section, .projects-section, .featured-section, .brands, .testimonials, .contact, .dream-section {
   position: relative;
+  background: transparent !important;
 }
-.about::before, .services-section::before, .projects-section::before, .featured-section::before, .brands::before, .testimonials::before, .contact::before, .dream-section::before {
+/* Single unified body gradient instead of per-section colors */
+body {
+  background:
+    radial-gradient(ellipse at top, rgba(81,131,223,0.06), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(13,15,30,0.5), transparent 70%),
+    linear-gradient(180deg, var(--black) 0%, #0b0d14 30%, #0a0c12 60%, var(--black) 100%) !important;
+}
+.featured-section, .about, .brands, .testimonials, .contact, .projects-section, .services-section, .dream-section {
+  background: transparent !important;
+}
+/* Soft gradient bands between sections for extra polish */
+.featured-section::before, .testimonials::before, .contact::before {
   content: '';
   position: absolute;
-  top: -80px; left: 0; right: 0;
-  height: 80px;
-  background: linear-gradient(180deg, transparent, var(--black));
+  top: -1px; left: 0; right: 0;
+  height: 120px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent);
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 }
-.about::after, .services-section::after, .projects-section::after, .featured-section::after, .brands::after, .testimonials::after, .contact::after {
-  content: '';
-  position: absolute;
-  bottom: -80px; left: 0; right: 0;
-  height: 80px;
-  background: linear-gradient(180deg, var(--black), transparent);
-  pointer-events: none;
-  z-index: 1;
-}
-/* Soften the about background (was sharp --dark) to closer to --black */
-.about { background: linear-gradient(180deg, var(--black) 0%, #131720 50%, var(--black) 100%) !important; }
 
 /* ─── Testimonials: stars beside name + larger readable text ─── */
 .testimonial-card .testimonial-stars { display: none !important; }
@@ -189,14 +190,15 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
   font-family: sans-serif;
 }
 
-/* ─── Blue accent: highlight <em>/<strong> in brand blue ─── */
+/* ─── Blue accent: highlight <em>/<strong> in brand blue (clean - no underline bar) ─── */
 .contact .contact-big-text em,
 .contact .contact-big-text strong {
-  color: #5183df !important;
+  color: #7aa2ea !important;
   font-style: normal !important;
   font-weight: 700;
-  background: linear-gradient(180deg, transparent 78%, rgba(81,131,223,0.18) 78%);
-  padding: 0 4px;
+  background: none !important;
+  padding: 0 !important;
+  text-shadow: 0 0 24px rgba(81,131,223,0.35);
 }
 .about-text em, .about-text strong,
 .hero-tagline em, .hero-tagline strong,
@@ -226,12 +228,31 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
   box-shadow: 0 16px 42px rgba(81, 131, 223, 0.6), 0 0 0 2px rgba(255,255,255,0.25) !important;
 }
 
-/* ─── Mobile-specific tweaks for balance ─── */
+/* ─── About social links: 2 per row on mobile (was 3+1) ─── */
 @media (max-width: 768px) {
+  .about-links {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .about-link {
+    display: inline-flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+  /* Hero name + balance */
   .hero-name { font-size: clamp(38px, 9vw, 64px) !important; }
   [lang="en"] .hero-name { font-size: clamp(34px, 8vw, 56px) !important; }
   .hero-tagline { font-size: 14.5px !important; padding: 0 16px; }
-  .hero-btn-primary, .hero-btn-talk { padding: 11px 24px !important; font-size: 13.5px !important; }
+  .hero-btn-primary { padding: 11px 24px !important; font-size: 13.5px !important; }
+  /* Hero Let's Talk on mobile: hollow + white border (like Contact btn) */
+  .hero-btn-primary.hero-btn-talk {
+    background: transparent !important;
+    border: 2px solid #fff !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+  }
   .testimonial-card { padding: 18px !important; }
   .testimonial-card .testimonial-text { font-size: 14px !important; }
   .contact-big-text { font-size: clamp(22px, 5.5vw, 32px) !important; line-height: 1.4 !important; }
@@ -281,7 +302,7 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
       <a href="https://www.tiktok.com/@sharbelnajem" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.75a8.18 8.18 0 004.76 1.52V6.84a4.86 4.86 0 01-1-.15z"/></svg></a>
     </div>
     <button class="lang-toggle" id="langToggle" onclick="toggleLang()">עב</button>
-    <button class="nav-a11y-btn" onclick="document.getElementById('userwayAccessibilityIcon')?.click()" aria-label="Accessibility"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
+    <button class="nav-a11y-btn" onclick="openA11y()" aria-label="Accessibility"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
     <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileNav()" aria-label="Menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
@@ -332,7 +353,7 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
     <h1 class="hero-name"><em class="hn-first" data-en="Sharbel" data-he="שרבל">Sharbel</em>&nbsp;<span class="hn-last" data-en="Najem" data-he="נג'ם">Najem</span></h1>
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
-      <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
+      <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="לפרויקטים">View Projects</a>
       <a href="/start/" class="hero-btn-primary hero-btn-talk" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</a>
     </div>
   </div>
@@ -735,7 +756,7 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel is a highly reliable professional who helped me triple my sales through precise personal branding and organic videos. Beyond his creativity, he is a highly disciplined person, both towards himself and his clients. He didn't let me 'scatter', helped me focus, and maximized the campaigns in the best way possible! Thank you Sharbel." data-he="שרבל הוא איש מקצוע אמין מאוד שעזר לי לשלש את המכירות שלי באמצעות מיתוג אישי מדויק וסרטונים אורגניים. מעבר ליצירתיות, הוא אדם בעל משמעת גבוהה, גם כלפי עצמו וגם כלפי הלקוחות. הוא לא נתן לי 'להתפזר', עזר לי להתמקד ומקסם את הקמפיינים בצורה הטובה ביותר! תודה שרבל.">Sharbel is a highly reliable professional who helped me triple my sales through precise personal branding and organic videos. Beyond his creativity, he is a highly disciplined person, both towards himself and his clients. He didn't let me 'scatter', helped me focus, and maximized the campaigns in the best way possible! Thank you Sharbel.</p><div class="testimonial-brand" data-en="Naadned" data-he="Naadned">Naadned</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="I must share that anyone who chooses Sharbel will gain a professional with a genuine passion for his craft. He pulled off a huge promotional project for us in just two days, with a result that looks like the work of an entire team over months. I was impressed by his ability to think outside the box, bring original ideas, and translate them into precise and effective content. He knows how to adapt to changing needs and tailor the right story." data-he="חייבת לשתף שכל מי שיבחר בשרבל ירוויח איש מקצוע עם תשוקה אמיתית לעשייה. הוא הרים עבורנו פרויקט תדמיתי ענק ביומיים בלבד, עם תוצאה שנראית כמו עבודה של צוות שלם במשך חודשים. התרשמתי מהיכולת שלו לחשוב מחוץ לקופסה, להביא רעיונות מקוריים ולתרגם אותם לתוכן מדויק ואפקטיבי. יודע להתאים עצמו לצרכים משתנים ולתפור את הסיפור הנכון.">I must share that anyone who chooses Sharbel will gain a professional with a genuine passion for his craft. He pulled off a huge promotional project for us in just two days, with a result that looks like the work of an entire team over months. I was impressed by his ability to think outside the box, bring original ideas, and translate them into precise and effective content. He knows how to adapt to changing needs and tailor the right story.</p><div class="testimonial-brand" data-en="ICT Corps" data-he="ICT Corps">ICT Corps</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel accompanied us for three days to photograph us on an office trip in the north. He made sure to provide us with photos and videos in real-time so we could upload them directly to our socials. Highly professional, produces stunning photos, and is simply the nicest guy ever! Highly recommended." data-he="שרבל התלווה אלינו למשך שלושה ימים כדי לצלם אותנו בטיול משרדי בצפון. הוא דאג לספק לנו תמונות וסרטונים בזמן אמת כדי שנוכל להעלות ישירות לרשתות. מקצועי ברמות, מוציא תמונות מהממות, והוא פשוט הבחור הכי נחמד שיש! מומלץ בחום.">Sharbel accompanied us for three days to photograph us on an office trip in the north. He made sure to provide us with photos and videos in real-time so we could upload them directly to our socials. Highly professional, produces stunning photos, and is simply the nicest guy ever! Highly recommended.</p><div class="testimonial-brand" data-en="ERM" data-he="ERM">ERM</div></div>
-    <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel helped me take my art a step forward and turn it into a meticulous and professional digital course. The whole process was done in a pleasant atmosphere, and the quality of the filming and editing was simply uncompromising." data-he="שרבל עזר לי לקחת את האמנות שלי צעד קדימה ולהפוך אותה לקורס דיגיטלי מוקפד ומקצועי. התהליך כולו נעשה באווירה נעימה, ואיכות הצילום והעריכה היו פשוט ללא פשרות.">Sharbel helped me take my art a step forward and turn it into a meticulous and professional digital course. The whole process was done in a pleasant atmosphere, and the quality of the filming and editing was simply uncompromising.</p><div class="testimonial-brand" data-en="Liel Mashe" data-he="ליאל מאשה">ליאל מאשה</div></div>
+    <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel helped me take my art a step forward and turn it into a meticulous and professional digital course. The whole process was done in a pleasant atmosphere, and the quality of the filming and editing was simply uncompromising." data-he="שרבל עזר לי לקחת את האמנות שלי צעד קדימה ולהפוך אותה לקורס דיגיטלי מוקפד ומקצועי. התהליך כולו נעשה באווירה נעימה, ואיכות הצילום והעריכה היו פשוט ללא פשרות.">Sharbel helped me take my art a step forward and turn it into a meticulous and professional digital course. The whole process was done in a pleasant atmosphere, and the quality of the filming and editing was simply uncompromising.</p><div class="testimonial-brand" data-en="Liel - Mashe" data-he="ליאל - מאשה">ליאל - מאשה</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="We received a complete package from Sharbel that included marketing redesign and personal brand integration, alongside the production of over 35 videos. The entire process was super professional, and the final products upgrade our digital presence across all networks." data-he="קיבלנו משרבל מעטפת שלמה שכללה תכנון שיווקי מחדש והטמעת פרסונל ברנד, לצד הפקה של מעל ל-35 סרטונים. התהליך כולו היה סופר מקצועי, והתוצרים משדרגים את הנוכחות הדיגיטלית שלנו בכל הרשתות.">We received a complete package from Sharbel that included marketing redesign and personal brand integration, alongside the production of over 35 videos. The entire process was super professional, and the final products upgrade our digital presence across all networks.</p><div class="testimonial-brand" data-en="Blendar" data-he="בלנדר">Blendar</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="The campaign Sharbel created for us, which combined shoots in several different locations, was a massive success. Thanks to the video and the precise creative, our tickets became 'sold out' in a very short time." data-he="הקמפיין ששרבל יצר עבורנו, אשר שילב צילומים במספר לוקיישנים שונים, היה הצלחה מסחררת. בזכות הווידאו והקריאייטיב המדויק, הכרטיסים שלנו הפכו ל'סולד אאוט' בזמן קצר מאוד.">The campaign Sharbel created for us, which combined shoots in several different locations, was a massive success. Thanks to the video and the precise creative, our tickets became 'sold out' in a very short time.</p><div class="testimonial-brand" data-en="Western Galilee Time Tourism" data-he="עמותת זמן גליל מערבי">Western Galilee Time Tourism</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="We were looking for a quick and high-quality solution for the clinic, and we received an incredibly precise video campaign in record time from the moment of initial contact. The work was to the point, sharp, and hit exactly on our needs." data-he="חיפשנו פתרון מהיר ואיכותי לקליניקה, וקיבלנו קמפיין וידאו מדויק להפליא בזמן שיא מרגע יצירת הקשר הראשוני. העבודה הייתה עניינית, חדה וקולעת בדיוק לצרכים שלנו.">We were looking for a quick and high-quality solution for the clinic, and we received an incredibly precise video campaign in record time from the moment of initial contact. The work was to the point, sharp, and hit exactly on our needs.</p><div class="testimonial-brand" data-en="Sharp+" data-he="שארפ+">Sharp+</div></div>
@@ -750,7 +771,7 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel is a highly reliable professional who helped me triple my sales through precise personal branding and organic videos. Beyond his creativity, he is a highly disciplined person, both towards himself and his clients. He didn't let me 'scatter', helped me focus, and maximized the campaigns in the best way possible! Thank you Sharbel." data-he="שרבל הוא איש מקצוע אמין מאוד שעזר לי לשלש את המכירות שלי באמצעות מיתוג אישי מדויק וסרטונים אורגניים. מעבר ליצירתיות, הוא אדם בעל משמעת גבוהה, גם כלפי עצמו וגם כלפי הלקוחות. הוא לא נתן לי 'להתפזר', עזר לי להתמקד ומקסם את הקמפיינים בצורה הטובה ביותר! תודה שרבל.">Sharbel is a highly reliable professional who helped me triple my sales through precise personal branding and organic videos. Beyond his creativity, he is a highly disciplined person, both towards himself and his clients. He didn't let me 'scatter', helped me focus, and maximized the campaigns in the best way possible! Thank you Sharbel.</p><div class="testimonial-brand" data-en="Naadned" data-he="Naadned">Naadned</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="I must share that anyone who chooses Sharbel will gain a professional with a genuine passion for his craft. He pulled off a huge promotional project for us in just two days, with a result that looks like the work of an entire team over months. I was impressed by his ability to think outside the box, bring original ideas, and translate them into precise and effective content. He knows how to adapt to changing needs and tailor the right story." data-he="חייבת לשתף שכל מי שיבחר בשרבל ירוויח איש מקצוע עם תשוקה אמיתית לעשייה. הוא הרים עבורנו פרויקט תדמיתי ענק ביומיים בלבד, עם תוצאה שנראית כמו עבודה של צוות שלם במשך חודשים. התרשמתי מהיכולת שלו לחשוב מחוץ לקופסה, להביא רעיונות מקוריים ולתרגם אותם לתוכן מדויק ואפקטיבי. יודע להתאים עצמו לצרכים משתנים ולתפור את הסיפור הנכון.">I must share that anyone who chooses Sharbel will gain a professional with a genuine passion for his craft. He pulled off a huge promotional project for us in just two days, with a result that looks like the work of an entire team over months. I was impressed by his ability to think outside the box, bring original ideas, and translate them into precise and effective content. He knows how to adapt to changing needs and tailor the right story.</p><div class="testimonial-brand" data-en="ICT Corps" data-he="ICT Corps">ICT Corps</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel accompanied us for three days to photograph us on an office trip in the north. He made sure to provide us with photos and videos in real-time so we could upload them directly to our socials. Highly professional, produces stunning photos, and is simply the nicest guy ever! Highly recommended." data-he="שרבל התלווה אלינו למשך שלושה ימים כדי לצלם אותנו בטיול משרדי בצפון. הוא דאג לספק לנו תמונות וסרטונים בזמן אמת כדי שנוכל להעלות ישירות לרשתות. מקצועי ברמות, מוציא תמונות מהממות, והוא פשוט הבחור הכי נחמד שיש! מומלץ בחום.">Sharbel accompanied us for three days to photograph us on an office trip in the north. He made sure to provide us with photos and videos in real-time so we could upload them directly to our socials. Highly professional, produces stunning photos, and is simply the nicest guy ever! Highly recommended.</p><div class="testimonial-brand" data-en="ERM" data-he="ERM">ERM</div></div>
-    <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel helped me take my art a step forward and turn it into a meticulous and professional digital course. The whole process was done in a pleasant atmosphere, and the quality of the filming and editing was simply uncompromising." data-he="שרבל עזר לי לקחת את האמנות שלי צעד קדימה ולהפוך אותה לקורס דיגיטלי מוקפד ומקצועי. התהליך כולו נעשה באווירה נעימה, ואיכות הצילום והעריכה היו פשוט ללא פשרות.">Sharbel helped me take my art a step forward and turn it into a meticulous and professional digital course. The whole process was done in a pleasant atmosphere, and the quality of the filming and editing was simply uncompromising.</p><div class="testimonial-brand" data-en="Liel Mashe" data-he="ליאל מאשה">ליאל מאשה</div></div>
+    <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="Sharbel helped me take my art a step forward and turn it into a meticulous and professional digital course. The whole process was done in a pleasant atmosphere, and the quality of the filming and editing was simply uncompromising." data-he="שרבל עזר לי לקחת את האמנות שלי צעד קדימה ולהפוך אותה לקורס דיגיטלי מוקפד ומקצועי. התהליך כולו נעשה באווירה נעימה, ואיכות הצילום והעריכה היו פשוט ללא פשרות.">Sharbel helped me take my art a step forward and turn it into a meticulous and professional digital course. The whole process was done in a pleasant atmosphere, and the quality of the filming and editing was simply uncompromising.</p><div class="testimonial-brand" data-en="Liel - Mashe" data-he="ליאל - מאשה">ליאל - מאשה</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="We received a complete package from Sharbel that included marketing redesign and personal brand integration, alongside the production of over 35 videos. The entire process was super professional, and the final products upgrade our digital presence across all networks." data-he="קיבלנו משרבל מעטפת שלמה שכללה תכנון שיווקי מחדש והטמעת פרסונל ברנד, לצד הפקה של מעל ל-35 סרטונים. התהליך כולו היה סופר מקצועי, והתוצרים משדרגים את הנוכחות הדיגיטלית שלנו בכל הרשתות.">We received a complete package from Sharbel that included marketing redesign and personal brand integration, alongside the production of over 35 videos. The entire process was super professional, and the final products upgrade our digital presence across all networks.</p><div class="testimonial-brand" data-en="Blendar" data-he="בלנדר">Blendar</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="The campaign Sharbel created for us, which combined shoots in several different locations, was a massive success. Thanks to the video and the precise creative, our tickets became 'sold out' in a very short time." data-he="הקמפיין ששרבל יצר עבורנו, אשר שילב צילומים במספר לוקיישנים שונים, היה הצלחה מסחררת. בזכות הווידאו והקריאייטיב המדויק, הכרטיסים שלנו הפכו ל'סולד אאוט' בזמן קצר מאוד.">The campaign Sharbel created for us, which combined shoots in several different locations, was a massive success. Thanks to the video and the precise creative, our tickets became 'sold out' in a very short time.</p><div class="testimonial-brand" data-en="Western Galilee Time Tourism" data-he="עמותת זמן גליל מערבי">Western Galilee Time Tourism</div></div>
     <div class="testimonial-card"><div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="testimonial-text" data-en="We were looking for a quick and high-quality solution for the clinic, and we received an incredibly precise video campaign in record time from the moment of initial contact. The work was to the point, sharp, and hit exactly on our needs." data-he="חיפשנו פתרון מהיר ואיכותי לקליניקה, וקיבלנו קמפיין וידאו מדויק להפליא בזמן שיא מרגע יצירת הקשר הראשוני. העבודה הייתה עניינית, חדה וקולעת בדיוק לצרכים שלנו.">We were looking for a quick and high-quality solution for the clinic, and we received an incredibly precise video campaign in record time from the moment of initial contact. The work was to the point, sharp, and hit exactly on our needs.</p><div class="testimonial-brand" data-en="Sharp+" data-he="שארפ+">Sharp+</div></div>
@@ -899,6 +920,25 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
 
 <!-- ── Update-98: universal carousel auto-scroller ── -->
 <script src="assets/carousels.js"></script>
+
+<!-- ── A11y trigger (works whether UserWay loaded yet or not) ── -->
+<script>
+function openA11y() {
+  const tryClick = () => {
+    const icon = document.getElementById('userwayAccessibilityIcon');
+    if (icon) { icon.click(); return true; }
+    if (window.UserWay && typeof window.UserWay.iconVisibilityOn === 'function') {
+      window.UserWay.iconVisibilityOn();
+      setTimeout(() => document.getElementById('userwayAccessibilityIcon')?.click(), 250);
+      return true;
+    }
+    return false;
+  };
+  if (tryClick()) return;
+  let tries = 0;
+  const iv = setInterval(() => { if (tryClick() || ++tries > 20) clearInterval(iv); }, 250);
+}
+</script>
 
 <!-- ── Showreel keep-alive + thumbnail fallback + lazy loading ── -->
 <script>

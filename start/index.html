@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="../logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&family=Assistant:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&family=Assistant:wght@200;300;400;500;600;700;800&family=Rubik:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="../assets/userway-loader.js" defer></script>
 <script src="https://player.vimeo.com/api/player.js" defer></script>
 <style>
@@ -144,10 +144,16 @@ html[lang="en"] .footer-link {
 }
 .nav-a11y-btn:hover { border-color: var(--white-30); color: var(--white); }
 .nav-a11y-btn svg { width: 15px; height: 15px; display: block; }
-/* Hide UserWay default icon - we use our own */
+/* UserWay icon: keep in DOM (so .click() works) but hide off-screen */
 #userwayAccessibilityIcon,
 .uwy.userway_p1,
-.uwy { display: none !important; opacity: 0 !important; pointer-events: none !important; }
+.uwy {
+  position: fixed !important;
+  bottom: -200px !important;
+  right: -200px !important;
+  opacity: 0 !important;
+  pointer-events: auto !important;
+}
 @media (max-width: 600px) {
   .navbar { padding: 0 18px; height: 56px; }
   .nav-logo img { height: 28px; }
@@ -320,13 +326,20 @@ section { position: relative; z-index: 2; }
 }
 .about h2 {
   font-size: clamp(22px, 3.4vw, 32px);
-  font-weight: 500;
+  font-weight: 800;
+  font-family: 'Rubik', 'Assistant', sans-serif;
   line-height: 1.35;
   margin-bottom: 22px;
   max-width: 720px;
   margin-inline: auto;
+  letter-spacing: -0.3px;
 }
-.about h2 strong { font-weight: 700; }
+.about h2 strong { font-weight: 900; }
+.mob-br { display: none; }
+@media (max-width: 600px) {
+  .mob-br { display: block; }
+  .about h2 { font-size: 22px; }
+}
 .about p {
   font-size: 15px;
   color: var(--white-70);
@@ -428,22 +441,24 @@ section { position: relative; z-index: 2; }
   font-weight: 700;
 }
 .marquee-wrap {
-  overflow-x: scroll;
-  overflow-y: hidden;
+  overflow: hidden;
   position: relative;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
   mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
 }
-.marquee-wrap::-webkit-scrollbar { display: none; }
 .marquee {
   display: flex;
   gap: 38px;
   align-items: center;
   width: max-content;
-  padding: 0 24px;
+  animation: marqueeLoop 50s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+.marquee:hover { animation-play-state: paused; }
+@keyframes marqueeLoop {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(calc(-100% / 3), 0, 0); }
 }
 .brand-item {
   display: flex;
@@ -464,7 +479,7 @@ section { position: relative; z-index: 2; }
 }
 @media (max-width: 768px) {
   .brands { padding: 34px 0; }
-  .marquee { gap: 24px; padding: 0 16px; }
+  .marquee { gap: 24px; animation-duration: 35s; }
   .brand-item { min-width: 95px; height: 56px; padding: 4px 10px; }
 }
 
@@ -871,8 +886,8 @@ footer {
   <div class="container reveal">
     <div class="about-avatar"><img src="../about-new.jpg" alt="Sharbel Najem"></div>
     <span class="eyebrow" data-he="אודות" data-en="About">אודות</span>
-    <h2 data-he="צלם מקצועי, יוצר תוכן מסחרי, ואסטרטג שיווקי." data-en="Professional filmmaker, commercial creator, and marketing strategist.">
-      צלם מקצועי, יוצר תוכן מסחרי, ואסטרטג שיווקי.
+    <h2 data-he="צלם מקצועי, יוצר תוכן מסחרי<br class='mob-br'>ואסטרטג שיווקי." data-en="Professional filmmaker, commercial creator,<br class='mob-br'>and marketing strategist.">
+      צלם מקצועי, יוצר תוכן מסחרי<br class="mob-br">ואסטרטג שיווקי.
     </h2>
     <p data-he="מתמחה בהפקת וידאו ברמה גבוהה בתחומי הסושיאל, לייף סטייל, תיירות ותוכן מותגי.<br>עם ניסיון מוכח בפרויקטים עשירים ויזואלית, כל אחד בנוי סביב מטרה אסטרטגית ברורה." data-en="Specializing in high-end video production for social, lifestyle, tourism, and brand storytelling.<br>A proven track record in visually rich projects, each built around a clear strategic goal.">
       מתמחה בהפקת וידאו ברמה גבוהה בתחומי הסושיאל, לייף סטייל, תיירות ותוכן מותגי.<br>עם ניסיון מוכח בפרויקטים עשירים ויזואלית, כל אחד בנוי סביב מטרה אסטרטגית ברורה.
@@ -972,15 +987,6 @@ footer {
         <label data-he="על העסק. מה אתם עושים ולמי?" data-en="About the business. What do you do, and for whom?">על העסק. מה אתם עושים ולמי?</label>
         <textarea name="about" required></textarea>
       </div>
-      <div class="field">
-        <label data-he="תקציב משוער לפרויקט" data-en="Approximate project budget">תקציב משוער לפרויקט</label>
-        <div class="radio-grid">
-          <label class="radio-pill"><input type="radio" name="budget" value="<5K"><span class="pill" data-he="עד 5K" data-en="Under 5K">עד 5K</span></label>
-          <label class="radio-pill"><input type="radio" name="budget" value="5-10K"><span class="pill">5 - 10K</span></label>
-          <label class="radio-pill"><input type="radio" name="budget" value="10K+"><span class="pill">10K+</span></label>
-          <label class="radio-pill"><input type="radio" name="budget" value="open"><span class="pill" data-he="נדבר" data-en="Let's talk">נדבר</span></label>
-        </div>
-      </div>
       <button class="submit-btn" type="submit" data-he="שלח" data-en="Send">שלח</button>
       <p class="privacy-note" data-he="הפרטים נשמרים אצלי בלבד ולא משותפים עם צד שלישי." data-en="Your details stay with me and are never shared with third parties.">
         הפרטים נשמרים אצלי בלבד ולא משותפים עם צד שלישי.
@@ -1022,74 +1028,36 @@ footer {
 </footer>
 
 <script>
-// ─── Brands: build + JS auto-scroll (works on desktop AND mobile) ───
+// ─── Brands: build markup (CSS animation handles the scroll loop) ───
 const brandsContainer = document.getElementById('brandsMarquee');
-const brandsWrap = brandsContainer.parentElement;
 const brandLogos = [];
 for (let i = 46; i <= 81; i++) brandLogos.push('../logos/Untitled-' + i + '.png');
 function buildBrands() {
   const html = brandLogos.map(src =>
-    `<div class="brand-item"><img src="${src}" alt="" loading="eager" onerror="this.parentElement.style.display='none'"></div>`
+    `<div class="brand-item"><img src="${src}" alt="" loading="eager"></div>`
   ).join('');
   brandsContainer.innerHTML = html + html + html;
 }
 buildBrands();
 
-let bUserActive = false;
-let bUserTimer;
-function bPause() {
-  bUserActive = true;
-  clearTimeout(bUserTimer);
-  bUserTimer = setTimeout(() => { bUserActive = false; }, 1500);
-}
-// Wheel always pauses. Touch on mobile = pause only briefly so it keeps moving after.
-brandsWrap.addEventListener('wheel', bPause, { passive: true });
-let touchActive = false;
-brandsWrap.addEventListener('touchstart', () => { touchActive = true; bUserActive = true; }, { passive: true });
-brandsWrap.addEventListener('touchend', () => {
-  touchActive = false;
-  clearTimeout(bUserTimer);
-  bUserTimer = setTimeout(() => { bUserActive = false; }, 1200);
-}, { passive: true });
-
-let bStarted = false;
-function startBrandsScroll() {
-  if (bStarted) return;
-  bStarted = true;
-  const third = brandsContainer.scrollWidth / 3;
-  if (third < 100) { setTimeout(() => { bStarted = false; startBrandsScroll(); }, 500); return; }
-  brandsWrap.scrollLeft = third;
-  function loop() {
-    if (!bUserActive) brandsWrap.scrollLeft += 0.6;
-    if (brandsWrap.scrollLeft >= third * 2 - 1) brandsWrap.scrollLeft -= third;
-    else if (brandsWrap.scrollLeft <= 1) brandsWrap.scrollLeft += third;
-    requestAnimationFrame(loop);
-  }
-  loop();
-}
-const bImgs = brandsContainer.querySelectorAll('img');
-const bNeeded = Math.min(bImgs.length, 10);
-let bLoaded = 0;
-function bImgReady() { if (++bLoaded >= bNeeded) startBrandsScroll(); }
-bImgs.forEach((img, i) => {
-  if (i >= bNeeded) return;
-  if (img.complete && img.naturalWidth > 0) bImgReady();
-  else { img.addEventListener('load', bImgReady); img.addEventListener('error', bImgReady); }
-});
-setTimeout(startBrandsScroll, 2500);
-
-// ─── Accessibility button ───
+// ─── Accessibility button: clicks UserWay's hidden icon ───
 function openA11y() {
-  // Click UserWay invisible icon, or open menu
-  const btn = document.getElementById('userwayAccessibilityIcon');
-  if (btn) { btn.click(); return; }
-  // Fallback: trigger UserWay API
-  if (window.UserWay && window.UserWay.iconVisibilityOn) {
-    window.UserWay.iconVisibilityOn();
-    setTimeout(() => document.getElementById('userwayAccessibilityIcon')?.click(), 200);
-  } else {
-    alert('כלי הנגישות נטען. נסה שוב בעוד שנייה.');
-  }
+  const tryClick = () => {
+    const icon = document.getElementById('userwayAccessibilityIcon');
+    if (icon) { icon.click(); return true; }
+    if (window.UserWay && typeof window.UserWay.iconVisibilityOn === 'function') {
+      window.UserWay.iconVisibilityOn();
+      setTimeout(() => document.getElementById('userwayAccessibilityIcon')?.click(), 250);
+      return true;
+    }
+    return false;
+  };
+  if (tryClick()) return;
+  // UserWay not loaded yet - wait and retry
+  let tries = 0;
+  const iv = setInterval(() => {
+    if (tryClick() || ++tries > 20) clearInterval(iv);
+  }, 250);
 }
 
 // ─── Showreel keep-alive ───
@@ -1191,7 +1159,7 @@ async function submitForm(e) {
     name: data.get('name') || '',
     phone: data.get('phone') || '',
     about: data.get('about') || '',
-    budget: data.get('budget') || '—',
+    budget: '—',
     date: new Date().toISOString(),
     status: 'new',
     notes: ''
