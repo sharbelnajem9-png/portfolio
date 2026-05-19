@@ -233,9 +233,16 @@ section { position: relative; z-index: 2; }
   position: absolute;
   bottom: -1px; left: 0; right: 0;
   height: 220px;
-  background: linear-gradient(180deg, transparent 0%, rgba(10,13,24,0.6) 60%, rgba(10,13,24,0) 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(10,13,24,0.55) 55%, #0a0d18 100%);
   z-index: 3;
   pointer-events: none;
+}
+/* Mobile: smooth fade from video → body background (no hard cut) */
+@media (max-width: 768px) {
+  .hero::after {
+    height: 200px;
+    background: linear-gradient(180deg, transparent 0%, rgba(10,13,24,0.65) 50%, #0a0d18 100%);
+  }
 }
 
 /* ─── Desktop: hero video becomes a floating rounded glass card ─── */
@@ -439,8 +446,8 @@ section { position: relative; z-index: 2; }
     white-space: nowrap;
     max-width: none;
     overflow: visible;
-    /* shrink font so it fits comfortably on one line even on narrower laptops */
-    font-size: clamp(12.5px, 1.2vw, 15px);
+    /* shrink font further so the full sentence always fits on one line, even on 1024px laptops */
+    font-size: clamp(10.5px, 0.95vw, 14px);
   }
 }
 @media (max-width: 768px) {
@@ -1131,6 +1138,54 @@ function buildBrands() {
   brandsContainer.innerHTML = html + html;
 }
 buildBrands();
+
+// ─── Mobile: switch from CSS animation to scroll-based auto-scroller (so user can drag with finger) ───
+(function initMobileMarquee(){
+  if (window.innerWidth >= 769) return;
+  const wrap  = document.querySelector('.marquee-wrap');
+  const inner = document.getElementById('brandsMarquee');
+  if (!wrap || !inner) return;
+
+  // Make wrap horizontally scrollable, kill the CSS transform animation
+  wrap.style.overflowX = 'auto';
+  wrap.style.overflowY = 'hidden';
+  wrap.style.touchAction = 'pan-x';
+  wrap.style.scrollbarWidth = 'none';
+  wrap.style.webkitOverflowScrolling = 'touch';
+  inner.style.animation = 'none';
+  inner.style.transform = 'none';
+
+  let paused = false;
+  let resumeTimer = 0;
+  let lastTouch = 0;
+
+  ['touchstart','pointerdown'].forEach(ev =>
+    wrap.addEventListener(ev, () => { paused = true; clearTimeout(resumeTimer); lastTouch = Date.now(); }, { passive: true })
+  );
+  ['touchend','pointerup','pointercancel'].forEach(ev =>
+    wrap.addEventListener(ev, () => {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => { paused = false; }, 2200);
+    }, { passive: true })
+  );
+
+  // Wait for logos to load so scrollWidth is accurate
+  function start(){
+    const halfWidth = inner.scrollWidth / 2;
+    if (!halfWidth) return setTimeout(start, 200);
+    function tick(){
+      if (!paused) {
+        wrap.scrollLeft += 0.45;
+        if (wrap.scrollLeft >= halfWidth) wrap.scrollLeft -= halfWidth;
+      }
+      requestAnimationFrame(tick);
+    }
+    tick();
+  }
+  // Defer until images have rendered
+  if (document.readyState === 'complete') start();
+  else window.addEventListener('load', start);
+})();
 
 // Accessibility: nav button with id="userwayTrigger" is wired to UserWay via data-trigger on the loader script.
 

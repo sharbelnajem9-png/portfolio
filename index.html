@@ -150,18 +150,19 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
 .folder-card:nth-of-type(6n+5) .folder-thumb { background: linear-gradient(135deg,#1d263a 0%,#11192a 100%) !important; }
 .folder-card:nth-of-type(6n) .folder-thumb { background: linear-gradient(135deg,#172333 0%,#0c141f 100%) !important; }
 
-/* ─── ALL project cards share one blue palette (overrides per-key colors in site.css) ─── */
-.folder-card[data-key] .fc-bg,
-.folder-card[data-key="podcast-short"] .fc-bg,
-.folder-card[data-key="real-estate"] .fc-bg,
-.folder-card[data-key="hotels"] .fc-bg,
-.folder-card[data-key="travel-short"] .fc-bg,
-.folder-card[data-key="technology"] .fc-bg,
-.folder-card[data-key="tourism-companies"] .fc-bg,
-.folder-card[data-key="kristian-najem"] .fc-bg,
-.folder-card[data-key="naadned"] .fc-bg,
-.folder-card[data-key="blendar"] .fc-bg,
-.folder-card[data-key="favorites"] .fc-bg {
+/* ─── Project cards: each one a distinct shade from one luxurious blue palette ─── */
+.folder-card[data-key="podcast-short"]     .fc-bg { background: linear-gradient(145deg, #2c5490 0%, #1a3468 45%, #0d1e40 100%) !important; } /* Royal Sapphire */
+.folder-card[data-key="real-estate"]       .fc-bg { background: linear-gradient(145deg, #1e4a85 0%, #122e58 45%, #08183a 100%) !important; } /* Cobalt */
+.folder-card[data-key="hotels"]            .fc-bg { background: linear-gradient(145deg, #1c4870 0%, #102e50 45%, #071e38 100%) !important; } /* Ocean */
+.folder-card[data-key="travel-short"]      .fc-bg { background: linear-gradient(145deg, #34516e 0%, #213a55 45%, #0f1f38 100%) !important; } /* Steel Blue */
+.folder-card[data-key="technology"]        .fc-bg { background: linear-gradient(145deg, #2a3a6e 0%, #1a285c 45%, #0c1840 100%) !important; } /* Indigo */
+.folder-card[data-key="tourism-companies"] .fc-bg { background: linear-gradient(145deg, #2c3a58 0%, #18213c 45%, #0a1024 100%) !important; } /* Midnight */
+.folder-card[data-key="kristian-najem"]    .fc-bg { background: linear-gradient(145deg, #3a4c6e 0%, #2a3a58 45%, #18243c 100%) !important; } /* Slate Blue */
+.folder-card[data-key="naadned"]           .fc-bg { background: linear-gradient(145deg, #2e4488 0%, #1e2c64 45%, #0e1840 100%) !important; } /* Twilight */
+.folder-card[data-key="blendar"]           .fc-bg { background: linear-gradient(145deg, #1e3a78 0%, #142a58 45%, #061838 100%) !important; } /* Marine */
+.folder-card[data-key="favorites"]         .fc-bg { background: linear-gradient(145deg, #244884 0%, #16306a 45%, #081848 100%) !important; } /* Deep Cobalt */
+/* Fallback for any new key — same family, neutral mid-blue */
+.folder-card[data-key]:not([data-key="podcast-short"]):not([data-key="real-estate"]):not([data-key="hotels"]):not([data-key="travel-short"]):not([data-key="technology"]):not([data-key="tourism-companies"]):not([data-key="kristian-najem"]):not([data-key="naadned"]):not([data-key="blendar"]):not([data-key="favorites"]) .fc-bg {
   background: linear-gradient(145deg, #2c5490 0%, #1a3468 45%, #0d1e40 100%) !important;
 }
 /* Apply the grayscale+blue tint to grid thumbs too (mobile uses fc-grid-thumb, not fc-thumb-img) */
@@ -370,6 +371,32 @@ body {
   /* Breathing room between hero video and the about photo on mobile */
   .about { padding-top: 56px !important; }
   .about-image-wrapper { margin-top: 8px !important; }
+  /* Smooth fade from hero video → body bg (no hard horizontal cut) */
+  .hero { position: relative !important; overflow: hidden !important; }
+  .hero::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important; left: 0 !important; right: 0 !important;
+    height: 180px !important;
+    background: linear-gradient(180deg, transparent 0%, rgba(10,13,24,0.65) 55%, #08090f 100%) !important;
+    pointer-events: none !important;
+    z-index: 5 !important;
+  }
+  /* Services: lock to horizontal-only swipe (kill hover lift that makes cards bounce when scrolling) */
+  .services-grid {
+    touch-action: pan-x !important;
+    overscroll-behavior-x: contain !important;
+  }
+  .service-card {
+    transform: none !important;
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.3s !important;
+  }
+  .service-card:hover, .service-card:active {
+    transform: none !important;
+  }
+  /* Tighten gap between services and projects */
+  .services { padding-bottom: 6px !important; }
+  .projects-section { padding-top: 18px !important; }
   /* Hero name + balance */
   .hero-name { font-size: clamp(38px, 9vw, 64px) !important; }
   [lang="en"] .hero-name { font-size: clamp(34px, 8vw, 56px) !important; }
