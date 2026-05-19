@@ -8,39 +8,57 @@
   })(document);
 
 // ================================================================
-// A11y trigger: bind any #userwayTrigger button to open UserWay panel.
-// Hides UserWay's default icon (visually) but keeps it clickable so
-// programmatic icon.click() actually opens the menu.
+// A11y: overlay UserWay's invisible widget directly on top of our
+// #userwayTrigger button. The user clicks what looks like our button
+// — they are actually clicking UserWay's icon, which natively opens
+// the panel. Re-pins on resize/scroll/mutation so it stays aligned.
 // ================================================================
 (function(){
-  function styleUWY() {
+  function pin() {
     var wrap = document.querySelector('.uwy');
+    var btn  = document.getElementById('userwayTrigger');
     if (!wrap) return false;
-    wrap.style.cssText = 'position:fixed!important;bottom:0!important;right:0!important;left:auto!important;top:auto!important;width:44px!important;height:44px!important;opacity:0!important;pointer-events:auto!important;z-index:1!important;transform:none!important;';
-    return true;
-  }
-  function bind() {
-    var btn = document.getElementById('userwayTrigger');
-    var icon = document.getElementById('userwayAccessibilityIcon');
-    if (!btn || !icon) return false;
-    styleUWY();
-    if (btn._uwBound) return true;
-    btn._uwBound = true;
-    btn.addEventListener('click', function(ev){
-      ev.preventDefault();
-      var i = document.getElementById('userwayAccessibilityIcon');
-      if (i) {
-        ['mousedown','mouseup','click'].forEach(function(t){
-          i.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true, view: window }));
-        });
-      }
+    if (btn) {
+      var r = btn.getBoundingClientRect();
+      wrap.style.cssText =
+        'position:fixed!important;' +
+        'top:' + Math.max(0, r.top - 2) + 'px!important;' +
+        'left:' + Math.max(0, r.left - 2) + 'px!important;' +
+        'right:auto!important;bottom:auto!important;' +
+        'width:' + (r.width + 4) + 'px!important;' +
+        'height:' + (r.height + 4) + 'px!important;' +
+        'opacity:0!important;pointer-events:auto!important;' +
+        'z-index:101!important;transform:none!important;' +
+        'display:block!important;visibility:visible!important;';
+    } else {
+      wrap.style.cssText =
+        'position:fixed!important;bottom:8px!important;right:8px!important;' +
+        'left:auto!important;top:auto!important;width:44px!important;height:44px!important;' +
+        'opacity:0!important;pointer-events:auto!important;z-index:1!important;';
+    }
+    // Stretch UserWay's inner icon to fill the wrap so the whole area is clickable
+    wrap.querySelectorAll('iframe, #userwayAccessibilityIcon, .uai, [role="button"]').forEach(function(el){
+      el.style.cssText = 'width:100%!important;height:100%!important;top:0!important;left:0!important;right:0!important;bottom:0!important;opacity:0!important;pointer-events:auto!important;position:absolute!important;';
     });
     return true;
   }
-  // Try repeatedly until UserWay's widget renders
+  function rePinSoon() { requestAnimationFrame(pin); }
+
+  // Try repeatedly until UserWay widget renders, then keep pinned via observers
   var tries = 0;
   var iv = setInterval(function(){
-    if (bind() || ++tries > 80) clearInterval(iv);
+    if (pin()) {
+      // Once pinned, attach observers and stop polling
+      window.addEventListener('resize', rePinSoon);
+      window.addEventListener('scroll', rePinSoon, { passive: true });
+      if (window.MutationObserver) {
+        var mo = new MutationObserver(rePinSoon);
+        mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style','class'] });
+      }
+      clearInterval(iv);
+    } else if (++tries > 120) {
+      clearInterval(iv);
+    }
   }, 200);
 })();
 

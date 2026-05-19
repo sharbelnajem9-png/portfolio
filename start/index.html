@@ -224,6 +224,45 @@ section { position: relative; z-index: 2; }
   z-index: 3;
   pointer-events: none;
 }
+
+/* ─── Desktop: hero video becomes a floating rounded glass card ─── */
+@media (min-width: 769px) {
+  .hero {
+    min-height: 100vh;
+    padding: 100px 56px 70px;
+  }
+  .hero-video-bg {
+    top: 100px !important;
+    left: 50% !important;
+    bottom: 70px !important;
+    right: auto !important;
+    inset: auto !important;
+    transform: translateX(-50%);
+    width: min(calc(100% - 112px), 1320px);
+    height: calc(100vh - 170px);
+    border-radius: 26px;
+    overflow: hidden;
+    box-shadow:
+      0 30px 90px rgba(0,0,0,0.55),
+      0 0 0 1px rgba(255,255,255,0.08),
+      0 0 70px rgba(81,131,223,0.18);
+  }
+  .hero-overlay {
+    top: 100px !important;
+    left: 50% !important;
+    bottom: 70px !important;
+    right: auto !important;
+    inset: auto !important;
+    transform: translateX(-50%);
+    width: min(calc(100% - 112px), 1320px);
+    height: calc(100vh - 170px);
+    border-radius: 26px;
+    background: linear-gradient(180deg, rgba(10,13,24,0.20) 0%, rgba(10,13,24,0.10) 35%, rgba(10,13,24,0.55) 100%);
+  }
+  .hero::after { display: none; }
+  .hero-content { z-index: 2; }
+  .scroll-hint { bottom: 92px !important; }
+}
 /* Smooth section transitions */
 .about, .process, .brands, .testimonials, .form-section {
   position: relative;
@@ -455,7 +494,7 @@ section { position: relative; z-index: 2; }
   align-items: center;
   width: max-content;
   direction: ltr;
-  animation: marqueeLoop 60s linear infinite;
+  animation: marqueeLoop 90s linear infinite;
   will-change: transform;
   transform: translateZ(0);
 }
@@ -484,7 +523,7 @@ section { position: relative; z-index: 2; }
 }
 @media (max-width: 768px) {
   .brands { padding: 34px 0; }
-  .marquee { animation-duration: 40s; }
+  .marquee { animation-duration: 70s; }
   .brand-item { min-width: 95px; height: 56px; padding: 4px 10px; margin-right: 24px; }
 }
 
@@ -804,16 +843,22 @@ form {
   transform: translateY(-2px);
 }
 
-/* ─── FOOTER ─── */
+/* ─── FOOTER (compact, centered logo above tagline) ─── */
 footer {
-  padding: 50px 28px 36px;
+  padding: 28px 28px 22px;
   text-align: center;
   border-top: 1px solid var(--white-08);
 }
+footer .nav-logo {
+  display: block;
+  width: max-content;
+  margin: 0 auto 10px;
+}
 .footer-logo {
-  height: 48px;
-  opacity: 0.85;
-  margin-bottom: 16px;
+  height: 38px;
+  opacity: 0.9;
+  margin: 0 auto;
+  display: block;
   transition: opacity 0.3s;
 }
 .footer-logo:hover { opacity: 1; }
@@ -823,7 +868,7 @@ footer {
   text-transform: uppercase;
   color: var(--white-50);
   font-weight: 700;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 .footer-link {
   display: inline-flex; align-items: center; gap: 10px;
@@ -842,7 +887,7 @@ footer {
   transform: translateY(-2px);
 }
 .footer-copyright {
-  margin-top: 24px;
+  margin-top: 14px;
   font-size: 11px;
   color: var(--white-30);
   letter-spacing: 1px;
