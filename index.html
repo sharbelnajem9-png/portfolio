@@ -30,7 +30,11 @@
 <link rel="preconnect" href="https://f.vimeocdn.com" crossorigin>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://vumbnail.com" crossorigin>
+<link rel="preconnect" href="https://i.vimeocdn.com" crossorigin>
+<link rel="preconnect" href="https://player.vimeo.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Assistant:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://player.vimeo.com/api/player.js" defer></script>
 <link rel="stylesheet" href="assets/site.css">
 <style>
 /* ─── Alumni Sans typography overrides ─── */
@@ -78,6 +82,28 @@
 /* Use Alumni Sans for English section titles, keep Assistant for Hebrew */
 [dir="ltr"] .section-title,
 [dir="ltr"] .hero-tagline { font-family: 'Alumni Sans', sans-serif; }
+
+/* ─── Project/featured thumbnails: tone down colors, unify with site ─── */
+.fc-thumb-img,
+.fi-thumb-img {
+  filter: saturate(0.85) contrast(1.06) brightness(0.93);
+  transition: filter 0.4s, transform 0.5s;
+}
+.folder-card:hover .fc-thumb-img,
+.featured-item:hover .fi-thumb-img {
+  filter: saturate(1.05) contrast(1.1) brightness(1);
+  transform: scale(1.04);
+}
+.fc-bg::after,
+.fi-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13,15,19,0.1) 0%, transparent 40%, rgba(13,15,19,0.55) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.fc-overlay, .fi-overlay { z-index: 2; }
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -744,6 +770,90 @@
 
 <!-- ── Update-98: universal carousel auto-scroller ── -->
 <script src="assets/carousels.js"></script>
+
+<!-- ── Showreel keep-alive + thumbnail fallback + lazy loading ── -->
+<script>
+(function() {
+  // 1. Lazy-load all thumbnails except the first 6 (above the fold)
+  document.querySelectorAll('.fc-thumb-img, .fi-thumb-img').forEach((img, i) => {
+    img.decoding = 'async';
+    if (i >= 6) img.loading = 'lazy';
+  });
+
+  // 2. Thumbnail fallback via Vimeo's public oEmbed API (in case vumbnail fails)
+  document.querySelectorAll('.fc-thumb-img, .fi-thumb-img').forEach(img => {
+    img.addEventListener('error', function() {
+      if (img.dataset.fallbackTried) return;
+      img.dataset.fallbackTried = '1';
+      const vidMatch = img.src.match(/(\d+)\.jpg/);
+      const vid = vidMatch ? vidMatch[1] : img.closest('[data-vid]')?.dataset.vid;
+      if (!vid) return;
+      fetch('https://vimeo.com/api/v2/video/' + vid + '.json')
+        .then(r => r.json())
+        .then(d => {
+          if (d && d[0] && d[0].thumbnail_large) {
+            img.src = d[0].thumbnail_large;
+          }
+        })
+        .catch(() => {});
+    }, { once: true });
+  });
+
+  // 3. Hero showreel: restart on load, resume if paused, watchdog if stuck
+  function initShowreel() {
+    if (typeof Vimeo === 'undefined') {
+      setTimeout(initShowreel, 300);
+      return;
+    }
+    const iframe = document.getElementById('heroShowreelIframe');
+    if (!iframe) return;
+    let player;
+    try { player = new Vimeo.Player(iframe); } catch(e) { return; }
+
+    // Start from 0
+    player.setCurrentTime(0).then(() => player.play()).catch(() => {});
+
+    // Resume on pause (loop should handle this, but defensive)
+    player.on('pause', () => {
+      setTimeout(() => player.play().catch(() => {}), 100);
+    });
+
+    // Restart on end (loop should already do this)
+    player.on('ended', () => {
+      player.setCurrentTime(0).then(() => player.play()).catch(() => {});
+    });
+
+    // Watchdog: every 6 seconds, ensure playback is progressing
+    let lastTime = -1;
+    let stuckCount = 0;
+    setInterval(() => {
+      player.getCurrentTime().then(t => {
+        if (t === lastTime) {
+          stuckCount++;
+          if (stuckCount >= 2) {
+            // Stuck - restart
+            player.setCurrentTime(0).then(() => player.play()).catch(() => {});
+            stuckCount = 0;
+          }
+        } else {
+          stuckCount = 0;
+        }
+        lastTime = t;
+      }).catch(() => {});
+    }, 6000);
+
+    // Resume on tab refocus
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) player.play().catch(() => {});
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initShowreel);
+  } else {
+    initShowreel();
+  }
+})();
+</script>
 
 </body>
 </html>
