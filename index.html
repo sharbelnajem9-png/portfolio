@@ -40,70 +40,90 @@
 /* ─── Alumni Sans typography overrides ─── */
 :root { --font-en: 'Alumni Sans', 'Almoni', sans-serif; }
 .hero-name {
-  font-family: 'Alumni Sans', 'Almoni', sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 0.85;
-  letter-spacing: normal;
-  gap: 0;
+  font-family: 'Alumni Sans', 'Almoni', sans-serif !important;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  line-height: 0.9 !important;
+  letter-spacing: normal !important;
+  gap: 0 !important;
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
 }
 .hero-name-first {
-  font-size: clamp(38px, 6.5vw, 78px);
-  font-weight: 200;
-  font-style: italic;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: rgba(242, 242, 240, 0.78);
-  display: block;
-  line-height: 1;
+  font-size: clamp(24px, 3.5vw, 48px) !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+  letter-spacing: 3px !important;
+  text-transform: uppercase !important;
+  color: rgba(242, 242, 240, 0.7) !important;
+  display: block !important;
+  line-height: 1 !important;
 }
 .hero-name-last {
-  font-size: clamp(76px, 13vw, 168px);
-  font-weight: 800;
-  letter-spacing: -4px;
-  text-transform: uppercase;
-  display: block;
-  line-height: 0.95;
-  margin-top: 2px;
+  font-size: clamp(46px, 7vw, 84px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -1.5px !important;
+  text-transform: uppercase !important;
+  display: block !important;
+  line-height: 1 !important;
+  margin-top: 4px !important;
 }
-[dir="rtl"] .hero-name { font-family: 'Assistant', sans-serif; }
+[dir="rtl"] .hero-name { font-family: 'Assistant', sans-serif !important; direction: rtl !important; }
 [dir="rtl"] .hero-name-first {
-  font-weight: 300;
-  font-style: normal;
-  letter-spacing: 1px;
-  font-size: clamp(32px, 5.5vw, 64px);
+  font-weight: 300 !important;
+  font-style: normal !important;
+  letter-spacing: 1px !important;
+  font-size: clamp(22px, 3.2vw, 42px) !important;
 }
 [dir="rtl"] .hero-name-last {
-  font-weight: 800;
-  letter-spacing: -2px;
-  font-size: clamp(64px, 11vw, 140px);
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  font-size: clamp(40px, 6vw, 76px) !important;
 }
 /* Use Alumni Sans for English section titles, keep Assistant for Hebrew */
 [dir="ltr"] .section-title,
 [dir="ltr"] .hero-tagline { font-family: 'Alumni Sans', sans-serif; }
 
-/* ─── Project/featured thumbnails: tone down colors, unify with site ─── */
+/* ─── Project/featured thumbnails: tone down + unified vibe ─── */
 .fc-thumb-img,
 .fi-thumb-img {
-  filter: saturate(0.85) contrast(1.06) brightness(0.93);
+  filter: saturate(0.78) contrast(1.05) brightness(0.92);
   transition: filter 0.4s, transform 0.5s;
 }
 .folder-card:hover .fc-thumb-img,
 .featured-item:hover .fi-thumb-img {
-  filter: saturate(1.05) contrast(1.1) brightness(1);
-  transform: scale(1.04);
+  filter: saturate(1.02) contrast(1.08) brightness(1);
+  transform: scale(1.05);
 }
 .fc-bg::after,
 .fi-bg::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(13,15,19,0.1) 0%, transparent 40%, rgba(13,15,19,0.55) 100%);
+  background: linear-gradient(180deg, rgba(13,15,19,0.15) 0%, transparent 35%, rgba(13,15,19,0.6) 100%);
   pointer-events: none;
   z-index: 1;
 }
 .fc-overlay, .fi-overlay { z-index: 2; }
+
+/* Unified dark palette for project cards (fallback bg when thumb fails) */
+.folder-card { background: #1a1f2c !important; }
+.folder-card:nth-of-type(6n+1) .folder-thumb { background: linear-gradient(135deg,#1a2540 0%,#0e1626 100%) !important; }
+.folder-card:nth-of-type(6n+2) .folder-thumb { background: linear-gradient(135deg,#1c2a3a 0%,#101820 100%) !important; }
+.folder-card:nth-of-type(6n+3) .folder-thumb { background: linear-gradient(135deg,#1f2435 0%,#13182a 100%) !important; }
+.folder-card:nth-of-type(6n+4) .folder-thumb { background: linear-gradient(135deg,#152030 0%,#0a131c 100%) !important; }
+.folder-card:nth-of-type(6n+5) .folder-thumb { background: linear-gradient(135deg,#1d263a 0%,#11192a 100%) !important; }
+.folder-card:nth-of-type(6n) .folder-thumb { background: linear-gradient(135deg,#172333 0%,#0c141f 100%) !important; }
+.folder-info {
+  background: linear-gradient(180deg, #1a1f2c, #11151d);
+  border-top: 1px solid rgba(81,131,223,0.15);
+}
+.folder-info h4 { color: #f2f2f0; }
+.folder-card { border: 1px solid rgba(81,131,223,0.18) !important; transition: all 0.4s !important; }
+.folder-card:hover { border-color: rgba(81,131,223,0.5) !important; box-shadow: 0 16px 48px rgba(81,131,223,0.25) !important; }
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -204,7 +224,7 @@
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
       <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
-      <a href="/start/" class="hero-btn-primary hero-btn-talk" style="background:transparent;border:1.5px solid #5183df;color:#5183df;" onmouseover="this.style.background='rgba(81,131,223,0.15)';this.style.color='#fff';this.style.borderColor='#fff';" onmouseout="this.style.background='transparent';this.style.color='#5183df';this.style.borderColor='#5183df';" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</a>
+      <a href="/start/" class="hero-btn-primary hero-btn-talk" style="background:#5183df;border:1.5px solid #5183df;color:#fff;box-shadow:0 8px 28px rgba(81,131,223,0.4);font-weight:700;" onmouseover="this.style.background='#3868c4';this.style.borderColor='#3868c4';this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 36px rgba(81,131,223,0.55)';" onmouseout="this.style.background='#5183df';this.style.borderColor='#5183df';this.style.transform='translateY(0)';this.style.boxShadow='0 8px 28px rgba(81,131,223,0.4)';" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</a>
     </div>
   </div>
   <div class="hero-scroll"><div class="scroll-line"></div></div>
