@@ -3,10 +3,46 @@
     s.setAttribute("data-language", "he");
     s.setAttribute("data-widget_layout", "full");
     s.setAttribute("data-account", "yZwFbWSvDL");
-    s.setAttribute("data-trigger", "userwayTrigger");
     s.setAttribute("src", "https://cdn.userway.org/widget.js");
     (d.body || d.head).appendChild(s);
   })(document);
+
+// ================================================================
+// A11y trigger: bind any #userwayTrigger button to open UserWay panel.
+// Hides UserWay's default icon (visually) but keeps it clickable so
+// programmatic icon.click() actually opens the menu.
+// ================================================================
+(function(){
+  function styleUWY() {
+    var wrap = document.querySelector('.uwy');
+    if (!wrap) return false;
+    wrap.style.cssText = 'position:fixed!important;bottom:0!important;right:0!important;left:auto!important;top:auto!important;width:44px!important;height:44px!important;opacity:0!important;pointer-events:auto!important;z-index:1!important;transform:none!important;';
+    return true;
+  }
+  function bind() {
+    var btn = document.getElementById('userwayTrigger');
+    var icon = document.getElementById('userwayAccessibilityIcon');
+    if (!btn || !icon) return false;
+    styleUWY();
+    if (btn._uwBound) return true;
+    btn._uwBound = true;
+    btn.addEventListener('click', function(ev){
+      ev.preventDefault();
+      var i = document.getElementById('userwayAccessibilityIcon');
+      if (i) {
+        ['mousedown','mouseup','click'].forEach(function(t){
+          i.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true, view: window }));
+        });
+      }
+    });
+    return true;
+  }
+  // Try repeatedly until UserWay's widget renders
+  var tries = 0;
+  var iv = setInterval(function(){
+    if (bind() || ++tries > 80) clearInterval(iv);
+  }, 200);
+})();
 
 // ================================================================
 // HERO SHOWREEL — loops continuously, replays on tab re-focus

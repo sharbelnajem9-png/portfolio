@@ -137,30 +137,36 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
 .folder-card:nth-of-type(6n+5) .folder-thumb { background: linear-gradient(135deg,#1d263a 0%,#11192a 100%) !important; }
 .folder-card:nth-of-type(6n) .folder-thumb { background: linear-gradient(135deg,#172333 0%,#0c141f 100%) !important; }
 
-/* ─── Smooth section transitions everywhere ─── */
-.about, .services-section, .projects-section, .featured-section, .brands, .testimonials, .contact, .dream-section {
+/* ─── ONE CONTINUOUS CANVAS — no per-section bg, no fade-to-black bands ─── */
+.about, .services, .services-section, .projects-section, .projects, .featured-section,
+.brands, .testimonials, .contact, .dream-section, .footer, section {
   position: relative;
   background: transparent !important;
 }
-/* Single unified body gradient instead of per-section colors */
+/* Kill the global fade-to-black bands that site.css adds between sections */
+section::after,
+section:not(.hero) + section::before,
+.dream-section::before,
+footer::before,
+.brands::after,
+.featured-section::before,
+.testimonials::before,
+.contact::before, .contact::after,
+.services::before {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+/* Cinematic full-page gradient: subtle blue → purple → blue across the whole scroll */
 body {
   background:
-    radial-gradient(ellipse at top, rgba(81,131,223,0.06), transparent 50%),
-    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(13,15,30,0.5), transparent 70%),
-    linear-gradient(180deg, var(--black) 0%, #0b0d14 30%, #0a0c12 60%, var(--black) 100%) !important;
-}
-.featured-section, .about, .brands, .testimonials, .contact, .projects-section, .services-section, .dream-section {
-  background: transparent !important;
-}
-/* Soft gradient bands between sections for extra polish */
-.featured-section::before, .testimonials::before {
-  content: '';
-  position: absolute;
-  top: -1px; left: 0; right: 0;
-  height: 120px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-  pointer-events: none;
-  z-index: 0;
+    radial-gradient(1200px 800px at 15% 8%,  rgba(81,131,223,0.16), transparent 65%),
+    radial-gradient(1000px 800px at 90% 25%, rgba(120,80,220,0.12), transparent 60%),
+    radial-gradient(1100px 900px at 10% 50%, rgba(160,100,255,0.09), transparent 60%),
+    radial-gradient(1000px 800px at 85% 72%, rgba(81,131,223,0.13), transparent 60%),
+    radial-gradient(1200px 900px at 50% 95%, rgba(120,80,220,0.10), transparent 60%),
+    linear-gradient(180deg, #0a0d18 0%, #0c0f1c 22%, #0e1024 48%, #0b0e1a 74%, #08090f 100%) !important;
+  background-attachment: fixed !important;
 }
 
 /* ─── Testimonials: stars beside name + larger readable text ─── */
@@ -248,18 +254,25 @@ body {
     justify-content: center !important;
     width: 100% !important;
   }
+  /* Breathing room between hero video and the about photo on mobile */
+  .about { padding-top: 56px !important; }
+  .about-image-wrapper { margin-top: 8px !important; }
   /* Hero name + balance */
   .hero-name { font-size: clamp(38px, 9vw, 64px) !important; }
   [lang="en"] .hero-name { font-size: clamp(34px, 8vw, 56px) !important; }
   .hero-tagline { font-size: 14.5px !important; padding: 0 16px; }
   .hero-btn-primary { padding: 11px 24px !important; font-size: 13.5px !important; }
-  /* Hero Let's Talk on mobile: hollow + white border (like Contact btn) */
+  /* Hero "Let's Talk" on mobile: solid blue + white border + clearly visible text */
   .hero-btn-primary.hero-btn-talk {
-    background: transparent !important;
-    border: 2px solid #fff !important;
+    background: rgba(81, 131, 223, 0.95) !important;
+    border: 2px solid rgba(255,255,255,0.98) !important;
     color: #fff !important;
-    box-shadow: none !important;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+    font-weight: 800 !important;
+    letter-spacing: 0.4px !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4) !important;
+    box-shadow: 0 8px 24px rgba(81,131,223,0.45), 0 0 0 1px rgba(255,255,255,0.18) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
   .testimonial-card { padding: 18px !important; }
   .testimonial-card .testimonial-text { font-size: 14px !important; }
