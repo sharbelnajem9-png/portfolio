@@ -237,12 +237,25 @@ section { position: relative; z-index: 2; }
   z-index: 3;
   pointer-events: none;
 }
-/* Mobile: smooth fade from video → body background (no hard cut) */
+/* Mobile: deep, gradual fade so the video blends into the body bg instead of cutting like a block */
 @media (max-width: 768px) {
+  .hero { overflow: hidden; }
   .hero::after {
-    height: 200px;
-    background: linear-gradient(180deg, transparent 0%, rgba(10,13,24,0.65) 50%, #0a0d18 100%);
+    height: 280px;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(10,13,24,0.25) 20%,
+      rgba(10,13,24,0.65) 50%,
+      rgba(10,13,24,0.92) 80%,
+      #0a0d18 100%);
   }
+  /* Tighten ALL section spacing — landing mobile feels too airy */
+  .about         { padding: 38px 0 24px !important; }
+  .process       { padding: 26px 0 28px !important; }
+  .brands        { padding: 22px 0 !important; }
+  .testimonials  { padding: 28px 0 14px !important; }
+  .form-section  { padding: 14px 0 36px !important; }
+  footer         { padding: 22px 28px 18px !important; }
 }
 
 /* ─── Desktop: hero video becomes a floating rounded glass card ─── */
@@ -442,12 +455,18 @@ section { position: relative; z-index: 2; }
   text-wrap: balance;
 }
 @media (min-width: 769px) {
-  .process .lead {
-    white-space: nowrap;
-    max-width: none;
-    overflow: visible;
-    /* shrink font further so the full sentence always fits on one line, even on 1024px laptops */
-    font-size: clamp(10.5px, 0.95vw, 14px);
+  .process .lead,
+  .process p.lead,
+  section.process .lead {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    word-wrap: normal !important;
+    text-wrap: nowrap !important;
+    max-width: none !important;
+    width: max-content !important;
+    overflow: visible !important;
+    font-size: clamp(10px, 0.9vw, 14px) !important;
   }
 }
 @media (max-width: 768px) {
