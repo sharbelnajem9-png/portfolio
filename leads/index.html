@@ -86,26 +86,35 @@ body::before {
   letter-spacing: 1.5px;
 }
 .gate-card input:focus { border-color: var(--accent); }
+/* High-specificity override — `.gate-card button` (set lower) has width:100% which was making this button cover the whole input */
+.gate-card button.show-toggle,
 .show-toggle {
-  position: absolute;
-  left: 8px; top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  color: var(--white-50);
-  cursor: pointer;
-  padding: 0;
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  font-size: 0;
-  line-height: 0;
+  position: absolute !important;
+  left: 8px !important; top: 50% !important;
+  right: auto !important;
+  transform: translateY(-50%) !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--white-50) !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 0 !important;
+  max-width: 28px !important;
+  max-height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 6px !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  box-sizing: border-box !important;
+  flex: none !important;
+  margin: 0 !important;
 }
-.show-toggle svg { width: 16px; height: 16px; display: block; }
-.show-toggle:hover { color: var(--white); background: rgba(255,255,255,0.05); }
+.show-toggle svg { width: 16px !important; height: 16px !important; display: block !important; }
+.show-toggle:hover { color: var(--white) !important; background: rgba(255,255,255,0.05) !important; }
 .gate-card button {
   width: 100%;
   padding: 13px;
