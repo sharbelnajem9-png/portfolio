@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&family=Assistant:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="../assets/userway-loader.js" defer></script>
+<script src="https://player.vimeo.com/api/player.js" defer></script>
 <style>
 :root {
   --black: #0d0f13;
@@ -129,6 +130,24 @@ html[lang="en"] .footer-link {
   font-family: var(--font);
 }
 .lang-toggle:hover { border-color: var(--white-30); color: var(--white); }
+.nav-a11y-btn {
+  background: transparent;
+  border: 1px solid var(--white-15);
+  border-radius: 999px;
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--white-70);
+  cursor: pointer;
+  margin-inline-start: 8px;
+  transition: all 0.2s;
+  padding: 0;
+}
+.nav-a11y-btn:hover { border-color: var(--white-30); color: var(--white); }
+.nav-a11y-btn svg { width: 15px; height: 15px; display: block; }
+/* Hide UserWay default icon - we use our own */
+#userwayAccessibilityIcon,
+.uwy.userway_p1,
+.uwy { display: none !important; opacity: 0 !important; pointer-events: none !important; }
 @media (max-width: 600px) {
   .navbar { padding: 0 18px; height: 56px; }
   .nav-logo img { height: 28px; }
@@ -822,7 +841,7 @@ footer {
     <span data-he="חזרה לאתר" data-en="Back to site">חזרה לאתר</span>
   </a>
   <button class="lang-toggle" onclick="toggleLang()">EN</button>
-  <button class="nav-a11y-btn" onclick="document.getElementById('userwayAccessibilityIcon')?.click()" aria-label="Accessibility" style="background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:999px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.7);cursor:pointer;margin-inline-start:8px;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.4)';this.style.color='#fff';" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.7)';"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
+  <button class="nav-a11y-btn" onclick="openA11y()" aria-label="Accessibility"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
 </nav>
 
 <!-- HERO -->
@@ -1003,7 +1022,7 @@ footer {
 </footer>
 
 <script>
-// ─── Brands: build + JS auto-scroll (mirrors main site for reliability) ───
+// ─── Brands: build + JS auto-scroll (works on desktop AND mobile) ───
 const brandsContainer = document.getElementById('brandsMarquee');
 const brandsWrap = brandsContainer.parentElement;
 const brandLogos = [];
@@ -1016,33 +1035,38 @@ function buildBrands() {
 }
 buildBrands();
 
-// Auto-scroll: keep going forever, jump silently when reaching loop boundary
 let bUserActive = false;
 let bUserTimer;
 function bPause() {
   bUserActive = true;
   clearTimeout(bUserTimer);
-  bUserTimer = setTimeout(() => { bUserActive = false; }, 2000);
+  bUserTimer = setTimeout(() => { bUserActive = false; }, 1500);
 }
-brandsWrap.addEventListener('pointerdown', bPause);
-brandsWrap.addEventListener('touchstart', bPause, { passive: true });
+// Wheel always pauses. Touch on mobile = pause only briefly so it keeps moving after.
 brandsWrap.addEventListener('wheel', bPause, { passive: true });
+let touchActive = false;
+brandsWrap.addEventListener('touchstart', () => { touchActive = true; bUserActive = true; }, { passive: true });
+brandsWrap.addEventListener('touchend', () => {
+  touchActive = false;
+  clearTimeout(bUserTimer);
+  bUserTimer = setTimeout(() => { bUserActive = false; }, 1200);
+}, { passive: true });
 
 let bStarted = false;
 function startBrandsScroll() {
   if (bStarted) return;
   bStarted = true;
   const third = brandsContainer.scrollWidth / 3;
-  brandsWrap.scrollLeft = third; // start in middle for seamless wrap
+  if (third < 100) { setTimeout(() => { bStarted = false; startBrandsScroll(); }, 500); return; }
+  brandsWrap.scrollLeft = third;
   function loop() {
-    if (!bUserActive) brandsWrap.scrollLeft += 0.5;
+    if (!bUserActive) brandsWrap.scrollLeft += 0.6;
     if (brandsWrap.scrollLeft >= third * 2 - 1) brandsWrap.scrollLeft -= third;
     else if (brandsWrap.scrollLeft <= 1) brandsWrap.scrollLeft += third;
     requestAnimationFrame(loop);
   }
   loop();
 }
-// Wait for first 10 images to load before measuring scrollWidth
 const bImgs = brandsContainer.querySelectorAll('img');
 const bNeeded = Math.min(bImgs.length, 10);
 let bLoaded = 0;
@@ -1052,7 +1076,46 @@ bImgs.forEach((img, i) => {
   if (img.complete && img.naturalWidth > 0) bImgReady();
   else { img.addEventListener('load', bImgReady); img.addEventListener('error', bImgReady); }
 });
-setTimeout(startBrandsScroll, 3000); // failsafe
+setTimeout(startBrandsScroll, 2500);
+
+// ─── Accessibility button ───
+function openA11y() {
+  // Click UserWay invisible icon, or open menu
+  const btn = document.getElementById('userwayAccessibilityIcon');
+  if (btn) { btn.click(); return; }
+  // Fallback: trigger UserWay API
+  if (window.UserWay && window.UserWay.iconVisibilityOn) {
+    window.UserWay.iconVisibilityOn();
+    setTimeout(() => document.getElementById('userwayAccessibilityIcon')?.click(), 200);
+  } else {
+    alert('כלי הנגישות נטען. נסה שוב בעוד שנייה.');
+  }
+}
+
+// ─── Showreel keep-alive ───
+(function() {
+  function init() {
+    if (typeof Vimeo === 'undefined') return setTimeout(init, 300);
+    const iframe = document.querySelector('.hero-video-bg iframe');
+    if (!iframe) return;
+    let player;
+    try { player = new Vimeo.Player(iframe); } catch(e) { return; }
+    player.setCurrentTime(0).then(() => player.play()).catch(() => {});
+    player.on('pause', () => setTimeout(() => player.play().catch(() => {}), 100));
+    player.on('ended', () => player.setCurrentTime(0).then(() => player.play()).catch(() => {}));
+    let lastT = -1, stuck = 0;
+    setInterval(() => {
+      player.getCurrentTime().then(t => {
+        if (t === lastT) { stuck++; if (stuck >= 2) { player.setCurrentTime(0).then(() => player.play()).catch(() => {}); stuck = 0; } }
+        else stuck = 0;
+        lastT = t;
+      }).catch(() => {});
+    }, 5000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) player.play().catch(() => {}); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 
 // ─── Testimonials data ───
 const TESTIMONIALS = [

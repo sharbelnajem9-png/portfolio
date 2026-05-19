@@ -206,6 +206,26 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
   font-weight: 600;
 }
 
+/* ─── Hero CTA "Let's Talk" - solid blue + white border + white text (visible everywhere) ─── */
+.hero-btn-primary.hero-btn-talk {
+  background: rgba(81, 131, 223, 0.92) !important;
+  color: #fff !important;
+  border: 2.5px solid rgba(255, 255, 255, 0.95) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 32px rgba(81, 131, 223, 0.45), 0 0 0 1px rgba(255,255,255,0.15);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1) !important;
+}
+.hero-btn-primary.hero-btn-talk:hover {
+  background: rgba(56, 104, 196, 0.96) !important;
+  border-color: #fff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 16px 42px rgba(81, 131, 223, 0.6), 0 0 0 2px rgba(255,255,255,0.25) !important;
+}
+
 /* ─── Mobile-specific tweaks for balance ─── */
 @media (max-width: 768px) {
   .hero-name { font-size: clamp(38px, 9vw, 64px) !important; }
@@ -313,7 +333,7 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
       <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
-      <a href="/start/" class="hero-btn-primary hero-btn-talk" style="background:transparent;border:2px solid #5183df;color:#fff;font-weight:800;letter-spacing:0.4px;backdrop-filter:blur(8px);" onmouseover="this.style.background='rgba(81,131,223,0.18)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 40px rgba(81,131,223,0.45)';" onmouseout="this.style.background='transparent';this.style.transform='translateY(0)';this.style.boxShadow='none';" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</a>
+      <a href="/start/" class="hero-btn-primary hero-btn-talk" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</a>
     </div>
   </div>
   <div class="hero-scroll"><div class="scroll-line"></div></div>
