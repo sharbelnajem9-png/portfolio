@@ -1052,13 +1052,15 @@ async function submitForm(e) {
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
         access_key: WEB3FORMS_KEY,
-        subject: 'ליד חדש מהאתר · ' + lead.name,
-        from_name: 'sharbelnajem.pro',
-        'שם': lead.name,
+        subject: '🔥 ליד חדש: ' + lead.name + ' · ' + lead.budget,
+        from_name: 'Sharbel Najem · Lead Intake',
+        replyto: lead.phone ? lead.phone + '@noreply.local' : undefined,
+        'שם מלא': lead.name,
         'וואטסאפ': lead.phone,
         'על העסק': lead.about,
-        'תקציב': lead.budget,
-        'נשלח בתאריך': new Date().toLocaleString('he-IL')
+        'תקציב משוער': lead.budget,
+        'נשלח בתאריך': new Date().toLocaleString('he-IL'),
+        'קישור וואטסאפ ישיר': lead.phone ? 'https://wa.me/' + (lead.phone.replace(/[^\d]/g,'').replace(/^0/,'972')) : '—'
       })
     });
   } catch(err) {
