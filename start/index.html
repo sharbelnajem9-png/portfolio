@@ -1014,8 +1014,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
 buildTestimonials();
 
-// ─── Form submit: save locally + send to FormSubmit (email) ───
-const FORM_ENDPOINT = 'https://formsubmit.co/ajax/sharbelnajem9@gmail.com';
+// ─── Form submit: save locally + send via Web3Forms (email) ───
+const WEB3FORMS_KEY = '7e9b87a8-9683-474a-a95c-d804549dbc61';
 const LEADS_KEY = 'sharbel_leads_v1';
 
 async function submitForm(e) {
@@ -1045,23 +1045,24 @@ async function submitForm(e) {
     localStorage.setItem(LEADS_KEY, JSON.stringify(existing));
   } catch(err) { console.warn('localStorage save failed', err); }
 
-  // Send to FormSubmit (email notification)
+  // Send to Web3Forms (email notification)
   try {
-    await fetch(FORM_ENDPOINT, {
+    await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
-        שם: lead.name,
-        וואטסאפ: lead.phone,
+        access_key: WEB3FORMS_KEY,
+        subject: 'ליד חדש מהאתר · ' + lead.name,
+        from_name: 'sharbelnajem.pro',
+        'שם': lead.name,
+        'וואטסאפ': lead.phone,
         'על העסק': lead.about,
-        תקציב: lead.budget,
-        _subject: 'ליד חדש מהאתר · ' + lead.name,
-        _captcha: 'false',
-        _template: 'table'
+        'תקציב': lead.budget,
+        'נשלח בתאריך': new Date().toLocaleString('he-IL')
       })
     });
   } catch(err) {
-    console.warn('FormSubmit failed (lead still saved locally)', err);
+    console.warn('Web3Forms send failed (lead still saved locally)', err);
   }
 
   document.getElementById('leadForm').style.display = 'none';
