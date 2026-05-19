@@ -1014,9 +1014,28 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
 buildTestimonials();
 
-// ─── Form submit: save locally + send via Web3Forms (email) ───
+// ─── Form submit: save locally + cloud + email ───
 const WEB3FORMS_KEY = '7e9b87a8-9683-474a-a95c-d804549dbc61';
+const PANTRY_ID = '8978df43-3859-46c3-be39-905e7a54e68b';
+const PANTRY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/leads`;
 const LEADS_KEY = 'sharbel_leads_v1';
+
+async function saveLeadToCloud(lead) {
+  try {
+    const res = await fetch(PANTRY_URL);
+    let leads = [];
+    if (res.ok) {
+      const data = await res.json();
+      leads = Array.isArray(data.leads) ? data.leads : [];
+    }
+    leads.unshift(lead);
+    await fetch(PANTRY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leads })
+    });
+  } catch(err) { console.warn('Pantry save failed', err); }
+}
 
 async function submitForm(e) {
   e.preventDefault();
@@ -1038,12 +1057,15 @@ async function submitForm(e) {
     notes: ''
   };
 
-  // Save locally (read by /leads dashboard on same domain)
+  // Save locally (browser cache backup)
   try {
     const existing = JSON.parse(localStorage.getItem(LEADS_KEY) || '[]');
     existing.unshift(lead);
     localStorage.setItem(LEADS_KEY, JSON.stringify(existing));
   } catch(err) { console.warn('localStorage save failed', err); }
+
+  // Save to cloud (Pantry) - synced across all your devices
+  saveLeadToCloud(lead);
 
   // Send to Web3Forms (email notification)
   try {

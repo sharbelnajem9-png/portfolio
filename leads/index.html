@@ -521,6 +521,9 @@ body::before {
 const SESSION_KEY = 'sharbel_leads_session';
 const LEADS_KEY = 'sharbel_leads_v1';
 const REAL_PASSWORD_HASH = 'ebaaec617ab0a8fe64518523e30d3d623bbbd33d4fc0184ad941bd498f7bad37';
+const PANTRY_ID = '8978df43-3859-46c3-be39-905e7a54e68b';
+const PANTRY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/leads`;
+let cloudSyncInFlight = false;
 
 // SHA-256 helper
 async function sha256(text) {
@@ -555,18 +558,58 @@ function showApp() {
   document.getElementById('app').classList.add('show');
   initKanban();
   renderAll();
+  // Sync from cloud on load + every 20s
+  syncFromCloud();
+  setInterval(syncFromCloud, 20000);
 }
 window.addEventListener('DOMContentLoaded', () => {
   if (sessionStorage.getItem(SESSION_KEY) === '1') showApp();
 });
 
-// ─── Data ───
+// ─── Data (cloud-synced) ───
 function loadLeads() {
+  // Returns local cache instantly; cloud sync happens via syncFromCloud()
   try { return JSON.parse(localStorage.getItem(LEADS_KEY) || '[]'); }
   catch { return []; }
 }
 function saveLeads(leads) {
+  // Optimistic: save local immediately
   localStorage.setItem(LEADS_KEY, JSON.stringify(leads));
+  // Then push to cloud (fire-and-forget)
+  pushToCloud(leads);
+}
+async function pushToCloud(leads) {
+  try {
+    await fetch(PANTRY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leads })
+    });
+  } catch(err) { console.warn('Cloud push failed', err); }
+}
+async function syncFromCloud() {
+  if (cloudSyncInFlight) return;
+  cloudSyncInFlight = true;
+  try {
+    const res = await fetch(PANTRY_URL);
+    if (res.ok) {
+      const data = await res.json();
+      const cloudLeads = Array.isArray(data.leads) ? data.leads : [];
+      // Merge: if cloud has more leads than local, use cloud
+      const local = loadLeads();
+      const merged = mergeLeads(local, cloudLeads);
+      localStorage.setItem(LEADS_KEY, JSON.stringify(merged));
+      renderAll();
+    }
+  } catch(err) { console.warn('Cloud sync failed', err); }
+  cloudSyncInFlight = false;
+}
+function mergeLeads(local, cloud) {
+  // Index by id, prefer cloud version (server is source of truth)
+  const map = new Map();
+  local.forEach(l => map.set(l.id, l));
+  cloud.forEach(l => map.set(l.id, l));
+  return Array.from(map.values()).sort((a, b) => b.id - a.id);
 }
 
 // ─── State / Search ───
