@@ -3,40 +3,86 @@
 // No JS forwarding needed here — UserWay handles everything.
 
 // ================================================================
-// HERO SHOWREEL — loops continuously, replays on tab re-focus
+// UNIVERSAL VIMEO WATCHDOG
+// Attaches to every Vimeo iframe on the page (hero, card bg videos,
+// featured strip, project modal). Auto-resumes on pause/ended/error/stall,
+// re-mutes if browser blocks autoplay, re-scans every 3s for new iframes.
 // ================================================================
-(function(){
-  var wrap   = document.getElementById('heroShowreelWrap');
-  var iframe = document.getElementById('heroShowreelIframe');
-  if (!wrap || !iframe) return;
+window._snVimeoWatchdog = (function(){
+  var bound = new WeakSet();
+  var players = [];
 
-  var player = null;
+  function attach(iframe) {
+    if (bound.has(iframe) || typeof Vimeo === 'undefined' || !Vimeo.Player) return;
+    bound.add(iframe);
+    var player;
+    try { player = new Vimeo.Player(iframe); } catch(e) { return; }
+    players.push(player);
 
-  function waitForVimeo(cb) {
-    if (typeof Vimeo !== 'undefined' && Vimeo.Player) { cb(); return; }
-    var t = setInterval(function(){
-      if (typeof Vimeo !== 'undefined' && Vimeo.Player) { clearInterval(t); cb(); }
-    }, 100);
+    function tryPlay() {
+      player.play().catch(function(){
+        // Autoplay blocked → ensure muted then retry
+        player.setMuted(true).then(function(){ player.play().catch(function(){}); });
+      });
+    }
+    player.ready().then(function(){
+      player.setMuted(true).catch(function(){});
+      player.setLoop(true).catch(function(){});
+      tryPlay();
+    });
+    player.on('pause',   function(){ setTimeout(tryPlay, 60); });
+    player.on('ended',   tryPlay);
+    player.on('error',   tryPlay);
+    player.on('seeked',  function(){ setTimeout(tryPlay, 60); });
+
+    // Per-iframe stall watchdog (every 3s)
+    var lastT = -1;
+    setInterval(function(){
+      player.getCurrentTime().then(function(t){
+        if (t === lastT) tryPlay();   // stalled — kick it
+        lastT = t;
+      }).catch(tryPlay);
+    }, 3000);
   }
 
-  waitForVimeo(function(){
-    player = new Vimeo.Player(iframe);
-    player.setLoop(true).catch(function(){});
-    player.disableTextTrack().catch(function(){});
-    player.play().catch(function(){});
+  function scan() {
+    if (typeof Vimeo === 'undefined' || !Vimeo.Player) return;
+    document.querySelectorAll('iframe[src*="vimeo.com"]').forEach(attach);
+  }
 
-    // On Vimeo error — hide wrapper so no error banner shows
-    player.on('error', function(){
-      wrap.classList.add('sr-ended');
-    });
-  });
+  function waitForVimeo() {
+    if (typeof Vimeo !== 'undefined' && Vimeo.Player) { scan(); return; }
+    setTimeout(waitForVimeo, 150);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', waitForVimeo);
+  else waitForVimeo();
 
-  // Resume play on tab re-focus (browser may have paused background tabs)
-  document.addEventListener('visibilitychange', function(){
-    if (document.visibilityState === 'visible' && player) {
-      player.play().catch(function(){});
-    }
-  });
+  // Re-scan periodically for newly inserted iframes
+  setInterval(scan, 3000);
+
+  // Resume everything on tab focus / page show
+  function resumeAll() { players.forEach(function(p){ try { p.play().catch(function(){}); } catch(e){} }); }
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) resumeAll(); });
+  window.addEventListener('focus', resumeAll);
+  window.addEventListener('pageshow', resumeAll);
+
+  return { scan: scan, resumeAll: resumeAll };
+})();
+
+// ================================================================
+// HERO SHOWREEL — kept as a safety net (some pages need the wrap class)
+// ================================================================
+(function(){
+  var wrap = document.getElementById('heroShowreelWrap');
+  if (!wrap) return;
+  // Watchdog above already handles play. Just listen for fatal errors to hide the wrapper.
+  function waitForVimeo() {
+    if (typeof Vimeo === 'undefined' || !Vimeo.Player) return setTimeout(waitForVimeo, 200);
+    var iframe = document.getElementById('heroShowreelIframe');
+    if (!iframe) return;
+    try { new Vimeo.Player(iframe).on('error', function(){ wrap.classList.add('sr-ended'); }); } catch(e) {}
+  }
+  waitForVimeo();
 })();
 
 // ================================================================
@@ -233,43 +279,81 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })();
 
-// ── Project card: background video preloads near viewport, reveals on hover ──
+// ── Project card: lazy + sequential video loading (gentle on slow connections) ──
 (function(){
-  var _cardVidBuilt = new WeakSet();
-  var _cardVidCount = 0;
-  var _cardVidMax = 12;
+  // Skip on mobile entirely (save bandwidth/memory)
+  if (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) return;
+
+  // Detect slow connection — skip card videos entirely if 2g or save-data
+  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn && (conn.saveData || /2g/.test(conn.effectiveType || ''))) return;
+
+  var _built = new WeakSet();
+  var _queue = [];
+  var _loading = false;
+  var _max = 12;
+  var _builtCount = 0;
 
   function buildCardVid(card) {
-    if (_cardVidBuilt.has(card) || _cardVidCount >= _cardVidMax) return;
+    if (_built.has(card) || _builtCount >= _max) return false;
     var bg = card.querySelector('.fc-bg');
-    if (!bg || bg.querySelector('.fc-card-vid')) return;
+    if (!bg || bg.querySelector('.fc-card-vid')) return false;
     var vid = bg.dataset.vid;
-    if (!vid) return;
-    _cardVidBuilt.add(card);
-    _cardVidCount++;
+    if (!vid) return false;
+    _built.add(card);
+    _builtCount++;
     var hash = (typeof VID_HASHES !== 'undefined' && VID_HASHES[vid]) ? VID_HASHES[vid] : '';
     var q = hash ? '?h=' + hash + '&' : '?';
     var iframe = document.createElement('iframe');
     iframe.className = 'fc-card-vid';
     iframe.src = 'https://player.vimeo.com/video/' + vid + q +
-      'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1&texttrack=false';
+      'background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&dnt=1&texttrack=false&quality=auto';
     iframe.setAttribute('frameborder','0');
     iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+    iframe.setAttribute('loading','lazy');
     iframe.style.cssText = 'position:absolute;top:50%;left:50%;' +
       'width:177.8%;height:177.8%;transform:translate(-50%,-50%);' +
-      'border:0;pointer-events:none;';
+      'border:0;pointer-events:none;opacity:0;transition:opacity 0.5s;';
+    // Fade in once Vimeo signals it's ready
+    iframe.addEventListener('load', function(){
+      if (typeof Vimeo !== 'undefined' && Vimeo.Player) {
+        try {
+          var p = new Vimeo.Player(iframe);
+          p.ready().then(function(){ iframe.style.opacity = '1'; });
+        } catch(e) { iframe.style.opacity = '1'; }
+      } else {
+        setTimeout(function(){ iframe.style.opacity = '1'; }, 600);
+      }
+    });
     bg.appendChild(iframe);
+    // Let the watchdog pick it up immediately
+    setTimeout(function(){ window._snVimeoWatchdog && window._snVimeoWatchdog.scan(); }, 50);
+    return true;
   }
 
-  // Build bg video for all 9 unique cards immediately (desktop only — mobile skips to save memory)
-  if (!window.matchMedia || !window.matchMedia('(pointer:coarse)').matches) {
-    var _builtCount = 0;
-    document.querySelectorAll('.folder-card[data-key]').forEach(function(c) {
-      if (_builtCount >= 9) return;
-      buildCardVid(c);
-      _builtCount++;
-    });
+  function processQueue() {
+    if (_loading || !_queue.length) return;
+    var card = _queue.shift();
+    if (!buildCardVid(card)) return processQueue();
+    _loading = true;
+    // Stagger: next video starts ~1.2s after current begins loading (sequential, gentle)
+    setTimeout(function(){ _loading = false; processQueue(); }, 1200);
   }
+
+  // Load when card scrolls into viewport (rootMargin: start loading 400px before visible)
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) {
+        _queue.push(e.target);
+        io.unobserve(e.target);
+      }
+    });
+    processQueue();
+  }, { rootMargin: '400px 0px' });
+
+  document.querySelectorAll('.folder-card[data-key]').forEach(function(c){
+    io.observe(c);
+  });
 })();
 
 // ── Touch hover: reveal card bg video on touchstart (desktop/non-coarse only) ──
