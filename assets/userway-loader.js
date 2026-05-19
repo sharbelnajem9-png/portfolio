@@ -1,52 +1,6 @@
-// ================================================================
-// A11y: UserWay loads via its own <script> tag in HTML (with data-trigger).
-// This block hides UserWay's default icon (since we have our nav button)
-// and FORWARDS clicks from #userwayTrigger → UserWay's icon, with retries
-// in case UserWay's widget hasn't initialized yet.
-// ================================================================
-(function(){
-  // Hide UserWay's default corner icon (we use our nav button instead)
-  var st = document.createElement('style');
-  st.textContent = '.uwy,#userwayAccessibilityIcon,.uai{position:fixed!important;top:auto!important;left:auto!important;right:0!important;bottom:0!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:auto!important;z-index:1!important;visibility:visible!important;display:block!important;overflow:hidden!important}';
-  document.head.appendChild(st);
-
-  function openUserWay() {
-    // Try every known UserWay handle until one responds
-    var icon = document.getElementById('userwayAccessibilityIcon')
-            || document.querySelector('.uwy .uai')
-            || document.querySelector('.uai')
-            || document.querySelector('.uwy');
-    if (!icon) return false;
-    try {
-      ['mousedown','mouseup','click'].forEach(function(t){
-        icon.dispatchEvent(new MouseEvent(t, { bubbles:true, cancelable:true, view:window, button:0 }));
-      });
-    } catch(e) {}
-    try { icon.click && icon.click(); } catch(e) {}
-    return true;
-  }
-
-  function bind() {
-    var btn = document.getElementById('userwayTrigger');
-    if (!btn || btn._uwBound) return;
-    btn._uwBound = true;
-    btn.addEventListener('click', function(ev){
-      ev.preventDefault();
-      ev.stopPropagation();
-      if (openUserWay()) return;
-      // UserWay not ready yet — keep trying for a few seconds
-      var tries = 0;
-      var iv = setInterval(function(){
-        if (openUserWay() || ++tries > 25) clearInterval(iv);
-      }, 200);
-    });
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
-  else bind();
-  // Re-bind if language toggle replaces the button
-  if (window.MutationObserver) new MutationObserver(bind).observe(document.body || document.documentElement, { childList:true, subtree:true });
-})();
+// A11y: UserWay loads via its own <script> at end of <body> in each HTML page,
+// with data-trigger="userwayTrigger". UserWay binds the click natively.
+// No JS forwarding needed here — UserWay handles everything.
 
 // ================================================================
 // HERO SHOWREEL — loops continuously, replays on tab re-focus

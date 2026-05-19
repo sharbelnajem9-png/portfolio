@@ -34,8 +34,6 @@
 <link rel="preconnect" href="https://i.vimeocdn.com" crossorigin>
 <link rel="preconnect" href="https://player.vimeo.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Assistant:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
-<!-- Official UserWay accessibility widget (loads first, our nav button forwards clicks to it) -->
-<script src="https://cdn.userway.org/widget.js" data-account="yZwFbWSvDL" data-trigger="userwayTrigger"></script>
 <script src="https://player.vimeo.com/api/player.js" defer></script>
 <link rel="stylesheet" href="assets/site.css">
 <style>
@@ -1118,6 +1116,19 @@ body {
   }
 })();
 </script>
+
+<!-- ── UserWay accessibility widget (official loader, custom trigger = our nav button) ── -->
+<script>
+(function(d){
+  var s = d.createElement("script");
+  s.setAttribute("data-widget_layout", "full");
+  s.setAttribute("data-account", "yZwFbWSvDL");
+  s.setAttribute("data-trigger", "userwayTrigger");
+  s.setAttribute("src", "https://cdn.userway.org/widget.js");
+  (d.body || d.head).appendChild(s);
+})(document);
+</script>
+<noscript>Please ensure Javascript is enabled for purposes of <a href="https://userway.org">website accessibility</a></noscript>
 
 </body>
 </html>
