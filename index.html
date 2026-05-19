@@ -120,9 +120,19 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
   content: '' !important;
   position: absolute !important;
   inset: 0 !important;
-  background: linear-gradient(135deg, rgba(50, 90, 170, 0.10) 0%, rgba(15, 30, 70, 0.18) 100%) !important;
+  background: linear-gradient(135deg, rgba(50, 90, 170, 0.08) 0%, rgba(15, 30, 70, 0.14) 100%) !important;
   z-index: 1 !important;
   pointer-events: none !important;
+}
+/* CRITICAL FIX: site.css sets background-size:200% 200% on .fc-bg, which zooms into only the top-left of the gradient where all my cards have similar light blue — that's why they all looked the same. Force back to 100% so the full 3-stop gradient shows. */
+.folder-card .fc-bg,
+.folder-card[data-key] .fc-bg {
+  background-size: 100% 100% !important;
+  background-position: 0 0 !important;
+}
+.folder-card:hover .fc-bg {
+  background-position: 0 0 !important;
+  filter: brightness(1.12) !important;
 }
 .fc-bg::after,
 .fi-bg::after {
@@ -371,22 +381,21 @@ body {
   /* Breathing room between hero video and the about photo on mobile */
   .about { padding-top: 56px !important; }
   .about-image-wrapper { margin-top: 8px !important; }
-  /* Deep gradual fade so the video blends into the body bg (no hard block edge) */
+  /* TRUE fade — mask the video pixels themselves to transparent at the bottom.
+     Body bg shows through, no rectangular edge. */
   .hero { position: relative !important; overflow: hidden !important; }
-  .hero::after {
-    content: '' !important;
-    position: absolute !important;
-    bottom: 0 !important; left: 0 !important; right: 0 !important;
-    height: 280px !important;
-    background: linear-gradient(180deg,
-      transparent 0%,
-      rgba(10,13,24,0.25) 20%,
-      rgba(10,13,24,0.65) 50%,
-      rgba(10,13,24,0.92) 80%,
-      #08090f 100%) !important;
-    pointer-events: none !important;
-    z-index: 5 !important;
+  .hero-video-bg {
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, rgba(0,0,0,0.55) 80%, transparent 100%) !important;
+            mask-image: linear-gradient(180deg, #000 0%, #000 55%, rgba(0,0,0,0.55) 80%, transparent 100%) !important;
+    -webkit-mask-size: 100% 100% !important;
+            mask-size: 100% 100% !important;
+    -webkit-mask-repeat: no-repeat !important;
+            mask-repeat: no-repeat !important;
   }
+  .hero-overlay {
+    background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 40%, transparent 80%) !important;
+  }
+  .hero::after { display: none !important; }
   /* Services: lock to horizontal-only swipe (kill hover lift that makes cards bounce when scrolling) */
   .services-grid {
     touch-action: pan-x !important;
