@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&family=Assistant:wght@200;300;400;500;600;700;800&family=Rubik:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Official UserWay accessibility widget (loads first, our nav button forwards clicks to it) -->
+<script src="https://cdn.userway.org/widget.js" data-account="yZwFbWSvDL" data-trigger="userwayTrigger"></script>
 <script src="../assets/userway-loader.js" defer></script>
 <script src="https://player.vimeo.com/api/player.js" defer></script>
 <style>
@@ -257,7 +259,9 @@ section { position: relative; z-index: 2; }
     z-index: 0 !important;
   }
   .hero-overlay {
-    background: linear-gradient(180deg, rgba(10,13,24,0.20) 0%, rgba(10,13,24,0.10) 35%, rgba(10,13,24,0.55) 100%) !important;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 50%, rgba(0,0,0,0.42) 0%, transparent 75%),
+      linear-gradient(180deg, rgba(10,13,24,0.28) 0%, rgba(10,13,24,0.14) 38%, rgba(10,13,24,0.58) 100%) !important;
     pointer-events: none !important;
     z-index: 1 !important;
   }
@@ -534,7 +538,7 @@ section { position: relative; z-index: 2; }
 
 /* ─── TESTIMONIALS (static grid desktop, swipe carousel mobile) ─── */
 .testimonials {
-  padding: 60px 0;
+  padding: 60px 0 28px;
 }
 .testimonials h2 {
   font-size: clamp(26px, 4vw, 42px);
@@ -640,11 +644,11 @@ section { position: relative; z-index: 2; }
 
 /* ─── FORM ─── */
 .form-section {
-  padding: 70px 0 60px;
+  padding: 32px 0 60px;
 }
 @media (max-width: 768px) {
-  .testimonials { padding-bottom: 24px; }
-  .form-section { padding-top: 28px; }
+  .testimonials { padding-bottom: 18px; }
+  .form-section { padding-top: 22px; }
 }
 .form-section h2 {
   font-size: clamp(28px, 5vw, 48px);
