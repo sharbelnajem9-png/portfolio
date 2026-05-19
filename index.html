@@ -30,8 +30,55 @@
 <link rel="preconnect" href="https://f.vimeocdn.com" crossorigin>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Assistant:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
+<style>
+/* ─── Alumni Sans typography overrides ─── */
+:root { --font-en: 'Alumni Sans', 'Almoni', sans-serif; }
+.hero-name {
+  font-family: 'Alumni Sans', 'Almoni', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 0.85;
+  letter-spacing: normal;
+  gap: 0;
+}
+.hero-name-first {
+  font-size: clamp(38px, 6.5vw, 78px);
+  font-weight: 200;
+  font-style: italic;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(242, 242, 240, 0.78);
+  display: block;
+  line-height: 1;
+}
+.hero-name-last {
+  font-size: clamp(76px, 13vw, 168px);
+  font-weight: 800;
+  letter-spacing: -4px;
+  text-transform: uppercase;
+  display: block;
+  line-height: 0.95;
+  margin-top: 2px;
+}
+[dir="rtl"] .hero-name { font-family: 'Assistant', sans-serif; }
+[dir="rtl"] .hero-name-first {
+  font-weight: 300;
+  font-style: normal;
+  letter-spacing: 1px;
+  font-size: clamp(32px, 5.5vw, 64px);
+}
+[dir="rtl"] .hero-name-last {
+  font-weight: 800;
+  letter-spacing: -2px;
+  font-size: clamp(64px, 11vw, 140px);
+}
+/* Use Alumni Sans for English section titles, keep Assistant for Hebrew */
+[dir="ltr"] .section-title,
+[dir="ltr"] .hero-tagline { font-family: 'Alumni Sans', sans-serif; }
+</style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
 <body>
@@ -124,7 +171,10 @@
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <h1 class="hero-name">Sharbel Najem</h1>
+    <h1 class="hero-name">
+      <span class="hero-name-first" data-en="Sharbel" data-he="שרבל">Sharbel</span>
+      <span class="hero-name-last" data-en="Najem" data-he="נג'ם">Najem</span>
+    </h1>
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
       <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>

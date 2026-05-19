@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="../logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&family=Assistant:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   --black: #0d0f13;
@@ -33,6 +33,7 @@
   --radius: 16px;
   --radius-lg: 22px;
   --font: 'Assistant', sans-serif;
+  --font-en: 'Alumni Sans', 'Assistant', sans-serif;
   --ease: cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
@@ -48,6 +49,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   min-height: 100vh;
+}
+/* Use Alumni Sans for English (LTR), Assistant for Hebrew (RTL) */
+html[lang="en"] body,
+html[lang="en"] .nav-back,
+html[lang="en"] .lang-toggle,
+html[lang="en"] .hero h1,
+html[lang="en"] .about h2,
+html[lang="en"] .process h2,
+html[lang="en"] .testimonials h2,
+html[lang="en"] .form-section h2,
+html[lang="en"] .brands-title,
+html[lang="en"] .footer-tag,
+html[lang="en"] .step h3,
+html[lang="en"] .eyebrow,
+html[lang="en"] .submit-btn,
+html[lang="en"] .hero-cta,
+html[lang="en"] .footer-link {
+  font-family: var(--font-en);
 }
 
 /* Cinematic ambient orbs */
