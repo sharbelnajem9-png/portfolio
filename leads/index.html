@@ -74,7 +74,7 @@ body::before {
 }
 .gate-card input {
   width: 100%;
-  padding: 13px 44px 13px 16px;
+  padding: 13px 16px;
   background: rgba(255,255,255,0.04);
   border: 1px solid var(--white-15);
   border-radius: 12px;
@@ -452,7 +452,6 @@ body::before {
     <form onsubmit="tryLogin(event)">
       <div class="gate-input-wrap">
         <input type="password" id="pwd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" autofocus placeholder="••••••••">
-        <button type="button" class="show-toggle" onclick="togglePwd()" aria-label="הצג/הסתר סיסמה" title="הצג/הסתר"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
       <button type="submit">היכנס</button>
       <div class="error" id="pwdError"></div>
