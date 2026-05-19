@@ -49,39 +49,32 @@
   direction: ltr !important;
   unicode-bidi: isolate !important;
   line-height: 1 !important;
-  letter-spacing: normal !important;
+  letter-spacing: -1px !important;
+  font-size: clamp(56px, 9vw, 116px) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  color: var(--white) !important;
   word-break: keep-all !important;
   overflow-wrap: normal !important;
   writing-mode: horizontal-tb !important;
-  text-orientation: mixed !important;
 }
-.hero-name .hn-first {
-  display: inline !important;
-  white-space: nowrap !important;
-  writing-mode: horizontal-tb !important;
-  font-style: italic !important;
-  font-weight: 200 !important;
-  font-size: clamp(30px, 5vw, 68px) !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
-  color: rgba(242, 242, 240, 0.72) !important;
-  font-family: inherit !important;
-}
+.hero-name .hn-first,
 .hero-name .hn-last {
   display: inline !important;
   white-space: nowrap !important;
   writing-mode: horizontal-tb !important;
   font-style: normal !important;
-  font-weight: 800 !important;
-  font-size: clamp(44px, 7vw, 96px) !important;
-  letter-spacing: -1px !important;
-  text-transform: uppercase !important;
-  margin-inline-start: 0.25em !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  letter-spacing: inherit !important;
+  color: inherit !important;
+  text-transform: inherit !important;
   font-family: inherit !important;
 }
+.hero-name .hn-last {
+  margin-inline-start: 0.18em !important;
+}
 [dir="rtl"] .hero-name { font-family: 'Assistant', sans-serif !important; direction: rtl !important; }
-[dir="rtl"] .hero-name .hn-first { font-style: normal !important; letter-spacing: 0 !important; }
-[dir="rtl"] .hero-name .hn-last { letter-spacing: 0 !important; }
 /* Use Alumni Sans for English section titles, keep Assistant for Hebrew */
 [dir="ltr"] .section-title,
 [dir="ltr"] .hero-tagline { font-family: 'Alumni Sans', sans-serif; }
