@@ -228,40 +228,42 @@ section { position: relative; z-index: 2; }
 /* ─── Desktop: hero video becomes a floating rounded glass card ─── */
 @media (min-width: 769px) {
   .hero {
+    position: relative !important;
     min-height: 100vh;
     padding: 100px 56px 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* top+bottom define height, left:50% + translateX(-50%) center it horizontally. NO inset (would reset all sides). */
+  .hero-video-bg,
+  .hero-overlay {
+    position: absolute !important;
+    top: 100px !important;
+    bottom: 70px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: min(calc(100% - 112px), 1320px) !important;
+    height: auto !important;
+    border-radius: 26px !important;
+    overflow: hidden !important;
   }
   .hero-video-bg {
-    top: 100px !important;
-    left: 50% !important;
-    bottom: 70px !important;
-    right: auto !important;
-    inset: auto !important;
-    transform: translateX(-50%);
-    width: min(calc(100% - 112px), 1320px);
-    height: calc(100vh - 170px);
-    border-radius: 26px;
-    overflow: hidden;
     box-shadow:
       0 30px 90px rgba(0,0,0,0.55),
       0 0 0 1px rgba(255,255,255,0.08),
-      0 0 70px rgba(81,131,223,0.18);
+      0 0 70px rgba(81,131,223,0.18) !important;
+    z-index: 0 !important;
   }
   .hero-overlay {
-    top: 100px !important;
-    left: 50% !important;
-    bottom: 70px !important;
-    right: auto !important;
-    inset: auto !important;
-    transform: translateX(-50%);
-    width: min(calc(100% - 112px), 1320px);
-    height: calc(100vh - 170px);
-    border-radius: 26px;
-    background: linear-gradient(180deg, rgba(10,13,24,0.20) 0%, rgba(10,13,24,0.10) 35%, rgba(10,13,24,0.55) 100%);
+    background: linear-gradient(180deg, rgba(10,13,24,0.20) 0%, rgba(10,13,24,0.10) 35%, rgba(10,13,24,0.55) 100%) !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
   }
-  .hero::after { display: none; }
-  .hero-content { z-index: 2; }
-  .scroll-hint { bottom: 92px !important; }
+  .hero::after { display: none !important; }
+  .hero-content { z-index: 2 !important; position: relative !important; }
+  .scroll-hint { bottom: 92px !important; z-index: 4 !important; }
 }
 /* Smooth section transitions */
 .about, .process, .brands, .testimonials, .form-section {
@@ -475,12 +477,15 @@ section { position: relative; z-index: 2; }
   padding: 44px 0;
 }
 .brands-title {
-  font-size: 10.5px; letter-spacing: 4px;
+  font-size: 18px; letter-spacing: 2px;
   color: var(--white);
   text-transform: uppercase;
   text-align: center;
-  margin-bottom: 28px;
-  font-weight: 700;
+  margin-bottom: 34px;
+  font-weight: 800;
+}
+@media (max-width: 768px) {
+  .brands-title { font-size: 14px; letter-spacing: 2px; margin-bottom: 22px; }
 }
 .marquee-wrap {
   overflow: hidden;
@@ -507,10 +512,10 @@ section { position: relative; z-index: 2; }
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 110px;
-  height: 70px;
-  padding: 6px 14px;
-  margin-right: 38px;
+  min-width: 150px;
+  height: 96px;
+  padding: 8px 18px;
+  margin-right: 48px;
   flex-shrink: 0;
   opacity: 0.92;
   transition: opacity 0.3s, transform 0.3s;
@@ -636,6 +641,10 @@ section { position: relative; z-index: 2; }
 /* ─── FORM ─── */
 .form-section {
   padding: 70px 0 60px;
+}
+@media (max-width: 768px) {
+  .testimonials { padding-bottom: 24px; }
+  .form-section { padding-top: 28px; }
 }
 .form-section h2 {
   font-size: clamp(28px, 5vw, 48px);

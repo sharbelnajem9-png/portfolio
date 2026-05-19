@@ -8,58 +8,162 @@
   })(document);
 
 // ================================================================
-// A11y: overlay UserWay's invisible widget directly on top of our
-// #userwayTrigger button. The user clicks what looks like our button
-// — they are actually clicking UserWay's icon, which natively opens
-// the panel. Re-pins on resize/scroll/mutation so it stays aligned.
+// A11y: custom panel that toggles site.css body classes
+// (high-contrast / large-text / highlight-links / reduce-motion).
+// 100% reliable — no dependency on UserWay's UI binding.
+// UserWay's icon is hidden via CSS (still loaded for any compliance value).
 // ================================================================
 (function(){
-  function pin() {
-    var wrap = document.querySelector('.uwy');
-    var btn  = document.getElementById('userwayTrigger');
-    if (!wrap) return false;
-    if (btn) {
-      var r = btn.getBoundingClientRect();
-      wrap.style.cssText =
-        'position:fixed!important;' +
-        'top:' + Math.max(0, r.top - 2) + 'px!important;' +
-        'left:' + Math.max(0, r.left - 2) + 'px!important;' +
-        'right:auto!important;bottom:auto!important;' +
-        'width:' + (r.width + 4) + 'px!important;' +
-        'height:' + (r.height + 4) + 'px!important;' +
-        'opacity:0!important;pointer-events:auto!important;' +
-        'z-index:101!important;transform:none!important;' +
-        'display:block!important;visibility:visible!important;';
-    } else {
-      wrap.style.cssText =
-        'position:fixed!important;bottom:8px!important;right:8px!important;' +
-        'left:auto!important;top:auto!important;width:44px!important;height:44px!important;' +
-        'opacity:0!important;pointer-events:auto!important;z-index:1!important;';
-    }
-    // Stretch UserWay's inner icon to fill the wrap so the whole area is clickable
-    wrap.querySelectorAll('iframe, #userwayAccessibilityIcon, .uai, [role="button"]').forEach(function(el){
-      el.style.cssText = 'width:100%!important;height:100%!important;top:0!important;left:0!important;right:0!important;bottom:0!important;opacity:0!important;pointer-events:auto!important;position:absolute!important;';
-    });
-    return true;
-  }
-  function rePinSoon() { requestAnimationFrame(pin); }
+  var A11Y_KEY = 'sn_a11y_v1';
+  var FEATURES = [
+    { id: 'large-text',      he: 'טקסט גדול',     en: 'Larger text' },
+    { id: 'high-contrast',   he: 'ניגודיות גבוהה', en: 'High contrast' },
+    { id: 'highlight-links', he: 'הדגשת קישורים',  en: 'Highlight links' },
+    { id: 'reduce-motion',   he: 'הפחתת תנועה',    en: 'Reduce motion' }
+  ];
 
-  // Try repeatedly until UserWay widget renders, then keep pinned via observers
-  var tries = 0;
-  var iv = setInterval(function(){
-    if (pin()) {
-      // Once pinned, attach observers and stop polling
-      window.addEventListener('resize', rePinSoon);
-      window.addEventListener('scroll', rePinSoon, { passive: true });
-      if (window.MutationObserver) {
-        var mo = new MutationObserver(rePinSoon);
-        mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style','class'] });
+  function getPrefs() {
+    try { return JSON.parse(localStorage.getItem(A11Y_KEY)) || {}; } catch(e) { return {}; }
+  }
+  function setPrefs(p) {
+    try { localStorage.setItem(A11Y_KEY, JSON.stringify(p)); } catch(e) {}
+  }
+  function applyPrefs() {
+    var p = getPrefs();
+    FEATURES.forEach(function(f){ document.body.classList.toggle(f.id, !!p[f.id]); });
+  }
+
+  function build() {
+    // 1. Hide UserWay's default icon entirely
+    var hide = document.createElement('style');
+    hide.textContent = '.uwy,#userwayAccessibilityIcon{display:none!important}';
+    document.head.appendChild(hide);
+
+    // 2. Panel CSS
+    var css = document.createElement('style');
+    css.textContent =
+      '#snA11yPanel{position:fixed;top:70px;z-index:9999;background:rgba(15,18,28,0.96);' +
+      'backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);' +
+      'border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:16px;width:280px;' +
+      'box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.05);' +
+      "font-family:'Assistant','Rubik',sans-serif;color:#fff;display:none;" +
+      'animation:snA11yIn .22s cubic-bezier(0.2,0.9,0.3,1.2)}' +
+      'html[dir="rtl"] #snA11yPanel{right:14px;left:auto;text-align:right}' +
+      'html[dir="ltr"] #snA11yPanel{left:14px;right:auto;text-align:left}' +
+      '@keyframes snA11yIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}' +
+      '#snA11yPanel.open{display:block}' +
+      '#snA11yPanel h4{font-size:13px;font-weight:700;letter-spacing:.5px;margin:0 0 12px;color:rgba(255,255,255,.95);text-transform:uppercase}' +
+      '#snA11yPanel .a11y-item{display:flex;align-items:center;justify-content:space-between;gap:12px;' +
+      'padding:10px 12px;margin-bottom:6px;background:rgba(255,255,255,0.04);' +
+      'border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;' +
+      'font-size:13.5px;font-weight:500;color:rgba(255,255,255,0.85);transition:all .18s}' +
+      '#snA11yPanel .a11y-item:hover{background:rgba(81,131,223,0.16);border-color:rgba(81,131,223,0.4);color:#fff}' +
+      '#snA11yPanel .a11y-item.on{background:rgba(81,131,223,0.28);border-color:#5183df;color:#fff}' +
+      '#snA11yPanel .a11y-toggle{width:32px;height:18px;border-radius:999px;background:rgba(255,255,255,0.18);' +
+      'position:relative;transition:background .2s;flex-shrink:0}' +
+      "#snA11yPanel .a11y-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;" +
+      'border-radius:50%;background:#fff;transition:transform .2s}' +
+      '#snA11yPanel .a11y-item.on .a11y-toggle{background:#5183df}' +
+      '#snA11yPanel .a11y-item.on .a11y-toggle::after{transform:translateX(14px)}' +
+      '#snA11yPanel .a11y-reset{width:100%;margin-top:10px;padding:10px;background:transparent;' +
+      'border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);border-radius:10px;' +
+      'font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .18s}' +
+      '#snA11yPanel .a11y-reset:hover{border-color:rgba(255,255,255,0.4);color:#fff}' +
+      '#snA11yBackdrop{position:fixed;inset:0;z-index:9998;background:transparent;display:none}' +
+      '#snA11yBackdrop.open{display:block}';
+    document.head.appendChild(css);
+
+    // 3. Build panel + backdrop
+    var lang = document.documentElement.lang === 'en' ? 'en' : 'he';
+    var title = lang === 'he' ? 'אפשרויות נגישות' : 'Accessibility';
+    var reset = lang === 'he' ? 'איפוס' : 'Reset';
+    var panel = document.createElement('div');
+    panel.id = 'snA11yPanel';
+    panel.setAttribute('role','dialog');
+    panel.setAttribute('aria-label', title);
+    panel.innerHTML = '<h4>' + title + '</h4>' +
+      FEATURES.map(function(f){
+        return '<div class="a11y-item" data-feat="' + f.id + '" role="switch" tabindex="0">' +
+               '<span>' + f[lang] + '</span><span class="a11y-toggle" aria-hidden="true"></span></div>';
+      }).join('') +
+      '<button class="a11y-reset" type="button">' + reset + '</button>';
+
+    var backdrop = document.createElement('div');
+    backdrop.id = 'snA11yBackdrop';
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(panel);
+
+    function positionPanel() {
+      var btn = document.getElementById('userwayTrigger');
+      if (!btn) return;
+      var r = btn.getBoundingClientRect();
+      panel.style.top = (r.bottom + 10) + 'px';
+      if (document.documentElement.dir === 'rtl') {
+        panel.style.right = Math.max(10, window.innerWidth - r.right) + 'px';
+        panel.style.left  = 'auto';
+      } else {
+        panel.style.left  = Math.max(10, r.left) + 'px';
+        panel.style.right = 'auto';
       }
-      clearInterval(iv);
-    } else if (++tries > 120) {
-      clearInterval(iv);
     }
-  }, 200);
+
+    function applyPrefsToUI() {
+      var p = getPrefs();
+      panel.querySelectorAll('.a11y-item').forEach(function(el){
+        el.classList.toggle('on', !!p[el.dataset.feat]);
+      });
+    }
+    function open()   { applyPrefsToUI(); positionPanel(); panel.classList.add('open'); backdrop.classList.add('open'); }
+    function close()  { panel.classList.remove('open'); backdrop.classList.remove('open'); }
+    function toggle() { panel.classList.contains('open') ? close() : open(); }
+
+    panel.querySelectorAll('.a11y-item').forEach(function(el){
+      function flip(){
+        var id = el.dataset.feat;
+        var p = getPrefs();
+        p[id] = !p[id];
+        setPrefs(p);
+        document.body.classList.toggle(id, p[id]);
+        el.classList.toggle('on', p[id]);
+      }
+      el.addEventListener('click', flip);
+      el.addEventListener('keydown', function(e){
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
+      });
+    });
+    panel.querySelector('.a11y-reset').addEventListener('click', function(){
+      FEATURES.forEach(function(f){ document.body.classList.remove(f.id); });
+      setPrefs({});
+      applyPrefsToUI();
+    });
+    backdrop.addEventListener('click', close);
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+
+    function bindTrigger() {
+      var btn = document.getElementById('userwayTrigger');
+      if (!btn || btn._snA11yBound) return;
+      btn._snA11yBound = true;
+      btn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        toggle();
+      });
+    }
+    bindTrigger();
+    if (window.MutationObserver) {
+      new MutationObserver(bindTrigger).observe(document.body, { childList: true, subtree: true });
+    }
+    window.addEventListener('resize', positionPanel);
+
+    applyPrefs();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', build);
+  } else {
+    build();
+  }
 })();
 
 // ================================================================

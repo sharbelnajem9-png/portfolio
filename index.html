@@ -137,6 +137,28 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
 .folder-card:nth-of-type(6n+5) .folder-thumb { background: linear-gradient(135deg,#1d263a 0%,#11192a 100%) !important; }
 .folder-card:nth-of-type(6n) .folder-thumb { background: linear-gradient(135deg,#172333 0%,#0c141f 100%) !important; }
 
+/* ─── ALL project cards share one blue palette (overrides per-key colors in site.css) ─── */
+.folder-card[data-key] .fc-bg,
+.folder-card[data-key="podcast-short"] .fc-bg,
+.folder-card[data-key="real-estate"] .fc-bg,
+.folder-card[data-key="hotels"] .fc-bg,
+.folder-card[data-key="travel-short"] .fc-bg,
+.folder-card[data-key="technology"] .fc-bg,
+.folder-card[data-key="tourism-companies"] .fc-bg,
+.folder-card[data-key="kristian-najem"] .fc-bg,
+.folder-card[data-key="naadned"] .fc-bg,
+.folder-card[data-key="blendar"] .fc-bg,
+.folder-card[data-key="favorites"] .fc-bg {
+  background: linear-gradient(145deg, #2c5490 0%, #1a3468 45%, #0d1e40 100%) !important;
+}
+/* Apply the grayscale+blue tint to grid thumbs too (mobile uses fc-grid-thumb, not fc-thumb-img) */
+.fc-grid-thumb {
+  filter: grayscale(0.95) brightness(0.78) contrast(1.1) !important;
+}
+.folder-card:hover .fc-grid-thumb {
+  filter: grayscale(0.4) brightness(0.92) contrast(1.12) !important;
+}
+
 /* ─── ONE CONTINUOUS CANVAS — no per-section bg, no fade-to-black bands ─── */
 .about, .services, .services-section, .projects-section, .projects, .featured-section,
 .brands, .testimonials, .contact, .dream-section, .footer, section {
@@ -245,44 +267,42 @@ body {
 /* ─── Hero video as a floating rounded glass card (desktop only) ─── */
 @media (min-width: 769px) {
   .hero {
+    position: relative !important;
     height: auto !important;
-    min-height: calc(100vh - 0px) !important;
+    min-height: 100vh !important;
     padding: 100px 56px 60px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     background: transparent !important;
   }
-  .hero-video-bg {
+  /* Centered card: top + bottom define height, left:50% + translateX(-50%) center horizontally. NO inset shorthand (resets all sides). */
+  .hero-video-bg,
+  .hero-overlay {
+    position: absolute !important;
     top: 100px !important;
-    left: 50% !important;
     bottom: 60px !important;
+    left: 50% !important;
     right: auto !important;
-    inset: auto !important;
     transform: translateX(-50%) !important;
     width: min(calc(100% - 112px), 1320px) !important;
-    height: calc(100vh - 160px) !important;
+    height: auto !important;
     border-radius: 26px !important;
     overflow: hidden !important;
+  }
+  .hero-video-bg {
     box-shadow:
       0 30px 90px rgba(0,0,0,0.55),
       0 0 0 1px rgba(255,255,255,0.08),
       0 0 70px rgba(81,131,223,0.18) !important;
+    z-index: 0 !important;
   }
   .hero-overlay {
-    top: 100px !important;
-    left: 50% !important;
-    bottom: 60px !important;
-    right: auto !important;
-    inset: auto !important;
-    transform: translateX(-50%) !important;
-    width: min(calc(100% - 112px), 1320px) !important;
-    height: calc(100vh - 160px) !important;
-    border-radius: 26px !important;
     background: linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.10) 35%, rgba(0,0,0,0.48) 100%) !important;
-    pointer-events: none;
+    pointer-events: none !important;
+    z-index: 1 !important;
   }
-  .hero-content { z-index: 2 !important; }
+  .hero-content { z-index: 2 !important; position: relative !important; }
   .hero-scroll  { bottom: 86px !important; }
 }
 
