@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&family=Assistant:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="../assets/userway-loader.js" defer></script>
 <style>
 :root {
   --black: #0d0f13;
@@ -408,23 +409,22 @@ section { position: relative; z-index: 2; }
   font-weight: 700;
 }
 .marquee-wrap {
-  overflow: hidden;
+  overflow-x: scroll;
+  overflow-y: hidden;
   position: relative;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
   mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
 }
+.marquee-wrap::-webkit-scrollbar { display: none; }
 .marquee {
   display: flex;
   gap: 38px;
   align-items: center;
   width: max-content;
-  animation: marqueeScroll 55s linear infinite;
-  will-change: transform;
-}
-.marquee:hover { animation-play-state: paused; }
-@keyframes marqueeScroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(calc(-100% / 3)); }
+  padding: 0 24px;
 }
 .brand-item {
   display: flex;
@@ -445,13 +445,7 @@ section { position: relative; z-index: 2; }
 }
 @media (max-width: 768px) {
   .brands { padding: 34px 0; }
-  .marquee-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .marquee-wrap::-webkit-scrollbar { display: none; }
-  .marquee { gap: 24px; animation: none; }
+  .marquee { gap: 24px; padding: 0 16px; }
   .brand-item { min-width: 95px; height: 56px; padding: 4px 10px; }
 }
 
@@ -655,21 +649,23 @@ form {
   width: 100%;
   margin-top: 8px;
   padding: 16px 28px;
-  background: var(--accent);
-  color: white;
-  border: none;
+  background: transparent;
+  color: #fff;
+  border: 2px solid var(--accent);
   border-radius: 999px;
   font-family: inherit;
   font-size: 15px; font-weight: 800;
   letter-spacing: 0.4px;
   cursor: pointer;
-  transition: all 0.3s var(--ease);
-  box-shadow: 0 10px 32px var(--accent-glow);
+  transition: all 0.35s var(--ease);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .submit-btn:hover {
-  background: var(--accent-dark);
+  background: linear-gradient(135deg, rgba(81,131,223,0.32), rgba(81,131,223,0.08));
+  border-color: rgba(255,255,255,0.8);
   transform: translateY(-2px);
-  box-shadow: 0 16px 44px rgba(81, 131, 223, 0.5);
+  box-shadow: 0 14px 38px rgba(81,131,223,0.35), inset 0 1px 1px rgba(255,255,255,0.15);
 }
 .privacy-note {
   text-align: center;
@@ -826,6 +822,7 @@ footer {
     <span data-he="חזרה לאתר" data-en="Back to site">חזרה לאתר</span>
   </a>
   <button class="lang-toggle" onclick="toggleLang()">EN</button>
+  <button class="nav-a11y-btn" onclick="document.getElementById('userwayAccessibilityIcon')?.click()" aria-label="Accessibility" style="background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:999px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.7);cursor:pointer;margin-inline-start:8px;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.4)';this.style.color='#fff';" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.7)';"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-4 4 2 6M12 8l4 4-2 6M8 12H4M20 12h-4"/></svg></button>
 </nav>
 
 <!-- HERO -->
@@ -875,8 +872,8 @@ footer {
       <span data-he="ארבעה שלבים" data-en="Four stages">ארבעה שלבים</span>
       <strong data-he="עד התוצר הסופי" data-en="to the final deliverable">עד התוצר הסופי</strong>
     </h2>
-    <p class="lead reveal" data-he="כל שלב נבנה על קודמו.<br>בלי לדלג, בלי לפשט." data-en="Each stage builds on the previous.<br>No skipping, no simplifying.">
-      כל שלב נבנה על קודמו.<br>בלי לדלג, בלי לפשט.
+    <p class="lead reveal" data-he="ארבעה שלבים שמובילים מעסק עם מוצר איכותי לעסק שבולט בשוק.<br>בלי קיצורי דרך, בלי קלישאות." data-en="Four stages that take a quality business and make it stand out.<br>No shortcuts, no clichés.">
+      ארבעה שלבים שמובילים מעסק עם מוצר איכותי לעסק שבולט בשוק.<br>בלי קיצורי דרך, בלי קלישאות.
     </p>
     <div class="steps">
       <div class="step reveal">
@@ -927,9 +924,6 @@ footer {
       <span data-he="מה הלקוחות" data-en="What clients">מה הלקוחות</span>
       <strong data-he="אומרים" data-en="say">אומרים</strong>
     </h2>
-    <p class="lead reveal" data-he="עדויות אמיתיות, מלקוחות אמיתיים." data-en="Real words from real clients.">
-      עדויות אמיתיות, מלקוחות אמיתיים.
-    </p>
   </div>
   <div class="t-grid" id="tGrid"></div>
 </section>
@@ -1009,18 +1003,56 @@ footer {
 </footer>
 
 <script>
-// ─── Brands: build markup (CSS animation handles the scroll loop) ───
+// ─── Brands: build + JS auto-scroll (mirrors main site for reliability) ───
 const brandsContainer = document.getElementById('brandsMarquee');
+const brandsWrap = brandsContainer.parentElement;
 const brandLogos = [];
 for (let i = 46; i <= 81; i++) brandLogos.push('../logos/Untitled-' + i + '.png');
 function buildBrands() {
   const html = brandLogos.map(src =>
     `<div class="brand-item"><img src="${src}" alt="" loading="eager" onerror="this.parentElement.style.display='none'"></div>`
   ).join('');
-  // Triple: CSS translates -100%/3 for seamless loop
   brandsContainer.innerHTML = html + html + html;
 }
 buildBrands();
+
+// Auto-scroll: keep going forever, jump silently when reaching loop boundary
+let bUserActive = false;
+let bUserTimer;
+function bPause() {
+  bUserActive = true;
+  clearTimeout(bUserTimer);
+  bUserTimer = setTimeout(() => { bUserActive = false; }, 2000);
+}
+brandsWrap.addEventListener('pointerdown', bPause);
+brandsWrap.addEventListener('touchstart', bPause, { passive: true });
+brandsWrap.addEventListener('wheel', bPause, { passive: true });
+
+let bStarted = false;
+function startBrandsScroll() {
+  if (bStarted) return;
+  bStarted = true;
+  const third = brandsContainer.scrollWidth / 3;
+  brandsWrap.scrollLeft = third; // start in middle for seamless wrap
+  function loop() {
+    if (!bUserActive) brandsWrap.scrollLeft += 0.5;
+    if (brandsWrap.scrollLeft >= third * 2 - 1) brandsWrap.scrollLeft -= third;
+    else if (brandsWrap.scrollLeft <= 1) brandsWrap.scrollLeft += third;
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+// Wait for first 10 images to load before measuring scrollWidth
+const bImgs = brandsContainer.querySelectorAll('img');
+const bNeeded = Math.min(bImgs.length, 10);
+let bLoaded = 0;
+function bImgReady() { if (++bLoaded >= bNeeded) startBrandsScroll(); }
+bImgs.forEach((img, i) => {
+  if (i >= bNeeded) return;
+  if (img.complete && img.naturalWidth > 0) bImgReady();
+  else { img.addEventListener('load', bImgReady); img.addEventListener('error', bImgReady); }
+});
+setTimeout(startBrandsScroll, 3000); // failsafe
 
 // ─── Testimonials data ───
 const TESTIMONIALS = [

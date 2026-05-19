@@ -162,14 +162,21 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
 /* Soften the about background (was sharp --dark) to closer to --black */
 .about { background: linear-gradient(180deg, var(--black) 0%, #131720 50%, var(--black) 100%) !important; }
 
-/* ─── Testimonials: stars beside name (not separate row) ─── */
+/* ─── Testimonials: stars beside name + larger readable text ─── */
 .testimonial-card .testimonial-stars { display: none !important; }
+.testimonial-card .testimonial-text {
+  font-size: 15px !important;
+  line-height: 1.7 !important;
+}
 .testimonial-card .testimonial-brand {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   gap: 12px !important;
   flex-wrap: wrap;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #fff !important;
 }
 .testimonial-card .testimonial-brand::after {
   content: '★★★★★';
@@ -180,6 +187,34 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
   text-shadow: 0 0 10px rgba(251,191,36,0.3);
   white-space: nowrap;
   font-family: sans-serif;
+}
+
+/* ─── Blue accent: highlight <em>/<strong> in brand blue ─── */
+.contact .contact-big-text em,
+.contact .contact-big-text strong {
+  color: #5183df !important;
+  font-style: normal !important;
+  font-weight: 700;
+  background: linear-gradient(180deg, transparent 78%, rgba(81,131,223,0.18) 78%);
+  padding: 0 4px;
+}
+.about-text em, .about-text strong,
+.hero-tagline em, .hero-tagline strong,
+.section-subtitle em, .section-subtitle strong {
+  color: #7aa2ea;
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ─── Mobile-specific tweaks for balance ─── */
+@media (max-width: 768px) {
+  .hero-name { font-size: clamp(38px, 9vw, 64px) !important; }
+  [lang="en"] .hero-name { font-size: clamp(34px, 8vw, 56px) !important; }
+  .hero-tagline { font-size: 14.5px !important; padding: 0 16px; }
+  .hero-btn-primary, .hero-btn-talk { padding: 11px 24px !important; font-size: 13.5px !important; }
+  .testimonial-card { padding: 18px !important; }
+  .testimonial-card .testimonial-text { font-size: 14px !important; }
+  .contact-big-text { font-size: clamp(22px, 5.5vw, 32px) !important; line-height: 1.4 !important; }
 }
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
@@ -278,7 +313,7 @@ html[lang="he"] .hero-name { direction: ltr !important; unicode-bidi: isolate !i
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
       <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
-      <a href="/start/" class="hero-btn-primary hero-btn-talk" style="background:#5183df;border:2px solid #fff;color:#fff;font-weight:800;letter-spacing:0.4px;box-shadow:0 12px 38px rgba(81,131,223,0.65), 0 0 0 4px rgba(81,131,223,0.15);" onmouseover="this.style.background='#3868c4';this.style.transform='translateY(-3px) scale(1.03)';this.style.boxShadow='0 18px 50px rgba(81,131,223,0.85), 0 0 0 6px rgba(81,131,223,0.2)';" onmouseout="this.style.background='#5183df';this.style.transform='translateY(0) scale(1)';this.style.boxShadow='0 12px 38px rgba(81,131,223,0.65), 0 0 0 4px rgba(81,131,223,0.15)';" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</a>
+      <a href="/start/" class="hero-btn-primary hero-btn-talk" style="background:transparent;border:2px solid #5183df;color:#fff;font-weight:800;letter-spacing:0.4px;backdrop-filter:blur(8px);" onmouseover="this.style.background='rgba(81,131,223,0.18)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 40px rgba(81,131,223,0.45)';" onmouseout="this.style.background='transparent';this.style.transform='translateY(0)';this.style.boxShadow='none';" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</a>
     </div>
   </div>
   <div class="hero-scroll"><div class="scroll-line"></div></div>
