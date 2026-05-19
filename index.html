@@ -72,50 +72,85 @@
   font-family: inherit !important;
 }
 .hero-name .hn-last {
-  margin-inline-start: 0.18em !important;
+  margin-inline-start: 0 !important;
 }
 [dir="rtl"] .hero-name { font-family: 'Assistant', sans-serif !important; direction: rtl !important; }
 /* Use Alumni Sans for English section titles, keep Assistant for Hebrew */
 [dir="ltr"] .section-title,
 [dir="ltr"] .hero-tagline { font-family: 'Alumni Sans', sans-serif; }
 
-/* ─── Project/featured thumbnails: tone down + unified vibe ─── */
+/* ─── Project/featured thumbnails: unified BLUE vibe via blend mode ─── */
 .fc-thumb-img,
 .fi-thumb-img {
-  filter: saturate(0.78) contrast(1.05) brightness(0.92);
+  filter: saturate(0.6) contrast(1.05) brightness(0.85);
   transition: filter 0.4s, transform 0.5s;
 }
 .folder-card:hover .fc-thumb-img,
 .featured-item:hover .fi-thumb-img {
-  filter: saturate(1.02) contrast(1.08) brightness(1);
+  filter: saturate(0.85) contrast(1.08) brightness(0.95);
   transform: scale(1.05);
+}
+/* Blue tint overlay - mixes with image color */
+.fc-bg::before,
+.fi-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(35, 65, 130, 0.55) 0%, rgba(20, 35, 75, 0.7) 100%);
+  mix-blend-mode: color;
+  z-index: 1;
+  pointer-events: none;
 }
 .fc-bg::after,
 .fi-bg::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(13,15,19,0.15) 0%, transparent 35%, rgba(13,15,19,0.6) 100%);
+  background: linear-gradient(180deg, rgba(13,15,30,0.2) 0%, transparent 40%, rgba(13,15,30,0.7) 100%);
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
-.fc-overlay, .fi-overlay { z-index: 2; }
+.fc-overlay, .fi-overlay { z-index: 3; }
 
-/* Unified dark palette for project cards (fallback bg when thumb fails) */
-.folder-card { background: #1a1f2c !important; }
+/* Card styling - dark blue accent */
+.folder-card { background: #0f1626 !important; border: 1px solid rgba(81,131,223,0.18) !important; transition: all 0.4s !important; }
+.folder-card:hover { border-color: rgba(81,131,223,0.55) !important; box-shadow: 0 16px 48px rgba(81,131,223,0.25) !important; }
+.folder-info {
+  background: linear-gradient(180deg, #131b2e, #0c1320);
+  border-top: 1px solid rgba(81,131,223,0.18);
+}
+.folder-info h4 { color: #f2f2f0; }
 .folder-card:nth-of-type(6n+1) .folder-thumb { background: linear-gradient(135deg,#1a2540 0%,#0e1626 100%) !important; }
 .folder-card:nth-of-type(6n+2) .folder-thumb { background: linear-gradient(135deg,#1c2a3a 0%,#101820 100%) !important; }
 .folder-card:nth-of-type(6n+3) .folder-thumb { background: linear-gradient(135deg,#1f2435 0%,#13182a 100%) !important; }
 .folder-card:nth-of-type(6n+4) .folder-thumb { background: linear-gradient(135deg,#152030 0%,#0a131c 100%) !important; }
 .folder-card:nth-of-type(6n+5) .folder-thumb { background: linear-gradient(135deg,#1d263a 0%,#11192a 100%) !important; }
 .folder-card:nth-of-type(6n) .folder-thumb { background: linear-gradient(135deg,#172333 0%,#0c141f 100%) !important; }
-.folder-info {
-  background: linear-gradient(180deg, #1a1f2c, #11151d);
-  border-top: 1px solid rgba(81,131,223,0.15);
+
+/* ─── Smooth section transitions (no more hard cuts) ─── */
+.about, .services-section, .projects-section, .featured-section, .brands, .testimonials, .contact, .dream-section {
+  position: relative;
 }
-.folder-info h4 { color: #f2f2f0; }
-.folder-card { border: 1px solid rgba(81,131,223,0.18) !important; transition: all 0.4s !important; }
-.folder-card:hover { border-color: rgba(81,131,223,0.5) !important; box-shadow: 0 16px 48px rgba(81,131,223,0.25) !important; }
+.about::before, .services-section::before, .projects-section::before, .featured-section::before, .brands::before, .testimonials::before, .contact::before, .dream-section::before {
+  content: '';
+  position: absolute;
+  top: -80px; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(180deg, transparent, var(--black));
+  pointer-events: none;
+  z-index: 1;
+}
+.about::after, .services-section::after, .projects-section::after, .featured-section::after, .brands::after, .testimonials::after, .contact::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(180deg, var(--black), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+/* Soften the about background (was sharp --dark) to closer to --black */
+.about { background: linear-gradient(180deg, var(--black) 0%, #131720 50%, var(--black) 100%) !important; }
 </style>
 <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
@@ -209,11 +244,11 @@
 </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <h1 class="hero-name"><em class="hn-first" data-en="Sharbel" data-he="שרבל">Sharbel</em><span class="hn-last" data-en="Najem" data-he="נג'ם">Najem</span></h1>
+    <h1 class="hero-name"><em class="hn-first" data-en="Sharbel" data-he="שרבל">Sharbel</em>&nbsp;<span class="hn-last" data-en="Najem" data-he="נג'ם">Najem</span></h1>
     <p class="hero-tagline" data-en="Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands." data-he="צלם מקצועי ויוצר תוכן שיווקי - יוצר ויזואלים קולנועיים שמספרים סיפור ומניעים תוצאות אמיתיות למותגים ועסקים.">Professional filmmaker and content creator - delivering cinematic visuals that tell stories and drive real results for brands.</p>
     <div class="hero-cta-row">
       <a href="#projects" class="hero-btn-primary" data-en="View Projects" data-he="צפה בפרויקטים">View Projects</a>
-      <a href="/start/" class="hero-btn-primary hero-btn-talk" style="background:#5183df;border:1.5px solid #5183df;color:#fff;box-shadow:0 8px 28px rgba(81,131,223,0.4);font-weight:700;" onmouseover="this.style.background='#3868c4';this.style.borderColor='#3868c4';this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 36px rgba(81,131,223,0.55)';" onmouseout="this.style.background='#5183df';this.style.borderColor='#5183df';this.style.transform='translateY(0)';this.style.boxShadow='0 8px 28px rgba(81,131,223,0.4)';" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</a>
+      <a href="/start/" class="hero-btn-primary hero-btn-talk" style="background:transparent;border:1.5px solid #fff;color:#fff;font-weight:700;backdrop-filter:blur(4px);" onmouseover="this.style.background='rgba(255,255,255,0.95)';this.style.color='#0d0f13';this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 36px rgba(255,255,255,0.25)';" onmouseout="this.style.background='transparent';this.style.color='#fff';this.style.transform='translateY(0)';this.style.boxShadow='none';" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</a>
     </div>
   </div>
   <div class="hero-scroll"><div class="scroll-line"></div></div>
@@ -650,7 +685,7 @@
   <div class="fade-in">
     <span class="section-label" data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</span>
     <h2 class="contact-big-text" data-en="Ready to bring your vision to life? Let's create content that <em>makes an impact</em>." data-he="מוכנים להפוך את החזון למציאות? בואו ניצור תוכן ש<em>עושה אימפקט</em>.">Ready to bring your vision to life? Let's create content that <em>makes an impact</em>.</h2>
-    <a href="/start/" class="contact-btn">
+    <a href="/start/" class="contact-btn" style="background:transparent !important;border:1.5px solid #fff !important;color:#fff !important;backdrop-filter:blur(6px);" onmouseover="this.style.background='rgba(255,255,255,0.95)';this.style.color='#0d0f13';this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 40px rgba(255,255,255,0.22)';" onmouseout="this.style.background='transparent';this.style.color='#fff';this.style.transform='translateY(0)';this.style.boxShadow='none';">
       <span data-en="Let's Talk" data-he="בואו נדבר">Let's Talk</span>
     </a>
   </div>
