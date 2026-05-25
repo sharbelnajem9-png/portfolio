@@ -440,6 +440,7 @@ body::before {
 .modal textarea { min-height: 80px; resize: vertical; }
 .modal .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 </style>
+<script src="../assets/sn-crypto.js"></script>
 </head>
 <body>
 
@@ -468,6 +469,7 @@ body::before {
       <button class="btn primary" onclick="openAdd()">+ הוסף ליד</button>
       <button class="btn" onclick="exportJSON()">ייצא JSON</button>
       <button class="btn" onclick="exportCSV()">ייצא CSV</button>
+      <button class="btn ghost" onclick="exportVaultBackup()" title="הורד גיבוי של מפתח ההצפנה — שמור במקום בטוח, חיוני לגישה ממכשיר אחר">🔐 גיבוי כספת</button>
       <button class="btn ghost" onclick="logout()">יציאה</button>
     </div>
   </header>
@@ -538,7 +540,12 @@ const LEADS_KEY = 'sharbel_leads_v1';
 const REAL_PASSWORD_HASH = 'ebaaec617ab0a8fe64518523e30d3d623bbbd33d4fc0184ad941bd498f7bad37';
 const PANTRY_ID = '8978df43-3859-46c3-be39-905e7a54e68b';
 const PANTRY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/leads`;
+const PUBKEY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/pubkey`;
+const VAULT_KEY = 'sn_vault_v1';          // encrypted RSA private key (localStorage)
+const PUBKEY_CACHE = 'sn_pubkey_cache_v1'; // public JWK cache (localStorage)
 let cloudSyncInFlight = false;
+let _snPrivateKey = null;  // decrypted RSA-OAEP private key (in-memory only)
+let _snPublicJwk = null;   // public JWK (used for re-encrypting edited leads)
 
 // SHA-256 helper (returns null if not available — Instagram/in-app webviews sometimes lack crypto.subtle)
 async function sha256(text) {
@@ -567,14 +574,120 @@ async function tryLogin(e) {
   }
   const hash = await sha256(pwd);
   const ok = (hash && hash === REAL_PASSWORD_HASH) || pwd === PASSWORD_PLAIN;
-  if (ok) {
-    sessionStorage.setItem(SESSION_KEY, '1');
-    showApp();
-  } else {
+  if (!ok) {
     document.getElementById('pwdError').textContent = 'סיסמה שגויה';
     document.getElementById('pwd').value = '';
     document.getElementById('pwd').focus();
+    return;
   }
+  // Auth passed. Now unlock or set up the encryption vault using the SAME password.
+  try {
+    await unlockOrSetupVault(pwd);
+  } catch(err) {
+    document.getElementById('pwdError').textContent = 'שגיאה בפענוח הכספת: ' + (err.message || err);
+    return;
+  }
+  sessionStorage.setItem(SESSION_KEY, '1');
+  showApp();
+}
+
+// ─── Vault: setup or unlock RSA private key (gated by SAME password as login) ───
+async function unlockOrSetupVault(passphrase) {
+  if (!window.SNCrypto || !SNCrypto.available) {
+    console.warn('Web Crypto unavailable — running without vault encryption');
+    return;
+  }
+  let stored = null;
+  try { stored = JSON.parse(localStorage.getItem(VAULT_KEY) || 'null'); } catch(e) {}
+  if (stored) {
+    // Existing vault — unlock
+    _snPrivateKey = await SNCrypto.unlockVault(stored, passphrase);
+    // Cache pubkey (may already be in localStorage; if not, fetch from Pantry)
+    try { _snPublicJwk = JSON.parse(localStorage.getItem(PUBKEY_CACHE) || 'null'); } catch(e) {}
+    if (!_snPublicJwk) {
+      try {
+        const r = await fetch(PUBKEY_URL);
+        if (r.ok) {
+          const j = await r.json();
+          if (j && j.publicJwk) { _snPublicJwk = j.publicJwk; localStorage.setItem(PUBKEY_CACHE, JSON.stringify(_snPublicJwk)); }
+        }
+      } catch(e) {}
+    }
+    return;
+  }
+  // No local vault. Check if Pantry already has a published pubkey (= you've set up on another device).
+  let remotePub = null;
+  try {
+    const r = await fetch(PUBKEY_URL);
+    if (r.ok) { const j = await r.json(); remotePub = (j && j.publicJwk) || null; }
+  } catch(e) {}
+  if (remotePub) {
+    // There's already a public key in the cloud, but no private key locally.
+    // Sharbel needs to import a backup from the original device.
+    const choice = confirm('זוהתה כספת קיימת בענן, אך אין מפתח פרטי במכשיר הזה.\n\nלחץ אישור כדי לייבא קובץ גיבוי של המפתח, או בטל כדי ליצור כספת חדשה (יחליף את הקיימת — לידים מוצפנים קודמים לא יהיו ניתנים לפענוח!).');
+    if (choice) {
+      await promptImportVault(passphrase);
+      return;
+    }
+    // Fall through to setupNewVault below
+  }
+  // First-time setup or explicit reset
+  const setup = await SNCrypto.setupNewVault(passphrase);
+  localStorage.setItem(VAULT_KEY, JSON.stringify(setup.encryptedPrivate));
+  _snPrivateKey = await SNCrypto.unlockVault(setup.encryptedPrivate, passphrase);
+  _snPublicJwk = setup.publicJwk;
+  localStorage.setItem(PUBKEY_CACHE, JSON.stringify(_snPublicJwk));
+  // Publish public key to Pantry so /start can encrypt with it
+  try {
+    await fetch(PUBKEY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ publicJwk: setup.publicJwk, created: new Date().toISOString() }) });
+  } catch(e) { console.warn('publish pubkey failed', e); }
+  alert('✅ הכספת הוקמה. הסיסמה שלך מצפינה את הלידים. שמור גיבוי דרך כפתור "ייצא גיבוי כספת" בסרגל הכלים.');
+}
+
+async function promptImportVault(passphrase) {
+  return new Promise((resolve, reject) => {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'application/json';
+    inp.onchange = async (e) => {
+      try {
+        const file = e.target.files[0];
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!data || !data.encryptedPrivate) throw new Error('קובץ גיבוי לא תקין');
+        // Try unlock with the supplied passphrase
+        _snPrivateKey = await SNCrypto.unlockVault(data.encryptedPrivate, passphrase);
+        // Save locally
+        localStorage.setItem(VAULT_KEY, JSON.stringify(data.encryptedPrivate));
+        if (data.publicJwk) {
+          _snPublicJwk = data.publicJwk;
+          localStorage.setItem(PUBKEY_CACHE, JSON.stringify(data.publicJwk));
+        }
+        alert('✅ הכספת יובאה בהצלחה');
+        resolve();
+      } catch(err) {
+        alert('שגיאה בייבוא: ' + (err.message || err));
+        reject(err);
+      }
+    };
+    inp.click();
+  });
+}
+
+function exportVaultBackup() {
+  const stored = localStorage.getItem(VAULT_KEY);
+  const pub = localStorage.getItem(PUBKEY_CACHE);
+  if (!stored) { alert('אין כספת מוקמת'); return; }
+  const blob = new Blob([JSON.stringify({
+    encryptedPrivate: JSON.parse(stored),
+    publicJwk: pub ? JSON.parse(pub) : null,
+    exported: new Date().toISOString()
+  }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'sn-vault-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  alert('💾 קובץ גיבוי הורד. שמור אותו במקום בטוח — בלעדיו לא תוכל לפענח לידים ממכשיר אחר!');
 }
 function logout() {
   sessionStorage.removeItem(SESSION_KEY);
@@ -589,9 +702,9 @@ function showApp() {
   syncFromCloud();
   setInterval(syncFromCloud, 20000);
 }
-window.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem(SESSION_KEY) === '1') showApp();
-});
+// Note: we intentionally do NOT auto-restore sessions across page reloads.
+// The vault private key lives only in memory, so we must re-enter the password
+// to unlock it on every load. This is the correct security trade-off.
 
 // ─── Data (cloud-synced) ───
 function loadLeads() {
@@ -607,10 +720,27 @@ function saveLeads(leads) {
 }
 async function pushToCloud(leads) {
   try {
+    // Re-encrypt leads that were originally encrypted (marked _wasEncrypted) before pushing.
+    // Plaintext leads stay plaintext. We need a public key to encrypt.
+    let publicKey = null;
+    if (window.SNCrypto && SNCrypto.available && _snPublicJwk) {
+      try { publicKey = await SNCrypto.importPublicKey(_snPublicJwk); } catch(e) {}
+    }
+    const outbound = [];
+    for (const l of leads) {
+      if (l._wasEncrypted && publicKey) {
+        const { _wasEncrypted, ...clean } = l;
+        try { outbound.push(await SNCrypto.encryptLead(clean, publicKey)); }
+        catch(e) { console.warn('re-encrypt failed for lead', l.id, e); outbound.push(l); }
+      } else {
+        const { _wasEncrypted, ...clean } = l;
+        outbound.push(clean);
+      }
+    }
     await fetch(PANTRY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ leads })
+      body: JSON.stringify({ leads: outbound })
     });
   } catch(err) { console.warn('Cloud push failed', err); }
 }
@@ -621,8 +751,31 @@ async function syncFromCloud() {
     const res = await fetch(PANTRY_URL);
     if (res.ok) {
       const data = await res.json();
-      const cloudLeads = Array.isArray(data.leads) ? data.leads : [];
-      // Merge: if cloud has more leads than local, use cloud
+      const cloudLeadsRaw = Array.isArray(data.leads) ? data.leads : [];
+      // Decrypt any encrypted leads. Mark them with _wasEncrypted so pushToCloud knows to re-encrypt.
+      const cloudLeads = [];
+      for (const raw of cloudLeadsRaw) {
+        if (raw && raw.encrypted && _snPrivateKey) {
+          try {
+            const dec = await SNCrypto.decryptLead(raw, _snPrivateKey);
+            dec._wasEncrypted = true;
+            cloudLeads.push(dec);
+          } catch(e) {
+            console.warn('decrypt failed for lead', raw.id, e);
+            // Keep an opaque placeholder so we don't lose the record
+            cloudLeads.push({
+              ...raw,
+              name: '[מוצפן — שגיאת פענוח]',
+              phone: '',
+              about: '',
+              _wasEncrypted: true,
+              _decryptError: true
+            });
+          }
+        } else {
+          cloudLeads.push(raw);
+        }
+      }
       const local = loadLeads();
       const merged = mergeLeads(local, cloudLeads);
       localStorage.setItem(LEADS_KEY, JSON.stringify(merged));

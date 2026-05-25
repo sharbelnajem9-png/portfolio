@@ -22,6 +22,7 @@
 })(document);
 </script>
 <script src="../assets/userway-loader.js" defer></script>
+<script src="../assets/sn-crypto.js" defer></script>
 <script src="https://player.vimeo.com/api/player.js" defer></script>
 <style>
 :root {
@@ -1556,17 +1557,38 @@ buildTestimonials();
 const WEB3FORMS_KEY = '7e9b87a8-9683-474a-a95c-d804549dbc61';
 const PANTRY_ID = '8978df43-3859-46c3-be39-905e7a54e68b';
 const PANTRY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/leads`;
+const PUBKEY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/pubkey`;
+
+// Fetch the published public key (so we can encrypt the lead before sending).
+// If unavailable, we fall back to sending plaintext (Sharbel will see them
+// in the dashboard either way — encryption is best-effort).
+async function fetchPublicKey() {
+  try {
+    const r = await fetch(PUBKEY_URL, { cache: 'no-store' });
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (!j || !j.publicJwk || !window.SNCrypto || !SNCrypto.available) return null;
+    return await SNCrypto.importPublicKey(j.publicJwk);
+  } catch(e) { return null; }
+}
 const LEADS_KEY = 'sharbel_leads_v1';
 
 async function saveLeadToCloud(lead) {
   try {
+    // Try to encrypt before sending. If pubkey unavailable, fall back to plaintext.
+    let outbound = lead;
+    const publicKey = await fetchPublicKey();
+    if (publicKey) {
+      try { outbound = await SNCrypto.encryptLead(lead, publicKey); }
+      catch(e) { console.warn('encryption failed, sending plaintext', e); }
+    }
     const res = await fetch(PANTRY_URL);
     let leads = [];
     if (res.ok) {
       const data = await res.json();
       leads = Array.isArray(data.leads) ? data.leads : [];
     }
-    leads.unshift(lead);
+    leads.unshift(outbound);
     await fetch(PANTRY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
