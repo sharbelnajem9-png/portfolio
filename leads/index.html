@@ -449,10 +449,13 @@ body::before {
   <div class="gate-card">
     <img src="../logo.png" alt="SN">
     <h1>אזור ניהול</h1>
-    <p>הזן סיסמה כדי להמשיך</p>
+    <p id="vaultHint">הזן סיסמה + סיסמת כספת כדי להמשיך</p>
     <form onsubmit="tryLogin(event)">
-      <div class="gate-input-wrap">
-        <input type="password" id="pwd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" autofocus placeholder="••••••••">
+      <div class="gate-input-wrap" style="margin-bottom:10px">
+        <input type="password" id="pwd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" autofocus placeholder="סיסמת כניסה">
+      </div>
+      <div class="gate-input-wrap" style="margin-bottom:10px">
+        <input type="password" id="vaultPwd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" placeholder="סיסמת כספת (8+ תווים)">
       </div>
       <button type="submit">היכנס</button>
       <div class="error" id="pwdError"></div>
@@ -541,8 +544,8 @@ const REAL_PASSWORD_HASH = 'ebaaec617ab0a8fe64518523e30d3d623bbbd33d4fc0184ad941
 const PANTRY_ID = '8978df43-3859-46c3-be39-905e7a54e68b';
 const PANTRY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/leads`;
 const PUBKEY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/pubkey`;
-const VAULT_KEY = 'sn_vault_v1';          // encrypted RSA private key (localStorage)
-const PUBKEY_CACHE = 'sn_pubkey_cache_v1'; // public JWK cache (localStorage)
+const VAULT_KEY = 'sn_vault_v2';          // encrypted RSA private key (localStorage). v2 = uses separate passphrase, not login password.
+const PUBKEY_CACHE = 'sn_pubkey_cache_v2'; // public JWK cache (localStorage)
 let cloudSyncInFlight = false;
 let _snPrivateKey = null;  // decrypted RSA-OAEP private key (in-memory only)
 let _snPublicJwk = null;   // public JWK (used for re-encrypting edited leads)
@@ -557,8 +560,9 @@ async function sha256(text) {
   } catch(e) { return null; }
 }
 
-// Plaintext fallback (same level of obscurity since the hash is exposed in source anyway)
-const PASSWORD_PLAIN = 'SharbNaje8246@#';
+// Auth check is hash-only now. The plaintext fallback has been REMOVED because
+// the vault passphrase must never appear in public source. If Instagram in-app
+// webview blocks crypto.subtle, log in from real Safari/Chrome instead.
 
 // ─── Auth ───
 function togglePwd() {
@@ -568,31 +572,32 @@ function togglePwd() {
 async function tryLogin(e) {
   e.preventDefault();
   const pwd = (document.getElementById('pwd').value || '').trim();
-  if (!pwd) {
-    document.getElementById('pwdError').textContent = 'הזן סיסמה';
-    return;
-  }
+  const vaultPwd = (document.getElementById('vaultPwd').value || '').trim();
+  const err = document.getElementById('pwdError');
+  if (!pwd || !vaultPwd) { err.textContent = 'הזן את שתי הסיסמאות'; return; }
+  if (vaultPwd.length < 8) { err.textContent = 'סיסמת הכספת חייבת להיות לפחות 8 תווים'; return; }
   const hash = await sha256(pwd);
-  const ok = (hash && hash === REAL_PASSWORD_HASH) || pwd === PASSWORD_PLAIN;
-  if (!ok) {
-    document.getElementById('pwdError').textContent = 'סיסמה שגויה';
+  if (!hash || hash !== REAL_PASSWORD_HASH) {
+    err.textContent = 'סיסמת כניסה שגויה';
     document.getElementById('pwd').value = '';
     document.getElementById('pwd').focus();
     return;
   }
-  // Auth passed. Now unlock or set up the encryption vault using the SAME password.
+  // Auth passed. Unlock or set up the encryption vault using the SEPARATE vault passphrase.
   try {
-    await unlockOrSetupVault(pwd);
-  } catch(err) {
-    document.getElementById('pwdError').textContent = 'שגיאה בפענוח הכספת: ' + (err.message || err);
+    await unlockOrSetupVault(vaultPwd);
+  } catch(ex) {
+    err.textContent = 'שגיאה בפענוח הכספת — סיסמת כספת שגויה';
+    document.getElementById('vaultPwd').value = '';
+    document.getElementById('vaultPwd').focus();
     return;
   }
   sessionStorage.setItem(SESSION_KEY, '1');
   showApp();
 }
 
-// ─── Vault: setup or unlock RSA private key (gated by SAME password as login) ───
-async function unlockOrSetupVault(passphrase) {
+// ─── Vault: setup or unlock RSA private key (separate passphrase, NOT in source code) ───
+async function unlockOrSetupVault(vaultPassphrase) {
   if (!window.SNCrypto || !SNCrypto.available) {
     console.warn('Web Crypto unavailable — running without vault encryption');
     return;
@@ -600,48 +605,47 @@ async function unlockOrSetupVault(passphrase) {
   let stored = null;
   try { stored = JSON.parse(localStorage.getItem(VAULT_KEY) || 'null'); } catch(e) {}
   if (stored) {
-    // Existing vault — unlock
-    _snPrivateKey = await SNCrypto.unlockVault(stored, passphrase);
-    // Cache pubkey (may already be in localStorage; if not, fetch from Pantry)
+    // Existing v2 vault — unlock with the user-entered passphrase
+    _snPrivateKey = await SNCrypto.unlockVault(stored, vaultPassphrase);
     try { _snPublicJwk = JSON.parse(localStorage.getItem(PUBKEY_CACHE) || 'null'); } catch(e) {}
     if (!_snPublicJwk) {
       try {
         const r = await fetch(PUBKEY_URL);
-        if (r.ok) {
-          const j = await r.json();
-          if (j && j.publicJwk) { _snPublicJwk = j.publicJwk; localStorage.setItem(PUBKEY_CACHE, JSON.stringify(_snPublicJwk)); }
-        }
+        if (r.ok) { const j = await r.json(); if (j && j.publicJwk) { _snPublicJwk = j.publicJwk; localStorage.setItem(PUBKEY_CACHE, JSON.stringify(_snPublicJwk)); } }
       } catch(e) {}
     }
     return;
   }
-  // No local vault. Check if Pantry already has a published pubkey (= you've set up on another device).
+  // No local v2 vault → check if there's an existing vault in the cloud (from another device with v2)
   let remotePub = null;
   try {
     const r = await fetch(PUBKEY_URL);
     if (r.ok) { const j = await r.json(); remotePub = (j && j.publicJwk) || null; }
   } catch(e) {}
   if (remotePub) {
-    // There's already a public key in the cloud, but no private key locally.
-    // Sharbel needs to import a backup from the original device.
-    const choice = confirm('זוהתה כספת קיימת בענן, אך אין מפתח פרטי במכשיר הזה.\n\nלחץ אישור כדי לייבא קובץ גיבוי של המפתח, או בטל כדי ליצור כספת חדשה (יחליף את הקיימת — לידים מוצפנים קודמים לא יהיו ניתנים לפענוח!).');
+    const choice = confirm('זוהתה כספת קיימת בענן, אך אין מפתח פרטי במכשיר זה.\n\nאישור = ייבא קובץ גיבוי כדי להמשיך עם הכספת הקיימת.\nביטול = צור כספת חדשה (לידים מוצפנים קודמים יימחקו).');
     if (choice) {
-      await promptImportVault(passphrase);
+      await promptImportVault(vaultPassphrase);
       return;
     }
-    // Fall through to setupNewVault below
+    // Fall through to fresh setup + wipe
   }
-  // First-time setup or explicit reset
-  const setup = await SNCrypto.setupNewVault(passphrase);
+  // Fresh setup
+  const setup = await SNCrypto.setupNewVault(vaultPassphrase);
   localStorage.setItem(VAULT_KEY, JSON.stringify(setup.encryptedPrivate));
-  _snPrivateKey = await SNCrypto.unlockVault(setup.encryptedPrivate, passphrase);
+  _snPrivateKey = await SNCrypto.unlockVault(setup.encryptedPrivate, vaultPassphrase);
   _snPublicJwk = setup.publicJwk;
   localStorage.setItem(PUBKEY_CACHE, JSON.stringify(_snPublicJwk));
-  // Publish public key to Pantry so /start can encrypt with it
+  // Publish new pubkey (overwrites old)
   try {
     await fetch(PUBKEY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ publicJwk: setup.publicJwk, created: new Date().toISOString() }) });
   } catch(e) { console.warn('publish pubkey failed', e); }
-  alert('✅ הכספת הוקמה. הסיסמה שלך מצפינה את הלידים. שמור גיבוי דרך כפתור "ייצא גיבוי כספת" בסרגל הכלים.');
+  // Wipe old leads — they were encrypted with a now-discarded keypair, no point keeping unreadable junk
+  try {
+    await fetch(PANTRY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ leads: [] }) });
+    localStorage.setItem(LEADS_KEY, '[]');
+  } catch(e) { console.warn('wipe old leads failed', e); }
+  alert('✅ כספת חדשה הוקמה. רשום את הסיסמה במקום בטוח (היא לא נשמרת בשום מקום פומבי!). אחרי שתיכנס — לחץ "🔐 גיבוי כספת" והורד את הקובץ.');
 }
 
 async function promptImportVault(passphrase) {
