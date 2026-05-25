@@ -983,6 +983,159 @@ footer .nav-logo {
 /* Scroll reveals */
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s, transform 0.8s; }
 .reveal.in { opacity: 1; transform: translateY(0); }
+
+/* ─── CONSENT CHECKBOX (legal compliance — informed consent before form submit) ─── */
+.consent-row {
+  margin: 16px 0 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: right;
+}
+.consent-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  margin-top: 2px;
+  border: 1.5px solid var(--white-30);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.2s;
+}
+.consent-row input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.consent-row input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.consent-row label {
+  font-size: 12.5px;
+  color: var(--white-70);
+  font-weight: 300;
+  line-height: 1.55;
+  cursor: pointer;
+  flex: 1;
+}
+.consent-row a {
+  color: var(--accent-soft);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ─── LEGAL FOOTER (links to modals) ─── */
+.legal-footer {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--white-50);
+  padding: 14px 20px 6px;
+  font-weight: 300;
+}
+.legal-footer a {
+  color: var(--white-70);
+  text-decoration: none;
+  cursor: pointer;
+  margin: 0 6px;
+  transition: color 0.2s;
+}
+.legal-footer a:hover { color: var(--accent-soft); text-decoration: underline; }
+.legal-footer .sep { color: var(--white-30); margin: 0 2px; }
+
+/* ─── LEGAL MODALS ─── */
+.legal-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(8,10,20,0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: legalIn 0.25s ease-out;
+}
+.legal-modal-overlay.open { display: flex; }
+@keyframes legalIn { from { opacity: 0; } to { opacity: 1; } }
+.legal-modal {
+  background: #14182a;
+  border: 1px solid var(--white-15);
+  border-radius: 16px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 28px 30px;
+  color: var(--white);
+  text-align: right;
+  font-size: 14px;
+  line-height: 1.7;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+}
+.legal-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--white-15);
+}
+.legal-modal-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-soft);
+  margin: 0;
+}
+.legal-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--white-50);
+  font-size: 26px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+.legal-modal-close:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+.legal-modal h4 {
+  font-size: 14px;
+  color: var(--accent-soft);
+  margin: 18px 0 6px;
+  font-weight: 700;
+}
+.legal-modal p { margin-bottom: 10px; color: var(--white-70); font-weight: 300; }
+.legal-modal strong { color: var(--white); font-weight: 600; }
+.legal-modal ul { margin: 4px 18px 12px; }
+.legal-modal li { margin-bottom: 6px; color: var(--white-70); font-weight: 300; }
+.legal-modal .legal-note {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--white-08);
+  font-size: 11.5px;
+  color: var(--white-30);
+  font-style: italic;
+}
+.legal-modal a { color: var(--accent-soft); text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -1132,9 +1285,15 @@ footer .nav-logo {
         <label data-he="על העסק. מה אתם עושים ולמי?" data-en="About the business. What do you do, and for whom?">על העסק. מה אתם עושים ולמי?</label>
         <textarea name="about" required></textarea>
       </div>
-      <button class="submit-btn" type="submit" data-he="שלח" data-en="Send">שלח</button>
-      <p class="privacy-note" data-he="הפרטים נשמרים אצלי בלבד ולא משותפים עם צד שלישי." data-en="Your details stay with me and are never shared with third parties.">
-        הפרטים נשמרים אצלי בלבד ולא משותפים עם צד שלישי.
+      <div class="consent-row">
+        <input type="checkbox" id="consent" name="consent" required>
+        <label for="consent" data-he="קראתי את <a onclick='openLegal(&quot;privacy&quot;)'>מדיניות הפרטיות</a> ומסכים/ה לשמירת הפרטים שלי לצורך יצירת קשר חוזר." data-en="I have read the <a onclick='openLegal(&quot;privacy&quot;)'>privacy policy</a> and agree to my details being stored for the purpose of follow-up contact.">
+          קראתי את <a onclick="openLegal('privacy')">מדיניות הפרטיות</a> ומסכים/ה לשמירת הפרטים שלי לצורך יצירת קשר חוזר.
+        </label>
+      </div>
+      <button class="submit-btn" type="submit" disabled data-he="שלח" data-en="Send">שלח</button>
+      <p class="privacy-note" data-he="הפרטים שלך נשמרים במערכת ניהול הלידים שלי ונשלחים אליי במייל. <a onclick='openLegal(&quot;privacy&quot;)'>פרטים מלאים במדיניות הפרטיות</a>." data-en="Your details are stored in my lead management system and sent to me by email. <a onclick='openLegal(&quot;privacy&quot;)'>Full details in the privacy policy</a>.">
+        הפרטים שלך נשמרים במערכת ניהול הלידים שלי ונשלחים אליי במייל. <a onclick="openLegal('privacy')">פרטים מלאים במדיניות הפרטיות</a>.
       </p>
     </form>
 
@@ -1170,7 +1329,124 @@ footer .nav-logo {
   <div class="footer-copyright">
     © Sharbel Najem 2026
   </div>
+  <div class="legal-footer">
+    <a onclick="openLegal('privacy')" data-he="מדיניות פרטיות" data-en="Privacy Policy">מדיניות פרטיות</a>
+    <span class="sep">·</span>
+    <a onclick="openLegal('access')" data-he="הצהרת נגישות" data-en="Accessibility">הצהרת נגישות</a>
+    <span class="sep">·</span>
+    <a onclick="openLegal('terms')" data-he="תנאי שימוש" data-en="Terms of Use">תנאי שימוש</a>
+  </div>
 </footer>
+
+<!-- ── LEGAL MODALS ── -->
+<div class="legal-modal-overlay" id="modal-privacy" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-modal">
+    <div class="legal-modal-header">
+      <h3 data-he="מדיניות פרטיות" data-en="Privacy Policy">מדיניות פרטיות</h3>
+      <button class="legal-modal-close" onclick="closeLegal()" aria-label="סגור">×</button>
+    </div>
+    <p>דף זה פועל בהתאם ל<strong>חוק הגנת הפרטיות, התשמ"א-1981</strong> ותקנותיו.</p>
+
+    <h4>איזה מידע נאסף</h4>
+    <p>בעת מילוי טופס יצירת הקשר נאספים: <strong>שם מלא, מספר טלפון/וואטסאפ, ותיאור קצר של העסק שלך.</strong></p>
+
+    <h4>למה אנחנו אוספים את המידע</h4>
+    <p>המידע משמש <strong>רק</strong> כדי לחזור אליך עם הצעת מחיר או תיאום שיחה לגבי הפנייה שלך. אין שימוש שיווקי, אין דיוור אוטומטי, אין מכירה של המידע לצדדים שלישיים.</p>
+
+    <h4>היכן המידע נשמר ועם מי הוא משותף</h4>
+    <p>המידע מועבר ונשמר בשירותים חיצוניים הנדרשים לקליטה ולניהול הפניות:</p>
+    <ul>
+      <li><strong>Web3Forms</strong> (ארה"ב) — שירות לשליחת ההודעה אל המייל שלי.</li>
+      <li><strong>Pantry (getpantry.cloud)</strong> (ארה"ב) — שירות אחסון ענן שמאפשר לי לראות את הפנייה בלוח ניהול הלידים הפרטי שלי גם ממכשיר אחר.</li>
+      <li><strong>localStorage של הדפדפן שלך</strong> — גיבוי מקומי במכשיר ממנו שלחת, אינו עובר לאף שרת.</li>
+    </ul>
+    <p>שירותים אלו מטפלים במידע אך ורק לצורך הספקת השירות הטכני (העברת הודעה, אחסון) ואינם רשאים להשתמש בו לצרכים אחרים.</p>
+
+    <h4>משך השמירה</h4>
+    <p>הפרטים נשמרים כל עוד הם רלוונטיים ליצירת קשר עסקי, או עד <strong>7 שנים</strong> במידה והפכנו ללקוחות (לפי דרישות חוק חשבונאות). לאחר מכן הם נמחקים.</p>
+
+    <h4>הזכויות שלך</h4>
+    <p>לפי <strong>סעיפים 13 ו-14 לחוק הגנת הפרטיות</strong> מגיע לך:</p>
+    <ul>
+      <li><strong>זכות עיון</strong> — לבקש לראות את המידע שמור עליך אצלי.</li>
+      <li><strong>זכות תיקון</strong> — לבקש לעדכן מידע לא נכון.</li>
+      <li><strong>זכות מחיקה</strong> — לבקש למחוק את הפרטים מהמערכת.</li>
+    </ul>
+    <p>לכל בקשה — שלח/י מייל ל: <a href="mailto:sharbelnajem9@gmail.com">sharbelnajem9@gmail.com</a><br>הבקשה תטופל תוך <strong>30 ימים</strong> ממועד קבלתה.</p>
+
+    <h4>אבטחת מידע</h4>
+    <p>המידע מועבר בחיבור מוצפן (HTTPS). הגישה ללוח הניהול הפרטי שלי מוגנת בסיסמה. אני נוקט באמצעי אבטחה סבירים, אך אין באפשרותי להבטיח אבטחה מוחלטת.</p>
+
+    <h4>קוקיז ומעקב</h4>
+    <p>האתר לא משתמש בעוגיות מעקב (cookies). יש שימוש ב-localStorage <strong>רק</strong> לגיבוי מקומי של הטופס במכשיר שלך, ולשמירת העדפות נגישות.</p>
+
+    <h4>שינויים במדיניות</h4>
+    <p>שינויים יפורסמו בעמוד זה. השימוש המתמשך בשירות לאחר עדכון מהווה הסכמה למדיניות המעודכנת.</p>
+
+    <p class="legal-note">עדכון אחרון: 25.05.2026 · באחריות שרבל נג'ם · sharbelnajem9@gmail.com</p>
+  </div>
+</div>
+
+<div class="legal-modal-overlay" id="modal-access" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-modal">
+    <div class="legal-modal-header">
+      <h3 data-he="הצהרת נגישות" data-en="Accessibility Statement">הצהרת נגישות</h3>
+      <button class="legal-modal-close" onclick="closeLegal()" aria-label="סגור">×</button>
+    </div>
+    <p>אתר זה פועל בהתאם ל<strong>תקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), התשע"ג-2013</strong>, ומותאם לרמת AA לפי <strong>התקן הישראלי ת"י 5568</strong> המבוסס על הנחיות WCAG 2.0.</p>
+
+    <h4>אמצעי הנגישות באתר</h4>
+    <ul>
+      <li>תוסף נגישות <strong>UserWay</strong> מותקן באתר ומאפשר התאמות אישיות (הגדלת טקסט, ניגודיות, הדגשת קישורים, עצירת אנימציות ועוד).</li>
+      <li>האתר תומך בניווט באמצעות מקלדת בלבד.</li>
+      <li>האתר תואם לקוראי מסך (Screen Readers).</li>
+      <li>כל התמונות כוללות תיאור חלופי (Alt Text).</li>
+      <li>הוידאו הראשי אינו כולל סאונד אוטומטי שעלול להפריע.</li>
+      <li>ניתן לעצור את הסרטון המתנגן אוטומטית.</li>
+    </ul>
+
+    <h4>שירותים פטורים / חריגים ידועים</h4>
+    <p>אנו פועלים באופן שוטף לשיפור הנגישות. במקרים בהם נמצא רכיב שאינו נגיש במלואו — אנא צרו קשר ואנו נטפל בזה במהירות.</p>
+
+    <h4>פרטי רכז הנגישות</h4>
+    <p><strong>שרבל נג'ם</strong><br>
+    מייל: <a href="mailto:sharbelnajem9@gmail.com">sharbelnajem9@gmail.com</a><br>
+    וואטסאפ: <a href="https://wa.me/972543466880" target="_blank">054-346-6880</a></p>
+    <p>אם נתקלת בקושי בגישה לתוכן או בתפעול האתר — אנא צור קשר עם רכז הנגישות לקבלת מענה.</p>
+
+    <p class="legal-note">עדכון אחרון: 25.05.2026</p>
+  </div>
+</div>
+
+<div class="legal-modal-overlay" id="modal-terms" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-modal">
+    <div class="legal-modal-header">
+      <h3 data-he="תנאי שימוש" data-en="Terms of Use">תנאי שימוש</h3>
+      <button class="legal-modal-close" onclick="closeLegal()" aria-label="סגור">×</button>
+    </div>
+
+    <h4>קניין רוחני</h4>
+    <p>כל התכנים בדף זה — לרבות העיצוב, הטקסטים, הצילומים, סרטוני הוידאו והלוגואים — הם <strong>קניין רוחני בלעדי של שרבל נג'ם</strong>, ומוגנים על-פי חוק זכות יוצרים, התשס"ח-2007. אסור להעתיק, לשכפל או להפיץ ללא אישור בכתב.</p>
+
+    <h4>שימוש בטופס יצירת הקשר</h4>
+    <p>הטופס נועד לפניות עסקיות בלבד. אסור להשתמש בו לצרכי ספאם, פרסום, או הפצת תוכן בלתי חוקי. פניות לא רלוונטיות לא יקבלו מענה.</p>
+    <p>בלחיצה על "שלח" אתה/את מאשר/ת שהפרטים שמסרת נכונים וכי אתה/את הבעלים שלהם (או הסכמת הבעלים).</p>
+
+    <h4>אין התחייבות לתוצאה</h4>
+    <p>שליחת הטופס היא פנייה ראשונית. היא אינה מהווה חוזה. כל התקשרות עסקית בפועל תיעשה בנפרד באמצעות חוזה כתוב וחתום.</p>
+
+    <h4>הגבלת אחריות</h4>
+    <p>השירות מוצג "כפי שהוא" (AS IS). שרבל נג'ם לא יישא באחריות לנזק ישיר/עקיף שייגרם משימוש בדף, מתקלות טכניות זמניות, או מהסתמכות על המידע המוצג.</p>
+
+    <h4>סמכות שיפוט</h4>
+    <p>על תנאים אלו יחולו דיני מדינת ישראל. סמכות השיפוט הבלעדית — בתי המשפט המוסמכים במחוז תל אביב.</p>
+
+    <h4>יצירת קשר</h4>
+    <p>לבירורים: <a href="mailto:sharbelnajem9@gmail.com">sharbelnajem9@gmail.com</a></p>
+
+    <p class="legal-note">עדכון אחרון: 25.05.2026</p>
+  </div>
+</div>
 
 <script>
 // ─── Brands: build markup (CSS animation handles the scroll loop) ───
@@ -1302,6 +1578,11 @@ async function saveLeadToCloud(lead) {
 async function submitForm(e) {
   e.preventDefault();
   const form = e.target;
+  // Defensive: enforce consent server-side too (in case someone bypasses the HTML required)
+  if (!form.querySelector('#consent').checked) {
+    alert('יש לאשר את מדיניות הפרטיות לפני שליחה');
+    return;
+  }
   const btn = form.querySelector('.submit-btn');
   const original = btn.textContent;
   btn.textContent = '⏳';
@@ -1316,7 +1597,8 @@ async function submitForm(e) {
     budget: '—',
     date: new Date().toISOString(),
     status: 'new',
-    notes: ''
+    notes: '',
+    consent: { given: true, ts: new Date().toISOString(), policy_version: '2026-05-25' }
   };
 
   // Save locally (browser cache backup)
@@ -1368,6 +1650,29 @@ function toggleLang() {
   });
   document.querySelector('.lang-toggle').textContent = currentLang === 'he' ? 'EN' : 'עב';
 }
+
+// ─── Consent gate: enable submit only when checkbox is checked ───
+(function(){
+  const cb = document.getElementById('consent');
+  const btn = document.querySelector('.submit-btn');
+  if (!cb || !btn) return;
+  function sync() { btn.disabled = !cb.checked; }
+  cb.addEventListener('change', sync);
+  sync();
+})();
+
+// ─── Legal modals (Privacy / Accessibility / Terms) ───
+function openLegal(which) {
+  const modal = document.getElementById('modal-' + which);
+  if (!modal) return;
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLegal() {
+  document.querySelectorAll('.legal-modal-overlay.open').forEach(m => m.classList.remove('open'));
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLegal(); });
 </script>
 
 <noscript>Please ensure Javascript is enabled for purposes of <a href="https://userway.org">website accessibility</a></noscript>
