@@ -96,7 +96,7 @@
   // We encrypt only the sensitive fields (name, phone, about, notes, consent).
   // Outer metadata (id, date, status, budget) stays plaintext so the dashboard
   // can sort/filter/merge without unlocking the vault.
-  const SENSITIVE_FIELDS = ['name', 'phone', 'about', 'notes', 'consent'];
+  const SENSITIVE_FIELDS = ['name', 'phone', 'email', 'about', 'notes', 'consent'];
 
   async function encryptLead(lead, publicKey) {
     // Split lead into outer (plaintext) and inner (encrypted)

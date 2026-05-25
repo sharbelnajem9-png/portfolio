@@ -826,7 +826,7 @@ function renderStats() {
 function renderLeads() {
   const leads = loadLeads();
   const filtered = searchTerm
-    ? leads.filter(l => (l.name + ' ' + l.phone + ' ' + l.about + ' ' + (l.notes||'')).toLowerCase().includes(searchTerm))
+    ? leads.filter(l => (l.name + ' ' + l.phone + ' ' + (l.email||'') + ' ' + l.about + ' ' + (l.notes||'')).toLowerCase().includes(searchTerm))
     : leads;
 
   const cols = { new: [], contacted: [], meeting: [], won: [], lost: [] };
@@ -861,12 +861,13 @@ function renderCard(l) {
       </div>
       <div class="lc-meta">
         ${l.phone ? `<a href="https://wa.me/${waLink}" target="_blank" onclick="event.stopPropagation()">📱 ${escapeHtml(l.phone)}</a>` : ''}
-        ${l.budget && l.budget !== '—' ? `<span class="budget">${escapeHtml(l.budget)}</span>` : ''}
+        ${l.email ? `<a href="mailto:${escapeHtml(l.email)}" onclick="event.stopPropagation()">✉️ ${escapeHtml(l.email)}</a>` : ''}
       </div>
       ${l.about ? `<div class="lc-about">${escapeHtml(l.about)}</div>` : ''}
       <textarea class="lc-notes" placeholder="הערות..." onchange="updateNotes(${l.id}, this.value)" onclick="event.stopPropagation()" onpointerdown="event.stopPropagation()">${escapeHtml(l.notes||'')}</textarea>
       <div class="lc-foot">
         ${cleanPhone ? `<a class="lc-btn wa" href="https://wa.me/${waLink}" target="_blank" title="פתח וואטסאפ" onclick="event.stopPropagation()">💬</a>` : ''}
+        ${l.email ? `<a class="lc-btn" href="mailto:${escapeHtml(l.email)}" title="שלח מייל" onclick="event.stopPropagation()">✉️</a>` : ''}
         <button class="lc-btn del" onclick="event.stopPropagation(); deleteLead(${l.id})" title="מחק">🗑</button>
       </div>
     </div>

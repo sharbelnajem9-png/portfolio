@@ -1283,6 +1283,10 @@ footer .nav-logo {
         <input type="tel" name="phone" required>
       </div>
       <div class="field">
+        <label data-he="מייל (אופציונלי)" data-en="Email (optional)">מייל (אופציונלי)</label>
+        <input type="email" name="email" autocomplete="email" inputmode="email">
+      </div>
+      <div class="field">
         <label data-he="על העסק. מה אתם עושים ולמי?" data-en="About the business. What do you do, and for whom?">על העסק. מה אתם עושים ולמי?</label>
         <textarea name="about" required></textarea>
       </div>
@@ -1349,7 +1353,7 @@ footer .nav-logo {
     <p>דף זה פועל בהתאם ל<strong>חוק הגנת הפרטיות, התשמ"א-1981</strong> ותקנותיו.</p>
 
     <h4>איזה מידע נאסף</h4>
-    <p>בעת מילוי טופס יצירת הקשר נאספים: <strong>שם מלא, מספר טלפון/וואטסאפ, ותיאור קצר של העסק שלך.</strong></p>
+    <p>בעת מילוי טופס יצירת הקשר נאספים: <strong>שם מלא, מספר טלפון/וואטסאפ, ותיאור קצר של העסק שלך.</strong> בנוסף, אם תבחר/י למלא — <strong>כתובת מייל (אופציונלי).</strong></p>
 
     <h4>למה אנחנו אוספים את המידע</h4>
     <p>המידע משמש <strong>רק</strong> כדי לחזור אליך עם הצעת מחיר או תיאום שיחה לגבי הפנייה שלך. אין שימוש שיווקי, אין דיוור אוטומטי, אין מכירה של המידע לצדדים שלישיים.</p>
@@ -1615,6 +1619,7 @@ async function submitForm(e) {
     id: Date.now(),
     name: data.get('name') || '',
     phone: data.get('phone') || '',
+    email: (data.get('email') || '').trim(),
     about: data.get('about') || '',
     budget: '—',
     date: new Date().toISOString(),
@@ -1640,13 +1645,13 @@ async function submitForm(e) {
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
         access_key: WEB3FORMS_KEY,
-        subject: '🔥 ליד חדש: ' + lead.name + ' · ' + lead.budget,
+        subject: '🔥 ליד חדש: ' + lead.name,
         from_name: 'Sharbel Najem · Lead Intake',
-        replyto: lead.phone ? lead.phone + '@noreply.local' : undefined,
+        replyto: lead.email || (lead.phone ? lead.phone + '@noreply.local' : undefined),
         'שם מלא': lead.name,
         'וואטסאפ': lead.phone,
+        'מייל': lead.email || '—',
         'על העסק': lead.about,
-        'תקציב משוער': lead.budget,
         'נשלח בתאריך': new Date().toLocaleString('he-IL'),
         'קישור וואטסאפ ישיר': lead.phone ? 'https://wa.me/' + (lead.phone.replace(/[^\d]/g,'').replace(/^0/,'972')) : '—'
       })
