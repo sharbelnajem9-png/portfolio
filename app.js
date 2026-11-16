@@ -518,9 +518,10 @@ function setLang(l){
 }
 $('#navLang').addEventListener('click', function(){
   var to = lang === 'he' ? 'en' : 'he';
-  var run = function(){ setLang(to); setupScenes(); ScrollTrigger.refresh(); };
+  var top = function(){ scrollTo(0, 0); lenis && lenis.scrollTo(0, { immediate: true, force: true }); };   // a new language starts from the top
+  var run = function(){ setLang(to); top(); setupScenes(); ScrollTrigger.refresh(); };
   if (hasGsap && !reduce) gsap.to('main', { opacity: 0, duration: .3, onComplete: function(){ run(); gsap.to('main', { opacity: 1, duration: .6 }); } });
-  else { setLang(to); }
+  else { setLang(to); top(); }
 });
 
 /* ---------- nav ---------- */
@@ -557,9 +558,8 @@ function setupScenes(){
   $$('.card').forEach(function(c){ tilt(c, 10); }); tilt($('#aboutPhoto'), 7);
   if (!hasGsap || reduce) { root.classList.add('no-anim'); return; }
   var add = function(tw){ scenes.push(tw); return tw; };
-  // the reel tips back in 3D as it shrinks away
-  add(gsap.timeline({ scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } })
-    .to('#heroScreen', { scale: .88, rotationX: 7, borderRadius: 32, transformPerspective: 1400, ease: 'none' }, 0).to('.hero__copy', { yPercent: -20, opacity: 0, ease: 'none' }, 0));
+  // the reel stays whole and still while scrolling (no scale/tilt/rounding: that clipped the video at its corner); only the copy drifts up and fades
+  add(gsap.to('.hero__copy', { yPercent: -20, opacity: 0, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } }));
   add(gsap.to('#aboutLead .wd', { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: '#aboutLead', start: 'top 85%', end: 'bottom 55%', scrub: true } }));
   // Dream / Create / Share: the letters flip up out of the line one by one, the words close in from wide spacing,
   // and each word grows into its own weight (light, medium, heavy)
@@ -613,6 +613,8 @@ function syncReel(){ var r = frame.getBoundingClientRect(); reel.style.left = r.
 addEventListener('resize', function(){ if (reel.classList.contains('is-gate')) syncReel(); else coverReel(); });
 function enterSite(){
   reel.classList.remove('is-gate'); ['left', 'top', 'width', 'height', 'borderRadius', 'opacity'].forEach(function(k){ reel.style[k] = ''; });
+  // the site always opens at its top, whatever the browser remembered from a previous visit
+  scrollTo(0, 0); lenis && lenis.scrollTo(0, { immediate: true, force: true });
   coverReel(); gate.remove(); $('#gateBg').remove(); root.classList.remove('is-locked'); lenis && lenis.start();
   $('#nav').classList.add('is-on');
   setupScenes(); hasGsap && ScrollTrigger.refresh();
