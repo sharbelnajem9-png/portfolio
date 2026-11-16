@@ -77,7 +77,7 @@ function store(k, v){ try { if (v === undefined) return localStorage.getItem(k);
 var MEDIA = [];
 var START = { '1181270619': 6 }; // previews that open on a title card start a few seconds in
 // phones keep a single Vimeo background player alive at a time so scrolling stays smooth
-var LIVE_IF = [], MAX_IF = matchMedia('(pointer: coarse)').matches || innerWidth < 760 ? 1 : 4;
+var LIVE_IF = [], MAX_IF = matchMedia('(pointer: coarse)').matches || innerWidth < 760 ? 1 : 5;
 function mediaHTML(m){ MEDIA.push(m); return '<span class="media" data-m="' + (MEDIA.length - 1) + '"><img src="' + m.poster + '" alt="" loading="lazy" decoding="async"></span>'; }
 function vq(m){ return m.h ? 'h=' + m.h + '&' : ''; }
 function bgURL(m){ return 'https://player.vimeo.com/video/' + m.v + '?' + vq(m) + 'background=1&autoplay=1&muted=1&loop=1&playsinline=1&autopause=0&dnt=1'; }
@@ -94,7 +94,9 @@ function live(box){
   } else if (m.v) {
     el = document.createElement('iframe'); el.src = bgURL(m); el.allow = 'autoplay; fullscreen'; el.tabIndex = -1; el.title = '';
     box.appendChild(el);
-    LIVE_IF.push(box); while (LIVE_IF.length > MAX_IF) dead(LIVE_IF.shift());
+    // over the cap, a player that has scrolled away goes first, otherwise the oldest
+    LIVE_IF.push(box);
+    while (LIVE_IF.length > MAX_IF) { var far = LIVE_IF.filter(function(b){ if (b === box) return false; var r = b.getBoundingClientRect(); return r.bottom < -80 || r.top > innerHeight + 80 || r.right < 0 || r.left > innerWidth; })[0]; dead(far || LIVE_IF[0]); }
     // reveal only once Vimeo really plays; a blocked or failed embed keeps the poster
     if (window.Vimeo && Vimeo.Player) { try {
       var pl = new Vimeo.Player(el), skip = START[m.v], shown = false;
@@ -138,7 +140,7 @@ function renderServices(){
 }
 
 /* ---------- auto-advancing strips: centre the next item every few seconds, pause while touched or hovered ---------- */
-var featStrip = null, deckStrip = null, projStrips = [];
+var projStrips = [];
 function autoStrip(vp, sel, ms){
   var pause = 0, inV = false, hover = false;
   var items = function(){ return $$(sel, vp); };
@@ -153,76 +155,84 @@ function autoStrip(vp, sel, ms){
   return { step: function(d){ hold(); go(nearest() + d); }, stop: function(){ clearInterval(t); io.disconnect(); ['pointerdown', 'touchstart', 'wheel'].forEach(function(ev){ vp.removeEventListener(ev, hold); }); vp.removeEventListener('mouseenter', onEnter); vp.removeEventListener('mouseleave', onLeave); } };
 }
 
-/* ---------- featured: an endless ribbon that drifts by itself, frames turn toward the centre in 3D, the centred one plays (desktop) ---------- */
-var featActive = -1, featIn = false, featPos = 0, featHover = false, featHold = 0, featFrame = 0, featDragging = false, featRunning = false;
+/* ---------- featured: an endless ribbon that keeps drifting (a hovering mouse holds it, leaving lets it go), frames turn toward
+   the centre in 3D and the centred one plays - already while the section is on its way into view. Moved by transform, positions cached ---------- */
+var FE = { x: 0, tx: null, seg: 0, vw: 0, cx: [], frames: [], n: 0, near: false, hover: false, drag: null, hold: 0, last: 0, active: -1, tick: 0, running: false, moved: false, fresh: true };
+function featDir(){ return lang === 'he' ? 1 : -1; }   // Hebrew flows to the right, English to the left
 function renderFeatured(){
+  var d = lang === 'he' ? 'rtl' : 'ltr';
   var one = function(){ return F.map(function(m, i){
     var p = P.filter(function(x){ return x.id === m.pid; })[0];
-    return '<button type="button" class="frame frame--' + m.o + '" data-i="' + i + '"><span class="frame__media">' + mediaHTML(m) + '</span>' +
+    return '<button type="button" class="frame frame--' + m.o + '" data-i="' + i + '" dir="' + d + '"><span class="frame__media">' + mediaHTML(m) + '</span>' +
       '<span class="frame__cap"><span>' + esc(nm(p)) + '</span><span class="mono ltr">' + dur(m.d) + '</span></span></button>';
   }).join(''); };
   $('#featTrack').innerHTML = one() + one() + one();
-  $$('.frame').forEach(function(b){ b.addEventListener('click', function(e){
-    if (dragMoved) { e.preventDefault(); return; }
+  FE.frames = $$('.frame', $('#featTrack')); FE.n = F.length; FE.active = -1; FE.fresh = true;
+  FE.frames.forEach(function(b){ b.addEventListener('click', function(e){
+    if (FE.moved) { e.preventDefault(); return; }
     openLightbox(F.map(function(m){ var p = P.filter(function(x){ return x.id === m.pid; })[0]; return { m: m, title: nm(p) }; }), +b.dataset.i);
   }); });
-  featActive = -1;
-  requestAnimationFrame(function(){ featPos = featDir() * featSeg(); $('#featVp').scrollLeft = featPos; feat3D(); });
-  if (!featRunning) { featRunning = true; requestAnimationFrame(featTick); }
+  requestAnimationFrame(function(){ featLayout(); });
+  if (!FE.running) { FE.running = true; requestAnimationFrame(featTick); }
 }
-function featDir(){ return lang === 'he' ? -1 : 1; }
-function featSeg(){ return $('#featTrack').scrollWidth / 3; }
-function featNearest(){
-  var vp = $('#featVp'), r = vp.getBoundingClientRect(), mid = r.left + r.width / 2, best = -1, bd = 1e9, list = $$('.frame', vp);
-  list.forEach(function(c, i){ var b = c.getBoundingClientRect(), d = Math.abs(b.left + b.width / 2 - mid); if (d < bd) { bd = d; best = i; } });
-  return { list: list, i: best, mid: mid };
+function featLayout(){
+  if (!FE.frames.length) return;
+  FE.vw = $('#featVp').clientWidth;
+  FE.cx = FE.frames.map(function(f){ return f.offsetLeft + f.offsetWidth / 2; });
+  FE.seg = FE.frames[FE.n].offsetLeft - FE.frames[0].offsetLeft;
+  if (FE.seg <= 0) { FE.seg = 0; return; }   // the track must run left to right (dir=ltr in the markup)
+  if (FE.fresh) { FE.fresh = false; FE.x = FE.vw / 2 - FE.cx[FE.n]; }   // the first film of the middle copy starts in the centre
+  FE.tx = null; featApply(); featPick();
 }
-function featStep(d){
-  var n = featNearest(), t = n.list[Math.max(0, Math.min(n.list.length - 1, n.i + d))]; if (!t) return;
-  featHold = Date.now(); var b = t.getBoundingClientRect();
-  $('#featVp').scrollBy({ left: (b.left + b.width / 2) - n.mid, behavior: reduce ? 'auto' : 'smooth' });
+function featWrap(){   // keep the window inside the middle copy; jumping a whole copy looks identical
+  var a = -FE.x, s = 0;
+  if (a < FE.seg * .5) s = -FE.seg; else if (a > FE.seg * 1.5) s = FE.seg;
+  if (!s) return; FE.x += s; if (FE.tx !== null) FE.tx += s; if (FE.drag) FE.drag.x0 += s;
 }
-function feat3D(){
-  var vp = $('#featVp'), r = vp.getBoundingClientRect(), mid = r.left + r.width / 2, half = r.width / 2, deg = isPhone() ? 12 : 18;
-  $$('.frame', vp).forEach(function(f){
-    var b = f.getBoundingClientRect();
-    if (b.right < r.left - 400 || b.left > r.right + 400) return;
-    var d = Math.max(-1.3, Math.min(1.3, (b.left + b.width / 2 - mid) / half));
+function featApply(){
+  $('#featTrack').style.transform = 'translate3d(' + FE.x.toFixed(2) + 'px,0,0)';
+  var half = FE.vw / 2, deg = isPhone() ? 12 : 18;
+  FE.frames.forEach(function(f, i){
+    var c = FE.x + FE.cx[i]; if (c < -600 || c > FE.vw + 600) return;
+    var d = Math.max(-1.3, Math.min(1.3, (c - half) / half));
     f.style.transform = 'perspective(1300px) rotateY(' + (-d * deg).toFixed(2) + 'deg) translateZ(' + (-Math.abs(d) * 70).toFixed(1) + 'px)';
   });
 }
-function featTick(){
-  var vp = $('#featVp');
-  if (Math.abs(vp.scrollLeft - featPos) > 2) featPos = vp.scrollLeft;
-  if (featIn && !featHover && !featDragging && !reduce && !document.hidden && Date.now() - featHold > 2500) featPos += featDir() * (isPhone() ? .5 : .7);
-  var s = featSeg(), a = Math.abs(featPos);
-  if (s > 0) { if (a < s * .5) featPos += featDir() * s; else if (a > s * 1.5) featPos -= featDir() * s; }
-  if (Math.abs(vp.scrollLeft - featPos) > .4) vp.scrollLeft = featPos;
-  featFrame++;
-  if (featIn && featFrame % 2 === 0) feat3D();
-  if (featFrame % 15 === 0) pickFeatured();
+function featPick(){
+  var half = FE.vw / 2, best = -1, bd = 1e9;
+  if (FE.near) FE.cx.forEach(function(cx, i){ var d = Math.abs(FE.x + cx - half); if (d < bd) { bd = d; best = i; } });
+  if (best === FE.active) return;
+  var old = FE.frames[FE.active]; if (old) { old.classList.remove('is-active'); dead(old.querySelector('.media')); }
+  FE.active = best;
+  if (best > -1) { FE.frames[best].classList.add('is-active'); live(FE.frames[best].querySelector('.media')); }
+}
+function featStep(d){   // arrows: glide to the next or previous film, then drift on
+  var half = FE.vw / 2, base = FE.tx !== null ? FE.tx : FE.x, best = 0, bd = 1e9;
+  FE.cx.forEach(function(cx, i){ var dd = Math.abs(base + cx - half); if (dd < bd) { bd = dd; best = i; } });
+  var t = Math.max(0, Math.min(FE.frames.length - 1, best + d * (lang === 'he' ? -1 : 1)));
+  FE.tx = half - FE.cx[t]; FE.hold = Date.now() + 1800;
+}
+function featTick(tm){
+  var dt = Math.min(50, tm - (FE.last || tm)); FE.last = tm;
+  if (FE.seg && (FE.near || FE.drag)) {
+    if (FE.tx !== null && !FE.drag) { FE.x += (FE.tx - FE.x) * (1 - Math.exp(-dt / 170)); if (Math.abs(FE.tx - FE.x) < .5) { FE.x = FE.tx; FE.tx = null; } }
+    else if (!FE.hover && !FE.drag && !reduce && !document.hidden && Date.now() > FE.hold) FE.x += featDir() * dt * (isPhone() ? .03 : .042);
+    featWrap(); featApply();
+    if (++FE.tick % 8 === 0) featPick();
+  }
   requestAnimationFrame(featTick);
 }
-function pickFeatured(){
-  var frames = $$('.frame'); if (!frames.length) return;
-  var best = featIn ? featNearest().i : -1;
-  if (best === featActive) return;
-  if (featActive > -1 && frames[featActive]) { frames[featActive].classList.remove('is-active'); dead(frames[featActive].querySelector('.media')); }
-  featActive = best;
-  if (best > -1) { frames[best].classList.add('is-active'); live(frames[best].querySelector('.media')); }
-}
-var dragMoved = false;
 (function(){
-  var vp = $('#featVp'), down = false, sx = 0, sl = 0;
-  vp.addEventListener('mouseenter', function(){ featHover = true; });
-  vp.addEventListener('mouseleave', function(){ featHover = false; featHold = Date.now(); });
-  vp.addEventListener('touchstart', function(){ featHold = Date.now() + 1500; }, { passive: true });
-  vp.addEventListener('pointerdown', function(e){ if (e.pointerType !== 'mouse') return; down = true; featDragging = true; dragMoved = false; sx = e.clientX; sl = vp.scrollLeft; vp.classList.add('is-drag'); });
-  addEventListener('pointermove', function(e){ if (!down) return; var dx = e.clientX - sx; if (Math.abs(dx) > 6) dragMoved = true; vp.scrollLeft = sl - dx; });
-  addEventListener('pointerup', function(){ if (!down) return; down = false; featDragging = false; featHold = Date.now(); vp.classList.remove('is-drag'); setTimeout(function(){ dragMoved = false; }, 60); });
+  var vp = $('#featVp');
+  vp.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') FE.hover = true; });
+  vp.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') FE.hover = false; });
+  vp.addEventListener('pointerdown', function(e){ FE.drag = { sx: e.clientX, x0: FE.x }; FE.moved = false; FE.tx = null; vp.classList.add('is-drag'); });
+  addEventListener('pointermove', function(e){ if (!FE.drag) return; var dx = e.clientX - FE.drag.sx; if (Math.abs(dx) > 6) FE.moved = true; FE.x = FE.drag.x0 + dx; });
+  var end = function(){ if (!FE.drag) return; FE.drag = null; vp.classList.remove('is-drag'); FE.hold = Date.now() + 1200; setTimeout(function(){ FE.moved = false; }, 60); };
+  addEventListener('pointerup', end); addEventListener('pointercancel', end);
   $('#featPrev').addEventListener('click', function(){ featStep(-1); });
   $('#featNext').addEventListener('click', function(){ featStep(1); });
-  new IntersectionObserver(function(es){ featIn = es[0].isIntersecting; pickFeatured(); }, { threshold: .3 }).observe(vp);
+  new IntersectionObserver(function(es){ FE.near = es[0].isIntersecting; featPick(); }, { rootMargin: '60% 0px 60% 0px' }).observe(vp);
 })();
 /* ---------- projects: symmetric 9:16 cards, moving while on screen ---------- */
 var cardIO = null;
@@ -239,7 +249,7 @@ function renderProjects(){
   projStrips.forEach(function(s){ s.stop(); }); projStrips = [];
   if (isPhone()) { projStrips.push(autoStrip($('#projMain'), '.card', 3800)); projStrips.push(autoStrip($('#projStrat'), '.card', 4300)); }
   if (cardIO) cardIO.disconnect();
-  cardIO = new IntersectionObserver(function(es){ es.forEach(function(e){ var b = e.target.querySelector('.media'); if (e.isIntersecting) live(b); else dead(b); }); }, { threshold: .3 });
+  cardIO = new IntersectionObserver(function(es){ es.forEach(function(e){ var b = e.target.querySelector('.media'); if (e.isIntersecting) live(b); else dead(b); }); }, { rootMargin: '40% 0px 40% 0px' });
   $$('.card').forEach(function(c){ cardIO.observe(c); c.addEventListener('click', function(){ openTheater(+c.dataset.i, c); }); });
 }
 
@@ -253,7 +263,7 @@ function renderBrands(){
 }
 /* testimonials: an endless ribbon of equal cards. Each text gets the largest size that fills its card,
    and the card reaching the centre comes forward in 3D, its stars lighting up one by one */
-var Q = { x: 0, w: 0, vw: 0, cx: [], cards: [], row: null, inV: false, hover: false, hold: 0, drag: null, last: 0, running: false };
+var Q = { x: 0, tx: null, w: 0, vw: 0, cx: [], cards: [], row: null, inV: false, hover: false, hold: 0, drag: null, last: 0, running: false };
 function renderQuotes(){
   var d = lang === 'he' ? 'rtl' : 'ltr', stars = '<i>★</i><i>★</i><i>★</i><i>★</i><i>★</i>';
   var cards = C.quotes.map(function(q){
@@ -273,16 +283,16 @@ function quotesLayout(force){
     while (hi - lo > .25) { var mid = (lo + hi) / 2; p.style.fontSize = mid + 'px'; if (c.scrollHeight > c.clientHeight + 1) hi = mid; else lo = mid; }
     p.style.fontSize = lo + 'px'; Q.cards[k + n].querySelector('p').style.fontSize = lo + 'px';
   }
-  var was = Q.p ? Math.round((Q.o - Q.tx) / Q.p) : null;
+  var was = Q.p ? Math.round((Q.o - Q.x) / Q.p) : null;
   Q.vw = $('#qRib').clientWidth; Q.w = Q.cards[n].offsetLeft - Q.cards[0].offsetLeft; Q.n = n;
   Q.cx = Q.cards.map(function(c){ return c.offsetLeft + c.offsetWidth / 2; });
   Q.p = Q.cx[1] - Q.cx[0]; Q.o = Q.vw / 2 - Q.cx[0]; Q.kmin = Math.ceil((Q.vw / 2 - Q.cx[0]) / Q.p) + 1;
   // card k sits in the centre when x = o - k*p; keep k inside [kmin, kmin + n) so both sides of the ribbon stay filled
   var k = was === null || Q.fresh ? Q.kmin : ((was - Q.kmin) % n + n) % n + Q.kmin; Q.fresh = false;
-  Q.x = Q.tx = Q.o - k * Q.p; Q.next = Date.now() + 4200;
+  Q.x = Q.o - k * Q.p; Q.tx = null;
   quotes3D();
 }
-function quotesGo(k){ Q.tx = Q.o - k * Q.p; Q.next = Date.now() + 5200; }
+function quotesGo(k){ Q.tx = Q.o - k * Q.p; Q.hold = Date.now() + 2500; }
 function quotes3D(){
   var half = Q.vw / 2, ph = isPhone();
   Q.row.style.transform = 'translate3d(' + Q.x.toFixed(2) + 'px,0,0)';
@@ -295,29 +305,28 @@ function quotes3D(){
     c.style.setProperty('--c', f.toFixed(3));
   });
 }
-/* one card rests in the centre, then the ribbon glides to the next (an eased chase, so a drag or a tap blends in) */
+/* the ribbon keeps drifting; a hovering mouse holds it and leaving lets it go. A tap or a drag is an eased chase that blends in */
 function quotesTick(t){
   var dt = Math.min(50, t - (Q.last || t)); Q.last = t;
-  if (Q.row && Q.p) {
-    var now = Date.now();
-    if (Q.inV && !Q.hover && !Q.drag && !reduce && !document.hidden && now > Q.next) quotesGo(Math.round((Q.o - Q.tx) / Q.p) + 1);
-    if (!Q.drag) Q.x += (Q.tx - Q.x) * (reduce ? 1 : 1 - Math.exp(-dt / 210));
-    var lo = Q.o - (Q.kmin + Q.n - .5) * Q.p, hi = Q.o - (Q.kmin - .5) * Q.p;
-    if (Q.x < lo) { Q.x += Q.w; Q.tx += Q.w; if (Q.drag) Q.drag.q += Q.w; } else if (Q.x > hi) { Q.x -= Q.w; Q.tx -= Q.w; if (Q.drag) Q.drag.q -= Q.w; }
-    if (Q.inV || Q.drag) quotes3D();
+  if (Q.row && Q.p && (Q.inV || Q.drag)) {
+    if (Q.tx !== null && !Q.drag) { Q.x += (Q.tx - Q.x) * (reduce ? 1 : 1 - Math.exp(-dt / 210)); if (Math.abs(Q.tx - Q.x) < .5) { Q.x = Q.tx; Q.tx = null; } }
+    else if (!Q.hover && !Q.drag && !reduce && !document.hidden && Date.now() > Q.hold) Q.x -= dt * (isPhone() ? .03 : .04);
+    var lo = Q.o - (Q.kmin + Q.n - .5) * Q.p, hi = Q.o - (Q.kmin - .5) * Q.p, s = Q.x < lo ? Q.w : Q.x > hi ? -Q.w : 0;
+    if (s) { Q.x += s; if (Q.tx !== null) Q.tx += s; if (Q.drag) Q.drag.q += s; }
+    quotes3D();
   }
   requestAnimationFrame(quotesTick);
 }
 (function(){
   var box = $('#quoteRows');
-  new IntersectionObserver(function(es){ Q.inV = es[0].isIntersecting; if (Q.inV) Q.next = Math.max(Q.next || 0, Date.now() + 2600); }, { threshold: .1 }).observe(box);
+  new IntersectionObserver(function(es){ Q.inV = es[0].isIntersecting; }, { threshold: .05 }).observe(box);
   box.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') Q.hover = true; });
-  box.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') { Q.hover = false; Q.next = Date.now() + 2600; } });
+  box.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') Q.hover = false; });
   box.addEventListener('pointerdown', function(e){ Q.drag = { x: e.clientX, q: Q.x, moved: false }; });
   addEventListener('pointermove', function(e){ if (!Q.drag) return; var dx = e.clientX - Q.drag.x; if (Math.abs(dx) > 6) Q.drag.moved = true; Q.x = Q.drag.q + dx; });
   var end = function(e){
     if (!Q.drag) return; var d = Q.drag; Q.drag = null;
-    if (d.moved) { quotesGo(Math.round((Q.o - Q.x) / Q.p)); return; }
+    if (d.moved) { Q.hold = Date.now() + 1200; return; }
     var c = e && e.target && e.target.closest && e.target.closest('.quote');   // a tap on a side card brings it to the centre
     if (c) quotesGo(Q.cards.indexOf(c));
   };
@@ -327,58 +336,75 @@ function renderDream(){
   $$('.dw').forEach(function(w){ w.innerHTML = '<span class="dw__w">' + w.dataset.w.split('').map(function(ch){ return '<span class="dl">' + ch + '</span>'; }).join('') + '</span>'; });
 }
 
-/* ---------- campaigns: an endless fan in 3D. The front card plays; tapping another turns the fan to it; it turns by itself; swipe on phones ---------- */
-var CAMP = null, deckT = 0, deckSel = 0, deckIn = false, deckHover = false, deckShown = false, DECK_N = 0, deckSwiped = false;
+/* ---------- campaigns: an endless fan in 3D that keeps turning slowly (a hovering mouse holds it, leaving lets it go).
+   The front card plays - already on the way into view; tapping another turns the fan to it; swipe on phones ---------- */
+var CAMP = null, DK = { pos: 0, to: null, t: 0, n: 0, cards: [], sel: -1, key: '', near: false, shown: false, hover: false, hold: 0, last: 0, running: false, swiped: false };
 function renderDeck(){
   CAMP = P.filter(function(p){ return p.id === 'campaigns'; })[0];
   var sec = $('#campaigns'); sec.hidden = !CAMP; if (!CAMP) return;
   var copies = CAMP.items.length < 10 ? 2 : 1, html = '';
   for (var c = 0; c < copies; c++) html += CAMP.items.map(function(m, k){ return '<button type="button" class="dcard" data-k="' + k + '"><span class="dcard__in">' + mediaHTML(m) + '<span class="dcard__cap">' + esc(nm(m)) + '</span></span></button>'; }).join('');
   $('#deck').innerHTML = html;
-  var cards = $$('.dcard'); DECK_N = cards.length; deckSel = 0;
-  cards.forEach(function(b, i){ b.addEventListener('click', function(){
-    if (deckSwiped) return;
-    if (i === deckSel) { dead(b.querySelector('.media')); openLightbox(CAMP.items.map(function(m){ return { m: m, title: nm(m), sub: nm(CAMP) }; }), +b.dataset.k); return; }
-    selectDeck(i);
+  DK.cards = $$('.dcard'); DK.n = DK.cards.length; DK.pos = 0; DK.to = null; DK.key = '';
+  DK.cards.forEach(function(b, i){ b.addEventListener('click', function(){
+    if (DK.swiped) return;
+    if (i === DK.sel) { dead(b.querySelector('.media')); openLightbox(CAMP.items.map(function(m){ return { m: m, title: nm(m), sub: nm(CAMP) }; }), +b.dataset.k); return; }
+    deckGo(i);
   }); });
-  if (reduce || !hasGsap) deckT = 1;
-  layoutDeck(deckT, true); playDeck();
+  if (reduce || !hasGsap) DK.t = 1;
+  layoutDeck(); playDeck();
+  if (!DK.running) { DK.running = true; requestAnimationFrame(deckTick); }
 }
-function deckOff(i){ var k = ((i - deckSel) % DECK_N + DECK_N) % DECK_N; return k > DECK_N / 2 ? k - DECK_N : k; }
-function playDeck(){ $$('.dcard').forEach(function(c, i){ var box = c.querySelector('.media'), sel = i === deckSel; c.classList.toggle('is-sel', sel); if (sel && deckIn) live(box); else dead(box); }); }
-function selectDeck(i){ if (!DECK_N) return; deckSel = (i % DECK_N + DECK_N) % DECK_N; layoutDeck(deckT); playDeck(); }
-function layoutDeck(t, instant){
-  deckT = t; var cards = $$('.dcard'); if (!cards.length) return;
-  var ph = isPhone(), w = cards[0].offsetWidth, dir = lang === 'he' ? -1 : 1, spread = w * (ph ? .6 : .74), vis = ph ? 2 : 3;
+function deckOff(i){ var n = DK.n, k = ((i - DK.pos) % n + n) % n; return k > n / 2 ? k - n : k; }
+function deckGo(i){   // the short way round to card i
+  if (!DK.n) return; var n = DK.n, cur = DK.to !== null ? DK.to : DK.pos, d = ((i - cur) % n + n) % n; if (d > n / 2) d -= n;
+  DK.to = cur + d; DK.hold = Date.now() + 2200;
+}
+function layoutDeck(){
+  var cards = DK.cards; if (!cards.length) return;
+  var t = DK.t, ph = isPhone(), w = cards[0].offsetWidth || 1, dir = lang === 'he' ? -1 : 1, spread = w * (ph ? .6 : .74), vis = ph ? 2 : 3;
   cards.forEach(function(c, i){
-    var k = deckOff(i), a = Math.abs(k), show = a <= vis;
-    c.style.pointerEvents = show ? '' : 'none';
-    if (!hasGsap) { c.style.opacity = show ? 1 : 0; return; }
-    gsap.to(c, { x: dir * k * spread * t, y: (a * a * (ph ? 6 : 9) + (a ? 18 : 0)) * t + (1 - t) * 50, rotation: dir * k * 5 * t, rotationY: -dir * k * 12 * t,
-      scale: k === 0 ? 1 + .1 * t : .9, opacity: show ? (a === vis ? .5 : 1) * Math.min(1, t * 1.6) : 0, zIndex: 100 - a * 2, transformPerspective: 1200,
-      duration: instant ? 0 : .8, ease: 'expo.out', overwrite: 'auto' });
+    var k = deckOff(i), a = Math.abs(k);
+    if (a > vis + 1) { if (c._on !== false) { c._on = false; c.style.opacity = 0; c.style.pointerEvents = 'none'; } return; }
+    c._on = true;
+    var x = dir * k * spread * t, y = (a * a * (ph ? 6 : 9) + Math.min(1, a) * 18) * t + (1 - t) * 50,
+      s = .9 + .2 * Math.max(0, 1 - a) * t, op = Math.max(0, Math.min(1, vis + .6 - a)) * Math.min(1, t * 1.6);
+    c.style.transform = 'perspective(1200px) translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) rotate(' + (dir * k * 5 * t).toFixed(2) + 'deg) rotateY(' + (-dir * k * 12 * t).toFixed(2) + 'deg) scale(' + s.toFixed(3) + ')';
+    c.style.opacity = op.toFixed(3); c.style.zIndex = String(1000 - Math.round(a * 100));
+    c.style.pointerEvents = a <= vis + .2 ? '' : 'none';
   });
+}
+function playDeck(){
+  if (!DK.n) return;
+  var sel = ((Math.round(DK.pos) % DK.n) + DK.n) % DK.n, key = sel + (DK.near ? 'n' : 'f');
+  if (key === DK.key) return; DK.key = key; DK.sel = sel;
+  DK.cards.forEach(function(c, i){ var box = c.querySelector('.media'), on = i === sel; c.classList.toggle('is-sel', on); if (on && DK.near) live(box); else dead(box); });
+}
+function deckTick(tm){
+  var dt = Math.min(50, tm - (DK.last || tm)); DK.last = tm;
+  if (DK.n && (DK.near || DK.to !== null)) {
+    if (DK.to !== null) { DK.pos += (DK.to - DK.pos) * (1 - Math.exp(-dt / 260)); if (Math.abs(DK.to - DK.pos) < .002) { DK.pos = DK.to; DK.to = null; } }
+    else if (DK.shown && DK.t >= 1 && !DK.hover && !reduce && !document.hidden && Date.now() > DK.hold) DK.pos += dt / 4200;
+    layoutDeck(); playDeck();
+  }
+  requestAnimationFrame(deckTick);
 }
 (function(){
   var deck = $('#deck'), sx = null;
-  deck.addEventListener('mouseenter', function(){ deckHover = true; }); deck.addEventListener('mouseleave', function(){ deckHover = false; });
-  deck.addEventListener('pointerdown', function(e){ sx = e.clientX; deckSwiped = false; });
+  deck.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') DK.hover = true; });
+  deck.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') DK.hover = false; });
+  deck.addEventListener('pointerdown', function(e){ sx = e.clientX; DK.swiped = false; });
   deck.addEventListener('pointerup', function(e){
     if (sx === null) return; var dx = e.clientX - sx; sx = null;
-    if (Math.abs(dx) > 40) { deckSwiped = true; selectDeck(deckSel + (dx > 0 ? 1 : -1) * (lang === 'he' ? 1 : -1)); setTimeout(function(){ deckSwiped = false; }, 60); }
+    if (Math.abs(dx) > 40) { DK.swiped = true; deckGo(DK.sel + (dx > 0 ? 1 : -1) * (lang === 'he' ? 1 : -1)); setTimeout(function(){ DK.swiped = false; }, 60); }
   });
+  new IntersectionObserver(function(es){ DK.near = es[0].isIntersecting; playDeck(); }, { rootMargin: '60% 0px 60% 0px' }).observe(deck);
   new IntersectionObserver(function(es){
-    deckIn = es[0].isIntersecting;
-    if (deckIn && !deckShown) {
-      deckShown = true;
-      if (hasGsap && !reduce) { var p = { t: deckT }; gsap.to(p, { t: 1, duration: 1.6, ease: 'expo.out', onUpdate: function(){ layoutDeck(p.t, true); } }); }
-      else layoutDeck(1, true);
-    }
-    playDeck();
+    if (!es[0].isIntersecting || DK.shown) return; DK.shown = true;
+    if (hasGsap && !reduce) gsap.to(DK, { t: 1, duration: 1.6, ease: 'expo.out' }); else { DK.t = 1; layoutDeck(); }
   }, { threshold: .3 }).observe(deck);
-  setInterval(function(){ if (!DECK_N || !deckIn || deckHover || reduce || document.hidden || deckT < 1) return; selectDeck(deckSel + 1); }, 3200);
-  $('#deckPrev').addEventListener('click', function(){ selectDeck(deckSel - 1); });
-  $('#deckNext').addEventListener('click', function(){ selectDeck(deckSel + 1); });
+  $('#deckPrev').addEventListener('click', function(){ deckGo(DK.sel - 1); });
+  $('#deckNext').addEventListener('click', function(){ deckGo(DK.sel + 1); });
 })();
 /* ---------- section dividers ---------- */
 var RULES = [['services', 'nServices'], ['highlights', 'nHighlights'], ['campaigns', 'nCampaigns'], ['projects', 'nProjects'], ['brands', 'nBrands'], ['testimonials', 'nTestimonials'], ['contact', 'nContact']];
@@ -562,7 +588,7 @@ function setupScenes(){
 /* ---------- smooth scroll ---------- */
 var lenis = null;
 if (hasGsap && window.Lenis && !reduce) {
-  lenis = new Lenis({ lerp: .1, smoothWheel: true });
+  lenis = new Lenis({ lerp: .15, smoothWheel: true });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add(function(time){ lenis.raf(time * 1000); }); gsap.ticker.lagSmoothing(0);
   lenis.stop();
@@ -601,7 +627,7 @@ function startGate(){
   var ready = new Promise(function(res){
     if (window.Vimeo && Vimeo.Player) { try { new Vimeo.Player(rf).on('play', function(){ res(); }); } catch (e) {} }
     else rf.addEventListener('load', function(){ setTimeout(res, 900); }, { once: true });
-    setTimeout(res, 5000);
+    setTimeout(res, 2200);
   });
   if (!hasGsap || reduce) {
     frame.style.width = endW + 'px'; frame.style.height = endW * 9 / 16 + 'px'; syncReel(); reel.style.opacity = 1;
@@ -609,26 +635,26 @@ function startGate(){
   } else {
     var c = { v: 0 }, upd = function(){ count.textContent = String(Math.round(c.v)).padStart(3, '0'); };
     var tl = gsap.timeline({ onUpdate: syncReel });
-    tl.to('#gateLogo', { opacity: 1, duration: .6 })
-      .from(frame, { opacity: 0, scale: .9, duration: .6, ease: 'expo.out' }, '<')
-      .to(c, { v: 62, duration: 1.3, ease: 'power2.inOut', onUpdate: upd })
-      .to(frame, { width: endW, height: endW * 9 / 16, duration: .9, ease: 'expo.inOut', onStart: function(){ $('#gateRatio').textContent = '16:9'; } }, '-=.5');
+    tl.to('#gateLogo', { opacity: 1, duration: .4 })
+      .from(frame, { opacity: 0, scale: .9, duration: .5, ease: 'expo.out' }, '<')
+      .to(c, { v: 62, duration: .8, ease: 'power2.inOut', onUpdate: upd })
+      .to(frame, { width: endW, height: endW * 9 / 16, duration: .7, ease: 'expo.inOut', onStart: function(){ $('#gateRatio').textContent = '16:9'; } }, '-=.4');
     ready.then(function(){
       gsap.timeline({ delay: Math.max(0, tl.duration() - tl.time()), onUpdate: syncReel })
-        .to(c, { v: 100, duration: .7, ease: 'power2.out', onUpdate: upd })
-        .to(reel, { opacity: 1, duration: .9 }, '-=.4')
-        .to(['#gatePrompt', langs], { opacity: 1, duration: .6, stagger: .1, onComplete: arm }, '-=.4');
+        .to(c, { v: 100, duration: .45, ease: 'power2.out', onUpdate: upd })
+        .to(reel, { opacity: 1, duration: .6 }, '-=.3')
+        .to(['#gatePrompt', langs], { opacity: 1, duration: .45, stagger: .08, onComplete: arm }, '-=.35');
     });
   }
   btns.forEach(function(b){ b.addEventListener('click', function(){
     langs.classList.remove('is-on'); btns.forEach(function(x){ x.disabled = true; });
-    setLang(b.dataset.lang);
+    if (b.dataset.lang !== lang) setLang(b.dataset.lang); else store('sn-lang', lang);
     if (!hasGsap || reduce) { enterSite(); return; }
     var r = frame.getBoundingClientRect();
     gsap.set(frame, { position: 'fixed', left: r.left, top: r.top, width: r.width, height: r.height, margin: 0 });
     gsap.timeline({ onComplete: enterSite, onUpdate: syncReel })
       .to([langs, '#gatePrompt', '.gate__meta', '#gateLogo', '#gateRatio', '.gate__corner'], { opacity: 0, duration: .3 }, 0)
-      .to(frame, { left: 0, top: 0, width: innerWidth, height: innerHeight, borderRadius: 0, borderColor: 'rgba(255,255,255,0)', duration: 1.05, ease: 'expo.inOut' }, .12);
+      .to(frame, { left: 0, top: 0, width: innerWidth, height: innerHeight, borderRadius: 0, borderColor: 'rgba(255,255,255,0)', duration: .8, ease: 'expo.inOut' }, .08);
   }); });
 }
 
@@ -638,6 +664,6 @@ renderBrands();
 renderDream();
 syncReel();
 startGate();
-var rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(function(){ hasGsap && ScrollTrigger.refresh(); layoutDeck(deckT, true); pickFeatured(); quotesLayout(); }, 250); });
+var rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(function(){ hasGsap && ScrollTrigger.refresh(); layoutDeck(); featLayout(); quotesLayout(); }, 250); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ quotesLayout(true); });
 })();

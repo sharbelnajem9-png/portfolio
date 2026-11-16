@@ -41,9 +41,9 @@ html[lang="he"] .label{letter-spacing:.06em}
 html[lang="en"] .h2{letter-spacing:.005em}
 .sec{padding-block:clamp(36px,5.5vh,72px)}
 /* reveal on enter (IntersectionObserver): never leaves content hidden if the observer fires late */
-.rv{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease) var(--d,0ms),transform .9s var(--ease) var(--d,0ms)}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease) var(--d,0ms),transform .6s var(--ease) var(--d,0ms)}
 .rv.in{opacity:1;transform:none}
-.rvo{opacity:0;transition:opacity 1s var(--ease) var(--d,0ms)}
+.rvo{opacity:0;transition:opacity .7s var(--ease) var(--d,0ms)}
 .rvo.in{opacity:1}
 /* soft light behind the video areas for depth */
 #highlights,#campaigns,#projects{position:relative;isolation:isolate}
@@ -165,10 +165,10 @@ html[dir="ltr"] .rule__line{transform-origin:0 50%}
 .icon-btn:hover{background:rgba(255,255,255,.16)}
 .icon-btn svg{width:20px;height:20px}
 html[dir="rtl"] .flip-x{transform:scaleX(-1)}
-.feat__vp{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;cursor:grab;-webkit-overflow-scrolling:touch;padding-block:24px 10px}
+.feat__vp{overflow:hidden;cursor:grab;touch-action:pan-y;-webkit-user-select:none;user-select:none;padding-block:24px 10px}
 .feat__vp::-webkit-scrollbar{display:none}
 .feat__vp.is-drag{cursor:grabbing}
-.feat__track{display:flex;align-items:center;gap:clamp(14px,1.5vw,22px);width:max-content;padding-bottom:8px}
+.feat__track{position:relative;will-change:transform;display:flex;align-items:center;gap:clamp(14px,1.5vw,22px);width:max-content;padding-bottom:8px}
 .strip-ctrls{display:flex;justify-content:center;gap:8px;margin-top:14px}
 .strip-ctrls .icon-btn{width:40px;height:40px;border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
 .strip-ctrls .icon-btn svg{width:16px;height:16px}
@@ -249,6 +249,10 @@ html[dir="rtl"] .flip-x{transform:scaleX(-1)}
 .dcard.is-sel .dcard__in{box-shadow:0 34px 90px rgba(0,0,0,.65),0 0 0 1px rgba(212,168,83,.55),inset 0 1px 0 rgba(255,255,255,.2)}
 .dcard__cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:40px 14px 14px;font-size:14px;font-weight:700;line-height:1.3;text-align:start;background:linear-gradient(to top,rgba(10,12,15,.9),transparent)}
 @media (max-width:760px){.deck{--cw:44vw;height:calc(var(--cw) * 16 / 9 + 90px)}.dcard{top:46%}.dcard__cap{font-size:12px;padding:30px 10px 10px}}
+
+/* glass blur only where something moves behind it: flat-backed tiles and tags over playing video skip the blur pass */
+.svc.glass,.card__tag.glass{-webkit-backdrop-filter:none;backdrop-filter:none}
+.card__tag.glass{background:rgba(17,19,23,.58)}
 
 /* ---------- testimonials: equal cards on an endless ribbon; the centre card comes forward (JS sets --c 0..1) ---------- */
 .qrib{position:relative;overflow:hidden;padding-block:34px;touch-action:pan-y;-webkit-user-select:none;user-select:none;cursor:grab;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}

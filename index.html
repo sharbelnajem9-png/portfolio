@@ -114,7 +114,7 @@
     <div class="sec__head wrap">
       <div><span class="label" data-t="featLabel"></span><h2 class="h2" id="featTitle" data-t="featTitle"></h2></div>
     </div>
-    <div class="feat__vp" id="featVp"><div class="feat__track" id="featTrack"></div></div>
+    <div class="feat__vp" id="featVp" dir="ltr"><div class="feat__track" id="featTrack"></div></div>
     <div class="strip-ctrls">
       <button type="button" class="icon-btn glass" id="featPrev"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="sr" data-t="prev"></span></button>
       <button type="button" class="icon-btn glass" id="featNext"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span class="sr" data-t="next"></span></button>
@@ -272,7 +272,8 @@
 <script src="content.js"></script>
 <script src="app.js"></script>
 <script>
-(function(){ var s = document.createElement('script'); s.setAttribute('data-account', 'yZwFbWSvDL'); s.setAttribute('data-trigger', 'userwayTrigger'); s.setAttribute('src', 'https://cdn.userway.org/widget.js'); s.defer = true; document.body.appendChild(s); })();
+// the accessibility widget loads once the page has settled, so it never competes with the first paint
+addEventListener('load', function(){ setTimeout(function(){ var s = document.createElement('script'); s.setAttribute('data-account', 'yZwFbWSvDL'); s.setAttribute('data-trigger', 'userwayTrigger'); s.setAttribute('src', 'https://cdn.userway.org/widget.js'); s.defer = true; document.body.appendChild(s); }, 1200); });
 </script>
 </body>
 </html>
