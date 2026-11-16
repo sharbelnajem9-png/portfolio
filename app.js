@@ -562,10 +562,10 @@ function setupScenes(){
     .to('#heroScreen', { scale: .88, rotationX: 7, borderRadius: 32, transformPerspective: 1400, ease: 'none' }, 0).to('.hero__copy', { yPercent: -20, opacity: 0, ease: 'none' }, 0));
   add(gsap.to('#aboutLead .wd', { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: '#aboutLead', start: 'top 85%', end: 'bottom 55%', scrub: true } }));
   // Dream / Create / Share: the letters flip up out of the line one by one, the words close in from wide spacing,
-  // and each word grows into its own weight (light, regular, bold)
+  // and each word grows into its own weight (light, medium, heavy)
   if (!root._dreamIO) {
     var dls = $$('.dl'), dws = $$('.dw__w'), ls = dws.map(function(w){ return getComputedStyle(w).letterSpacing; });
-    gsap.set(dls, { opacity: 0, yPercent: 70, rotationX: -85, transformPerspective: 700, transformOrigin: '50% 100%', fontWeight: 100 });
+    gsap.set(dls, { opacity: 0, yPercent: 70, rotationX: -85, transformPerspective: 700, transformOrigin: '50% 100%', fontWeight: 200 });
     gsap.set(dws, { letterSpacing: '.4em' });
     gsap.set('.dream img', { opacity: 0, rotationY: -90, transformPerspective: 600 });
     root._dreamIO = new IntersectionObserver(function(es){

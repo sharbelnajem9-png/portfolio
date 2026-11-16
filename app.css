@@ -298,14 +298,14 @@ html[dir="rtl"] .flip-x{transform:scaleX(-1)}
 .copy{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line-2);background:none;color:var(--ink-2);font-size:13px;cursor:pointer}
 .dream{display:flex;flex-direction:column;align-items:center;gap:22px;padding-block:24px 96px;overflow:hidden}
 .dream img{width:64px;height:64px;opacity:.9}
-/* Dream / Create / Share: one font (Jost), one line, the weight climbs a step per word - light, regular, bold */
-.dream__words{display:flex;flex-wrap:nowrap;justify-content:center;align-items:baseline;gap:clamp(16px,2.4vw,44px);padding-inline:16px;font-family:'Jost',var(--f-en);text-transform:uppercase;color:var(--ink);perspective:900px}
+/* Dream / Create / Share: one font (Assistant, the site's own), one line, the weight climbs a step per word - light, medium, heavy */
+.dream__words{display:flex;flex-wrap:nowrap;justify-content:center;align-items:baseline;gap:clamp(16px,2.4vw,44px);padding-inline:16px;font-family:'Assistant',var(--f-en);text-transform:uppercase;color:var(--ink);perspective:900px}
 .dw{display:block}
-.dw__w{display:inline-block;font-size:clamp(26px,5.6vw,100px);line-height:1.1;letter-spacing:.08em;white-space:nowrap;margin-inline-end:-.08em}
+.dw__w{display:inline-block;font-size:clamp(26px,5.6vw,100px);line-height:1.1;letter-spacing:.06em;white-space:nowrap;margin-inline-end:-.06em}
 .dl{display:inline-block;will-change:transform}
-.dw:nth-child(1) .dw__w{font-weight:300}
+.dw:nth-child(1) .dw__w{font-weight:200}
 .dw:nth-child(2) .dw__w{font-weight:500;color:var(--gold)}
-.dw:nth-child(3) .dw__w{font-weight:700}
+.dw:nth-child(3) .dw__w{font-weight:800}
 .dream.is-done .dw__w{transition:letter-spacing .6s var(--ease)}
 .dream.is-done .dw:hover .dw__w{letter-spacing:.14em}
 @media (max-width:640px){.dw__w{font-size:6vw;letter-spacing:.05em}.dream__words{gap:2.8vw}}
