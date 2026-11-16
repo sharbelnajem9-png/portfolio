@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://i.vimeocdn.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Manrope:wght@300;400&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Manrope:wght@200..800&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="app.css">
 <script>document.documentElement.classList.add('js','is-locked');</script>
 </head>
@@ -113,22 +113,32 @@
   <section class="sec feat" id="highlights" aria-labelledby="featTitle">
     <div class="sec__head wrap">
       <div><span class="label" data-t="featLabel"></span><h2 class="h2" id="featTitle" data-t="featTitle"></h2></div>
-      <div class="feat__ctrls">
-        <button type="button" class="icon-btn glass" id="featPrev"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="sr" data-t="prev"></span></button>
-        <button type="button" class="icon-btn glass" id="featNext"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span class="sr" data-t="next"></span></button>
-      </div>
     </div>
     <div class="feat__vp" id="featVp"><div class="feat__track" id="featTrack"></div></div>
+    <div class="strip-ctrls">
+      <button type="button" class="icon-btn glass" id="featPrev"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="sr" data-t="prev"></span></button>
+      <button type="button" class="icon-btn glass" id="featNext"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span class="sr" data-t="next"></span></button>
+    </div>
   </section>
 
   <section class="sec camp" id="campaigns" aria-labelledby="campTitle">
     <div class="sec__head wrap"><div><span class="label" data-t="campLabel"></span><h2 class="h2" id="campTitle" data-t="campTitle"></h2><p class="sec__sub" data-t="campSub"></p></div></div>
     <div class="deck" id="deck"></div>
+    <div class="strip-ctrls">
+      <button type="button" class="icon-btn glass" id="deckPrev"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="sr" data-t="prev"></span></button>
+      <button type="button" class="icon-btn glass" id="deckNext"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span class="sr" data-t="next"></span></button>
+    </div>
   </section>
 
   <section class="sec wrap" id="projects" aria-labelledby="projTitle">
     <div class="sec__head"><div><span class="label" data-t="projLabel"></span><h2 class="h2" id="projTitle" data-t="projTitle"></h2></div></div>
-    <div class="proj-grid" id="projGrid"></div>
+    <div class="proj-grid proj-grid--main" id="projMain"></div>
+    <div class="group-head">
+      <span class="label" data-t="stratLabel"></span>
+      <h3 class="group-head__title" data-t="stratTitle"></h3>
+      <p class="group-head__sub" data-t="stratSub"></p>
+    </div>
+    <div class="proj-grid proj-grid--strat" id="projStrat"></div>
   </section>
 
   <section class="sec brands" id="brands" aria-labelledby="brandsTitle">
@@ -146,10 +156,6 @@
     <p class="contact__pre" data-t="contactPre"></p>
     <h2 class="contact__big" data-th="contactBig"></h2>
     <a class="btn magnet" id="magnet" href="start/"><span data-t="contactBtn"></span><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-    <div class="contact__row">
-      <span class="mono" id="mail">sharbelnajem9@gmail.com</span>
-      <button type="button" class="copy" id="copyMail" data-t="copy"></button>
-    </div>
   </section>
 
   <section class="dream" aria-hidden="true">
