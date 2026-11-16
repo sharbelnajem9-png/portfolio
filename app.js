@@ -30,7 +30,7 @@ var T = {
     contactLabel: 'בואו נדבר', contactPre: 'אני עובד עם 2 עסקים בחודש בלבד.', contactQ: 'מוכנים להפוך את החזון למציאות?', contactA: 'בואו ניצור תוכן ש<em>עושה אימפקט</em>.',
     contactBtn: 'בואו נדבר', copy: 'העתקה', copied: 'הועתק',
     copyright: '© 2026 שרבל נג׳ם. כל הזכויות שמורות.', lAccess: 'נגישות', lPrivacy: 'מדיניות פרטיות', lTerms: 'תנאי שימוש',
-    films: 'סרטים', reels: 'רילס', close: 'סגירה', prev: 'הקודם', next: 'הבא', nextProject: 'הפרויקט הבא', open: 'לפרויקט', play: 'צפייה',
+    films: 'סרטים', reels: 'רילס', close: 'סגירה', prev: 'הקודם', next: 'הבא', upNext: 'הבא בתור', nextIn: 'הבא בעוד', playNow: 'נגן עכשיו', cancel: 'ביטול', nextProject: 'הפרויקט הבא', open: 'לפרויקט', play: 'צפייה',
     lang: 'EN', langLabel: 'Switch to English',
     cats: { food: 'אוכל ואירוח', people: 'אנשים ומותגים', business: 'עסקים', travel: 'תיירות', defense: 'ביטחון' }
   },
@@ -52,7 +52,7 @@ var T = {
     contactLabel: "Let's Talk", contactPre: 'I work with only 2 businesses a month.', contactQ: 'Ready to bring your vision to life?', contactA: "Let's create content that <em>makes an impact</em>.",
     contactBtn: "Let's Talk", copy: 'Copy', copied: 'Copied',
     copyright: '© 2026 Sharbel Najem. All rights reserved.', lAccess: 'Accessibility', lPrivacy: 'Privacy Policy', lTerms: 'Terms of Use',
-    films: 'Films', reels: 'Reels', close: 'Close', prev: 'Previous', next: 'Next', nextProject: 'Next project', open: 'Open', play: 'Play',
+    films: 'Films', reels: 'Reels', close: 'Close', prev: 'Previous', next: 'Next', upNext: 'Up next', nextIn: 'Next in', playNow: 'Play now', cancel: 'Cancel', nextProject: 'Next project', open: 'Open', play: 'Play',
     lang: 'עב', langLabel: 'עברו לעברית',
     cats: { food: 'Food & Events', people: 'People & Brands', business: 'Business', travel: 'Travel', defense: 'Defense' }
   }
@@ -181,7 +181,7 @@ function renderFeatured(){
   FE.frames = $$('.frame', $('#featTrack')); FE.n = F.length; FE.active = -1; FE.fresh = true;
   FE.frames.forEach(function(b){ b.addEventListener('click', function(e){
     if (FE.moved) { e.preventDefault(); return; }
-    openLightbox(F.map(function(m){ var p = P.filter(function(x){ return x.id === m.pid; })[0]; return { m: m, title: nm(p) }; }), +b.dataset.i);
+    openSet('featured', F[+b.dataset.i]);
   }); });
   requestAnimationFrame(function(){ featLayout(); });
   if (!FE.running) { FE.running = true; requestAnimationFrame(featTick); }
@@ -355,7 +355,7 @@ function renderDeck(){
   DK.cards = $$('.dcard'); DK.n = DK.cards.length; DK.pos = 0; DK.to = null; DK.key = '';
   DK.cards.forEach(function(b, i){ b.addEventListener('click', function(){
     if (DK.swiped) return;
-    if (i === DK.sel) { dead(b.querySelector('.media')); openLightbox(CAMP.items.map(function(m){ return { m: m, title: nm(m), sub: nm(CAMP) }; }), +b.dataset.k); return; }
+    if (i === DK.sel) { dead(b.querySelector('.media')); openSet(CAMP.id, CAMP.items[+b.dataset.k]); return; }
     deckGo(i);
   }); });
   if (reduce || !hasGsap) DK.t = 1;
@@ -438,7 +438,7 @@ function fillTheater(i, later){
   $('#thFilmsWrap').hidden = !films.length; $('#thReelsWrap').hidden = !reels.length;
   $$('#theater .clip').forEach(function(b, k){
     var box = b.querySelector('.media');
-    b.addEventListener('click', function(){ dead(box); openLightbox(list.map(function(m){ return { m: m, title: nm(m), sub: nm(p) }; }), k); });
+    b.addEventListener('click', function(){ dead(box); openSet(p.id, list[k]); });
   });
   $('#thNextName').textContent = nm(P[(i + 1) % P.length]);
   $('#thScroll').scrollTop = 0;
@@ -483,42 +483,154 @@ $('#thNext').addEventListener('click', function(){
   else fillTheater(n);
 });
 
-/* ---------- lightbox: the full film at its own ratio, never cropped ---------- */
-var lbList = [], lbI = 0;
-function sizeBox(){
-  var it = lbList[lbI]; if (!it) return; var r = ratio(it.m), st = $('#lbStage');
-  var w = Math.min(st.clientWidth * .92, st.clientHeight * .9 * r);
-  $('#lbBox').style.width = w + 'px'; $('#lbBox').style.height = (w / r) + 'px';
+/* ---------- צופה בסגנון נטפליקס: הסרטון בגודל וביחס המקוריים במרכז הבמה, הקודם והבא מציצים בצדדים, רצועת כל הסרטונים למטה,
+   ספירה לאחור והמעבר לבא בסוף, מעבר בכיוון הקריאה, והממשק נעלם בזמן צפייה ---------- */
+var lbList = [], lbI = 0, lbPl = null, lbCancel = false, lbIdleT = null, LB_SETS = [], lbSet = 0, railSet = 0;
+// אוספי הצפייה: המועדפים ואחריהם כל הפרויקטים בסדר שלהם (סרטים ואחריהם רילס, כמו בעמוד הפרויקט)
+function lbBuildSets(){
+  var sets = [{ key: 'featured', name: L().featTitle, items: F.map(function(m){ var p = P.filter(function(x){ return x.id === m.pid; })[0]; return { m: m, title: nm(p) }; }) }];
+  P.forEach(function(p){ var films = p.items.filter(function(x){ return x.o === 'l'; }), reels = p.items.filter(function(x){ return x.o === 'p'; });
+    sets.push({ key: p.id, name: nm(p), items: films.concat(reels).map(function(m){ return { m: m, title: nm(m), sub: nm(p) }; }) }); });
+  return sets;
 }
-function showLb(){
-  var it = lbList[lbI], m = it.m, box = $('#lbBox');
-  // the backdrop is the film itself, blurred into light; two layers cross-fade when stepping between films
+function openSet(key, m){
+  LB_SETS = lbBuildSets(); var s = Math.max(0, LB_SETS.map(function(x){ return x.key; }).indexOf(key));
+  var i = Math.max(0, LB_SETS[s].items.map(function(x){ return x.m; }).indexOf(m));
+  lbSet = railSet = s; openLightbox(LB_SETS[s].items, i);
+}
+// השכן בכיוון d: בתוך האוסף, ובקצה שלו - הסרטון הראשון של הפרויקט הבא (או האחרון של הקודם)
+function lbNb(d){
+  var i = lbI + d, s = lbSet, N = LB_SETS.length;
+  if (i >= lbList.length) { s = (s + 1) % N; i = 0; } else if (i < 0) { s = (s - 1 + N) % N; i = LB_SETS[s].items.length - 1; }
+  return { s: s, i: i, it: LB_SETS[s].items[i] };
+}
+function pad2(x){ return (x < 10 ? '0' : '') + x; }
+function sizeBox(){
+  var it = lbList[lbI]; if (!it) return; var r = ratio(it.m), st = $('#lbStage'), ph = isPhone();
+  var W = st.clientWidth, H = st.clientHeight - 20, w = Math.min(W * (ph ? .94 : .68), H * r), h = w / r;
+  $('#lbBox').style.width = w + 'px'; $('#lbBox').style.height = h + 'px'; st.style.setProperty('--bw', w + 'px');
+  // הסרטונים שבצדדים: נכנסים בתוך מלבן ברוחב השטח הפנוי (ועוד קצת, כדי שיציצו מקצה המסך) ו-70% מגובה הנוכחי
+  var maxW = Math.max(260, (W - w) / 2 + 120), maxH = h * .7;
+  [[-1, '#lbPeekPrev'], [1, '#lbPeekNext']].forEach(function(p){
+    var o = lbNb(p[0]).it, r2 = ratio(o.m), pw = Math.min(maxW, maxH * r2), el = $(p[1]);
+    el.style.width = pw + 'px'; el.style.height = (pw / r2) + 'px';
+  });
+}
+function renderChips(){
+  $('#lbChips').innerHTML = LB_SETS.map(function(x, k){ return '<button type="button" class="lb__chip" data-k="' + k + '">' + esc(x.name) + '</button>'; }).join('');
+  $$('.lb__chip').forEach(function(b){ b.addEventListener('click', function(){ railSet = +b.dataset.k; renderRail(true); }); });
+}
+function renderRail(anim){
+  var items = (LB_SETS[railSet] || {}).items || [];
+  $('#lbRail').innerHTML = items.map(function(it, k){
+    return '<button type="button" class="lb__thumb' + (it.m.o === 'p' ? ' is-p' : '') + '" data-k="' + k + '" title="' + esc(it.title) + '" aria-label="' + esc(it.title) + '"><img src="' + it.m.poster + '" alt="" loading="lazy">' +
+      '<span class="lb__thumbdur mono ltr">' + dur(it.m.d) + '</span><span class="lb__eq" aria-hidden="true"><i></i><i></i><i></i></span></button>';
+  }).join('');
+  $$('.lb__thumb').forEach(function(b){ b.addEventListener('click', function(){
+    var k = +b.dataset.k;
+    if (railSet !== lbSet) { lbSet = railSet; lbList = LB_SETS[lbSet].items; goLb(k, 1); }   // סרטון מפרויקט אחר: האוסף שלו הופך לנוכחי
+    else if (k !== lbI) goLb(k, k > lbI ? 1 : -1);
+  }); });
+  railSync(true);
+  if (anim && hasGsap && !reduce) gsap.from('.lb__thumb', { x: (lang === 'he' ? -1 : 1) * 40, opacity: 0, duration: .6, ease: 'expo.out', stagger: .02, clearProps: 'all' });
+}
+function railSync(instant){
+  var on = null;
+  $$('.lb__thumb').forEach(function(b, k){ var x = railSet === lbSet && k === lbI; b.classList.toggle('is-on', x); if (x) on = b; });
+  $$('.lb__chip').forEach(function(b, k){ b.classList.toggle('is-on', k === railSet); b.classList.toggle('is-playing', k === lbSet); });
+  var behavior = reduce || instant ? 'auto' : 'smooth', chip = $('.lb__chip.is-on');
+  if (chip) chip.scrollIntoView({ inline: 'center', block: 'nearest', behavior: behavior });
+  if (on) on.scrollIntoView({ inline: 'center', block: 'nearest', behavior: behavior });
+  else $('#lbRail').scrollLeft = 0;
+}
+function lbEnding(on){ var lb = $('#lb'); if (lb.classList.contains('is-ending') === on) return; lb.classList.toggle('is-ending', on); $('#lbUp').hidden = !on; }
+// 8 השניות האחרונות: טבעת שמתמלאת, "הבא בעוד 5", והסרטון הבא גדל בצד
+function lbTick(remain, total){
+  if (lbCancel || !(total > 20) || !(remain > .2 && remain <= 8)) { lbEnding(false); return; }
+  lbEnding(true); $('#lbUpN').textContent = Math.ceil(remain); $('#lbUp').style.setProperty('--p', (1 - remain / 8).toFixed(3));
+}
+function lbEnded(){ if (!lbCancel) stepLb(1); }
+function lbUnbind(){ if (lbPl) { try { lbPl.off('play'); lbPl.off('loaded'); lbPl.off('timeupdate'); lbPl.off('ended'); } catch (e) {} lbPl = null; } }
+function showLb(d){
+  var it = lbList[lbI], m = it.m, box = $('#lbBox'), n = lbList.length;
+  // הרקע הוא הסרטון עצמו מטושטש לאור; שתי שכבות שמתחלפות בדעיכה
   var amb = $$('.lb__amb'), cur = amb.filter(function(a){ return a.classList.contains('is-on'); })[0];
   if (!cur || cur.getAttribute('src') !== m.poster) { var nx = cur === amb[0] ? amb[1] : amb[0]; nx.src = m.poster; nx.classList.add('is-on'); if (cur) cur.classList.remove('is-on'); }
-  box.innerHTML = '';
-  if (m.v) { var f = document.createElement('iframe'); f.src = fullURL(m); f.allow = 'autoplay; fullscreen; picture-in-picture'; f.allowFullscreen = true; f.title = it.title; box.appendChild(f); }
-  else { var v = document.createElement('video'); v.src = m.loop; v.controls = true; v.autoplay = true; v.loop = true; v.playsInline = true; v.poster = m.poster; box.appendChild(v); }
+  lbUnbind(); lbEnding(false); box.classList.remove('is-on');
+  box.innerHTML = '<img class="lb__poster" src="' + m.poster + '" alt="">';   // התמונה מיד, בלי מסך שחור עד שהנגן עולה
+  if (m.v) {
+    var f = document.createElement('iframe'); f.src = fullURL(m); f.allow = 'autoplay; fullscreen; picture-in-picture'; f.allowFullscreen = true; f.title = it.title; box.appendChild(f);
+    if (window.Vimeo && Vimeo.Player) { try {
+      lbPl = new Vimeo.Player(f);
+      lbPl.on('play', function(){ box.classList.add('is-on'); });
+      // הנגן נחשף רק כשהסרטון באמת מתחיל (בלי מסך טעינה אפור); אם הדפדפן חסם ניגון אוטומטי - נחשף אחרי 3.5 שניות עם כפתור הניגון
+      setTimeout(function(){ if (lbPl && box.contains(f)) box.classList.add('is-on'); }, 3500);
+      lbPl.on('timeupdate', function(e){ lbTick(e.duration - e.seconds, e.duration); });
+      lbPl.on('ended', lbEnded);
+    } catch (e) { box.classList.add('is-on'); } } else box.classList.add('is-on');
+  } else {
+    var v = document.createElement('video'); v.src = m.loop; v.controls = true; v.autoplay = true; v.playsInline = true; v.poster = m.poster; box.appendChild(v); box.classList.add('is-on');
+    v.addEventListener('timeupdate', function(){ lbTick(v.duration - v.currentTime, v.duration); }); v.addEventListener('ended', lbEnded);
+  }
   $('#lbName').textContent = it.title;
-  $('#lbInfo').innerHTML = (it.sub ? esc(it.sub) + ' · ' : '') + '<span class="ltr mono">' + dur(m.d) + ' · ' + (lbI + 1) + ' / ' + lbList.length + '</span>';
+  $('#lbInfo').innerHTML = esc(it.sub || LB_SETS[lbSet].name) + ' · <span class="ltr mono">' + dur(m.d) + '</span>';
+  $('#lbCount').textContent = pad2(lbI + 1) + ' / ' + pad2(n);
+  // הבא בתור: בסוף פרויקט מוצג שם הפרויקט הבא
+  var prev = lbNb(-1), next = lbNb(1);
+  $('#lbPeekPrev img').src = prev.it.m.poster; $('#lbPeekNext img').src = next.it.m.poster; $('#lbPeekName').textContent = next.it.title;
+  $('#lbPeekNext small').textContent = next.s !== lbSet ? LB_SETS[next.s].name : L().upNext;
+  if (railSet !== lbSet) { railSet = lbSet; renderRail(true); } else railSync();
   sizeBox();
-  if (hasGsap && !reduce) gsap.fromTo(box, { opacity: 0, scale: .96 }, { opacity: 1, scale: 1, duration: .45, ease: 'expo.out' });
+  if (hasGsap && !reduce) {
+    gsap.fromTo(box, { x: -(lang === 'he' ? 1 : -1) * (d || 0) * 160, scale: d ? .93 : .96, opacity: 0 }, { x: 0, scale: 1, opacity: 1, duration: .65, ease: 'expo.out', overwrite: true });
+    gsap.from('.lb__peek', { opacity: 0, duration: .7, delay: .15, ease: 'power2.out', clearProps: 'opacity' });
+  }
 }
+// מעבר: הנוכחי יוצא לצד של הקודם, החדש נכנס מהצד של הבא
+function goLb(i, d){
+  var n = lbList.length; if (!n) return; i = (i % n + n) % n; lbCancel = false;
+  var box = $('#lbBox');
+  if (hasGsap && !reduce && box.firstChild) gsap.to(box, { x: (lang === 'he' ? 1 : -1) * d * 160, scale: .9, opacity: 0, duration: .3, ease: 'power2.in', overwrite: true, onComplete: function(){ lbI = i; showLb(d); } });
+  else { lbI = i; showLb(d); }
+}
+function stepLb(d){
+  var nb = lbNb(d);
+  if (nb.s !== lbSet) { lbSet = nb.s; lbList = LB_SETS[nb.s].items; }
+  goLb(nb.i, d);
+}
+// הממשק נעלם רק עם עכבר; במסך מגע הקשה על הסרטון לא מגיעה לאתר, אז הממשק נשאר גלוי
+function lbWake(){ var lb = $('#lb'); lb.classList.remove('is-idle'); clearTimeout(lbIdleT); if (!fine) return; lbIdleT = setTimeout(function(){ if (!lb.hidden) lb.classList.add('is-idle'); }, 3500); }
 function openLightbox(list, i){
   lbFrom = stage; stage = 'lb'; $$('.media').forEach(dead);
-  lbList = list; lbI = i; $('#lb').hidden = false; lenis && lenis.stop(); showLb(); $('#lbClose').focus({ preventScroll: true });
-  if (hasGsap && !reduce) { gsap.fromTo('#lb', { opacity: 0 }, { opacity: 1, duration: .45, ease: 'power2.out' }); gsap.fromTo('.lb__logo', { opacity: 0, y: -14 }, { opacity: .95, y: 0, duration: 1, ease: 'expo.out', delay: .2 }); }
+  lbList = list; lbI = i; lbCancel = false; $('#lb').hidden = false; lenis && lenis.stop();
+  renderChips(); renderRail(); showLb(0); lbWake(); $('#lb').focus({ preventScroll: true });   // המיקוד על הצופה, כך שרווח עוצר/מנגן ולא סוגר
+  if (hasGsap && !reduce) {
+    gsap.fromTo('#lb', { opacity: 0 }, { opacity: 1, duration: .45, ease: 'power2.out' });
+    gsap.fromTo('.lb__logo', { opacity: 0, y: -14 }, { opacity: .95, y: 0, duration: 1, ease: 'expo.out', delay: .2 });
+    gsap.from('.lb__thumb', { y: 34, opacity: 0, duration: .8, ease: 'expo.out', stagger: .025, delay: .25, clearProps: 'all' });
+  }
 }
-function closeLb(){ $('#lbBox').innerHTML = ''; $('#lb').hidden = true; if ($('#theater').hidden) lenis && lenis.start(); stage = lbFrom; if (stage === 'theater') thWatch(); else resumeMain(); }
-function stepLb(d){ lbI = (lbI + d + lbList.length) % lbList.length; showLb(); }
+function closeLb(){
+  lbUnbind(); lbEnding(false); clearTimeout(lbIdleT); $('#lb').classList.remove('is-idle');
+  $('#lbBox').innerHTML = ''; $('#lb').hidden = true; if ($('#theater').hidden) lenis && lenis.start();
+  stage = lbFrom; if (stage === 'theater') thWatch(); else resumeMain();
+}
 $('#lbClose').addEventListener('click', closeLb);
 $('#lbPrev').addEventListener('click', function(){ stepLb(-1); });
 $('#lbNext').addEventListener('click', function(){ stepLb(1); });
+$('#lbPeekPrev').addEventListener('click', function(){ stepLb(-1); });
+$('#lbPeekNext').addEventListener('click', function(){ stepLb(1); });
+$('#lbUpGo').addEventListener('click', function(){ stepLb(1); });
+$('#lbUpX').addEventListener('click', function(){ lbCancel = true; lbEnding(false); });
+$('#lb').addEventListener('pointermove', lbWake); $('#lb').addEventListener('pointerdown', lbWake);
 addEventListener('resize', function(){ if (!$('#lb').hidden) sizeBox(); });
 document.addEventListener('keydown', function(e){
   if (!$('#lb').hidden) {
+    lbWake();
     if (e.key === 'Escape') closeLb();
     if (e.key === (lang === 'he' ? 'ArrowLeft' : 'ArrowRight')) stepLb(1);
     if (e.key === (lang === 'he' ? 'ArrowRight' : 'ArrowLeft')) stepLb(-1);
+    if (e.key === ' ' && lbPl && !/BUTTON|INPUT/.test(document.activeElement.tagName)) { e.preventDefault(); lbPl.getPaused().then(function(p){ p ? lbPl.play() : lbPl.pause(); }); }
     return;
   }
   if (e.key === 'Escape') { if (!$('#theater').hidden) closeTheater(); closeLegal(); }

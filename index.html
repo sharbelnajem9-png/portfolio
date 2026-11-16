@@ -244,21 +244,33 @@
   </div>
 </div>
 
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-labelledby="lbName" hidden>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-labelledby="lbName" tabindex="-1" hidden>
   <div class="lb__bg" aria-hidden="true">
     <img class="lb__amb" alt=""><img class="lb__amb" alt="">
     <img class="lb__mark" src="logo.png" alt="">
     <span class="lb__glow"></span><span class="lb__grain"></span>
   </div>
-  <img class="lb__logo" src="logo.png" alt="Sharbel Najem">
-  <div class="lb__stage" id="lbStage"><div class="lb__box" id="lbBox"></div></div>
+  <header class="lb__top">
+    <span class="lb__count mono ltr" id="lbCount"></span>
+    <img class="lb__logo" src="logo.png" alt="Sharbel Najem">
+    <button type="button" class="icon-btn glass lb__close" id="lbClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr" data-t="close"></span></button>
+  </header>
+  <div class="lb__stage" id="lbStage">
+    <button type="button" class="lb__peek lb__peek--prev" id="lbPeekPrev"><img alt=""><span class="sr" data-t="prev"></span></button>
+    <div class="lb__box" id="lbBox"></div>
+    <button type="button" class="lb__peek lb__peek--next" id="lbPeekNext"><img alt=""><span class="lb__peekcap"><small data-t="upNext"></small><b id="lbPeekName"></b></span></button>
+  </div>
   <div class="lb__bar wrap">
     <div class="lb__title"><b id="lbName"></b><span id="lbInfo"></span></div>
     <div class="lb__ctrls">
+      <div class="lb__up" id="lbUp" hidden><span class="lb__ring" aria-hidden="true"></span><span class="lb__uptxt"><span data-t="nextIn"></span> <b class="ltr" id="lbUpN"></b></span><button type="button" class="lb__upgo" id="lbUpGo" data-t="playNow"></button><button type="button" class="lb__upx" id="lbUpX" data-t="cancel"></button></div>
       <button type="button" class="icon-btn glass" id="lbPrev"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="sr" data-t="prev"></span></button>
       <button type="button" class="icon-btn glass" id="lbNext"><svg class="flip-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span class="sr" data-t="next"></span></button>
-      <button type="button" class="icon-btn glass" id="lbClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr" data-t="close"></span></button>
     </div>
+  </div>
+  <div class="lb__dock">
+    <div class="lb__chips" id="lbChips"></div>
+    <div class="lb__rail" id="lbRail"></div>
   </div>
 </div>
 
