@@ -2,3 +2,4 @@
 *.py
 Thumbs.db
 .env
+v2/
