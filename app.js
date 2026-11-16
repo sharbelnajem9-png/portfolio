@@ -261,7 +261,7 @@ function renderQuotes(){
   }).join('');
   $('#quoteRows').innerHTML = '<div class="marquee" dir="ltr" id="qMarq"><div class="marquee__row">' + cards + cards + '</div></div>';
   var mq = $('#qMarq'), row = mq.firstChild, resume;
-  requestAnimationFrame(function(){ row.style.setProperty('--dur', Math.round(row.scrollWidth / 2 / (ph ? 20 : 28)) + 's'); });
+  requestAnimationFrame(function(){ row.style.setProperty('--dur', Math.round(row.scrollWidth / 2 / (ph ? 28 : 38)) + 's'); });
   mq.addEventListener('touchstart', function(){ mq.classList.add('is-paused'); clearTimeout(resume); resume = setTimeout(function(){ mq.classList.remove('is-paused'); }, 4000); }, { passive: true });
 }
 function renderDream(){
