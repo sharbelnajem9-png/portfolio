@@ -27,7 +27,7 @@ var T = {
           ['אסטרטגיית שיווק', 'ניתוח מותג מעמיק ואסטרטגיה מותאמת אישית לתפיסת קהל היעד המדויק.']],
     featLabel: 'מומלצים', featTitle: 'סרטונים מועדפים', projLabel: 'העבודות שלי', projTitle: 'פרויקטים',
     brandsLabel: 'עבדתי עם', brandsTitle: 'מותגים שעבדתי איתם', quotesLabel: 'מה אומרים הלקוחות', quotesTitle: 'המלצות',
-    contactLabel: 'בואו נדבר', contactPre: 'אני עובד עם 2 עסקים בחודש בלבד.', contactBig: 'מוכנים להפוך את החזון למציאות? בואו ניצור תוכן ש<em>עושה אימפקט</em>.',
+    contactLabel: 'בואו נדבר', contactPre: 'אני עובד עם 2 עסקים בחודש בלבד.', contactQ: 'מוכנים להפוך את החזון למציאות?', contactA: 'בואו ניצור תוכן ש<em>עושה אימפקט</em>.',
     contactBtn: 'בואו נדבר', copy: 'העתקה', copied: 'הועתק',
     copyright: '© 2026 שרבל נג׳ם. כל הזכויות שמורות.', lAccess: 'נגישות', lPrivacy: 'מדיניות פרטיות', lTerms: 'תנאי שימוש',
     films: 'סרטים', reels: 'רילס', close: 'סגירה', prev: 'הקודם', next: 'הבא', nextProject: 'הפרויקט הבא', open: 'לפרויקט', play: 'צפייה',
@@ -49,7 +49,7 @@ var T = {
           ['Marketing Strategy', 'In-depth brand analysis and tailored strategy to reach your target audience with precision.']],
     featLabel: 'Highlights', featTitle: 'Featured Videos', projLabel: 'My Work', projTitle: 'Projects',
     brandsLabel: 'Trusted By', brandsTitle: "Brands I've Worked With", quotesLabel: 'What Clients Say', quotesTitle: 'Testimonials',
-    contactLabel: "Let's Talk", contactPre: 'I work with only 2 businesses a month.', contactBig: "Ready to bring your vision to life? Let's create content that <em>makes an impact</em>.",
+    contactLabel: "Let's Talk", contactPre: 'I work with only 2 businesses a month.', contactQ: 'Ready to bring your vision to life?', contactA: "Let's create content that <em>makes an impact</em>.",
     contactBtn: "Let's Talk", copy: 'Copy', copied: 'Copied',
     copyright: '© 2026 Sharbel Najem. All rights reserved.', lAccess: 'Accessibility', lPrivacy: 'Privacy Policy', lTerms: 'Terms of Use',
     films: 'Films', reels: 'Reels', close: 'Close', prev: 'Previous', next: 'Next', nextProject: 'Next project', open: 'Open', play: 'Play',
@@ -251,21 +251,80 @@ function renderBrands(){
     return '<div class="marquee' + (k ? ' rev' : '') + '" dir="ltr"><div class="marquee__row" style="--dur:' + (55 + k * 10) + 's">' + items + items + '</div></div>';
   }).join('');
 }
-/* testimonials: a slow ribbon like the logos; each card is sized to its text so none ends in empty space */
+/* testimonials: an endless ribbon of equal cards. Each text gets the largest size that fills its card,
+   and the card reaching the centre comes forward in 3D, its stars lighting up one by one */
+var Q = { x: 0, w: 0, vw: 0, cx: [], cards: [], row: null, inV: false, hover: false, hold: 0, drag: null, last: 0, running: false };
 function renderQuotes(){
-  var d = lang === 'he' ? 'rtl' : 'ltr', ph = isPhone();
+  var d = lang === 'he' ? 'rtl' : 'ltr', stars = '<i>★</i><i>★</i><i>★</i><i>★</i><i>★</i>';
   var cards = C.quotes.map(function(q){
-    var txt = lang === 'he' ? q.he : q.en;
-    var w = Math.round(Math.min(ph ? 300 : 440, Math.max(ph ? 210 : 270, (ph ? 120 : 160) + txt.length * (ph ? .55 : .75))));
-    return '<figure class="quote glass" dir="' + d + '" style="width:' + w + 'px"><span class="quote__stars" aria-hidden="true">★★★★★</span><p>' + esc(txt) + '</p><figcaption class="quote__who">' + esc(lang === 'he' ? q.whoHe : q.whoEn) + '</figcaption></figure>';
+    return '<figure class="quote" dir="' + d + '"><span class="quote__stars" aria-hidden="true">' + stars + '</span><p>' + esc(lang === 'he' ? q.he : q.en) + '</p><figcaption class="quote__who">' + esc(lang === 'he' ? q.whoHe : q.whoEn) + '</figcaption></figure>';
   }).join('');
-  $('#quoteRows').innerHTML = '<div class="marquee" dir="ltr" id="qMarq"><div class="marquee__row">' + cards + cards + '</div></div>';
-  var mq = $('#qMarq'), row = mq.firstChild, resume;
-  requestAnimationFrame(function(){ row.style.setProperty('--dur', Math.round(row.scrollWidth / 2 / (ph ? 28 : 38)) + 's'); });
-  mq.addEventListener('touchstart', function(){ mq.classList.add('is-paused'); clearTimeout(resume); resume = setTimeout(function(){ mq.classList.remove('is-paused'); }, 4000); }, { passive: true });
+  $('#quoteRows').innerHTML = '<div class="qrib" id="qRib" dir="ltr"><div class="qrib__row" id="qRow">' + cards + cards + '</div></div>';
+  Q.row = $('#qRow'); Q.cards = $$('.quote', Q.row); Q.x = 0; Q.fresh = true;
+  requestAnimationFrame(function(){ quotesLayout(); });
+  if (!Q.running) { Q.running = true; requestAnimationFrame(quotesTick); }
 }
+function quotesLayout(force){
+  if (!Q.cards.length) return;
+  var n = Q.cards.length / 2, fit = force === true || Q.fitFor !== Q.row || Q.fitW !== innerWidth;
+  Q.fitFor = Q.row; Q.fitW = innerWidth;
+  if (fit) for (var k = 0; k < n; k++) {
+    var c = Q.cards[k], p = c.querySelector('p'), lo = 12, hi = isPhone() ? 16.5 : 18.5;
+    while (hi - lo > .25) { var mid = (lo + hi) / 2; p.style.fontSize = mid + 'px'; if (c.scrollHeight > c.clientHeight + 1) hi = mid; else lo = mid; }
+    p.style.fontSize = lo + 'px'; Q.cards[k + n].querySelector('p').style.fontSize = lo + 'px';
+  }
+  var was = Q.p ? Math.round((Q.o - Q.tx) / Q.p) : null;
+  Q.vw = $('#qRib').clientWidth; Q.w = Q.cards[n].offsetLeft - Q.cards[0].offsetLeft; Q.n = n;
+  Q.cx = Q.cards.map(function(c){ return c.offsetLeft + c.offsetWidth / 2; });
+  Q.p = Q.cx[1] - Q.cx[0]; Q.o = Q.vw / 2 - Q.cx[0]; Q.kmin = Math.ceil((Q.vw / 2 - Q.cx[0]) / Q.p) + 1;
+  // card k sits in the centre when x = o - k*p; keep k inside [kmin, kmin + n) so both sides of the ribbon stay filled
+  var k = was === null || Q.fresh ? Q.kmin : ((was - Q.kmin) % n + n) % n + Q.kmin; Q.fresh = false;
+  Q.x = Q.tx = Q.o - k * Q.p; Q.next = Date.now() + 4200;
+  quotes3D();
+}
+function quotesGo(k){ Q.tx = Q.o - k * Q.p; Q.next = Date.now() + 5200; }
+function quotes3D(){
+  var half = Q.vw / 2, ph = isPhone();
+  Q.row.style.transform = 'translate3d(' + Q.x.toFixed(2) + 'px,0,0)';
+  Q.cards.forEach(function(c, i){
+    var d = (Q.x + Q.cx[i] - half) / half;
+    if (Math.abs(d) > 1.7) return;
+    var a = Math.min(1.2, Math.abs(d)), f = Math.max(0, 1 - Math.abs(d) * (ph ? 1.6 : 2.4));
+    c.style.transform = 'perspective(1100px) translateZ(' + (f * 50 - a * (ph ? 90 : 160)).toFixed(1) + 'px) rotateY(' + (d * (ph ? 28 : 36)).toFixed(2) + 'deg)';
+    c.style.opacity = (1 - Math.min(1, a) * .55).toFixed(3);
+    c.style.setProperty('--c', f.toFixed(3));
+  });
+}
+/* one card rests in the centre, then the ribbon glides to the next (an eased chase, so a drag or a tap blends in) */
+function quotesTick(t){
+  var dt = Math.min(50, t - (Q.last || t)); Q.last = t;
+  if (Q.row && Q.p) {
+    var now = Date.now();
+    if (Q.inV && !Q.hover && !Q.drag && !reduce && !document.hidden && now > Q.next) quotesGo(Math.round((Q.o - Q.tx) / Q.p) + 1);
+    if (!Q.drag) Q.x += (Q.tx - Q.x) * (reduce ? 1 : 1 - Math.exp(-dt / 210));
+    var lo = Q.o - (Q.kmin + Q.n - .5) * Q.p, hi = Q.o - (Q.kmin - .5) * Q.p;
+    if (Q.x < lo) { Q.x += Q.w; Q.tx += Q.w; if (Q.drag) Q.drag.q += Q.w; } else if (Q.x > hi) { Q.x -= Q.w; Q.tx -= Q.w; if (Q.drag) Q.drag.q -= Q.w; }
+    if (Q.inV || Q.drag) quotes3D();
+  }
+  requestAnimationFrame(quotesTick);
+}
+(function(){
+  var box = $('#quoteRows');
+  new IntersectionObserver(function(es){ Q.inV = es[0].isIntersecting; if (Q.inV) Q.next = Math.max(Q.next || 0, Date.now() + 2600); }, { threshold: .1 }).observe(box);
+  box.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') Q.hover = true; });
+  box.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') { Q.hover = false; Q.next = Date.now() + 2600; } });
+  box.addEventListener('pointerdown', function(e){ Q.drag = { x: e.clientX, q: Q.x, moved: false }; });
+  addEventListener('pointermove', function(e){ if (!Q.drag) return; var dx = e.clientX - Q.drag.x; if (Math.abs(dx) > 6) Q.drag.moved = true; Q.x = Q.drag.q + dx; });
+  var end = function(e){
+    if (!Q.drag) return; var d = Q.drag; Q.drag = null;
+    if (d.moved) { quotesGo(Math.round((Q.o - Q.x) / Q.p)); return; }
+    var c = e && e.target && e.target.closest && e.target.closest('.quote');   // a tap on a side card brings it to the centre
+    if (c) quotesGo(Q.cards.indexOf(c));
+  };
+  addEventListener('pointerup', end); addEventListener('pointercancel', function(){ end(null); });
+})();
 function renderDream(){
-  $$('.dw').forEach(function(w){ w.innerHTML = '<span class="dw__n">' + w.dataset.n + '</span><span class="dw__w">' + w.dataset.w + '</span>'; });
+  $$('.dw').forEach(function(w){ w.innerHTML = '<span class="dw__w">' + w.dataset.w.split('').map(function(ch){ return '<span class="dl">' + ch + '</span>'; }).join('') + '</span>'; });
 }
 
 /* ---------- campaigns: an endless fan in 3D. The front card plays; tapping another turns the fan to it; it turns by itself; swipe on phones ---------- */
@@ -445,8 +504,9 @@ var revIO = ('IntersectionObserver' in window) ? new IntersectionObserver(functi
 function armReveal(){
   if (!revIO || reduce) return;
   var arm = function(sel, cls){ $$(sel).forEach(function(el, i){ if (el.classList.contains('in')) return; el.classList.add(cls); el.style.setProperty('--d', (i % 6) * 70 + 'ms'); revIO.observe(el); }); };
-  arm('.sec__head .label, .sec__head .h2, .sec__head .sec__sub, #about .h2, .about__p, .group-head > *, .contact .label, .contact__pre, .contact__big, .strip-ctrls', 'rv');
-  arm('.svc, .card, .rule__num, .rule__name, .dream__words', 'rvo');
+  arm('.sec__head .label, .sec__head .h2, .sec__head .sec__sub, #about .h2, .about__p, .group-head > *, .contact .label, .contact__l1, .contact__l2, .contact__foot > *, .strip-ctrls', 'rv');
+  arm('.svc, .card, .rule__num, .rule__name', 'rvo');
+  arm('.contact__rule', 'rvx');
 }
 /* 3D tilt toward the pointer, with a light that follows it */
 function tilt(el, deg){
@@ -469,13 +529,22 @@ function setupScenes(){
   add(gsap.timeline({ scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } })
     .to('#heroScreen', { scale: .88, rotationX: 7, borderRadius: 32, transformPerspective: 1400, ease: 'none' }, 0).to('.hero__copy', { yPercent: -20, opacity: 0, ease: 'none' }, 0));
   add(gsap.to('#aboutLead .wd', { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: '#aboutLead', start: 'top 85%', end: 'bottom 55%', scrub: true } }));
-  // Dream / Create / Share: each word gains weight when it comes into view
+  // Dream / Create / Share: the letters flip up out of the line one by one, the words close in from wide spacing,
+  // and each word grows into its own weight (light, regular, bold)
   if (!root._dreamIO) {
+    var dls = $$('.dl'), dws = $$('.dw__w'), ls = dws.map(function(w){ return getComputedStyle(w).letterSpacing; });
+    gsap.set(dls, { opacity: 0, yPercent: 70, rotationX: -85, transformPerspective: 700, transformOrigin: '50% 100%', fontWeight: 100 });
+    gsap.set(dws, { letterSpacing: '.4em' });
+    gsap.set('.dream img', { opacity: 0, rotationY: -90, transformPerspective: 600 });
     root._dreamIO = new IntersectionObserver(function(es){
       if (!es[0].isIntersecting) return; root._dreamIO.disconnect();
-      gsap.from('.dw__w', { fontWeight: 200, rotationX: 50, transformPerspective: 800, duration: 1.6, ease: 'expo.out', stagger: .22 });
-    }, { threshold: .4 });
-    root._dreamIO.observe($('.dream'));
+      gsap.timeline({ onComplete: function(){ gsap.set(dls, { clearProps: 'all' }); gsap.set(dws, { clearProps: 'letterSpacing' }); $('.dream').classList.add('is-done'); } })
+        .to('.dream img', { opacity: .9, rotationY: 0, duration: 1.4, ease: 'expo.out' }, 0)
+        .to(dws, { letterSpacing: function(i){ return ls[i]; }, duration: 2.2, ease: 'expo.out', stagger: .2 }, .15)
+        .to(dls, { opacity: 1, yPercent: 0, rotationX: 0, duration: 1.2, ease: 'expo.out', stagger: .055 }, .15)
+        .to(dls, { fontWeight: function(i, el){ return +getComputedStyle(el.parentNode).fontWeight; }, duration: 1.3, ease: 'power2.inOut', stagger: .055 }, .6);
+    }, { threshold: .5 });
+    root._dreamIO.observe($('.dream__words'));
   }
   $$('.rule').forEach(function(r){
     var line = r.querySelector('.rule__line'), glint = r.querySelector('i');
@@ -563,5 +632,6 @@ renderBrands();
 renderDream();
 syncReel();
 startGate();
-var rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(function(){ hasGsap && ScrollTrigger.refresh(); layoutDeck(deckT, true); pickFeatured(); }, 250); });
+var rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(function(){ hasGsap && ScrollTrigger.refresh(); layoutDeck(deckT, true); pickFeatured(); quotesLayout(); }, 250); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ quotesLayout(true); });
 })();
