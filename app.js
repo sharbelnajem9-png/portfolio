@@ -78,14 +78,19 @@ var MEDIA = [];
 var START = { '1181270619': 6 }; // previews that open on a title card start a few seconds in
 // phones keep a single Vimeo background player alive at a time so scrolling stays smooth
 var LIVE_IF = [], MAX_IF = matchMedia('(pointer: coarse)').matches || innerWidth < 760 ? 1 : 5;
+// מה מנגן עכשיו: העמוד (main), עמוד פרויקט פתוח (theater) או צפייה מלאה (lb). נגני רקע רק בשכבה שלמעלה
+var stage = 'main', lbFrom = 'main';
 function mediaHTML(m){ MEDIA.push(m); return '<span class="media" data-m="' + (MEDIA.length - 1) + '"><img src="' + m.poster + '" alt="" loading="lazy" decoding="async"></span>'; }
 function vq(m){ return m.h ? 'h=' + m.h + '&' : ''; }
-function bgURL(m){ return 'https://player.vimeo.com/video/' + m.v + '?' + vq(m) + 'background=1&autoplay=1&muted=1&loop=1&playsinline=1&autopause=0&dnt=1'; }
+// תצוגות מקדימות ב-540p: מספיק לגודל האריחים, ובאיכות אוטומטית סרטונים כבדים לא מתחילים כשכמה נטענים יחד
+function bgURL(m){ return 'https://player.vimeo.com/video/' + m.v + '?' + vq(m) + 'background=1&autoplay=1&muted=1&loop=1&playsinline=1&autopause=0&dnt=1&quality=540p'; }
 function fullURL(m){ return 'https://player.vimeo.com/video/' + m.v + '?' + vq(m) + 'autoplay=1&title=0&byline=0&portrait=0&dnt=1&color=d4a853'; }
 function isPhone(){ return innerWidth <= 760; }
 // phones show posters only; a video plays when the viewer taps it
 function live(box){
-  if (!box || box._live || isPhone()) return; box._live = true;
+  if (!box || box._live || isPhone()) return;
+  if (stage === 'lb' || (stage === 'theater') !== !!box.closest('#theater')) return;
+  box._live = true;
   var m = MEDIA[+box.dataset.m], el;
   if (m.loop) {
     el = document.createElement('video'); el.muted = true; el.loop = true; el.playsInline = true; el.setAttribute('playsinline', ''); el.src = m.loop;
@@ -96,7 +101,7 @@ function live(box){
     box.appendChild(el);
     // over the cap, a player that has scrolled away goes first, otherwise the oldest
     LIVE_IF.push(box);
-    while (LIVE_IF.length > MAX_IF) { var far = LIVE_IF.filter(function(b){ if (b === box) return false; var r = b.getBoundingClientRect(); return r.bottom < -80 || r.top > innerHeight + 80 || r.right < 0 || r.left > innerWidth; })[0]; dead(far || LIVE_IF[0]); }
+    while (LIVE_IF.length > (stage === 'theater' && MAX_IF > 1 ? 16 : MAX_IF)) { var far = LIVE_IF.filter(function(b){ if (b === box) return false; var r = b.getBoundingClientRect(); return r.bottom < -80 || r.top > innerHeight + 80 || r.right < 0 || r.left > innerWidth; })[0]; dead(far || LIVE_IF[0]); }
     // reveal only once Vimeo really plays; a blocked or failed embed keeps the poster
     if (window.Vimeo && Vimeo.Player) { try {
       var pl = new Vimeo.Player(el), skip = START[m.v], shown = false;
@@ -105,6 +110,12 @@ function live(box){
         var show = function(){ box._live && box.classList.add('is-live'); };
         if (skip) pl.setCurrentTime(skip).then(function(){ setTimeout(show, 250); }, show); else show();
       });
+      // נגן שנטען כשהיה מוסתר (למשל בזמן אנימציית הפתיחה של פרויקט) נשאר עצור - מזיזים אותו להתחיל
+      var tries = 0, nudge = setInterval(function(){
+        if (!box._live || shown || ++tries > 14) { clearInterval(nudge); return; }
+        if (tries < 2) return;
+        pl.getPaused().then(function(p){ if (p && box._live && !shown) pl.play().catch(function(){}); }, function(){});
+      }, 1500);
     } catch (e) {} }
   }
 }
@@ -214,7 +225,7 @@ function featStep(d){   // arrows: glide to the next or previous film, then drif
 }
 function featTick(tm){
   var dt = Math.min(50, tm - (FE.last || tm)); FE.last = tm;
-  if (FE.seg && (FE.near || FE.drag)) {
+  if (stage === 'main' && FE.seg && (FE.near || FE.drag)) {
     if (FE.tx !== null && !FE.drag) { FE.x += (FE.tx - FE.x) * (1 - Math.exp(-dt / 170)); if (Math.abs(FE.tx - FE.x) < .5) { FE.x = FE.tx; FE.tx = null; } }
     else if (!FE.drag && !document.hidden && Date.now() > FE.hold) FE.x += featDir() * dt * (isPhone() ? .05 : .08);
     featWrap(); featApply();
@@ -306,7 +317,7 @@ function quotes3D(){
 /* הרצועה זזה כל הזמן, גם כשהעכבר מעליה. הקשה או גרירה מחליקות פנימה ומיד ממשיכות */
 function quotesTick(t){
   var dt = Math.min(50, t - (Q.last || t)); Q.last = t;
-  if (Q.row && Q.p && (Q.inV || Q.drag)) {
+  if (stage === 'main' && Q.row && Q.p && (Q.inV || Q.drag)) {
     if (Q.tx !== null && !Q.drag) { Q.x += (Q.tx - Q.x) * (reduce ? 1 : 1 - Math.exp(-dt / 210)); if (Math.abs(Q.tx - Q.x) < .5) { Q.x = Q.tx; Q.tx = null; } }
     else if (!Q.drag && !document.hidden && Date.now() > Q.hold) Q.x -= dt * (isPhone() ? .042 : .06);
     var lo = Q.o - (Q.kmin + Q.n - .5) * Q.p, hi = Q.o - (Q.kmin - .5) * Q.p, s = Q.x < lo ? Q.w : Q.x > hi ? -Q.w : 0;
@@ -378,7 +389,7 @@ function playDeck(){
 }
 function deckTick(tm){
   var dt = Math.min(50, tm - (DK.last || tm)); DK.last = tm;
-  if (DK.n && (DK.near || DK.to !== null)) {
+  if (stage === 'main' && DK.n && (DK.near || DK.to !== null)) {
     if (DK.to !== null) { DK.pos += (DK.to - DK.pos) * (1 - Math.exp(-dt / 260)); if (Math.abs(DK.to - DK.pos) < .002) { DK.pos = DK.to; DK.to = null; } }
     else if (DK.shown && DK.t >= 1 && !document.hidden && Date.now() > DK.hold) DK.pos += dt / 3000;
     layoutDeck(); playDeck();
@@ -414,12 +425,12 @@ function renderRules(){
 }
 
 /* ---------- theater (project) ---------- */
-var thIndex = -1, opener = null, hoverT = null;
+var thIndex = -1, opener = null;
 function clipHTML(m){
   return '<button type="button" class="clip" data-cursor="play" style="--ar:' + (m.o === 'p' ? '9 / 16' : '16 / 9') + '"><span class="clip__media">' + mediaHTML(m) +
     '<span class="clip__dur mono ltr">' + dur(m.d) + '</span></span><span class="clip__title">' + esc(nm(m)) + '</span></button>';
 }
-function fillTheater(i){
+function fillTheater(i, later){
   var p = P[i], t = L(); thIndex = i;
   var films = p.items.filter(function(x){ return x.o === 'l'; }), reels = p.items.filter(function(x){ return x.o === 'p'; }), list = films.concat(reels);
   $('#thTag').textContent = t.cats[p.cat]; $('#thTitle').textContent = nm(p); $('#thSub').textContent = lang === 'he' ? p.subHe : p.subEn;
@@ -427,28 +438,42 @@ function fillTheater(i){
   $('#thFilmsWrap').hidden = !films.length; $('#thReelsWrap').hidden = !reels.length;
   $$('#theater .clip').forEach(function(b, k){
     var box = b.querySelector('.media');
-    b.addEventListener('mouseenter', function(){ clearTimeout(hoverT); hoverT = setTimeout(function(){ live(box); }, 220); });
-    b.addEventListener('mouseleave', function(){ clearTimeout(hoverT); dead(box); });
     b.addEventListener('click', function(){ dead(box); openLightbox(list.map(function(m){ return { m: m, title: nm(m), sub: nm(p) }; }), k); });
   });
   $('#thNextName').textContent = nm(P[(i + 1) % P.length]);
   $('#thScroll').scrollTop = 0;
+  if (!later) thWatch();
+}
+// בתוך פרויקט כל הסרטונים מנגנים: כל מה שעל המסך, ומה שמתקרב מתחיל עוד לפני שמגיעים אליו
+var thIO = null;
+function thWatch(){
+  if (thIO) thIO.disconnect();
+  // נדלקים אחד אחרי השני (120ms) כדי שלא ייטענו כולם באותו רגע
+  thIO = new IntersectionObserver(function(es){ var k = 0; es.forEach(function(e){ var b = e.target.querySelector('.media'); clearTimeout(b._t); if (e.isIntersecting) b._t = setTimeout(function(){ live(b); }, 120 * k++); else dead(b); }); }, { root: $('#thScroll'), rootMargin: '40% 0px 40% 0px' });
+  $$('#theater .clip').forEach(function(c){ thIO.observe(c); });
+}
+// חזרה לעמוד: הסרטונים שעל המסך חוזרים לנגן
+function resumeMain(){
+  $$('.frame.is-active').forEach(function(f){ f.classList.remove('is-active'); }); FE.active = -1; featPick();
+  DK.key = ''; playDeck();
+  if (cardIO) $$('.card').forEach(function(c){ cardIO.unobserve(c); cardIO.observe(c); });
 }
 function openTheater(i, from){
-  opener = from || null; fillTheater(i);
+  opener = from || null; stage = 'theater'; $$('main .media').forEach(dead); fillTheater(i, true);
   var th = $('#theater'); th.hidden = false; lenis && lenis.stop(); root.classList.add('is-locked');
   if (hasGsap && !reduce) {
     var r = from ? from.getBoundingClientRect() : { top: innerHeight / 2, bottom: innerHeight / 2, left: 0, right: innerWidth };
     gsap.fromTo(th, { clipPath: 'inset(' + Math.max(0, r.top) + 'px ' + Math.max(0, innerWidth - r.right) + 'px ' + Math.max(0, innerHeight - r.bottom) + 'px ' + Math.max(0, r.left) + 'px round 24px)' },
-      { clipPath: 'inset(0px 0px 0px 0px round 0px)', duration: .9, ease: 'expo.inOut' });
+      { clipPath: 'inset(0px 0px 0px 0px round 0px)', duration: .9, ease: 'expo.inOut', onComplete: function(){ th.style.clipPath = ''; thWatch(); } });
     gsap.from($$('.theater__head > *, #theater .shelf'), { y: 50, opacity: 0, duration: .9, ease: 'expo.out', stagger: .08, delay: .4 });
   }
+  else thWatch();
   $('#thClose').focus({ preventScroll: true });
 }
 function closeTheater(){
   var th = $('#theater');
-  $$('#theater .media').forEach(dead);
-  var done = function(){ th.hidden = true; th.style.clipPath = ''; root.classList.remove('is-locked'); lenis && lenis.start(); opener && opener.focus({ preventScroll: true }); };
+  if (thIO) thIO.disconnect(); $$('#theater .media').forEach(dead); stage = 'main';
+  var done = function(){ th.hidden = true; th.style.clipPath = ''; root.classList.remove('is-locked'); lenis && lenis.start(); opener && opener.focus({ preventScroll: true }); resumeMain(); };
   if (hasGsap && !reduce) gsap.to(th, { clipPath: 'inset(50% 0% 50% 0% round 0px)', duration: .6, ease: 'expo.inOut', onComplete: done }); else done();
 }
 $('#thClose').addEventListener('click', closeTheater);
@@ -479,10 +504,11 @@ function showLb(){
   if (hasGsap && !reduce) gsap.fromTo(box, { opacity: 0, scale: .96 }, { opacity: 1, scale: 1, duration: .45, ease: 'expo.out' });
 }
 function openLightbox(list, i){
+  lbFrom = stage; stage = 'lb'; $$('.media').forEach(dead);
   lbList = list; lbI = i; $('#lb').hidden = false; lenis && lenis.stop(); showLb(); $('#lbClose').focus({ preventScroll: true });
   if (hasGsap && !reduce) { gsap.fromTo('#lb', { opacity: 0 }, { opacity: 1, duration: .45, ease: 'power2.out' }); gsap.fromTo('.lb__logo', { opacity: 0, y: -14 }, { opacity: .95, y: 0, duration: 1, ease: 'expo.out', delay: .2 }); }
 }
-function closeLb(){ $('#lbBox').innerHTML = ''; $('#lb').hidden = true; if ($('#theater').hidden) lenis && lenis.start(); }
+function closeLb(){ $('#lbBox').innerHTML = ''; $('#lb').hidden = true; if ($('#theater').hidden) lenis && lenis.start(); stage = lbFrom; if (stage === 'theater') thWatch(); else resumeMain(); }
 function stepLb(d){ lbI = (lbI + d + lbList.length) % lbList.length; showLb(); }
 $('#lbClose').addEventListener('click', closeLb);
 $('#lbPrev').addEventListener('click', function(){ stepLb(-1); });
