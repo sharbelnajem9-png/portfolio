@@ -232,6 +232,7 @@
 
 <div class="theater" id="theater" role="dialog" aria-modal="true" aria-labelledby="thTitle" hidden>
   <div class="theater__scroll" id="thScroll" data-lenis-prevent>
+    <img class="theater__logo" src="logo.png" alt="Sharbel Najem">
     <button type="button" class="theater__close glass" id="thClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr" data-t="close"></span></button>
     <header class="theater__head wrap">
       <div><span class="label" id="thTag"></span><h2 class="theater__title" id="thTitle"></h2></div>
@@ -244,7 +245,12 @@
 </div>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-labelledby="lbName" hidden>
-  <div class="lb__bg"><img id="lbBg" alt=""></div>
+  <div class="lb__bg" aria-hidden="true">
+    <img class="lb__amb" alt=""><img class="lb__amb" alt="">
+    <img class="lb__mark" src="logo.png" alt="">
+    <span class="lb__glow"></span><span class="lb__grain"></span>
+  </div>
+  <img class="lb__logo" src="logo.png" alt="Sharbel Najem">
   <div class="lb__stage" id="lbStage"><div class="lb__box" id="lbBox"></div></div>
   <div class="lb__bar wrap">
     <div class="lb__title"><b id="lbName"></b><span id="lbInfo"></span></div>
