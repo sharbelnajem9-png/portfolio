@@ -498,22 +498,44 @@ function openSet(key, m){
   var i = Math.max(0, LB_SETS[s].items.map(function(x){ return x.m; }).indexOf(m));
   lbSet = railSet = s; openLightbox(LB_SETS[s].items, i);
 }
-// השכן בכיוון d: בתוך האוסף, ובקצה שלו - הסרטון הראשון של הפרויקט הבא (או האחרון של הקודם)
-function lbNb(d){
-  var i = lbI + d, s = lbSet, N = LB_SETS.length;
-  if (i >= lbList.length) { s = (s + 1) % N; i = 0; } else if (i < 0) { s = (s - 1 + N) % N; i = LB_SETS[s].items.length - 1; }
+// הסרטון שנמצא d צעדים מהנוכחי; בקצה של אוסף ממשיכים לפרויקט הבא (או חוזרים לקודם)
+function lbAt(d){
+  var s = lbSet, i = lbI, N = LB_SETS.length, st = d > 0 ? 1 : -1;
+  for (var k = 0; k !== d; k += st) { i += st; if (i >= LB_SETS[s].items.length) { s = (s + 1) % N; i = 0; } else if (i < 0) { s = (s - 1 + N) % N; i = LB_SETS[s].items.length - 1; } }
   return { s: s, i: i, it: LB_SETS[s].items[i] };
 }
+function lbNb(d){ return lbAt(d); }
 function pad2(x){ return (x < 10 ? '0' : '') + x; }
+var PEEKS = [-2, -1, 1, 2];
+function renderPeeks(){
+  var t = L();
+  $('#lbPeeks').innerHTML = PEEKS.map(function(o){
+    var nb = lbAt(o), cap = o === 1 ? (nb.s !== lbSet ? LB_SETS[nb.s].name : t.upNext) : t.prev;
+    return '<button type="button" class="lb__peek" data-o="' + o + '" aria-label="' + esc(nb.it.title) + '"><img src="' + nb.it.m.poster + '" alt=""><span class="lb__peekdur mono ltr">' + dur(nb.it.m.d) + '</span>' +
+      (Math.abs(o) === 1 ? '<span class="lb__peekcap"><small>' + esc(cap) + '</small><b>' + esc(nb.it.title) + '</b></span>' : '') + '</button>';
+  }).join('');
+  $$('.lb__peek').forEach(function(b){ b.addEventListener('click', function(){ lbJump(+b.dataset.o); }); });
+}
+function lbJump(o){ var nb = lbAt(o); if (nb.s !== lbSet) { lbSet = nb.s; lbList = LB_SETS[nb.s].items; } goLb(nb.i, o > 0 ? 1 : -1); }
 function sizeBox(){
   var it = lbList[lbI]; if (!it) return; var r = ratio(it.m), st = $('#lbStage'), ph = isPhone();
-  var W = st.clientWidth, H = st.clientHeight - 20, w = Math.min(W * (ph ? .94 : .68), H * r), h = w / r;
+  var W = st.clientWidth, H = st.clientHeight - 20, w = Math.min(W * (ph ? .94 : .6), H * r), h = w / r;
   $('#lbBox').style.width = w + 'px'; $('#lbBox').style.height = h + 'px'; st.style.setProperty('--bw', w + 'px');
-  // הסרטונים שבצדדים: נכנסים בתוך מלבן ברוחב השטח הפנוי (ועוד קצת, כדי שיציצו מקצה המסך) ו-70% מגובה הנוכחי
-  var maxW = Math.max(260, (W - w) / 2 + 120), maxH = h * .7;
-  [[-1, '#lbPeekPrev'], [1, '#lbPeekNext']].forEach(function(p){
-    var o = lbNb(p[0]).it, r2 = ratio(o.m), pw = Math.min(maxW, maxH * r2), el = $(p[1]);
-    el.style.width = pw + 'px'; el.style.height = (pw / r2) + 'px';
+  if (ph) return;
+  // צד "הבא" על המסך: שמאל בעברית, ימין באנגלית
+  var sg = lang === 'he' ? -1 : 1, side = (W - w) / 2, dims = {};
+  PEEKS.forEach(function(o){
+    // הקרוב תופס כ-60% מהשטח שבצד כדי שגם השני ייראה מאחוריו
+    var a = Math.abs(o), r2 = ratio(lbAt(o).it.m), ph2 = h * (a === 1 ? .74 : .58), pw = ph2 * r2, cap = a === 1 ? Math.max(220, side * .62) : Math.max(170, side * .45);
+    if (pw > cap) { pw = cap; ph2 = pw / r2; }
+    dims[o] = { w: pw, h: ph2 };
+  });
+  $$('.lb__peek').forEach(function(el){
+    var o = +el.dataset.o, a = Math.abs(o), sd = sg * (o > 0 ? 1 : -1), d1 = dims[o > 0 ? 1 : -1], dm = dims[o];
+    var cx = W / 2 + sd * (w / 2 + 28 + d1.w / 2);
+    if (a === 2) cx += sd * (d1.w / 2 + dm.w * .15);   // השני נכנס חלקית מאחורי הראשון ומציץ ממנו החוצה
+    el.style.width = dm.w + 'px'; el.style.height = dm.h + 'px'; el.style.left = (cx - dm.w / 2) + 'px'; el.style.zIndex = a === 1 ? 2 : 1;
+    el.style.setProperty('--ry', (sd * (a === 1 ? 14 : 24)) + 'deg'); el.style.transformOrigin = sd > 0 ? '0% 50%' : '100% 50%';
   });
 }
 function renderChips(){
@@ -575,15 +597,12 @@ function showLb(d){
   $('#lbName').textContent = it.title;
   $('#lbInfo').innerHTML = esc(it.sub || LB_SETS[lbSet].name) + ' · <span class="ltr mono">' + dur(m.d) + '</span>';
   $('#lbCount').textContent = pad2(lbI + 1) + ' / ' + pad2(n);
-  // הבא בתור: בסוף פרויקט מוצג שם הפרויקט הבא
-  var prev = lbNb(-1), next = lbNb(1);
-  $('#lbPeekPrev img').src = prev.it.m.poster; $('#lbPeekNext img').src = next.it.m.poster; $('#lbPeekName').textContent = next.it.title;
-  $('#lbPeekNext small').textContent = next.s !== lbSet ? LB_SETS[next.s].name : L().upNext;
+  renderPeeks();   // שני סרטונים מכל צד; בסוף פרויקט "הבא בתור" הוא שם הפרויקט הבא
   if (railSet !== lbSet) { railSet = lbSet; renderRail(true); } else railSync();
   sizeBox();
   if (hasGsap && !reduce) {
     gsap.fromTo(box, { x: -(lang === 'he' ? 1 : -1) * (d || 0) * 160, scale: d ? .93 : .96, opacity: 0 }, { x: 0, scale: 1, opacity: 1, duration: .65, ease: 'expo.out', overwrite: true });
-    gsap.from('.lb__peek', { opacity: 0, duration: .7, delay: .15, ease: 'power2.out', clearProps: 'opacity' });
+    gsap.from('.lb__peek', { opacity: 0, duration: .8, delay: .12, ease: 'power2.out', stagger: .05, clearProps: 'opacity' });
   }
 }
 // מעבר: הנוכחי יוצא לצד של הקודם, החדש נכנס מהצד של הבא
@@ -618,8 +637,6 @@ function closeLb(){
 $('#lbClose').addEventListener('click', closeLb);
 $('#lbPrev').addEventListener('click', function(){ stepLb(-1); });
 $('#lbNext').addEventListener('click', function(){ stepLb(1); });
-$('#lbPeekPrev').addEventListener('click', function(){ stepLb(-1); });
-$('#lbPeekNext').addEventListener('click', function(){ stepLb(1); });
 $('#lbUpGo').addEventListener('click', function(){ stepLb(1); });
 $('#lbUpX').addEventListener('click', function(){ lbCancel = true; lbEnding(false); });
 $('#lb').addEventListener('pointermove', lbWake); $('#lb').addEventListener('pointerdown', lbWake);
