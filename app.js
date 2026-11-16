@@ -216,7 +216,7 @@ function featTick(tm){
   var dt = Math.min(50, tm - (FE.last || tm)); FE.last = tm;
   if (FE.seg && (FE.near || FE.drag)) {
     if (FE.tx !== null && !FE.drag) { FE.x += (FE.tx - FE.x) * (1 - Math.exp(-dt / 170)); if (Math.abs(FE.tx - FE.x) < .5) { FE.x = FE.tx; FE.tx = null; } }
-    else if (!FE.drag && !document.hidden && Date.now() > FE.hold) FE.x += featDir() * dt * (isPhone() ? .03 : .042);
+    else if (!FE.drag && !document.hidden && Date.now() > FE.hold) FE.x += featDir() * dt * (isPhone() ? .04 : .056);
     featWrap(); featApply();
     if (++FE.tick % 8 === 0) featPick();
   }
@@ -256,7 +256,7 @@ function renderBrands(){
   var half = Math.ceil(C.logos.length / 2), rows = [C.logos.slice(0, half), C.logos.slice(half)];
   $('#brandRows').innerHTML = rows.map(function(r, k){
     var items = r.map(function(src){ return '<span class="logo-item"><img src="' + BASE + src + '" alt="" loading="lazy"></span>'; }).join('');
-    return '<div class="marquee' + (k ? ' rev' : '') + '" dir="ltr"><div class="marquee__row" style="--dur:' + (55 + k * 10) + 's">' + items + items + '</div></div>';
+    return '<div class="marquee' + (k ? ' rev' : '') + '" dir="ltr"><div class="marquee__row" style="--dur:' + (42 + k * 8) + 's">' + items + items + '</div></div>';
   }).join('');
 }
 /* testimonials: an endless ribbon of equal cards. Each text gets the largest size that fills its card,
@@ -308,7 +308,7 @@ function quotesTick(t){
   var dt = Math.min(50, t - (Q.last || t)); Q.last = t;
   if (Q.row && Q.p && (Q.inV || Q.drag)) {
     if (Q.tx !== null && !Q.drag) { Q.x += (Q.tx - Q.x) * (reduce ? 1 : 1 - Math.exp(-dt / 210)); if (Math.abs(Q.tx - Q.x) < .5) { Q.x = Q.tx; Q.tx = null; } }
-    else if (!Q.drag && !document.hidden && Date.now() > Q.hold) Q.x -= dt * (isPhone() ? .03 : .04);
+    else if (!Q.drag && !document.hidden && Date.now() > Q.hold) Q.x -= dt * (isPhone() ? .04 : .054);
     var lo = Q.o - (Q.kmin + Q.n - .5) * Q.p, hi = Q.o - (Q.kmin - .5) * Q.p, s = Q.x < lo ? Q.w : Q.x > hi ? -Q.w : 0;
     if (s) { Q.x += s; if (Q.tx !== null) Q.tx += s; if (Q.drag) Q.drag.q += s; }
     quotes3D();
@@ -380,7 +380,7 @@ function deckTick(tm){
   var dt = Math.min(50, tm - (DK.last || tm)); DK.last = tm;
   if (DK.n && (DK.near || DK.to !== null)) {
     if (DK.to !== null) { DK.pos += (DK.to - DK.pos) * (1 - Math.exp(-dt / 260)); if (Math.abs(DK.to - DK.pos) < .002) { DK.pos = DK.to; DK.to = null; } }
-    else if (DK.shown && DK.t >= 1 && !document.hidden && Date.now() > DK.hold) DK.pos += dt / 4200;
+    else if (DK.shown && DK.t >= 1 && !document.hidden && Date.now() > DK.hold) DK.pos += dt / 3200;
     layoutDeck(); playDeck();
   }
   requestAnimationFrame(deckTick);
