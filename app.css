@@ -232,7 +232,6 @@ html[dir="rtl"] .flip-x{transform:scaleX(-1)}
 .marquee+.marquee{margin-top:16px}
 .marquee__row{display:flex;gap:16px;width:max-content;animation:mq var(--dur,60s) linear infinite}
 .marquee.rev .marquee__row{animation-direction:reverse}
-.marquee:hover .marquee__row{animation-play-state:paused}
 @keyframes mq{to{transform:translateX(-50%)}}
 .brands .marquee__row{gap:clamp(36px,5vw,72px);align-items:center}
 .logo-item{flex:none;width:clamp(130px,12vw,180px);height:100px;display:flex;align-items:center;justify-content:center}
@@ -385,4 +384,4 @@ html[dir="rtl"] .flip-x{transform:scaleX(-1)}
 .cursor.is-media span{opacity:1}
 .cursor.is-link{width:38px;height:38px;margin:-19px 0 0 -19px}
 @media (hover:hover) and (pointer:fine){.has-cursor .cursor{display:flex}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}.marquee__row{animation:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}.marquee__row{animation-duration:var(--dur,60s)!important}}

@@ -210,13 +210,13 @@ function featStep(d){   // arrows: glide to the next or previous film, then drif
   var half = FE.vw / 2, base = FE.tx !== null ? FE.tx : FE.x, best = 0, bd = 1e9;
   FE.cx.forEach(function(cx, i){ var dd = Math.abs(base + cx - half); if (dd < bd) { bd = dd; best = i; } });
   var t = Math.max(0, Math.min(FE.frames.length - 1, best + d * (lang === 'he' ? -1 : 1)));
-  FE.tx = half - FE.cx[t]; FE.hold = Date.now() + 1800;
+  FE.tx = half - FE.cx[t]; FE.hold = Date.now() + 600;
 }
 function featTick(tm){
   var dt = Math.min(50, tm - (FE.last || tm)); FE.last = tm;
   if (FE.seg && (FE.near || FE.drag)) {
     if (FE.tx !== null && !FE.drag) { FE.x += (FE.tx - FE.x) * (1 - Math.exp(-dt / 170)); if (Math.abs(FE.tx - FE.x) < .5) { FE.x = FE.tx; FE.tx = null; } }
-    else if (!FE.hover && !FE.drag && !reduce && !document.hidden && Date.now() > FE.hold) FE.x += featDir() * dt * (isPhone() ? .03 : .042);
+    else if (!FE.drag && !document.hidden && Date.now() > FE.hold) FE.x += featDir() * dt * (isPhone() ? .03 : .042);
     featWrap(); featApply();
     if (++FE.tick % 8 === 0) featPick();
   }
@@ -224,11 +224,9 @@ function featTick(tm){
 }
 (function(){
   var vp = $('#featVp');
-  vp.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') FE.hover = true; });
-  vp.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') FE.hover = false; });
   vp.addEventListener('pointerdown', function(e){ FE.drag = { sx: e.clientX, x0: FE.x }; FE.moved = false; FE.tx = null; vp.classList.add('is-drag'); });
   addEventListener('pointermove', function(e){ if (!FE.drag) return; var dx = e.clientX - FE.drag.sx; if (Math.abs(dx) > 6) FE.moved = true; FE.x = FE.drag.x0 + dx; });
-  var end = function(){ if (!FE.drag) return; FE.drag = null; vp.classList.remove('is-drag'); FE.hold = Date.now() + 1200; setTimeout(function(){ FE.moved = false; }, 60); };
+  var end = function(){ if (!FE.drag) return; FE.drag = null; vp.classList.remove('is-drag'); FE.hold = Date.now() + 600; setTimeout(function(){ FE.moved = false; }, 60); };
   addEventListener('pointerup', end); addEventListener('pointercancel', end);
   $('#featPrev').addEventListener('click', function(){ featStep(-1); });
   $('#featNext').addEventListener('click', function(){ featStep(1); });
@@ -292,7 +290,7 @@ function quotesLayout(force){
   Q.x = Q.o - k * Q.p; Q.tx = null;
   quotes3D();
 }
-function quotesGo(k){ Q.tx = Q.o - k * Q.p; Q.hold = Date.now() + 2500; }
+function quotesGo(k){ Q.tx = Q.o - k * Q.p; Q.hold = Date.now() + 900; }
 function quotes3D(){
   var half = Q.vw / 2, ph = isPhone();
   Q.row.style.transform = 'translate3d(' + Q.x.toFixed(2) + 'px,0,0)';
@@ -305,12 +303,12 @@ function quotes3D(){
     c.style.setProperty('--c', f.toFixed(3));
   });
 }
-/* the ribbon keeps drifting; a hovering mouse holds it and leaving lets it go. A tap or a drag is an eased chase that blends in */
+/* הרצועה זזה כל הזמן, גם כשהעכבר מעליה. הקשה או גרירה מחליקות פנימה ומיד ממשיכות */
 function quotesTick(t){
   var dt = Math.min(50, t - (Q.last || t)); Q.last = t;
   if (Q.row && Q.p && (Q.inV || Q.drag)) {
     if (Q.tx !== null && !Q.drag) { Q.x += (Q.tx - Q.x) * (reduce ? 1 : 1 - Math.exp(-dt / 210)); if (Math.abs(Q.tx - Q.x) < .5) { Q.x = Q.tx; Q.tx = null; } }
-    else if (!Q.hover && !Q.drag && !reduce && !document.hidden && Date.now() > Q.hold) Q.x -= dt * (isPhone() ? .03 : .04);
+    else if (!Q.drag && !document.hidden && Date.now() > Q.hold) Q.x -= dt * (isPhone() ? .03 : .04);
     var lo = Q.o - (Q.kmin + Q.n - .5) * Q.p, hi = Q.o - (Q.kmin - .5) * Q.p, s = Q.x < lo ? Q.w : Q.x > hi ? -Q.w : 0;
     if (s) { Q.x += s; if (Q.tx !== null) Q.tx += s; if (Q.drag) Q.drag.q += s; }
     quotes3D();
@@ -320,13 +318,11 @@ function quotesTick(t){
 (function(){
   var box = $('#quoteRows');
   new IntersectionObserver(function(es){ Q.inV = es[0].isIntersecting; }, { threshold: .05 }).observe(box);
-  box.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') Q.hover = true; });
-  box.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') Q.hover = false; });
   box.addEventListener('pointerdown', function(e){ Q.drag = { x: e.clientX, q: Q.x, moved: false }; });
   addEventListener('pointermove', function(e){ if (!Q.drag) return; var dx = e.clientX - Q.drag.x; if (Math.abs(dx) > 6) Q.drag.moved = true; Q.x = Q.drag.q + dx; });
   var end = function(e){
     if (!Q.drag) return; var d = Q.drag; Q.drag = null;
-    if (d.moved) { Q.hold = Date.now() + 1200; return; }
+    if (d.moved) { Q.hold = Date.now() + 600; return; }
     var c = e && e.target && e.target.closest && e.target.closest('.quote');   // a tap on a side card brings it to the centre
     if (c) quotesGo(Q.cards.indexOf(c));
   };
@@ -358,7 +354,7 @@ function renderDeck(){
 function deckOff(i){ var n = DK.n, k = ((i - DK.pos) % n + n) % n; return k > n / 2 ? k - n : k; }
 function deckGo(i){   // the short way round to card i
   if (!DK.n) return; var n = DK.n, cur = DK.to !== null ? DK.to : DK.pos, d = ((i - cur) % n + n) % n; if (d > n / 2) d -= n;
-  DK.to = cur + d; DK.hold = Date.now() + 2200;
+  DK.to = cur + d; DK.hold = Date.now() + 900;
 }
 function layoutDeck(){
   var cards = DK.cards; if (!cards.length) return;
@@ -384,15 +380,13 @@ function deckTick(tm){
   var dt = Math.min(50, tm - (DK.last || tm)); DK.last = tm;
   if (DK.n && (DK.near || DK.to !== null)) {
     if (DK.to !== null) { DK.pos += (DK.to - DK.pos) * (1 - Math.exp(-dt / 260)); if (Math.abs(DK.to - DK.pos) < .002) { DK.pos = DK.to; DK.to = null; } }
-    else if (DK.shown && DK.t >= 1 && !DK.hover && !reduce && !document.hidden && Date.now() > DK.hold) DK.pos += dt / 4200;
+    else if (DK.shown && DK.t >= 1 && !document.hidden && Date.now() > DK.hold) DK.pos += dt / 4200;
     layoutDeck(); playDeck();
   }
   requestAnimationFrame(deckTick);
 }
 (function(){
   var deck = $('#deck'), sx = null;
-  deck.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') DK.hover = true; });
-  deck.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') DK.hover = false; });
   deck.addEventListener('pointerdown', function(e){ sx = e.clientX; DK.swiped = false; });
   deck.addEventListener('pointerup', function(e){
     if (sx === null) return; var dx = e.clientX - sx; sx = null;
