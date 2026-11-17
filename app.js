@@ -882,7 +882,12 @@ function enterSite(){
   coverReel(); gate.remove(); $('#gateBg').remove(); root.classList.remove('is-locked', 'gating'); lenis && lenis.start();
   $('#nav').classList.add('is-on');
   setupScenes(); hasGsap && ScrollTrigger.refresh();
-  if (hasGsap && !reduce) gsap.timeline().from('#heroName .mask > span', { yPercent: 110, duration: 1.1, ease: 'expo.out', stagger: .1 }).from('.hero__row > *', { y: 26, opacity: 0, duration: .9, ease: 'expo.out', stagger: .08 }, '-=.8');
+  // כניסת השם והכפתורים. מי שביקש בתפריט הנגישות לעצור אנימציות מקבל אותם מיד, ובכל מקרה אחרי 2.6 שניות הם גלויים במלואם
+  var stopAnim = root.classList.contains('userway-s13');
+  if (hasGsap && !reduce && !stopAnim) {
+    var intro = gsap.timeline().from('#heroName .mask > span', { yPercent: 110, duration: 1.1, ease: 'expo.out', stagger: .1 }).from('.hero__row > *', { y: 26, opacity: 0, duration: .9, ease: 'expo.out', stagger: .08 }, '-=.8');
+    setTimeout(function(){ intro.progress(1); gsap.set($$('#heroName .mask > span, .hero__row > *'), { clearProps: 'transform,opacity' }); }, 2600);
+  }
 }
 function startGate(){
   root.classList.add('gating');   // בזמן הפתיחה רואים רק את הרקע ואת השואוריל שבמסגרת

@@ -104,11 +104,11 @@ html.has-art .gate-bg{background:transparent}
 .js .gate{display:flex}
 .gate__logo{width:74px;height:74px;opacity:0}
 .gate__prompt{margin:0;display:flex;gap:12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);opacity:0}
-.gate__frame{position:relative;z-index:3;width:126px;height:224px;border:2px solid rgba(var(--fg),.72);border-radius:18px;flex:none}
+.gate__frame{position:relative;z-index:3;width:126px;height:224px;border:3px solid rgba(var(--fg),.85);border-radius:18px;flex:none}
 .gate__ratio{position:absolute;top:10px;inset-inline-start:12px;font-size:11px;color:var(--ink-2);z-index:2}
 .gate__corner{position:absolute;width:14px;height:14px;border:solid var(--ink);opacity:.85;z-index:2}
-.gate__corner.tl{top:8px;left:8px;border-width:2px 0 0 2px}.gate__corner.tr{top:8px;right:8px;border-width:2px 2px 0 0}
-.gate__corner.bl{bottom:8px;left:8px;border-width:0 0 2px 2px}.gate__corner.br{bottom:8px;right:8px;border-width:0 2px 2px 0}
+.gate__corner.tl{top:8px;left:8px;border-width:3px 0 0 3px}.gate__corner.tr{top:8px;right:8px;border-width:3px 3px 0 0}
+.gate__corner.bl{bottom:8px;left:8px;border-width:0 0 3px 3px}.gate__corner.br{bottom:8px;right:8px;border-width:0 3px 3px 0}
 .gate__langs{position:absolute;inset:0;display:flex;opacity:0;pointer-events:none;border-radius:inherit;overflow:hidden}
 .gate__langs.is-on{pointer-events:auto}
 .gate__lang{flex:1;display:flex;align-items:center;justify-content:center;border:0;background:rgba(var(--bgc),.42);cursor:pointer;font-size:clamp(26px,3.4vw,46px);font-weight:700;transition:background .35s var(--ease)}
