@@ -309,11 +309,11 @@ html[dir="rtl"] .flip-x{transform:scaleX(-1)}
 .contact__row a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--line-2);padding-bottom:2px}
 .contact__row a:hover{color:var(--ink)}
 .copy{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line-2);background:none;color:var(--ink-2);font-size:13px;cursor:pointer}
-.dream{display:flex;flex-direction:column;align-items:center;gap:22px;padding-block:24px 96px;overflow:hidden}
+.dream{display:flex;flex-direction:column;align-items:center;gap:12px;padding-block:24px 96px;overflow:hidden}
 .dream img{width:64px;height:64px;opacity:.9}
 /* Dream / Create / Share: one font (Assistant, the site's own), one line, the weight climbs a step per word - light, medium, heavy */
-.dream__words{display:flex;flex-wrap:nowrap;justify-content:center;align-items:baseline;gap:.26em;padding-inline:16px;font-size:clamp(34px,7vw,124px);line-height:1.05;color:var(--ink);perspective:900px}
-@media (max-width:640px){.dream__words{font-size:10.5vw}}
+.dream__words{display:flex;flex-wrap:nowrap;justify-content:center;align-items:baseline;gap:.26em;padding-inline:16px;font-size:clamp(26px,4.2vw,74px);line-height:1.05;color:var(--ink);perspective:900px}
+@media (max-width:640px){.dream__words{font-size:8vw}}
 
 /* ---------- footer + legal ---------- */
 .footer{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding-top:28px;padding-bottom:calc(28px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);font-size:14px;color:var(--ink-3)}
