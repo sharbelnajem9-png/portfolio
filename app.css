@@ -116,6 +116,7 @@ html[dir="ltr"] .rule__line{transform-origin:0 50%}
 @property --br{syntax:'<length>';inherits:true;initial-value:0px}
 .ts{letter-spacing:0!important;font-family:'Georama',var(--f-en)!important;font-stretch:62.5%}
 html[lang="he"] .ts{font-family:'Noto Sans Hebrew',var(--f-he)!important;font-stretch:62.5%}
+html[lang] .ts.ts-en{font-family:'Georama',var(--f-en)!important;font-stretch:62.5%}   /* הסלוגן תמיד באנגלית */
 .ts .tw{display:inline-block;white-space:nowrap}
 .ts .tl{display:inline-block;position:relative}
 .hero__name.ts{font-size:clamp(78px,15vw,236px);line-height:.92}   /* הפונטים הצרים קטנים יותר, אז השם גדל */
@@ -311,16 +312,8 @@ html[dir="rtl"] .flip-x{transform:scaleX(-1)}
 .dream{display:flex;flex-direction:column;align-items:center;gap:22px;padding-block:24px 96px;overflow:hidden}
 .dream img{width:64px;height:64px;opacity:.9}
 /* Dream / Create / Share: one font (Assistant, the site's own), one line, the weight climbs a step per word - light, medium, heavy */
-.dream__words{display:flex;flex-wrap:nowrap;justify-content:center;align-items:baseline;gap:clamp(16px,2.4vw,44px);padding-inline:16px;font-family:'Assistant',var(--f-en);text-transform:uppercase;color:var(--ink);perspective:900px}
-.dw{display:block}
-.dw__w{display:inline-block;font-size:clamp(26px,5.6vw,100px);line-height:1.1;letter-spacing:.06em;white-space:nowrap;margin-inline-end:-.06em}
-.dl{display:inline-block;will-change:transform}
-.dw:nth-child(1) .dw__w{font-weight:200}
-.dw:nth-child(2) .dw__w{font-weight:500;color:var(--gold)}
-.dw:nth-child(3) .dw__w{font-weight:800}
-.dream.is-done .dw__w{transition:letter-spacing .6s var(--ease)}
-.dream.is-done .dw:hover .dw__w{letter-spacing:.14em}
-@media (max-width:640px){.dw__w{font-size:6vw;letter-spacing:.05em}.dream__words{gap:2.8vw}}
+.dream__words{display:flex;flex-wrap:nowrap;justify-content:center;align-items:baseline;gap:.26em;padding-inline:16px;font-size:clamp(34px,7vw,124px);line-height:1.05;color:var(--ink);perspective:900px}
+@media (max-width:640px){.dream__words{font-size:10.5vw}}
 
 /* ---------- footer + legal ---------- */
 .footer{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding-top:28px;padding-bottom:calc(28px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);font-size:14px;color:var(--ink-3)}

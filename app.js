@@ -142,7 +142,7 @@ var tsCv = document.createElement('canvas'); tsCv.width = TS.W; tsCv.height = TS
 var tsCx = tsCv.getContext('2d', { willReadFrequently: true });
 var TS_GOLD = [212, 168, 83], TS_INK = [242, 242, 240], TS_MARK = /[׳״'"]/;
 function tsMix(p){ return 'rgb(' + TS_GOLD.map(function(c, i){ return Math.round(c + (TS_INK[i] - c) * p); }).join(',') + ')'; }
-function tsFont(){ return lang === 'he' ? { fam: 'Noto Sans Hebrew', st: 'extra-condensed', lo: 100, hi: 900, ref: 'ה' } : { fam: 'Georama', st: 'extra-condensed', lo: 100, hi: 900, ref: 'H' }; }
+function tsFont(l){ return (l || lang) === 'he' ? { fam: 'Noto Sans Hebrew', st: 'extra-condensed', lo: 100, hi: 900, ref: 'ה' } : { fam: 'Georama', st: 'extra-condensed', lo: 100, hi: 900, ref: 'H' }; }
 function tsWeight(f, p){ return f.ws ? f.ws[Math.min(f.ws.length - 1, Math.floor(p * f.ws.length))] : Math.round(f.lo + (f.hi - f.lo) * p); }
 // מצייר אות ומחזיר לכל שורה איפה הדיו מתחיל ונגמר
 function tsGlyph(ch, f, w, dy){
@@ -165,10 +165,10 @@ function tsGap(A, B, band, T, D, clear){
   }
   var g = T - sum / cnt; if (minRaw < 1e9) g = Math.max(g, clear - minRaw); return g;
 }
-function typeset(el, text, mask){
+function typeset(el, text, mask, only){
   if (!el) return; text = String(text).trim();
   if (!TS.ready) { el.innerHTML = text.split(' ').map(function(w){ return mask ? '<span class="mask"><span>' + esc(w) + '</span></span>' : esc(w); }).join(' '); return; }
-  var f = tsFont(), rtl = lang === 'he', S = TS.S, ref = tsGlyph(f.ref, f, tsWeight(f, .5)), band = [ref.y0, TS.B];
+  var f = tsFont(only), rtl = (only || lang) === 'he', S = TS.S, ref = tsGlyph(f.ref, f, tsWeight(f, .5)), band = [ref.y0, TS.B];
   if (!rtl) text = text.toUpperCase();   // באנגלית הכותרות באותיות גדולות, כמו השם; מודדים את האותיות כפי שהן מוצגות
   var words = text.split(/\s+/).filter(Boolean).map(function(w){ return Array.from(w); });
   var n = words.reduce(function(a, w){ return a + w.length; }, 0), i = 0;
@@ -188,12 +188,13 @@ function typeset(el, text, mask){
     }).join('');
     return mask ? '<span class="mask"><span class="tw">' + inner + '</span></span>' : '<span class="tw">' + inner + '</span>';
   }).join(' ');
-  el.classList.add('ts');
+  el.classList.add('ts'); el.classList.toggle('ts-en', only === 'en');
 }
 function tsHeads(){
   typeset($('#heroName'), L().heroName.join(' '), true);
   $$('.h2, .group-head__title').forEach(function(el){ typeset(el, el.textContent); });
   var th = $('#thTitle'); if (th && th.textContent) typeset(th, th.textContent);
+  renderDream();
 }
 (function(){
   var loads = [100, 300, 500, 700, 900].map(function(w){ return document.fonts.load('extra-condensed ' + w + ' 40px "Georama"', 'SHARBELNAJEM'); })
@@ -406,7 +407,9 @@ function quotesTick(t){
   addEventListener('pointerup', end); addEventListener('pointercancel', function(){ end(null); });
 })();
 function renderDream(){
-  $$('.dw').forEach(function(w){ w.innerHTML = '<span class="dw__w">' + w.dataset.w.split('').map(function(ch){ return '<span class="dl">' + ch + '</span>'; }).join('') + '</span>'; });
+  var el = $('.dream__words'); typeset(el, 'Dream Create Share', false, 'en');
+  // אם הכניסה עוד לא הופעלה, האותיות החדשות מתחילות מוסתרות
+  if (root._dreamIO && !root._dreamPlayed && hasGsap && !reduce) gsap.set($$('.tl', el), { opacity: 0, yPercent: 70, rotationX: -85, transformPerspective: 700, transformOrigin: '50% 100%' });
 }
 
 /* ---------- campaigns: an endless fan in 3D that keeps turning slowly (a hovering mouse holds it, leaving lets it go).
@@ -779,17 +782,14 @@ function setupScenes(){
   // Dream / Create / Share: the letters flip up out of the line one by one, the words close in from wide spacing,
   // and each word grows into its own weight (light, medium, heavy)
   if (!root._dreamIO) {
-    var dls = $$('.dl'), dws = $$('.dw__w'), ls = dws.map(function(w){ return getComputedStyle(w).letterSpacing; });
-    gsap.set(dls, { opacity: 0, yPercent: 70, rotationX: -85, transformPerspective: 700, transformOrigin: '50% 100%', fontWeight: 200 });
-    gsap.set(dws, { letterSpacing: '.4em' });
+    gsap.set($$('.dream__words .tl'), { opacity: 0, yPercent: 70, rotationX: -85, transformPerspective: 700, transformOrigin: '50% 100%' });
     gsap.set('.dream img', { opacity: 0, rotationY: -90, transformPerspective: 600 });
     root._dreamIO = new IntersectionObserver(function(es){
-      if (!es[0].isIntersecting) return; root._dreamIO.disconnect();
-      gsap.timeline({ onComplete: function(){ gsap.set(dls, { clearProps: 'all' }); gsap.set(dws, { clearProps: 'letterSpacing' }); $('.dream').classList.add('is-done'); } })
+      if (!es[0].isIntersecting) return; root._dreamIO.disconnect(); root._dreamPlayed = true;
+      var dls = $$('.dream__words .tl');   // האותיות נמדדות מחדש כשהפונט נטען, אז לוקחים את מה שיש עכשיו
+      gsap.timeline({ onComplete: function(){ gsap.set(dls, { clearProps: 'opacity,transform' }); } })
         .to('.dream img', { opacity: .9, rotationY: 0, duration: 1.4, ease: 'expo.out' }, 0)
-        .to(dws, { letterSpacing: function(i){ return ls[i]; }, duration: 2.2, ease: 'expo.out', stagger: .2 }, .15)
-        .to(dls, { opacity: 1, yPercent: 0, rotationX: 0, duration: 1.2, ease: 'expo.out', stagger: .055 }, .15)
-        .to(dls, { fontWeight: function(i, el){ return +getComputedStyle(el.parentNode).fontWeight; }, duration: 1.3, ease: 'power2.inOut', stagger: .055 }, .6);
+        .fromTo(dls, { opacity: 0, yPercent: 70, rotationX: -85 }, { opacity: 1, yPercent: 0, rotationX: 0, duration: 1.5, ease: 'expo.out', stagger: .06 }, .15);
     }, { threshold: .5 });
     root._dreamIO.observe($('.dream__words'));
   }
