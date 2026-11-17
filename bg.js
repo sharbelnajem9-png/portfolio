@@ -15,7 +15,7 @@
   var fs = [
     'precision highp float;',
     'uniform vec2 uRes;uniform float uScroll;uniform vec2 uMouse;uniform float uQ;uniform float uTime;',
-    'uniform float uLA;uniform float uLB;uniform float uT0;uniform float uTM;uniform vec2 uO;uniform float uB;uniform float uTI;uniform float uVB;uniform float uDS;uniform vec3 uPal[5];',
+    'uniform float uLA;uniform float uLB;uniform float uT0;uniform float uTM;uniform vec2 uO;uniform float uB;uniform float uTI;uniform float uVB;uniform float uDS;uniform vec3 uPal[5];uniform float uSub;',
     'const float RH=400.,LW=6.,ON=.15,SPLIT=.35,TA=1.4,FD=.75;',
     'const vec3 C1=vec3(.788,.812,.851),C2=vec3(.184,.31,.847),C3=vec3(.922,.894,.839),C4=vec3(.435,.561,.722);',
     'float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}',
@@ -63,13 +63,13 @@
     'vec3 fc=mix(col,cl,Lh);',
     // ההתפרצות: כל מלבן מתחלק לגושי צבע עם קווים שחורים, הגושים מתפרצים מהמרכז החוצה, ואז הצבעים נמסים לצבעי האתר והגושים מתאחדים
     'if(uVB>0.&&uB>0.&&uB<uDS+1.){vec2 pw=max(vec2(pb.y-pb.x,pb.w-pb.z),vec2(1.));vec2 lp=clamp((w-pb.xz)/pw,0.,.9999);',
-    'vec2 nn=vec2(1.+floor(hash(cc.yz+cc.w+41.)*2.),1.+floor(hash(cc.yz+cc.w+43.)*1.7));vec2 sc=floor(lp*nn),sf=fract(lp*nn);',
+    'vec2 nn=vec2(1.+floor(hash(cc.yz+cc.w+41.)*(1.+uSub)),1.+floor(hash(cc.yz+cc.w+43.)*(1.+.7*uSub)));vec2 sc=floor(lp*nn),sf=fract(lp*nn);',
     'vec2 sdd=min(sf,1.-sf)*pw/nn;float subL=1.-smoothstep(2.,4.,min(nn.x>1.?sdd.x:1e4,nn.y>1.?sdd.y:1e4));',
     'vec2 scc=pb.xz+(sc+.5)/nn*pw-vec2(0.,uScroll);float hb=hash(cc.yz*2.3+cc.w*1.7+sc*7.1+13.);',
     'float st=.05+length(scc-uRes*.5)/uRes.y*.45+hash(sc+cc.yz+cc.w+21.)*.2;float pop=smoothstep(st,st+.14,uB);',
     'float dr=uDS+hash(sc*1.3+cc.yz+cc.w+31.)*.35;float a=pop*(1.-smoothstep(dr,dr+.45,uB))*uVB;float fl=pop*(1.-smoothstep(st+.08,st+.45,uB));',
     'vec3 vc=vivid(hb)*(.84+.26*diff)*(1.+.35*fl);float aL=smoothstep(.05,.3,uB)*(1.-smoothstep(uDS+.1,uDS+.75,uB))*uVB;',
-    'fc=mix(fc,vc,a*(1.-max(lm,subL*pop)));fc=mix(fc,vec3(.035,.035,.045),aL*max(lm,subL*pop)*.92);}',
+    'float lmB=max(1.-smoothstep(LW*.5+3.,LW*.5+5.,cc.x),subL*pop);fc=mix(fc,vc,a*(1.-lmB));fc=mix(fc,vec3(.035,.035,.045),aL*lmB*.94);}',
     'gl_FragColor=vec4(fc,1.);}'
   ].join('\n');
   function sh(t, src){ var s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
@@ -80,21 +80,27 @@
   gl.useProgram(pr);
   var buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
   var loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  var U = {}; ['uTime', 'uRes', 'uScroll', 'uMouse', 'uQ', 'uLA', 'uLB', 'uT0', 'uTM', 'uO', 'uB', 'uTI', 'uVB', 'uDS', 'uPal'].forEach(function(n){ U[n] = gl.getUniformLocation(pr, n); });
+  var U = {}; ['uTime', 'uRes', 'uScroll', 'uMouse', 'uQ', 'uLA', 'uLB', 'uT0', 'uTM', 'uO', 'uB', 'uTI', 'uVB', 'uDS', 'uPal', 'uSub'].forEach(function(n){ U[n] = gl.getUniformLocation(pr, n); });
   document.body.prepend(c); document.documentElement.classList.add('has-art');
   var mx = innerWidth * .7, my = innerHeight * .3, tx = mx, ty = my, lastMove = -1e9, frame = 0, lastY = -1, lastMx = -1, lastMy = -1;
   // מצב המעבר: LA = הצד הקדמי של המלבנים, LB = הצד האחורי; T0 = מתי התחיל הגל; TM = 0 גל מהנקודה O, 1/-1 גל בכיוון קריאה
   var root = document.documentElement, cur = root.dataset.theme === 'light' ? 1 : 0, LA = cur, LB = cur, T0 = -100, TM = 0, OX = innerWidth / 2, OY = 0, now = 0;
   var B0 = (document.getElementById('gate') || root.hasAttribute('data-art-build')) && !still ? -1 : null;   // בפתיחה (וגם בדף הנחיתה) הקנבס ריק עד שהציור מתחיל
   var BURST = document.getElementById('gate') ? 1 : 0, DS = 99;
-  // הפלטה של ההתפרצות (ארבעה צבעים + צבע רקע)
-  var PAL = [.843, .149, .169, .949, .765, 0, .114, .247, .62, .067, .067, .075, .957, .945, .918];   // התפרצות הצבעים רק בפתיחה של האתר, לא בדף הנחיתה
+  // הפלטות של ההתפרצות (ארבעה צבעים + צבע רקע). בכל כניסה לאתר הפלטה הבאה בתור - כל פעם משהו אחר
+  var PALS = [['#D7262B', '#F2C300', '#1D3F9E', '#111113', '#F4F1EA'], ['#2F47D6', '#1A2A8C', '#C9CFD9', '#6F8FB8', '#ECE6DA'], ['#C4552F', '#D9A031', '#6B6A3A', '#2A2724', '#F3EADB'],
+              ['#F06A4E', '#F2B33D', '#5B2A4E', '#E8A0A8', '#F7EDE4'], ['#2E5BFF', '#2A9D8F', '#14213D', '#BFD7EA', '#E9EEF2'], ['#2F47D6', '#5C6FE0', '#9AA6EE', '#0E1A66', '#F6F6F4']]
+    .map(function(p){ return [].concat.apply([], p.map(function(h){ return [1, 3, 5].map(function(i){ return parseInt(h.substr(i, 2), 16) / 255; }); })); });
+  var pi = Math.floor(Math.random() * PALS.length);
+  if (BURST) { try { var lp = localStorage.getItem('sn-pal'); pi = lp === null ? pi : (+lp + 1) % PALS.length; localStorage.setItem('sn-pal', String(pi)); } catch (e) {} }
+  var PAL = PALS[pi], SUB = 0;   // SUB: 0 = המלבנים של הציור כמו שהם (לא מחלקים אותם לגושים קטנים)   // התפרצות הצבעים רק בפתיחה של האתר, לא בדף הנחיתה
   var nextWave = 35 + Math.random() * 15;   // מדי פעם (כל 40-75 שניות) גל מהיר עובר על הציור, כמו בכניסה - לא כל הזמן
   window.artFX = {
     origin: function(x, y){ OX = x; OY = y; },
     flip: function(dir){ if (still) return; LA = LB = cur; T0 = now; TM = dir; },
     build: function(){ if (B0 === -1) B0 = now || performance.now() / 1000; },
     palette: function(a){ PAL = a; },
+    density: function(v){ SUB = v; },
     replay: function(){ B0 = now; DS = 99; },
     settle: function(){ if (B0 !== null && B0 >= 0 && DS > 50) DS = Math.max(.6, now - B0); },   // הצבעים נרגעים לצבעי האתר (כשהספירה מגיעה ל-100)
     wave: function(){ nextWave = 0; T0 = Math.min(T0, now - 6); },   // גל עכשיו (לבדיקה)
@@ -126,7 +132,7 @@
     lastY = scrollY; lastMx = mx; lastMy = my;
     gl.uniform1f(U.uTime, still ? 0 : now); gl.uniform2f(U.uRes, innerWidth, innerHeight); gl.uniform1f(U.uScroll, scrollY); gl.uniform2f(U.uMouse, mx, my); gl.uniform1f(U.uQ, Q);
     gl.uniform1f(U.uLA, LA); gl.uniform1f(U.uLB, LB); gl.uniform1f(U.uT0, still ? -100 : T0); gl.uniform1f(U.uTM, TM); gl.uniform2f(U.uO, OX, OY);
-    gl.uniform1f(U.uB, ub); gl.uniform1f(U.uTI, B0 === null ? 1 : Math.max(0, Math.min(1, (ub - Math.min(DS, 2.6) - .1) / .7))); gl.uniform1f(U.uVB, BURST); gl.uniform1f(U.uDS, DS); gl.uniform3fv(U.uPal, PAL);
+    gl.uniform1f(U.uB, ub); gl.uniform1f(U.uTI, B0 === null ? 1 : Math.max(0, Math.min(1, (ub - Math.min(DS, 2.6) - .1) / .7))); gl.uniform1f(U.uVB, BURST); gl.uniform1f(U.uDS, DS); gl.uniform3fv(U.uPal, PAL); gl.uniform1f(U.uSub, SUB);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
   requestAnimationFrame(loop);
