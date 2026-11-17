@@ -860,12 +860,13 @@ function enterSite(){
   reel.classList.remove('is-gate'); ['left', 'top', 'width', 'height', 'borderRadius', 'opacity'].forEach(function(k){ reel.style[k] = ''; });
   // the site always opens at its top, whatever the browser remembered from a previous visit
   scrollTo(0, 0); lenis && lenis.scrollTo(0, { immediate: true, force: true });
-  coverReel(); gate.remove(); $('#gateBg').remove(); root.classList.remove('is-locked'); lenis && lenis.start();
+  coverReel(); gate.remove(); $('#gateBg').remove(); root.classList.remove('is-locked', 'gating'); lenis && lenis.start();
   $('#nav').classList.add('is-on');
   setupScenes(); hasGsap && ScrollTrigger.refresh();
   if (hasGsap && !reduce) gsap.timeline().from('#heroName .mask > span', { yPercent: 110, duration: 1.1, ease: 'expo.out', stagger: .1 }).from('.hero__row > *', { y: 26, opacity: 0, duration: .9, ease: 'expo.out', stagger: .08 }, '-=.8');
 }
 function startGate(){
+  root.classList.add('gating');   // בזמן הפתיחה רואים רק את הרקע ואת השואוריל שבמסגרת
   var langs = $('#gateLangs'), count = $('#gateCount'), btns = $$('.gate__lang');
   var last = store('sn-lang'); var pre = btns.filter(function(b){ return b.dataset.lang === last; })[0];
   var arm = function(){ langs.classList.add('is-on'); btns.forEach(function(b){ b.disabled = false; }); };

@@ -32,7 +32,8 @@ html[data-theme="light"]{
   --glass-edge:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(20,21,24,.05),0 12px 40px rgba(20,21,24,.12);
 }
 /* איים שנשארים כהים תמיד, כמו בקולנוע: הפתיחה עם השואוריל, הצופה, הכרטיסים עם וידאו */
-.hero,.gate,.gate-bg,.lb,.card,.dcard,.frame__media,.clip__media{
+.hero,.gate__frame,.lb,.card,.dcard,.frame__media,.clip__media{
+  color-scheme:dark;color:var(--ink);
   --bg:#111317;--bg-2:#161a1e;--bg-3:#1c2026;--ink:#f2f2f0;--ink-2:#b6b7b6;--ink-3:#909295;
   --fg:255,255,255;--bgc:17,19,23;--acc:201,207,217;--line:rgba(255,255,255,.12);--line-2:rgba(255,255,255,.2);--gold:#c9cfd9;--blue:#4d63f0;
   --glass-bg:linear-gradient(135deg,rgba(255,255,255,.13),rgba(255,255,255,.04));
@@ -44,7 +45,7 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
 html[data-theme="light"] .nav__theme .i-sun{display:none}
 html[data-theme="light"] .nav__theme .i-moon{display:block}
 /* הלוגו לבן - על רקע בהיר הופכים אותו לכהה */
-html[data-theme="light"] .nav__logo img,html[data-theme="light"] .dream img,html[data-theme="light"] .theater__logo{filter:invert(1) brightness(.2)}
+html[data-theme="light"] .nav__logo img,html[data-theme="light"] .dream img,html[data-theme="light"] .theater__logo,html[data-theme="light"] .gate__logo{filter:invert(1) brightness(.2)}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink)}
 /* רקע האמנות (bg.js): כשהוא רץ הדף שקוף והקנבס מאחור */
@@ -93,6 +94,9 @@ html[dir="ltr"] .rule__line{transform-origin:0 50%}
 
 /* ---------- gate ---------- */
 .gate-bg{position:fixed;inset:0;z-index:98;background:var(--bg);display:none}
+html.has-art .gate-bg{background:transparent}
+.gating main{visibility:hidden}
+.gating #reel{visibility:visible}   /* בפתיחה רואים כבר את הקומפוזיציה של מונדריאן */
 .js .gate-bg{display:block}
 .gate{position:fixed;inset:0;z-index:100;background:transparent;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px}
 .js .gate{display:flex}
@@ -119,15 +123,15 @@ html[dir="ltr"] .rule__line{transform-origin:0 50%}
 .reel__poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
 /* ---------- nav ---------- */
-.nav{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;z-index:60;transform:translate(-50%,-140%);opacity:0;transition:transform .9s var(--ease),opacity .6s;display:flex;align-items:center;gap:4px;padding:6px;border-radius:999px;max-width:calc(100vw - 24px)}
+.nav{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;z-index:60;transform:translate(-50%,-140%);opacity:0;transition:transform .9s var(--ease),opacity .6s;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;max-width:calc(100vw - 24px)}
 .nav.is-on{transform:translate(-50%,0);opacity:1}
-.nav__logo{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:rgba(var(--fg),.08)}
-.nav__logo img{width:26px;height:26px}
+.nav__logo{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:rgba(var(--fg),.08)}
+.nav__logo img{width:19px;height:19px}
 .nav__links{display:flex;gap:2px}
-.nav a.nav__link,.nav__btn{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;border-radius:999px;border:0;background:none;text-decoration:none;font-size:15px;font-weight:500;color:var(--ink-2);cursor:pointer;white-space:nowrap;transition:color .25s,background .25s}
+.nav a.nav__link,.nav__btn{display:flex;align-items:center;justify-content:center;min-height:34px;padding:0 12px;border-radius:999px;border:0;background:none;text-decoration:none;font-size:13.5px;font-weight:500;letter-spacing:.01em;color:var(--ink-2);cursor:pointer;white-space:nowrap;transition:color .25s,background .25s}
 .nav a.nav__link:hover,.nav__btn:hover{color:var(--ink);background:rgba(var(--fg),.1)}
-.nav__btn svg{width:18px;height:18px}
-.nav__lang{font-family:var(--f-mono)!important;font-size:13px!important;color:var(--ink)!important;border:1px solid var(--line-2)!important;min-width:48px}
+.nav__btn svg{width:15px;height:15px}
+.nav__lang{font-family:var(--f-mono)!important;font-size:11.5px!important;color:var(--ink)!important;border:1px solid var(--line-2)!important;min-width:38px}
 .nav__menu{display:none}
 .sheet{position:fixed;top:calc(env(safe-area-inset-top,0px) + 76px);left:12px;right:12px;z-index:59;border-radius:24px;padding:10px;display:flex;flex-direction:column;opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .35s var(--ease),transform .45s var(--ease)}
 .sheet.is-open{opacity:1;transform:none;pointer-events:auto}
@@ -137,9 +141,15 @@ html[dir="ltr"] .rule__line{transform-origin:0 50%}
 
 /* ---------- hero ---------- */
 .hero{position:relative;height:100vh;height:100svh;min-height:580px}
-.hero__screen{position:absolute;inset:0;overflow:hidden;transform-origin:50% 35%}
+.hero__screen{position:absolute;inset:0;overflow:hidden;transform-origin:50% 35%;
+  /* התחתית של הסרטון נמסה לרקע במדרגות של מונדריאן: ארבע עמודות ברוחבים שונים, כל אחת דועכת בגובה אחר */
+  -webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000 0%,transparent 60%),linear-gradient(#000 30%,transparent 100%),linear-gradient(#000 8%,transparent 72%),linear-gradient(#000 45%,transparent 96%);
+  mask-image:linear-gradient(#000,#000),linear-gradient(#000 0%,transparent 60%),linear-gradient(#000 30%,transparent 100%),linear-gradient(#000 8%,transparent 72%),linear-gradient(#000 45%,transparent 96%);
+  -webkit-mask-size:100% 86%,23% 14%,36% 14%,17% 14%,24% 14%;mask-size:100% 86%,23% 14%,36% 14%,17% 14%,24% 14%;
+  -webkit-mask-position:0 0,0 100%,38.4% 100%,82.2% 100%,100% 100%;mask-position:0 0,0 100%,38.4% 100%,82.2% 100%,100% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .hero__shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(var(--bgc),.95) 0%,rgba(var(--bgc),.25) 48%,rgba(var(--bgc),.45) 100%);pointer-events:none}
-.hero__copy{position:absolute;left:0;right:0;bottom:0;padding-bottom:clamp(64px,11vh,120px);display:flex;flex-direction:column;gap:22px}
+.hero__copy{position:absolute;left:0;right:0;bottom:0;padding-bottom:clamp(84px,15vh,160px);display:flex;flex-direction:column;gap:22px}
 .hero__name{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(60px,12vw,200px);line-height:.9;letter-spacing:-.02em}
 .hero__name em{font-style:normal;color:var(--gold)}
 /* כותרות בסגנון השם (נבנות ב-JS): כל אות בעובי ובצבע משלה, הריווח נמדד לכל זוג. --br = נשימה של הריווח בשם שבפתיחה */
@@ -332,16 +342,15 @@ html[dir="rtl"] .flip-x{transform:scaleX(-1)}
   .contact__l2{align-self:flex-start;text-align:start}
   .contact__foot{flex-direction:column;align-items:stretch;text-align:center}
 }
-.magnet{position:relative;isolation:isolate;overflow:hidden;min-height:64px;gap:0;padding:0;border-radius:3px;font-size:16px;font-weight:600;letter-spacing:.04em;color:var(--ink);background:rgba(var(--bgc),.55);border:1px solid rgba(var(--acc),.32);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:border-color .5s var(--ease),transform .35s var(--ease)}
-/* כפתור כמו תא של מונדריאן: תא טקסט ותא חץ מופרדים בקו; במעבר עכבר תא החץ מתמלא מלמטה בכחול, וברק אור עובר על הכפתור */
-.magnet>span:first-child{flex:1;padding:0 30px;text-align:center}
-.magnet__ic{position:relative;align-self:stretch;flex:none;width:64px;display:grid;place-items:center;border-inline-start:1px solid rgba(var(--acc),.32);overflow:hidden}
-.magnet__ic::before{content:"";position:absolute;inset:0;background:var(--blue);transform:translateY(101%);transition:transform .65s var(--ease)}
-.magnet__ic svg{position:relative;width:18px;height:18px;transition:transform .65s var(--ease)}
-.magnet::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 30%,rgba(var(--fg),.14) 50%,transparent 70%);transform:translateX(-120%);transition:transform 1s var(--ease)}
-.magnet:hover{border-color:rgba(var(--acc),.7)}
+.magnet{position:relative;isolation:isolate;overflow:hidden;min-height:58px;gap:16px;padding-block:5px;padding-inline:30px 5px;border-radius:999px;font-size:16px;font-weight:600;letter-spacing:.02em;color:var(--ink);background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:1px solid rgba(var(--fg),.16);box-shadow:var(--glass-edge);transition:border-color .6s var(--ease),transform .35s var(--ease)}
+/* כפתור זכוכית: עיגול זכוכית לחץ שנצבע בקליין במעבר עכבר, וברק אור שעובר על הזכוכית */
+.magnet>span:first-child{flex:1;text-align:center}
+.magnet__ic{flex:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:rgba(var(--fg),.08);border:1px solid rgba(var(--fg),.14);transition:background .6s var(--ease),border-color .6s var(--ease),color .6s var(--ease)}
+.magnet__ic svg{width:18px;height:18px;transition:transform .6s var(--ease)}
+.magnet::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(105deg,transparent 30%,rgba(var(--fg),.16) 50%,transparent 70%);transform:translateX(-120%);transition:transform 1.1s var(--ease)}
+.magnet:hover{border-color:rgba(var(--fg),.3)}
 .magnet:hover::after{transform:translateX(120%)}
-.magnet:hover .magnet__ic::before,.magnet:focus-visible .magnet__ic::before{transform:none}
+.magnet:hover .magnet__ic,.magnet:focus-visible .magnet__ic{background:var(--blue);border-color:transparent;color:#fff}
 .magnet:hover .magnet__ic svg{transform:translateX(-4px)}
 :root[dir="ltr"] .magnet:hover .magnet__ic svg{transform:translateX(4px)}
 .contact__row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px 20px;font-size:15px;color:var(--ink-3)}
