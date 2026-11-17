@@ -112,6 +112,14 @@ html[dir="ltr"] .rule__line{transform-origin:0 50%}
 .hero__copy{position:absolute;left:0;right:0;bottom:0;padding-bottom:clamp(64px,11vh,120px);display:flex;flex-direction:column;gap:22px}
 .hero__name{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(60px,12vw,200px);line-height:.9;letter-spacing:-.02em}
 .hero__name em{font-style:normal;color:var(--gold)}
+/* כותרות בסגנון השם (נבנות ב-JS): כל אות בעובי ובצבע משלה, הריווח נמדד לכל זוג. --br = נשימה של הריווח בשם שבפתיחה */
+@property --br{syntax:'<length>';inherits:true;initial-value:0px}
+.ts{letter-spacing:0!important;font-family:'Georama',var(--f-en)!important;font-stretch:62.5%}
+html[lang="he"] .ts{font-family:'Karantina',var(--f-he)!important;font-stretch:normal}
+.ts .tw{display:inline-block;white-space:nowrap}
+.ts .tl{display:inline-block;position:relative}
+.hero__name.ts{font-size:clamp(78px,15vw,236px);line-height:.92;animation:tsBreathe 4.6s ease-in-out infinite}   /* הפונטים הצרים קטנים יותר, אז השם גדל */
+@keyframes tsBreathe{0%,100%{--br:0em}50%{--br:.022em}}
 .mask{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
 .mask>span{display:inline-block}
 .hero__row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:20px 40px}

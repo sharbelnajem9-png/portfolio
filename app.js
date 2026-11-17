@@ -130,10 +130,76 @@ function applyText(){
   var t = L();
   $$('[data-t]').forEach(function(el){ var v = t[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
   $$('[data-th]').forEach(function(el){ el.innerHTML = t[el.dataset.th]; });
-  $('#heroName').innerHTML = '<span class="mask"><span><em>' + esc(t.heroName[0]) + '</em></span></span> <span class="mask"><span>' + esc(t.heroName[1]) + '</span></span>';
   $('#aboutLead').innerHTML = t.about1.split(' ').map(function(w){ return '<span class="wd">' + esc(w) + '</span>'; }).join(' ');
   var nl = $('#navLang'); nl.textContent = t.lang; nl.setAttribute('aria-label', t.langLabel);
+  tsHeads();
 }
+
+/* ---------- כותרות בסגנון השם: העובי עולה מדק לעבה, הצבע עובר מזהב ללבן, וכל זוג אותיות מקבל אותה כמות אוויר לפי הצורה שלו
+   (נמדד מהדיו של האות, לא מהקופסה שלה). אנגלית ב-Georama צר, עברית ב-Karantina. גרש וגרשיים יורדים לקו העליון של האותיות ---------- */
+var TS = { S: 120, W: 300, H: 230, B: 170, X: 60, tight: -.03, ready: false }, tsCache = {};
+var tsCv = document.createElement('canvas'); tsCv.width = TS.W; tsCv.height = TS.H;
+var tsCx = tsCv.getContext('2d', { willReadFrequently: true });
+var TS_GOLD = [212, 168, 83], TS_INK = [242, 242, 240], TS_MARK = /[׳״'"]/;
+function tsMix(p){ return 'rgb(' + TS_GOLD.map(function(c, i){ return Math.round(c + (TS_INK[i] - c) * p); }).join(',') + ')'; }
+function tsFont(){ return lang === 'he' ? { fam: 'Karantina', st: 'normal', ws: [300, 400, 700], ref: 'ה' } : { fam: 'Georama', st: 'extra-condensed', lo: 100, hi: 900, ref: 'H' }; }
+function tsWeight(f, p){ return f.ws ? f.ws[Math.min(f.ws.length - 1, Math.floor(p * f.ws.length))] : Math.round(f.lo + (f.hi - f.lo) * p); }
+// מצייר אות ומחזיר לכל שורה איפה הדיו מתחיל ונגמר
+function tsGlyph(ch, f, w, dy){
+  var key = ch + '|' + f.fam + '|' + w + '|' + (dy || 0); if (tsCache[key]) return tsCache[key];
+  var c = tsCx; c.clearRect(0, 0, TS.W, TS.H); c.font = w + ' ' + TS.S + 'px "' + f.fam + '"'; c.fontStretch = f.st; c.direction = 'ltr'; c.textBaseline = 'alphabetic';
+  c.fillText(ch, TS.X, TS.B + (dy || 0));
+  var d = c.getImageData(0, 0, TS.W, TS.H).data, Lr = [], Rr = [], x0 = TS.W, x1 = -1, y0 = TS.H, y1 = -1;
+  for (var y = 0; y < TS.H; y++) { var a = -1, b = -1;
+    for (var x = 0; x < TS.W; x++) if (d[(y * TS.W + x) * 4 + 3] > 90) { if (a < 0) a = x; b = x; }
+    Lr[y] = a; Rr[y] = b; if (a >= 0) { if (a < x0) x0 = a; if (b > x1) x1 = b; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+  return tsCache[key] = { L: Lr, R: Rr, x0: x0, x1: x1, y0: y0, adv: c.measureText(ch).width, il: x0 - TS.X, ir: x1 - TS.X };
+}
+// המרחק בין הדיו של שתי אותיות כך שכמות האוויר הממוצעת ביניהן תהיה T; פתחים עמוקים (כמו ב-L או A) נחתכים ב-D
+function tsGap(A, B, band, T, D, clear){
+  var sum = 0, cnt = 0, minRaw = 1e9;
+  for (var y = band[0]; y <= band[1]; y += 2) {
+    var ra = A.R[y] < 0 ? D : A.x1 - A.R[y], lb = B.L[y] < 0 ? D : B.L[y] - B.x0;
+    if (A.R[y] >= 0 && B.L[y] >= 0) minRaw = Math.min(minRaw, ra + lb);
+    sum += Math.min(ra, D) + Math.min(lb, D); cnt++;
+  }
+  var g = T - sum / cnt; if (minRaw < 1e9) g = Math.max(g, clear - minRaw); return g;
+}
+function typeset(el, text, mask){
+  if (!el) return; text = String(text).trim();
+  if (!TS.ready) { el.innerHTML = text.split(' ').map(function(w){ return mask ? '<span class="mask"><span>' + esc(w) + '</span></span>' : esc(w); }).join(' '); return; }
+  var f = tsFont(), rtl = lang === 'he', S = TS.S, ref = tsGlyph(f.ref, f, tsWeight(f, .5)), band = [ref.y0, TS.B];
+  if (!rtl) text = text.toUpperCase();   // באנגלית הכותרות באותיות גדולות, כמו השם; מודדים את האותיות כפי שהן מוצגות
+  var words = text.split(/\s+/).filter(Boolean).map(function(w){ return Array.from(w); });
+  var n = words.reduce(function(a, w){ return a + w.length; }, 0), i = 0;
+  el.innerHTML = words.map(function(wd){
+    var it = wd.map(function(ch){
+      var p = n > 1 ? i++ / (n - 1) : 0, w = tsWeight(f, p), g = tsGlyph(ch, f, w), dy = 0;
+      if (TS_MARK.test(ch)) { dy = ref.y0 - g.y0; g = tsGlyph(ch, f, w, dy); }   // הגרש יורד לקו העליון של האותיות
+      return { ch: ch, p: p, w: w, g: g, dy: dy, m: null };
+    });
+    for (var k = 0; k < it.length - 1; k++) {
+      var a = it[k], b = it[k + 1], vl = rtl ? b : a, vr = rtl ? a : b;   // בעברית האות הבאה נמצאת משמאל
+      var gap = tsGap(vl.g, vr.g, band, (.05 + TS.tight + .022 * (a.p + b.p) / 2) * S, .13 * S, .014 * S);
+      a.m = (gap - (vl.g.adv + vr.g.il - vl.g.ir)) / S;
+    }
+    var inner = it.map(function(x){
+      return '<span class="tl" style="color:' + tsMix(x.p) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
+    }).join('');
+    return mask ? '<span class="mask"><span class="tw">' + inner + '</span></span>' : '<span class="tw">' + inner + '</span>';
+  }).join(' ');
+  el.classList.add('ts');
+}
+function tsHeads(){
+  typeset($('#heroName'), L().heroName.join(' '), true);
+  $$('.h2, .group-head__title').forEach(function(el){ typeset(el, el.textContent); });
+  var th = $('#thTitle'); if (th && th.textContent) typeset(th, th.textContent);
+}
+(function(){
+  var loads = [100, 300, 500, 700, 900].map(function(w){ return document.fonts.load('extra-condensed ' + w + ' 40px "Georama"', 'SHARBELNAJEM'); })
+    .concat([300, 400, 700].map(function(w){ return document.fonts.load(w + ' 40px "Karantina"', 'שרבלנג׳םה'); }));
+  Promise.all(loads).then(function(){ TS.ready = true; tsCache = {}; tsHeads(); }, function(){});
+})();
 
 /* ---------- services ---------- */
 function renderServices(){
@@ -433,7 +499,7 @@ function clipHTML(m){
 function fillTheater(i, later){
   var p = P[i], t = L(); thIndex = i;
   var films = p.items.filter(function(x){ return x.o === 'l'; }), reels = p.items.filter(function(x){ return x.o === 'p'; }), list = films.concat(reels);
-  $('#thTag').textContent = t.cats[p.cat]; $('#thTitle').textContent = nm(p); $('#thSub').textContent = lang === 'he' ? p.subHe : p.subEn;
+  $('#thTag').textContent = t.cats[p.cat]; typeset($('#thTitle'), nm(p)); $('#thSub').textContent = lang === 'he' ? p.subHe : p.subEn;
   $('#thFilms').innerHTML = films.map(clipHTML).join(''); $('#thReels').innerHTML = reels.map(clipHTML).join('');
   $('#thFilmsWrap').hidden = !films.length; $('#thReelsWrap').hidden = !reels.length;
   $$('#theater .clip').forEach(function(b, k){
