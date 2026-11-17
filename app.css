@@ -141,13 +141,11 @@ html.has-art .gate-bg{background:transparent}
 
 /* ---------- hero ---------- */
 .hero{position:relative;height:100vh;height:100svh;min-height:580px}
-.hero__screen{position:absolute;inset:0;overflow:hidden;transform-origin:50% 35%;
-  /* התחתית של הסרטון נמסה לרקע במדרגות של מונדריאן: ארבע עמודות ברוחבים שונים, כל אחת דועכת בגובה אחר */
-  -webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000 0%,transparent 60%),linear-gradient(#000 30%,transparent 100%),linear-gradient(#000 8%,transparent 72%),linear-gradient(#000 45%,transparent 96%);
-  mask-image:linear-gradient(#000,#000),linear-gradient(#000 0%,transparent 60%),linear-gradient(#000 30%,transparent 100%),linear-gradient(#000 8%,transparent 72%),linear-gradient(#000 45%,transparent 96%);
-  -webkit-mask-size:100% 86%,23% 14%,36% 14%,17% 14%,24% 14%;mask-size:100% 86%,23% 14%,36% 14%,17% 14%,24% 14%;
-  -webkit-mask-position:0 0,0 100%,38.4% 100%,82.2% 100%,100% 100%;mask-position:0 0,0 100%,38.4% 100%,82.2% 100%,100% 100%;
-  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.hero__screen{position:absolute;inset:0;overflow:hidden;transform-origin:50% 35%}
+/* במצב בהיר הסרטון נמס ברכות לתוך הרקע; במצב כהה אין צורך */
+html[data-theme="light"] .hero__screen{-webkit-mask-image:linear-gradient(to bottom,#000 80%,rgba(0,0,0,.86) 85%,rgba(0,0,0,.6) 90%,rgba(0,0,0,.28) 95%,transparent 100%);mask-image:linear-gradient(to bottom,#000 80%,rgba(0,0,0,.86) 85%,rgba(0,0,0,.6) 90%,rgba(0,0,0,.28) 95%,transparent 100%)}
+/* ובדרך הוא מיטשטש בהדרגה, כמו ערפל, כדי שלא ייווצר פס אפור */
+html[data-theme="light"] .hero__screen::after{content:"";position:absolute;left:0;right:0;bottom:0;height:24%;pointer-events:none;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);-webkit-mask-image:linear-gradient(to bottom,transparent,#000 70%);mask-image:linear-gradient(to bottom,transparent,#000 70%)}
 .hero__shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(var(--bgc),.95) 0%,rgba(var(--bgc),.25) 48%,rgba(var(--bgc),.45) 100%);pointer-events:none}
 .hero__copy{position:absolute;left:0;right:0;bottom:0;padding-bottom:clamp(84px,15vh,160px);display:flex;flex-direction:column;gap:22px}
 .hero__name{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(60px,12vw,200px);line-height:.9;letter-spacing:-.02em}
