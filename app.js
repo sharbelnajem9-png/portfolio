@@ -747,14 +747,24 @@ $$('[data-legal]').forEach(function(a){ a.addEventListener('click', function(e){
 function autoTheme(){ var h = new Date().getHours(); return h >= 7 && h < 19 ? 'light' : 'dark'; }
 function manualTheme(){ try { var s = JSON.parse(store('sn-theme') || 'null'); if (s && s.d === new Date().toDateString()) return s.t; } catch (e) {} return null; }
 var themeT;
-function applyTheme(t, anim){
+// המעבר הוא של הציור: המלבנים ברקע מתהפכים בגל שיוצא מהכפתור (bg.js), וכל אזור באתר מחליף צבע בדיוק כשהגל מגיע אליו
+function applyTheme(t, anim, o){
   if (root.dataset.theme === t) return;
-  if (anim && !reduce) { root.classList.add('theme-anim'); clearTimeout(themeT); themeT = setTimeout(function(){ root.classList.remove('theme-anim'); }, 950); }
-  root.dataset.theme = t; tsHeads();
+  var fx = !!(window.artFX && anim && !reduce), late = 0;
+  if (fx) {
+    artFX.origin(o ? o[0] : innerWidth / 2, o ? o[1] : 0);
+    $$('#nav, main > *, footer').forEach(function(el){
+      var r = el.getBoundingClientRect(), y = Math.max(0, Math.min(innerHeight, r.top + Math.min(r.height, innerHeight) / 2));
+      var d = Math.max(0, artFX.waveAt(r.left + r.width / 2, y) - .4); late = Math.max(late, d); el.style.setProperty('--td', d.toFixed(2) + 's');
+    });
+  }
+  if (anim && !reduce) { root.classList.add('theme-anim'); clearTimeout(themeT); themeT = setTimeout(function(){ root.classList.remove('theme-anim'); $$('#nav, main > *, footer').forEach(function(el){ el.style.removeProperty('--td'); }); }, 950 + late * 1000); }
+  root.dataset.theme = t;
+  if (fx) setTimeout(tsHeads, 420); else tsHeads();
 }
 $('#themeBtn').addEventListener('click', function(){
-  var t = root.dataset.theme === 'light' ? 'dark' : 'light';
-  store('sn-theme', JSON.stringify({ t: t, d: new Date().toDateString() })); applyTheme(t, true);
+  var t = root.dataset.theme === 'light' ? 'dark' : 'light', r = this.getBoundingClientRect();
+  store('sn-theme', JSON.stringify({ t: t, d: new Date().toDateString() })); applyTheme(t, true, [r.left + r.width / 2, r.top + r.height / 2]);
 });
 setInterval(function(){ applyTheme(manualTheme() || autoTheme(), true); }, 60000);   // כשמגיעה השעה, האתר עובר לבד
 
@@ -768,7 +778,16 @@ $('#navLang').addEventListener('click', function(){
   var to = lang === 'he' ? 'en' : 'he';
   var top = function(){ scrollTo(0, 0); lenis && lenis.scrollTo(0, { immediate: true, force: true }); };   // a new language starts from the top
   var run = function(){ setLang(to); top(); setupScenes(); ScrollTrigger.refresh(); };
-  if (hasGsap && !reduce) gsap.to('main', { opacity: 0, duration: .3, onComplete: function(){ run(); gsap.to('main', { opacity: 1, duration: .6 }); } });
+  if (hasGsap && !reduce) {
+    // הציור מתהפך בכיוון הקריאה של השפה החדשה (bg.js); התוכן הישן נמוג, והחדש נחשף באותו כיוון, יחד עם הגל
+    var m = $('main');
+    window.artFX && artFX.flip(to === 'he' ? -1 : 1);
+    gsap.to(m, { opacity: 0, duration: .28, ease: 'power1.in', onComplete: function(){
+      run();
+      m.style.setProperty('--sd', to === 'he' ? 'to left' : 'to right'); m.classList.add('sweep'); gsap.set(m, { opacity: 1 });
+      gsap.fromTo(m, { '--sw': 0 }, { '--sw': 1, duration: 1.35, ease: 'power2.inOut', onComplete: function(){ m.classList.remove('sweep'); } });
+    } });
+  }
   else { setLang(to); top(); }
 });
 
@@ -867,6 +886,7 @@ function enterSite(){
 }
 function startGate(){
   root.classList.add('gating');   // בזמן הפתיחה רואים רק את הרקע ואת השואוריל שבמסגרת
+  window.artFX && artFX.build();   // הקנבס ריק, והקווים של הציור נמתחים אחד אחד בזמן הספירה
   var langs = $('#gateLangs'), count = $('#gateCount'), btns = $$('.gate__lang');
   var last = store('sn-lang'); var pre = btns.filter(function(b){ return b.dataset.lang === last; })[0];
   var arm = function(){ langs.classList.add('is-on'); btns.forEach(function(b){ b.disabled = false; }); };
@@ -898,11 +918,13 @@ function startGate(){
     langs.classList.remove('is-on'); btns.forEach(function(x){ x.disabled = true; });
     if (b.dataset.lang !== lang) setLang(b.dataset.lang); else store('sn-lang', lang);
     if (!hasGsap || reduce) { enterSite(); return; }
+    // הציור מתהפך לתוך האתר בכיוון הקריאה של השפה שנבחרה, והמסגרת נפתחת אחרי שהגל כבר יצא לדרך
+    window.artFX && artFX.flip(b.dataset.lang === 'he' ? -1 : 1);
     var r = frame.getBoundingClientRect();
     gsap.set(frame, { position: 'fixed', left: r.left, top: r.top, width: r.width, height: r.height, margin: 0 });
     gsap.timeline({ onComplete: enterSite, onUpdate: syncReel })
       .to([langs, '#gatePrompt', '.gate__meta', '#gateLogo', '#gateRatio', '.gate__corner'], { opacity: 0, duration: .3 }, 0)
-      .to(frame, { left: 0, top: 0, width: innerWidth, height: innerHeight, borderRadius: 0, borderColor: 'rgba(255,255,255,0)', duration: .8, ease: 'expo.inOut' }, .08);
+      .to(frame, { left: 0, top: 0, width: innerWidth, height: innerHeight, borderRadius: 0, borderColor: 'rgba(255,255,255,0)', duration: 1, ease: 'expo.inOut' }, window.artFX ? .38 : .08);
   }); });
 }
 
