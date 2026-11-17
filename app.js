@@ -186,7 +186,7 @@ function typeset(el, text, mask, only, byWord){
       a.m = (gap - (vl.g.adv + vr.g.il - vl.g.ir)) / S;
     }
     var inner = it.map(function(x){
-      return '<span class="tl" style="color:' + tsMix(x.p) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
+      return '<span class="tl" data-p="' + x.p.toFixed(3) + '" style="color:' + tsMix(x.p) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
     }).join('');
     return mask ? '<span class="mask"><span class="tw">' + inner + '</span></span>' : '<span class="tw">' + inner + '</span>';
   }).join(' ');
