@@ -136,13 +136,13 @@ function applyText(){
 }
 
 /* ---------- כותרות בסגנון השם: העובי עולה מדק לעבה, הצבע עובר מזהב ללבן, וכל זוג אותיות מקבל אותה כמות אוויר לפי הצורה שלו
-   (נמדד מהדיו של האות, לא מהקופסה שלה). אנגלית ב-Georama צר, עברית ב-Karantina. גרש וגרשיים יורדים לקו העליון של האותיות ---------- */
+   (נמדד מהדיו של האות, לא מהקופסה שלה). אנגלית ב-Georama צר, עברית ב-Noto Sans Hebrew צר. גרש וגרשיים יורדים לקו העליון של האותיות ---------- */
 var TS = { S: 120, W: 300, H: 230, B: 170, X: 60, tight: -.03, ready: false }, tsCache = {};
 var tsCv = document.createElement('canvas'); tsCv.width = TS.W; tsCv.height = TS.H;
 var tsCx = tsCv.getContext('2d', { willReadFrequently: true });
 var TS_GOLD = [212, 168, 83], TS_INK = [242, 242, 240], TS_MARK = /[׳״'"]/;
 function tsMix(p){ return 'rgb(' + TS_GOLD.map(function(c, i){ return Math.round(c + (TS_INK[i] - c) * p); }).join(',') + ')'; }
-function tsFont(){ return lang === 'he' ? { fam: 'Karantina', st: 'normal', ws: [300, 400, 700], ref: 'ה' } : { fam: 'Georama', st: 'extra-condensed', lo: 100, hi: 900, ref: 'H' }; }
+function tsFont(){ return lang === 'he' ? { fam: 'Noto Sans Hebrew', st: 'extra-condensed', lo: 100, hi: 900, ref: 'ה' } : { fam: 'Georama', st: 'extra-condensed', lo: 100, hi: 900, ref: 'H' }; }
 function tsWeight(f, p){ return f.ws ? f.ws[Math.min(f.ws.length - 1, Math.floor(p * f.ws.length))] : Math.round(f.lo + (f.hi - f.lo) * p); }
 // מצייר אות ומחזיר לכל שורה איפה הדיו מתחיל ונגמר
 function tsGlyph(ch, f, w, dy){
@@ -197,7 +197,7 @@ function tsHeads(){
 }
 (function(){
   var loads = [100, 300, 500, 700, 900].map(function(w){ return document.fonts.load('extra-condensed ' + w + ' 40px "Georama"', 'SHARBELNAJEM'); })
-    .concat([300, 400, 700].map(function(w){ return document.fonts.load(w + ' 40px "Karantina"', 'שרבלנג׳םה'); }));
+    .concat([100, 300, 500, 700, 900].map(function(w){ return document.fonts.load('extra-condensed ' + w + ' 40px "Noto Sans Hebrew"', 'שרבלנג׳םה'); }));
   Promise.all(loads).then(function(){ TS.ready = true; tsCache = {}; tsHeads(); }, function(){});
 })();
 

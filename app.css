@@ -115,12 +115,12 @@ html[dir="ltr"] .rule__line{transform-origin:0 50%}
 /* כותרות בסגנון השם (נבנות ב-JS): כל אות בעובי ובצבע משלה, הריווח נמדד לכל זוג. --br = נשימה של הריווח בשם שבפתיחה */
 @property --br{syntax:'<length>';inherits:true;initial-value:0px}
 .ts{letter-spacing:0!important;font-family:'Georama',var(--f-en)!important;font-stretch:62.5%}
-html[lang="he"] .ts{font-family:'Karantina',var(--f-he)!important;font-stretch:normal}
+html[lang="he"] .ts{font-family:'Noto Sans Hebrew',var(--f-he)!important;font-stretch:62.5%}
 .ts .tw{display:inline-block;white-space:nowrap}
 .ts .tl{display:inline-block;position:relative}
 .hero__name.ts{font-size:clamp(78px,15vw,236px);line-height:.92}   /* הפונטים הצרים קטנים יותר, אז השם גדל */
 /* כל הכותרות בסגנון נושמות: הריווח נפתח מעט וחוזר */
-.ts{animation:tsBreathe 4.6s ease-in-out infinite}
+.ts{animation:tsBreathe 12s cubic-bezier(.37,0,.63,1) infinite}   /* איטי וסינמטי: נשימה אחת ב-12 שניות */
 @keyframes tsBreathe{0%,100%{--br:0em}50%{--br:.022em}}
 .mask{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
 .mask>span{display:inline-block}
