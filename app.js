@@ -918,13 +918,14 @@ function startGate(){
     langs.classList.remove('is-on'); btns.forEach(function(x){ x.disabled = true; });
     if (b.dataset.lang !== lang) setLang(b.dataset.lang); else store('sn-lang', lang);
     if (!hasGsap || reduce) { enterSite(); return; }
-    // הציור מתהפך לתוך האתר בכיוון הקריאה של השפה שנבחרה, והמסגרת נפתחת אחרי שהגל כבר יצא לדרך
+    // הציור מתהפך לתוך האתר בכיוון הקריאה של השפה שנבחרה, (מאחורי השואוריל שנפתח)
     window.artFX && artFX.flip(b.dataset.lang === 'he' ? -1 : 1);
     var r = frame.getBoundingClientRect();
     gsap.set(frame, { position: 'fixed', left: r.left, top: r.top, width: r.width, height: r.height, margin: 0 });
     gsap.timeline({ onComplete: enterSite, onUpdate: syncReel })
       .to([langs, '#gatePrompt', '.gate__meta', '#gateLogo', '#gateRatio', '.gate__corner'], { opacity: 0, duration: .3 }, 0)
-      .to(frame, { left: 0, top: 0, width: innerWidth, height: innerHeight, borderRadius: 0, borderColor: 'rgba(255,255,255,0)', duration: 1, ease: 'expo.inOut' }, window.artFX ? .38 : .08);
+      // המסגרת נפתחת מיד ומהר (ומאטה בסוף), כדי שהשואוריל ימלא את המסך בלי רגע של מסך לבן
+      .to(frame, { left: 0, top: 0, width: innerWidth, height: innerHeight, borderRadius: 0, borderColor: 'rgba(255,255,255,0)', duration: .95, ease: 'expo.out' }, 0);
   }); });
 }
 

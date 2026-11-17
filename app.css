@@ -32,7 +32,7 @@ html[data-theme="light"]{
   --glass-edge:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(20,21,24,.05),0 12px 40px rgba(20,21,24,.12);
 }
 /* איים שנשארים כהים תמיד, כמו בקולנוע: הפתיחה עם השואוריל, הצופה, הכרטיסים עם וידאו */
-.hero,.gate__frame,.lb,.card,.dcard,.frame__media,.clip__media{
+.hero,.gate__frame,.lb,.card,.dcard,.frame__media,.clip__media,.nav,.sheet{
   color-scheme:dark;color:var(--ink);
   --bg:#111317;--bg-2:#161a1e;--bg-3:#1c2026;--ink:#f2f2f0;--ink-2:#b6b7b6;--ink-3:#909295;
   --fg:255,255,255;--bgc:17,19,23;--acc:201,207,217;--line:rgba(255,255,255,.12);--line-2:rgba(255,255,255,.2);--gold:#c9cfd9;--blue:#4d63f0;
@@ -47,7 +47,7 @@ main.sweep{-webkit-mask-image:linear-gradient(var(--sd,to right),#000 calc(var(-
 html[data-theme="light"] .nav__theme .i-sun{display:none}
 html[data-theme="light"] .nav__theme .i-moon{display:block}
 /* הלוגו לבן - על רקע בהיר הופכים אותו לכהה */
-html[data-theme="light"] .nav__logo img,html[data-theme="light"] .dream img,html[data-theme="light"] .theater__logo,html[data-theme="light"] .gate__logo{filter:invert(1) brightness(.2)}
+html[data-theme="light"] .dream img,html[data-theme="light"] .theater__logo,html[data-theme="light"] .gate__logo{filter:invert(1) brightness(.2)}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink)}
 /* רקע האמנות (bg.js): כשהוא רץ הדף שקוף והקנבס מאחור */
@@ -104,11 +104,11 @@ html.has-art .gate-bg{background:transparent}
 .js .gate{display:flex}
 .gate__logo{width:74px;height:74px;opacity:0}
 .gate__prompt{margin:0;display:flex;gap:12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);opacity:0}
-.gate__frame{position:relative;z-index:3;width:126px;height:224px;border:1px solid rgba(var(--fg),.55);border-radius:18px;flex:none}
+.gate__frame{position:relative;z-index:3;width:126px;height:224px;border:2px solid rgba(var(--fg),.72);border-radius:18px;flex:none}
 .gate__ratio{position:absolute;top:10px;inset-inline-start:12px;font-size:11px;color:var(--ink-2);z-index:2}
 .gate__corner{position:absolute;width:14px;height:14px;border:solid var(--ink);opacity:.85;z-index:2}
-.gate__corner.tl{top:8px;left:8px;border-width:1px 0 0 1px}.gate__corner.tr{top:8px;right:8px;border-width:1px 1px 0 0}
-.gate__corner.bl{bottom:8px;left:8px;border-width:0 0 1px 1px}.gate__corner.br{bottom:8px;right:8px;border-width:0 1px 1px 0}
+.gate__corner.tl{top:8px;left:8px;border-width:2px 0 0 2px}.gate__corner.tr{top:8px;right:8px;border-width:2px 2px 0 0}
+.gate__corner.bl{bottom:8px;left:8px;border-width:0 0 2px 2px}.gate__corner.br{bottom:8px;right:8px;border-width:0 2px 2px 0}
 .gate__langs{position:absolute;inset:0;display:flex;opacity:0;pointer-events:none;border-radius:inherit;overflow:hidden}
 .gate__langs.is-on{pointer-events:auto}
 .gate__lang{flex:1;display:flex;align-items:center;justify-content:center;border:0;background:rgba(var(--bgc),.42);cursor:pointer;font-size:clamp(26px,3.4vw,46px);font-weight:700;transition:background .35s var(--ease)}
@@ -534,3 +534,7 @@ html[dir="rtl"] .nav__ind i::after,html[dir="rtl"] .nav__where i::after{transfor
 @media (max-width:1080px){.nav__where{display:block}}
 .sheet a.is-active{background:rgba(var(--fg),.1);box-shadow:inset 3px 0 0 var(--blue)}
 html[dir="rtl"] .sheet a.is-active{box-shadow:inset -3px 0 0 var(--blue)}
+/* הפס העליון: תמיד זכוכית כהה וטקסט לבן, כדי שיבלוט על כל רקע - בהיר, כהה או צבעוני */
+.nav.glass,.sheet.glass{background:linear-gradient(135deg,rgba(22,24,29,.82),rgba(22,24,29,.66));border-color:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 12px 40px rgba(0,0,0,.3)}
+.nav a.nav__link,.nav__btn,.sheet a{color:rgba(255,255,255,.82)}
+.nav a.nav__link.is-active,.nav a.nav__link:hover,.nav__btn:hover,.sheet a:hover,.sheet a.is-active{color:#fff}
