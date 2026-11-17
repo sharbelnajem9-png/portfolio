@@ -203,7 +203,7 @@ function render(){
   }).join('');
   var nl = $('#navLang'); nl.textContent = t.lang; nl.setAttribute('aria-label', t.langLabel);
   $('#themeBtn').setAttribute('aria-label', t.themeLabel);
-  tsHeads(); armReveal();
+  tsHeads(); armReveal(); window.navSpyRefresh && navSpyRefresh();
 }
 
 /* ---------- נחשף כשמגיעים: כרטיסים עולים, קו המחיקה נמתח על כל בעיה, הקו של התהליך נמתח ---------- */

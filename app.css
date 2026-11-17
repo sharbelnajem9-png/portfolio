@@ -511,3 +511,26 @@ h1,h2,h3,.card__title,.contact__l1,.contact__l2,.lb__title b{text-wrap:balance}
 /* פסקאות קצרות: שורות באורך דומה, כך שאף שורה לא נשארת עם מילה, שתיים או שלוש */
 .sec__sub,.group-head__sub,.theater__sub,.contact__pre,.card__sub,.svc__desc,.hero__sub,.label,.about__p,.about__lead{text-wrap:balance}
 p,.quote p{text-wrap:pretty}
+/* ---------- הפס העליון יודע איפה אתם (navspy.js): גלולה שזורמת לאזור הנוכחי, וקו שמתמלא לאורך האזור ---------- */
+.nav__links{position:relative}
+.nav__ind{position:absolute;top:0;bottom:0;left:0;width:0;border-radius:999px;background:rgba(var(--fg),.12);box-shadow:inset 0 1px 0 rgba(var(--fg),.22),0 6px 20px rgba(0,0,0,.16);pointer-events:none;opacity:0;transition:opacity .45s var(--ease);will-change:transform,width}
+.nav__ind.on{opacity:1}
+.nav__ind i,.nav__where i{position:absolute;bottom:3px;left:24%;right:24%;height:2px;border-radius:2px;background:rgba(var(--fg),.1);overflow:hidden}
+.nav__ind i::after,.nav__where i::after{content:"";position:absolute;inset:0;background:var(--blue);transform:scaleX(var(--p,0));transform-origin:left}
+html[dir="rtl"] .nav__ind i::after,html[dir="rtl"] .nav__where i::after{transform-origin:right}
+.nav__links .nav__link{position:relative;z-index:1}
+.nav__links .nav__link:hover{background:none!important;color:var(--ink)}
+.nav a.nav__link.is-active{color:var(--ink);font-weight:600}
+.nav__where{display:none;position:relative;flex:none;height:34px;width:0;padding:0;margin-inline:2px;border:0;border-radius:999px;background:rgba(var(--fg),.1);color:var(--ink);font:inherit;font-size:13px;font-weight:600;overflow:hidden;cursor:pointer;opacity:0;transition:width .55s var(--ease),opacity .4s var(--ease)}
+.nav__where.on{opacity:1}
+.nav__where span{position:absolute;inset:0 0 2px;display:flex;align-items:center;justify-content:center;white-space:nowrap;padding:0 14px;animation:nwIn .55s var(--ease) both}
+.nav__where span.up{animation-name:nwInUp}
+.nav__where span.out{animation:nwOut .5s var(--ease) both}
+.nav__where span.out.up{animation-name:nwOutUp}
+@keyframes nwIn{from{transform:translateY(110%);opacity:0}to{transform:none;opacity:1}}
+@keyframes nwInUp{from{transform:translateY(-110%);opacity:0}to{transform:none;opacity:1}}
+@keyframes nwOut{to{transform:translateY(-110%);opacity:0}}
+@keyframes nwOutUp{to{transform:translateY(110%);opacity:0}}
+@media (max-width:1080px){.nav__where{display:block}}
+.sheet a.is-active{background:rgba(var(--fg),.1);box-shadow:inset 3px 0 0 var(--blue)}
+html[dir="rtl"] .sheet a.is-active{box-shadow:inset -3px 0 0 var(--blue)}

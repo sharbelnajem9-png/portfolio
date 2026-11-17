@@ -133,7 +133,7 @@ function applyText(){
   $('#aboutLead').innerHTML = t.about1.split(' ').map(function(w){ return '<span class="wd">' + esc(w) + '</span>'; }).join(' ');
   var nl = $('#navLang'); nl.textContent = t.lang; nl.setAttribute('aria-label', t.langLabel);
   $('#themeBtn').setAttribute('aria-label', t.themeLabel);
-  tsHeads();
+  tsHeads(); window.navSpyRefresh && navSpyRefresh();
 }
 
 /* ---------- כותרות בסגנון השם: העובי עולה מדק לעבה, הצבע עובר מזהב ללבן, וכל זוג אותיות מקבל אותה כמות אוויר לפי הצורה שלו
