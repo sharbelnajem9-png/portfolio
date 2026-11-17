@@ -84,7 +84,7 @@ function mediaHTML(m){ MEDIA.push(m); return '<span class="media" data-m="' + (M
 function vq(m){ return m.h ? 'h=' + m.h + '&' : ''; }
 // תצוגות מקדימות ב-540p: מספיק לגודל האריחים, ובאיכות אוטומטית סרטונים כבדים לא מתחילים כשכמה נטענים יחד
 function bgURL(m){ return 'https://player.vimeo.com/video/' + m.v + '?' + vq(m) + 'background=1&autoplay=1&muted=1&loop=1&playsinline=1&autopause=0&dnt=1&quality=540p'; }
-function fullURL(m){ return 'https://player.vimeo.com/video/' + m.v + '?' + vq(m) + 'autoplay=1&title=0&byline=0&portrait=0&dnt=1&color=d4a853'; }
+function fullURL(m){ return 'https://player.vimeo.com/video/' + m.v + '?' + vq(m) + 'autoplay=1&title=0&byline=0&portrait=0&dnt=1&color=c9cfd9'; }
 function isPhone(){ return innerWidth <= 760; }
 // phones show posters only; a video plays when the viewer taps it
 function live(box){
@@ -140,8 +140,10 @@ function applyText(){
 var TS = { S: 120, W: 300, H: 230, B: 170, X: 60, tight: -.03, ready: false }, tsCache = {};
 var tsCv = document.createElement('canvas'); tsCv.width = TS.W; tsCv.height = TS.H;
 var tsCx = tsCv.getContext('2d', { willReadFrequently: true });
-var TS_GOLD = [212, 168, 83], TS_INK = [242, 242, 240], TS_MARK = /[׳״'"]/;
-function tsMix(p){ return 'rgb(' + TS_GOLD.map(function(c, i){ return Math.round(c + (TS_INK[i] - c) * p); }).join(',') + ')'; }
+var TS_MARK = /[׳״'"]/;
+// צבע הכותרות: פלטינה, כסף בהיר, לבן - שלוש עצירות לאורך השם
+var TS_STOPS = [[201, 207, 217], [226, 228, 232], [242, 242, 240]];
+function tsMix(p){ var a = p < .5 ? TS_STOPS[0] : TS_STOPS[1], b = p < .5 ? TS_STOPS[1] : TS_STOPS[2], t = p < .5 ? p * 2 : (p - .5) * 2; return 'rgb(' + a.map(function(c, i){ return Math.round(c + (b[i] - c) * t); }).join(',') + ')'; }
 function tsFont(l){ return (l || lang) === 'he' ? { fam: 'Noto Sans Hebrew', st: 'extra-condensed', lo: 100, hi: 900, ref: 'ה' } : { fam: 'Georama', st: 'extra-condensed', lo: 100, hi: 900, ref: 'H' }; }
 function tsWeight(f, p){ return f.ws ? f.ws[Math.min(f.ws.length - 1, Math.floor(p * f.ws.length))] : Math.round(f.lo + (f.hi - f.lo) * p); }
 // מצייר אות ומחזיר לכל שורה איפה הדיו מתחיל ונגמר
@@ -191,7 +193,14 @@ function typeset(el, text, mask, only, byWord){
     return mask ? '<span class="mask"><span class="tw">' + inner + '</span></span>' : '<span class="tw">' + inner + '</span>';
   }).join(' ');
   el.classList.add('ts'); el.classList.toggle('ts-en', only === 'en');
+  tsFit(el);
 }
+// כותרת תמיד בשורה אחת: אם היא רחבה מהמקום, מקטינים אותה בדיוק כמה שצריך במקום לרדת שורה
+function tsFit(el){
+  el.style.fontSize = ''; var avail = el.clientWidth, need = el.scrollWidth;
+  if (avail > 0 && need > avail + 1) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * avail / need * .985).toFixed(2) + 'px';
+}
+var tsFitT; addEventListener('resize', function(){ clearTimeout(tsFitT); tsFitT = setTimeout(function(){ $$('.ts').forEach(tsFit); }, 200); });
 function tsHeads(){
   typeset($('#heroName'), L().heroName.join(' '), true);
   $$('.h2, .group-head__title').forEach(function(el){ typeset(el, el.textContent); });
