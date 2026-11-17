@@ -359,7 +359,7 @@ html[dir="rtl"] .flip-x{transform:scaleX(-1)}
 .copy{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line-2);background:none;color:var(--ink-2);font-size:13px;cursor:pointer}
 .dream{display:flex;flex-direction:column;align-items:center;gap:12px;padding-block:24px 96px;overflow:hidden}
 .dream img{width:64px;height:64px;opacity:.9}
-/* Dream / Create / Share: one font (Assistant, the site's own), one line, the weight climbs a step per word - light, medium, heavy */
+/* המוטו Dream Create Share Sell: שורה אחת, והעובי עולה מדרגה בכל מילה */
 .dream__words{display:flex;flex-wrap:nowrap;justify-content:center;align-items:baseline;gap:.26em;padding-inline:16px;font-size:clamp(22px,3.2vw,56px);line-height:1.05;color:var(--ink);perspective:900px}
 @media (max-width:640px){.dream__words{font-size:6.6vw}}
 

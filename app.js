@@ -422,7 +422,7 @@ function quotesTick(t){
   addEventListener('pointerup', end); addEventListener('pointercancel', function(){ end(null); });
 })();
 function renderDream(){
-  var el = $('.dream__words'); typeset(el, 'Dream Create Share', false, 'en', true);   // מילה דקה, בינונית, עבה
+  var el = $('.dream__words'); typeset(el, 'Dream Create Share Sell', false, 'en', true);   // המוטו (מ-2026-11-17): ארבע מילים, כל אחת עבה מהקודמת - 200, 400, 600, 800
   // אם הכניסה עוד לא הופעלה, האותיות החדשות מתחילות מוסתרות
   if (root._dreamIO && !root._dreamPlayed && hasGsap && !reduce) gsap.set($$('.tl', el), { opacity: 0, yPercent: 70, rotationX: -85, transformPerspective: 700, transformOrigin: '50% 100%' });
 }
@@ -828,7 +828,7 @@ function setupScenes(){
   // the reel stays whole and still while scrolling (no scale/tilt/rounding: that clipped the video at its corner); only the copy drifts up and fades
   add(gsap.to('.hero__copy', { yPercent: -20, opacity: 0, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } }));
   add(gsap.to('#aboutLead .wd', { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: '#aboutLead', start: 'top 85%', end: 'bottom 55%', scrub: true } }));
-  // Dream / Create / Share: the letters flip up out of the line one by one, the words close in from wide spacing,
+  // Dream / Create / Share / Sell: the letters flip up out of the line one by one, the words close in from wide spacing,
   // and each word grows into its own weight (light, medium, heavy)
   if (!root._dreamIO) {
     gsap.set($$('.dream__words .tl'), { opacity: 0, yPercent: 70, rotationX: -85, transformPerspective: 700, transformOrigin: '50% 100%' });

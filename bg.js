@@ -72,7 +72,7 @@
   var mx = innerWidth * .7, my = innerHeight * .3, tx = mx, ty = my, lastMove = -1e9, frame = 0, lastY = -1, lastMx = -1, lastMy = -1;
   // מצב המעבר: LA = הצד הקדמי של המלבנים, LB = הצד האחורי; T0 = מתי התחיל הגל; TM = 0 גל מהנקודה O, 1/-1 גל בכיוון קריאה
   var root = document.documentElement, cur = root.dataset.theme === 'light' ? 1 : 0, LA = cur, LB = cur, T0 = -100, TM = 0, OX = innerWidth / 2, OY = 0, now = 0;
-  var B0 = document.getElementById('gate') && !still ? -1 : null;   // בפתיחה הקנבס ריק עד שהספירה מתחילה
+  var B0 = (document.getElementById('gate') || root.hasAttribute('data-art-build')) && !still ? -1 : null;   // בפתיחה (וגם בדף הנחיתה) הקנבס ריק עד שהציור מתחיל
   var nextWave = 35 + Math.random() * 15;   // מדי פעם (כל 40-75 שניות) גל מהיר עובר על הציור, כמו בכניסה - לא כל הזמן
   window.artFX = {
     origin: function(x, y){ OX = x; OY = y; },
