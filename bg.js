@@ -15,7 +15,7 @@
   var fs = [
     'precision highp float;',
     'uniform vec2 uRes;uniform float uScroll;uniform vec2 uMouse;uniform float uQ;uniform float uTime;',
-    'uniform float uLA;uniform float uLB;uniform float uT0;uniform float uTM;uniform vec2 uO;uniform float uB;uniform float uTI;uniform float uVB;uniform float uDS;',
+    'uniform float uLA;uniform float uLB;uniform float uT0;uniform float uTM;uniform vec2 uO;uniform float uB;uniform float uTI;uniform float uVB;uniform float uDS;uniform vec3 uPal[5];',
     'const float RH=400.,LW=6.,ON=.15,SPLIT=.35,TA=1.4,FD=.75;',
     'const vec3 C1=vec3(.788,.812,.851),C2=vec3(.184,.31,.847),C3=vec3(.922,.894,.839),C4=vec3(.435,.561,.722);',
     'float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}',
@@ -23,8 +23,8 @@
     // כמה מכל קו כבר צויר (בכניסה לאתר); כל קו מתחיל בזמן אחר
     'float grow(vec2 id){return smoothstep(0.,1.,clamp((uB-hash(id+7.)*1.1)/.8,0.,1.));}',
     // הפתיחה: המון צבעים בסגנון מונדריאן (אדום, צהוב, כחול ועוד), לפני שהציור נרגע לצבעי האתר
-    'vec3 vivid(float k){if(k<.12)return vec3(.87,.12,.13);if(k<.24)return vec3(.99,.80,.05);if(k<.36)return vec3(.08,.26,.78);if(k<.44)return vec3(.97,.44,.08);if(k<.52)return vec3(.91,.18,.52);',
-    'if(k<.60)return vec3(.06,.62,.42);if(k<.68)return vec3(.12,.70,.92);if(k<.76)return vec3(.47,.24,.82);if(k<.84)return vec3(.36,.86,.30);if(k<.94)return vec3(.96,.94,.89);return vec3(.05,.05,.06);}',
+    // פלטה אחת מסודרת: ארבעה צבעים ומעט מכל אחד, ורוב הגושים בצבע הרקע של הפלטה - כמו אצל מונדריאן
+    'vec3 vivid(float k){if(k<.14)return uPal[0];if(k<.26)return uPal[1];if(k<.36)return uPal[2];if(k<.44)return uPal[3];return uPal[4];}',
     'float rowLine(float rb,float dy,float x){if(uB>4.)return dy;float p=grow(vec2(rb,1.));if(p<=0.)return 1e4;float W=uRes.x;bool fl=hash(vec2(rb,2.))>.5;return length(vec2(segd(x,fl?0.:W*(1.-p),fl?W*p:W),dy));}',
     // שורות של 400px; בכל שורה עד שלושה קווים אנכיים, ובחלק מהתאים קו אופקי נוסף. מחזיר מרחק מהקו הקרוב, מזהה תא, וגבולות המלבן
     'vec4 cell(vec2 w,out vec4 pb){float r=floor(w.y/RH);float ly=w.y-r*RH;float W=uRes.x;float d=min(rowLine(r,ly,w.x),rowLine(r+1.,RH-ly,w.x));float c0=0.,c1=W,ci=0.;',
@@ -63,7 +63,7 @@
     'vec3 fc=mix(col,cl,Lh);',
     // ההתפרצות: כל מלבן מתחלק לגושי צבע עם קווים שחורים, הגושים מתפרצים מהמרכז החוצה, ואז הצבעים נמסים לצבעי האתר והגושים מתאחדים
     'if(uVB>0.&&uB>0.&&uB<uDS+1.){vec2 pw=max(vec2(pb.y-pb.x,pb.w-pb.z),vec2(1.));vec2 lp=clamp((w-pb.xz)/pw,0.,.9999);',
-    'vec2 nn=vec2(1.+floor(hash(cc.yz+cc.w+41.)*3.),1.+floor(hash(cc.yz+cc.w+43.)*2.6));vec2 sc=floor(lp*nn),sf=fract(lp*nn);',
+    'vec2 nn=vec2(1.+floor(hash(cc.yz+cc.w+41.)*2.),1.+floor(hash(cc.yz+cc.w+43.)*1.7));vec2 sc=floor(lp*nn),sf=fract(lp*nn);',
     'vec2 sdd=min(sf,1.-sf)*pw/nn;float subL=1.-smoothstep(2.,4.,min(nn.x>1.?sdd.x:1e4,nn.y>1.?sdd.y:1e4));',
     'vec2 scc=pb.xz+(sc+.5)/nn*pw-vec2(0.,uScroll);float hb=hash(cc.yz*2.3+cc.w*1.7+sc*7.1+13.);',
     'float st=.05+length(scc-uRes*.5)/uRes.y*.45+hash(sc+cc.yz+cc.w+21.)*.2;float pop=smoothstep(st,st+.14,uB);',
@@ -80,18 +80,22 @@
   gl.useProgram(pr);
   var buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
   var loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  var U = {}; ['uTime', 'uRes', 'uScroll', 'uMouse', 'uQ', 'uLA', 'uLB', 'uT0', 'uTM', 'uO', 'uB', 'uTI', 'uVB', 'uDS'].forEach(function(n){ U[n] = gl.getUniformLocation(pr, n); });
+  var U = {}; ['uTime', 'uRes', 'uScroll', 'uMouse', 'uQ', 'uLA', 'uLB', 'uT0', 'uTM', 'uO', 'uB', 'uTI', 'uVB', 'uDS', 'uPal'].forEach(function(n){ U[n] = gl.getUniformLocation(pr, n); });
   document.body.prepend(c); document.documentElement.classList.add('has-art');
   var mx = innerWidth * .7, my = innerHeight * .3, tx = mx, ty = my, lastMove = -1e9, frame = 0, lastY = -1, lastMx = -1, lastMy = -1;
   // מצב המעבר: LA = הצד הקדמי של המלבנים, LB = הצד האחורי; T0 = מתי התחיל הגל; TM = 0 גל מהנקודה O, 1/-1 גל בכיוון קריאה
   var root = document.documentElement, cur = root.dataset.theme === 'light' ? 1 : 0, LA = cur, LB = cur, T0 = -100, TM = 0, OX = innerWidth / 2, OY = 0, now = 0;
   var B0 = (document.getElementById('gate') || root.hasAttribute('data-art-build')) && !still ? -1 : null;   // בפתיחה (וגם בדף הנחיתה) הקנבס ריק עד שהציור מתחיל
-  var BURST = document.getElementById('gate') ? 1 : 0, DS = 99;   // התפרצות הצבעים רק בפתיחה של האתר, לא בדף הנחיתה
+  var BURST = document.getElementById('gate') ? 1 : 0, DS = 99;
+  // הפלטה של ההתפרצות (ארבעה צבעים + צבע רקע)
+  var PAL = [.843, .149, .169, .949, .765, 0, .114, .247, .62, .067, .067, .075, .957, .945, .918];   // התפרצות הצבעים רק בפתיחה של האתר, לא בדף הנחיתה
   var nextWave = 35 + Math.random() * 15;   // מדי פעם (כל 40-75 שניות) גל מהיר עובר על הציור, כמו בכניסה - לא כל הזמן
   window.artFX = {
     origin: function(x, y){ OX = x; OY = y; },
     flip: function(dir){ if (still) return; LA = LB = cur; T0 = now; TM = dir; },
     build: function(){ if (B0 === -1) B0 = now || performance.now() / 1000; },
+    palette: function(a){ PAL = a; },
+    replay: function(){ B0 = now; DS = 99; },
     settle: function(){ if (B0 !== null && B0 >= 0 && DS > 50) DS = Math.max(.6, now - B0); },   // הצבעים נרגעים לצבעי האתר (כשהספירה מגיעה ל-100)
     wave: function(){ nextWave = 0; T0 = Math.min(T0, now - 6); },   // גל עכשיו (לבדיקה)
     waveAt: function(x, y){ return Math.hypot(x - OX, y - OY) / 1500 + .06 + .375; }   // מתי הגל הופך את המקום הזה (שניות)
@@ -122,7 +126,7 @@
     lastY = scrollY; lastMx = mx; lastMy = my;
     gl.uniform1f(U.uTime, still ? 0 : now); gl.uniform2f(U.uRes, innerWidth, innerHeight); gl.uniform1f(U.uScroll, scrollY); gl.uniform2f(U.uMouse, mx, my); gl.uniform1f(U.uQ, Q);
     gl.uniform1f(U.uLA, LA); gl.uniform1f(U.uLB, LB); gl.uniform1f(U.uT0, still ? -100 : T0); gl.uniform1f(U.uTM, TM); gl.uniform2f(U.uO, OX, OY);
-    gl.uniform1f(U.uB, ub); gl.uniform1f(U.uTI, B0 === null ? 1 : Math.max(0, Math.min(1, (ub - Math.min(DS, 2.6) - .1) / .7))); gl.uniform1f(U.uVB, BURST); gl.uniform1f(U.uDS, DS);
+    gl.uniform1f(U.uB, ub); gl.uniform1f(U.uTI, B0 === null ? 1 : Math.max(0, Math.min(1, (ub - Math.min(DS, 2.6) - .1) / .7))); gl.uniform1f(U.uVB, BURST); gl.uniform1f(U.uDS, DS); gl.uniform3fv(U.uPal, PAL);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
   requestAnimationFrame(loop);
