@@ -30,7 +30,7 @@ var T = {
     contactLabel: 'בואו נדבר', contactPre: 'אני עובד עם 2 עסקים בחודש בלבד.', contactQ: 'מוכנים להפוך את החזון למציאות?', contactA: 'בואו ניצור תוכן ש<em>עושה אימפקט</em>.',
     contactBtn: 'בואו נדבר', copy: 'העתקה', copied: 'הועתק',
     copyright: '© 2026 שרבל נג׳ם. כל הזכויות שמורות.', lAccess: 'נגישות', lPrivacy: 'מדיניות פרטיות', lTerms: 'תנאי שימוש',
-    films: 'סרטים', reels: 'רילס', close: 'סגירה', prev: 'הקודם', next: 'הבא', upNext: 'הבא בתור', nextIn: 'הבא בעוד', playNow: 'נגן עכשיו', cancel: 'ביטול', nextProject: 'הפרויקט הבא', open: 'לפרויקט', play: 'צפייה',
+    films: 'סרטים', reels: 'רילס', close: 'סגירה', themeLabel: 'מצב בהיר או כהה', prev: 'הקודם', next: 'הבא', upNext: 'הבא בתור', nextIn: 'הבא בעוד', playNow: 'נגן עכשיו', cancel: 'ביטול', nextProject: 'הפרויקט הבא', open: 'לפרויקט', play: 'צפייה',
     lang: 'EN', langLabel: 'Switch to English',
     cats: { food: 'אוכל ואירוח', people: 'אנשים ומותגים', business: 'עסקים', travel: 'תיירות', defense: 'ביטחון' }
   },
@@ -52,7 +52,7 @@ var T = {
     contactLabel: "Let's Talk", contactPre: 'I work with only 2 businesses a month.', contactQ: 'Ready to bring your vision to life?', contactA: "Let's create content that <em>makes an impact</em>.",
     contactBtn: "Let's Talk", copy: 'Copy', copied: 'Copied',
     copyright: '© 2026 Sharbel Najem. All rights reserved.', lAccess: 'Accessibility', lPrivacy: 'Privacy Policy', lTerms: 'Terms of Use',
-    films: 'Films', reels: 'Reels', close: 'Close', prev: 'Previous', next: 'Next', upNext: 'Up next', nextIn: 'Next in', playNow: 'Play now', cancel: 'Cancel', nextProject: 'Next project', open: 'Open', play: 'Play',
+    films: 'Films', reels: 'Reels', close: 'Close', themeLabel: 'Light or dark mode', prev: 'Previous', next: 'Next', upNext: 'Up next', nextIn: 'Next in', playNow: 'Play now', cancel: 'Cancel', nextProject: 'Next project', open: 'Open', play: 'Play',
     lang: 'עב', langLabel: 'עברו לעברית',
     cats: { food: 'Food & Events', people: 'People & Brands', business: 'Business', travel: 'Travel', defense: 'Defense' }
   }
@@ -132,6 +132,7 @@ function applyText(){
   $$('[data-th]').forEach(function(el){ el.innerHTML = t[el.dataset.th]; });
   $('#aboutLead').innerHTML = t.about1.split(' ').map(function(w){ return '<span class="wd">' + esc(w) + '</span>'; }).join(' ');
   var nl = $('#navLang'); nl.textContent = t.lang; nl.setAttribute('aria-label', t.langLabel);
+  $('#themeBtn').setAttribute('aria-label', t.themeLabel);
   tsHeads();
 }
 
@@ -143,7 +144,10 @@ var tsCx = tsCv.getContext('2d', { willReadFrequently: true });
 var TS_MARK = /[׳״'"]/;
 // צבע הכותרות: פלטינה, כסף בהיר, לבן - שלוש עצירות לאורך השם
 var TS_STOPS = [[201, 207, 217], [226, 228, 232], [242, 242, 240]];
-function tsMix(p){ var a = p < .5 ? TS_STOPS[0] : TS_STOPS[1], b = p < .5 ? TS_STOPS[1] : TS_STOPS[2], t = p < .5 ? p * 2 : (p - .5) * 2; return 'rgb(' + a.map(function(c, i){ return Math.round(c + (b[i] - c) * t); }).join(',') + ')'; }
+// במצב בהיר: פלדה, גרפיט, שחור. הפתיחה (מעל הווידאו) נשארת בצבעי הכהה
+var TS_LIGHT = [[111, 127, 151], [62, 68, 80], [20, 21, 24]];
+function tsStops(el){ return root.dataset.theme === 'light' && !el.closest('.hero, .gate') ? TS_LIGHT : TS_STOPS; }
+function tsMix(p, st){ st = st || TS_STOPS; var a = p < .5 ? st[0] : st[1], b = p < .5 ? st[1] : st[2], t = p < .5 ? p * 2 : (p - .5) * 2; return 'rgb(' + a.map(function(c, i){ return Math.round(c + (b[i] - c) * t); }).join(',') + ')'; }
 function tsFont(l){ return (l || lang) === 'he' ? { fam: 'Noto Sans Hebrew', st: 'extra-condensed', lo: 100, hi: 900, ref: 'ה' } : { fam: 'Georama', st: 'extra-condensed', lo: 100, hi: 900, ref: 'H' }; }
 function tsWeight(f, p){ return f.ws ? f.ws[Math.min(f.ws.length - 1, Math.floor(p * f.ws.length))] : Math.round(f.lo + (f.hi - f.lo) * p); }
 // מצייר אות ומחזיר לכל שורה איפה הדיו מתחיל ונגמר
@@ -170,7 +174,7 @@ function tsGap(A, B, band, T, D, clear){
 function typeset(el, text, mask, only, byWord){
   if (!el) return; text = String(text).trim();
   if (!TS.ready) { el.innerHTML = text.split(' ').map(function(w){ return mask ? '<span class="mask"><span>' + esc(w) + '</span></span>' : esc(w); }).join(' '); return; }
-  var f = tsFont(only), rtl = (only || lang) === 'he', S = TS.S, ref = tsGlyph(f.ref, f, tsWeight(f, .5)), band = [ref.y0, TS.B];
+  var stops = tsStops(el), f = tsFont(only), rtl = (only || lang) === 'he', S = TS.S, ref = tsGlyph(f.ref, f, tsWeight(f, .5)), band = [ref.y0, TS.B];
   if (!rtl) text = text.toUpperCase();   // באנגלית הכותרות באותיות גדולות, כמו השם; מודדים את האותיות כפי שהן מוצגות
   var words = text.split(/\s+/).filter(Boolean).map(function(w){ return Array.from(w); });
   var n = words.reduce(function(a, w){ return a + w.length; }, 0), i = 0;
@@ -188,7 +192,7 @@ function typeset(el, text, mask, only, byWord){
       a.m = (gap - (vl.g.adv + vr.g.il - vl.g.ir)) / S;
     }
     var inner = it.map(function(x){
-      return '<span class="tl" data-p="' + x.p.toFixed(3) + '" style="color:' + tsMix(x.p) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
+      return '<span class="tl" data-p="' + x.p.toFixed(3) + '" style="color:' + tsMix(x.p, stops) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
     }).join('');
     return mask ? '<span class="mask"><span class="tw">' + inner + '</span></span>' : '<span class="tw">' + inner + '</span>';
   }).join(' ');
@@ -738,6 +742,21 @@ window.openLegal = function(id){ var m = document.getElementById('modal-' + id);
 window.closeLegal = function(){ var open = $$('.legal-modal-overlay.open'); open.forEach(function(m){ m.classList.remove('open'); }); if (open.length && $('#theater').hidden) lenis && lenis.start(); };
 var closeLegal = window.closeLegal;
 $$('[data-legal]').forEach(function(a){ a.addEventListener('click', function(e){ e.preventDefault(); openLegal(a.dataset.legal); }); });
+
+/* ---------- מצב בהיר / כהה: לפי השעה (7:00-19:00 בהיר) או לפי הכפתור; בחירה ידנית תקפה עד סוף היום ---------- */
+function autoTheme(){ var h = new Date().getHours(); return h >= 7 && h < 19 ? 'light' : 'dark'; }
+function manualTheme(){ try { var s = JSON.parse(store('sn-theme') || 'null'); if (s && s.d === new Date().toDateString()) return s.t; } catch (e) {} return null; }
+var themeT;
+function applyTheme(t, anim){
+  if (root.dataset.theme === t) return;
+  if (anim && !reduce) { root.classList.add('theme-anim'); clearTimeout(themeT); themeT = setTimeout(function(){ root.classList.remove('theme-anim'); }, 950); }
+  root.dataset.theme = t; tsHeads();
+}
+$('#themeBtn').addEventListener('click', function(){
+  var t = root.dataset.theme === 'light' ? 'dark' : 'light';
+  store('sn-theme', JSON.stringify({ t: t, d: new Date().toDateString() })); applyTheme(t, true);
+});
+setInterval(function(){ applyTheme(manualTheme() || autoTheme(), true); }, 60000);   // כשמגיעה השעה, האתר עובר לבד
 
 /* ---------- language ---------- */
 function setLang(l){
