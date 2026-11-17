@@ -165,16 +165,18 @@ function tsGap(A, B, band, T, D, clear){
   }
   var g = T - sum / cnt; if (minRaw < 1e9) g = Math.max(g, clear - minRaw); return g;
 }
-function typeset(el, text, mask, only){
+function typeset(el, text, mask, only, byWord){
   if (!el) return; text = String(text).trim();
   if (!TS.ready) { el.innerHTML = text.split(' ').map(function(w){ return mask ? '<span class="mask"><span>' + esc(w) + '</span></span>' : esc(w); }).join(' '); return; }
   var f = tsFont(only), rtl = (only || lang) === 'he', S = TS.S, ref = tsGlyph(f.ref, f, tsWeight(f, .5)), band = [ref.y0, TS.B];
   if (!rtl) text = text.toUpperCase();   // באנגלית הכותרות באותיות גדולות, כמו השם; מודדים את האותיות כפי שהן מוצגות
   var words = text.split(/\s+/).filter(Boolean).map(function(w){ return Array.from(w); });
   var n = words.reduce(function(a, w){ return a + w.length; }, 0), i = 0;
-  el.innerHTML = words.map(function(wd){
+  el.innerHTML = words.map(function(wd, wi){
     var it = wd.map(function(ch){
-      var p = n > 1 ? i++ / (n - 1) : 0, w = tsWeight(f, p), g = tsGlyph(ch, f, w), dy = 0;
+      // byWord: כל מילה בעובי ובצבע אחידים, והמילים מתעבות אחת אחרי השנייה
+      var p = byWord ? (words.length > 1 ? wi / (words.length - 1) : 0) : (n > 1 ? i / (n - 1) : 0); i++;
+      var w = tsWeight(f, byWord ? .125 + .75 * p : p), g = tsGlyph(ch, f, w), dy = 0;   // במילים: 200, 500, 800 - בלי קו שערה
       if (TS_MARK.test(ch)) { dy = ref.y0 - g.y0; g = tsGlyph(ch, f, w, dy); }   // הגרש יורד לקו העליון של האותיות
       return { ch: ch, p: p, w: w, g: g, dy: dy, m: null };
     });
@@ -407,7 +409,7 @@ function quotesTick(t){
   addEventListener('pointerup', end); addEventListener('pointercancel', function(){ end(null); });
 })();
 function renderDream(){
-  var el = $('.dream__words'); typeset(el, 'Dream Create Share', false, 'en');
+  var el = $('.dream__words'); typeset(el, 'Dream Create Share', false, 'en', true);   // מילה דקה, בינונית, עבה
   // אם הכניסה עוד לא הופעלה, האותיות החדשות מתחילות מוסתרות
   if (root._dreamIO && !root._dreamPlayed && hasGsap && !reduce) gsap.set($$('.tl', el), { opacity: 0, yPercent: 70, rotationX: -85, transformPerspective: 700, transformOrigin: '50% 100%' });
 }
