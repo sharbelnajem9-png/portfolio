@@ -899,7 +899,7 @@ function startGate(){
   });
   if (!hasGsap || reduce) {
     frame.style.width = endW + 'px'; frame.style.height = endW * 9 / 16 + 'px'; syncReel(); reel.style.opacity = 1;
-    ['#gateLogo', '#gatePrompt', '#gateLangs'].forEach(function(s){ $(s).style.opacity = 1; }); count.textContent = '100'; $('#gateRatio').textContent = '16:9'; arm();
+    ['#gateLogo', '#gatePrompt', '#gateLangs'].forEach(function(s){ $(s).style.opacity = 1; }); count.textContent = '100'; $('#gateRatio').textContent = '16:9'; arm(); window.artFX && artFX.settle();
   } else {
     var c = { v: 0 }, upd = function(){ count.textContent = String(Math.round(c.v)).padStart(3, '0'); };
     var tl = gsap.timeline({ onUpdate: syncReel });
@@ -908,7 +908,7 @@ function startGate(){
       .to(c, { v: 62, duration: .8, ease: 'power2.inOut', onUpdate: upd })
       .to(frame, { width: endW, height: endW * 9 / 16, duration: .7, ease: 'expo.inOut', onStart: function(){ $('#gateRatio').textContent = '16:9'; } }, '-=.4');
     ready.then(function(){
-      gsap.timeline({ delay: Math.max(0, tl.duration() - tl.time()), onUpdate: syncReel })
+      gsap.timeline({ delay: Math.max(0, tl.duration() - tl.time()), onStart: function(){ window.artFX && artFX.settle(); }, onUpdate: syncReel })
         .to(c, { v: 100, duration: .45, ease: 'power2.out', onUpdate: upd })
         .to(reel, { opacity: 1, duration: .6 }, '-=.3')
         .to(['#gatePrompt', langs], { opacity: 1, duration: .45, stagger: .08, onComplete: arm }, '-=.35');
