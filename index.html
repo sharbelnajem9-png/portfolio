@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&family=Georama:wdth,wght@62.5,100..900&family=Noto+Sans+Hebrew:wdth,wght@62.5,100..900&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="app.css?v=202611181153">
+<link rel="stylesheet" href="app.css?v=202611181200">
 <script>document.documentElement.classList.add('js','is-locked');if('scrollRestoration' in history)history.scrollRestoration='manual';
 (function(){var t=new Date().getHours(),m=t>=7&&t<19?'light':'dark';try{var s=JSON.parse(localStorage.getItem('sn-theme')||'null');if(s&&s.d===new Date().toDateString())m=s.t;}catch(e){}document.documentElement.dataset.theme=m;})();</script>
 </head>
@@ -36,7 +36,7 @@
 
 <div class="gate-bg" id="gateBg"></div>
 <div class="gate" id="gate">
-  <img class="gate__logo" id="gateLogo" src="logo.png" alt="">
+  <img class="gate__logo" id="gateLogo" src="logo-240.png" alt="">
   <p class="gate__prompt" id="gatePrompt"><span lang="he">בחרו שפה</span><span aria-hidden="true">/</span><span lang="en">Choose language</span></p>
   <div class="gate__frame" id="gateFrame">
     <span class="gate__ratio mono" id="gateRatio">9:16</span>
@@ -50,7 +50,7 @@
 </div>
 
 <nav class="nav glass" id="nav" aria-label="Main">
-  <a class="nav__logo" href="#top" data-go="#top" aria-label="Sharbel Najem"><img src="logo.png" alt=""></a>
+  <a class="nav__logo" href="#top" data-go="#top" aria-label="Sharbel Najem"><img src="logo-240.png" alt=""></a>
   <div class="nav__links">
     <a class="nav__link" href="#about" data-go="#about" data-t="nAbout"></a>
     <a class="nav__link" href="#services" data-go="#services" data-t="nServices"></a>
@@ -167,7 +167,7 @@
   </section>
 
   <section class="dream" aria-hidden="true">
-    <img src="logo.png" alt="">
+    <img src="logo-240.png" alt="">
     <div class="dream__words" dir="ltr">Dream Create Share Sell</div>
   </section>
 
@@ -237,7 +237,7 @@
 
 <div class="theater" id="theater" role="dialog" aria-modal="true" aria-labelledby="thTitle" hidden>
   <div class="theater__scroll" id="thScroll" data-lenis-prevent>
-    <img class="theater__logo" src="logo.png" alt="Sharbel Najem">
+    <img class="theater__logo" src="logo-240.png" alt="Sharbel Najem">
     <button type="button" class="theater__close glass" id="thClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr" data-t="close"></span></button>
     <header class="theater__head wrap">
       <div><span class="label" id="thTag"></span><h2 class="theater__title" id="thTitle"></h2></div>
@@ -257,7 +257,7 @@
   </div>
   <header class="lb__top">
     <span class="lb__count mono ltr" id="lbCount"></span>
-    <img class="lb__logo" src="logo.png" alt="Sharbel Najem">
+    <img class="lb__logo" src="logo-240.png" alt="Sharbel Najem">
     <button type="button" class="icon-btn glass lb__close" id="lbClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr" data-t="close"></span></button>
   </header>
   <div class="lb__stage" id="lbStage">
@@ -280,15 +280,15 @@
 
 <div class="cursor" id="cursor" aria-hidden="true"><span></span></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="assets/vendor/gsap-3.12.5.min.js"></script>
+<script src="assets/vendor/ScrollTrigger-3.12.5.min.js"></script>
+<script src="assets/vendor/lenis-1.1.13.min.js"></script>
 <script src="https://player.vimeo.com/api/player.js"></script>
-<script src="data.js?v=202611181153"></script>
-<script src="content.js?v=202611181153"></script>
-<script src="bg.js?v=202611181153"></script>
-<script src="app.js?v=202611181153"></script>
-<script src="navspy.js?v=202611181153"></script>
+<script src="data.js?v=202611181200"></script>
+<script src="content.js?v=202611181200"></script>
+<script src="bg.js?v=202611181200"></script>
+<script src="app.js?v=202611181200"></script>
+<script src="navspy.js?v=202611181200"></script>
 <script>
 // the accessibility widget loads once the page has settled, so it never competes with the first paint
 addEventListener('load', function(){ setTimeout(function(){ var s = document.createElement('script'); s.setAttribute('data-account', 'yZwFbWSvDL'); s.setAttribute('data-trigger', 'userwayTrigger'); s.setAttribute('src', 'https://cdn.userway.org/widget.js'); s.defer = true; document.body.appendChild(s); }, 1200); });

@@ -86,9 +86,10 @@ function vq(m){ return m.h ? 'h=' + m.h + '&' : ''; }
 function bgURL(m){ return 'https://player.vimeo.com/video/' + m.v + '?' + vq(m) + 'background=1&autoplay=1&muted=1&loop=1&playsinline=1&autopause=0&dnt=1&quality=540p'; }
 function fullURL(m){ return 'https://player.vimeo.com/video/' + m.v + '?' + vq(m) + 'autoplay=1&title=0&byline=0&portrait=0&dnt=1&color=c9cfd9'; }
 function isPhone(){ return innerWidth <= 760; }
+var NC = navigator.connection, SLOWNET = !!(NC && (NC.saveData || /2g|3g/.test(NC.effectiveType || '')));   // אינטרנט חלש: בלי תצוגות מקדימות שרצות ברקע
 // phones show posters only; a video plays when the viewer taps it
 function live(box){
-  if (!box || box._live || isPhone()) return;
+  if (!box || box._live || isPhone() || SLOWNET) return;
   if (stage === 'lb' || (stage === 'theater') !== !!box.closest('#theater')) return;
   box._live = true;
   var m = MEDIA[+box.dataset.m], el;
