@@ -896,9 +896,9 @@ function startGate(){
   var last = store('sn-lang'); var pre = btns.filter(function(b){ return b.dataset.lang === last; })[0];
   var arm = function(){ langs.classList.add('is-on'); btns.forEach(function(b){ b.disabled = false; }); };
   var endW = Math.min(640, innerWidth * (innerWidth < 700 ? .86 : .56));
-  rf.src = REEL;
+  if (rf.getAttribute('src') !== REEL) rf.src = REEL;   // השואוריל כבר נטען מה-HTML; לא טוענים אותו שוב
   var ready = new Promise(function(res){
-    if (window.Vimeo && Vimeo.Player) { try { new Vimeo.Player(rf).on('play', function(){ res(); }); } catch (e) {} }
+    if (window.Vimeo && Vimeo.Player) { try { var rp = new Vimeo.Player(rf); rp.on('play', function(){ res(); }); rp.getPaused().then(function(p){ if (!p) res(); }, function(){}); } catch (e) {} }
     else rf.addEventListener('load', function(){ setTimeout(res, 900); }, { once: true });
     setTimeout(res, 2200);
   });

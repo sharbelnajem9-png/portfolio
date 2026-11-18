@@ -17,12 +17,21 @@
   var S = { L: 0, R: 0, on: false, hover: null, act: -2, wi: -2, lastY: scrollY, p: 0 };
   as.forEach(function(a, i){ a.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') S.hover = i; }); });
   links.addEventListener('pointerleave', function(){ S.hover = null; });
+  // מדידות נשמרות ומתרעננות כל 0.8 שניות ובשינוי גודל - לא מודדים את הדף בכל פריים
+  var M = { tops: [], hs: [], L: [], R: [], at: 0 };
+  function measure(){
+    M.at = performance.now();
+    secs.forEach(function(s, i){ var r = s ? s.getBoundingClientRect() : null; M.tops[i] = r ? r.top + scrollY : 1e9; M.hs[i] = r ? r.height : 1; });
+    var lr = links.getBoundingClientRect();
+    as.forEach(function(a, i){ var r = a.getBoundingClientRect(); M.L[i] = r.left - lr.left; M.R[i] = r.right - lr.left; });
+  }
+  addEventListener('resize', function(){ M.at = 0; });
   // האזור הנוכחי: האחרון שהתחלתו עברה את 38% מגובה המסך; בתחתית הדף - האחרון
   function current(){
-    var y = innerHeight * .38, act = -1;
-    for (var i = 0; i < secs.length; i++) if (secs[i] && secs[i].getBoundingClientRect().top <= y) act = i;
+    var y = scrollY + innerHeight * .38, act = -1;
+    for (var i = 0; i < secs.length; i++) if (M.tops[i] <= y) act = i;
     if (act > -1 && innerHeight + scrollY >= document.documentElement.scrollHeight - 6) act = secs.length - 1;
-    var p = 0; if (act > -1) { var r = secs[act].getBoundingClientRect(); p = Math.min(1, Math.max(0, (y - r.top) / Math.max(1, r.height - innerHeight * .3))); }
+    var p = act > -1 ? Math.min(1, Math.max(0, (y - M.tops[act]) / Math.max(1, M.hs[act] - innerHeight * .3))) : 0;
     return [act, p];
   }
   function setWhere(i, down){
@@ -37,9 +46,11 @@
     else where.style.width = '0px';
     where.classList.toggle('on', !!txt);
   }
-  function tick(){
+  var lastP = -1, lastOn = null;
+  function tick(now){
     requestAnimationFrame(tick);
     if (document.hidden || !nav.classList.contains('is-on')) return;
+    if (now - M.at > 800) measure();
     var c = current(), act = c[0], down = scrollY >= S.lastY; S.lastY = scrollY;
     if (act !== S.act) {
       S.act = act;
@@ -48,20 +59,22 @@
     }
     setWhere(act, down);
     S.p += (c[1] - S.p) * .2;
-    var shown = links.offsetParent !== null, k = S.hover !== null ? S.hover : act;
-    ind.classList.toggle('on', shown && k > -1);
-    if (shown && k > -1) {
-      var lr = links.getBoundingClientRect(), r = as[k].getBoundingClientRect(), tl = r.left - lr.left, tr = r.right - lr.left;
+    var shown = links.offsetParent !== null, k = S.hover !== null ? S.hover : act, on = shown && k > -1;
+    if (on !== lastOn) { ind.classList.toggle('on', on); lastOn = on; }
+    if (on) {
+      var tl = M.L[k], tr = M.R[k];
       if (!S.on || still) { S.L = tl; S.R = tr; S.on = true; }
       // הקצה המוביל זז מהר, השני לאט יותר: הגלולה נמתחת לכיוון היעד ואז מתכווצת אליו
-      var right = (tl + tr) > (S.L + S.R);
-      S.L += (tl - S.L) * (right ? .1 : .22); S.R += (tr - S.R) * (right ? .22 : .1);
-      ind.style.transform = 'translateX(' + S.L.toFixed(2) + 'px)'; ind.style.width = Math.max(0, S.R - S.L).toFixed(2) + 'px';
-      ind.style.setProperty('--p', (k === act ? S.p : 0).toFixed(3));
+      var right = (tl + tr) > (S.L + S.R), moving = Math.abs(tl - S.L) > .2 || Math.abs(tr - S.R) > .2;
+      if (moving) {
+        S.L += (tl - S.L) * (right ? .1 : .22); S.R += (tr - S.R) * (right ? .22 : .1);
+        ind.style.transform = 'translateX(' + S.L.toFixed(2) + 'px)'; ind.style.width = Math.max(0, S.R - S.L).toFixed(2) + 'px';
+      }
     } else if (k === -1) S.on = false;
-    where.style.setProperty('--p', S.p.toFixed(3));
+    var pv = (on && k === act ? S.p : 0);
+    if (Math.abs(pv - lastP) > .002) { ind.style.setProperty('--p', pv.toFixed(3)); where.style.setProperty('--p', S.p.toFixed(3)); lastP = pv; }
   }
   // אחרי החלפת שפה הטקסטים משתנים - מרעננים את השבב
-  window.navSpyRefresh = function(){ S.wi = -2; S.act = -2; };
+  window.navSpyRefresh = function(){ S.wi = -2; S.act = -2; M.at = 0; };
   requestAnimationFrame(tick);
 })();

@@ -42,7 +42,7 @@
     'if(id<.10)return C1*TA*br;if(id<.22)return C2*TA*br;if(id<.28)return C3*TA*br;if(id<.36)return C4*TA*br;return vec3(0.);}',
     'void main(){vec2 px=vec2(gl_FragCoord.x,uRes.y*uQ-gl_FragCoord.y)/uQ;vec2 w=vec2(px.x,px.y+uScroll);',
     'vec4 pb;vec4 cc=cell(w,pb);',
-    'float e=1.2;float h=H(w),hx=H(w+vec2(e,0.)),hy=H(w+vec2(0.,e));vec3 n=normalize(vec3((h-hx)*26.,(h-hy)*26.,1.));',
+    'float e=1.2;float lm=1.-smoothstep(LW*.5,LW*.5+9.,cc.x);float h=.2+.8*lm,hx=H(w+vec2(e,0.)),hy=H(w+vec2(0.,e));vec3 n=normalize(vec3((h-hx)*26.,(h-hy)*26.,1.));',
     // ההיפוך: כל מלבן מסתובב סביב הציר האנכי שלו; בחצי הדרך רואים את הצד השני (המצב החדש), ובמרווח - את החלל שמאחוריו ואת השפה שלו שתופסת אור
     'float Lh=uLB,gap=0.,edge=0.,gs=0.,ft=uTime-uT0;',
     'if(ft>0.&&ft<3.6){vec2 pc=vec2(pb.x+pb.y,pb.z+pb.w)*.5;vec2 ps=vec2(pc.x,pc.y-uScroll);',
@@ -52,7 +52,7 @@
     'if(ax>ca*hw){gap=1.;float gd=ax-ca*hw;edge=1.-smoothstep(0.,8.*sa+1.,gd);gs=smoothstep(0.,110.,gd);}else{float a=q<.5?th:th-3.14159;n=normalize(vec3(sin(a),0.,cos(a)));}}}',
     'vec2 dm=uMouse-px;float dist=length(dm)/uRes.y;vec3 L=normalize(vec3(dm/uRes.y,.45));vec3 Hh=normalize(L+vec3(0.,0.,1.));',
     'float spec=pow(max(dot(n,Hh),0.),36.);float diff=max(dot(n,L),0.);float fall=exp(-dist*1.6);',
-    'float lm=1.-smoothstep(LW*.5,LW*.5+9.,cc.x);spec*=mix(.2,.62,max(lm,edge));',
+    'spec*=mix(.2,.62,max(lm,edge));',
     'vec3 base=vec3(.040,.043,.052);vec3 col=base*(.55+.6*diff);',
     'col+=spec*mix(C1,C3,.3)*.55*fall;col+=spec*C2*.05*(1.-fall);col+=base*.35*(h-.5);',
     'vec3 tn=gap>.5?vec3(0.):tintOf(cc);col+=tn*(.016+.15*fall*fall*(.4+.6*diff));',
