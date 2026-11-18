@@ -899,13 +899,14 @@ function startGate(){
   if (rf.getAttribute('src') !== REEL) rf.src = REEL;   // השואוריל כבר נטען מה-HTML; לא טוענים אותו שוב
   var ready = new Promise(function(res){
     if (window.Vimeo && Vimeo.Player) { try {
-      var rp = new Vimeo.Player(rf); rp.on('play', function(){ res(); }); rp.getPaused().then(function(p){ if (!p) res(); }, function(){});
+      var playing = function(){ reel.classList.add('is-playing'); res(); };
+      var rp = new Vimeo.Player(rf); rp.on('play', playing); rp.on('timeupdate', function(d){ if (d && d.seconds > 0) playing(); }); rp.getPaused().then(function(p){ if (!p) playing(); }, function(){});
       var nudges = 0, nudge = setInterval(function(){
         if (++nudges > 14 || root.classList.contains('userway-s13')) { clearInterval(nudge); return; }
         rp.getPaused().then(function(p){ if (p) rp.play().catch(function(){}); else clearInterval(nudge); }, function(){});
       }, 700);
     } catch (e) {} }
-    else rf.addEventListener('load', function(){ setTimeout(res, 900); }, { once: true });
+    else rf.addEventListener('load', function(){ setTimeout(function(){ reel.classList.add('is-playing'); res(); }, 900); }, { once: true });
     setTimeout(res, 2200);
   });
   if (!hasGsap || reduce) {

@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&family=Georama:wdth,wght@62.5,100..900&family=Noto+Sans+Hebrew:wdth,wght@62.5,100..900&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="app.css?v=202611181149">
+<link rel="stylesheet" href="app.css?v=202611181153">
 <script>document.documentElement.classList.add('js','is-locked');if('scrollRestoration' in history)history.scrollRestoration='manual';
 (function(){var t=new Date().getHours(),m=t>=7&&t<19?'light':'dark';try{var s=JSON.parse(localStorage.getItem('sn-theme')||'null');if(s&&s.d===new Date().toDateString())m=s.t;}catch(e){}document.documentElement.dataset.theme=m;})();</script>
 </head>
@@ -81,7 +81,7 @@
   <section class="hero" id="hero">
     <div class="hero__screen" id="heroScreen">
       <div class="reel is-gate" id="reel">
-        <img class="reel__poster" src="https://vumbnail.com/1182382291.jpg" alt="">
+        <img class="reel__poster" src="media/reel.jpg" alt="" decoding="async" fetchpriority="high">
         <iframe id="reelFrame" title="Showreel" allow="autoplay; fullscreen; picture-in-picture" tabindex="-1"></iframe>
       </div>
       <div class="hero__shade"></div>
@@ -284,11 +284,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="https://player.vimeo.com/api/player.js"></script>
-<script src="data.js?v=202611181149"></script>
-<script src="content.js?v=202611181149"></script>
-<script src="bg.js?v=202611181149"></script>
-<script src="app.js?v=202611181149"></script>
-<script src="navspy.js?v=202611181149"></script>
+<script src="data.js?v=202611181153"></script>
+<script src="content.js?v=202611181153"></script>
+<script src="bg.js?v=202611181153"></script>
+<script src="app.js?v=202611181153"></script>
+<script src="navspy.js?v=202611181153"></script>
 <script>
 // the accessibility widget loads once the page has settled, so it never competes with the first paint
 addEventListener('load', function(){ setTimeout(function(){ var s = document.createElement('script'); s.setAttribute('data-account', 'yZwFbWSvDL'); s.setAttribute('data-trigger', 'userwayTrigger'); s.setAttribute('src', 'https://cdn.userway.org/widget.js'); s.defer = true; document.body.appendChild(s); }, 1200); });
