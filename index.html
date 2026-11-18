@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&family=Georama:wdth,wght@62.5,100..900&family=Noto+Sans+Hebrew:wdth,wght@62.5,100..900&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app.css?v=202611181149">
 <script>document.documentElement.classList.add('js','is-locked');if('scrollRestoration' in history)history.scrollRestoration='manual';
 (function(){var t=new Date().getHours(),m=t>=7&&t<19?'light':'dark';try{var s=JSON.parse(localStorage.getItem('sn-theme')||'null');if(s&&s.d===new Date().toDateString())m=s.t;}catch(e){}document.documentElement.dataset.theme=m;})();</script>
 </head>
@@ -82,10 +82,11 @@
     <div class="hero__screen" id="heroScreen">
       <div class="reel is-gate" id="reel">
         <img class="reel__poster" src="https://vumbnail.com/1182382291.jpg" alt="">
-        <iframe id="reelFrame" title="Showreel" allow="autoplay; fullscreen; picture-in-picture" tabindex="-1" src="https://player.vimeo.com/video/1182382291?h=4d10b0f514&amp;background=1&amp;autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;autopause=0&amp;dnt=1"></iframe>
+        <iframe id="reelFrame" title="Showreel" allow="autoplay; fullscreen; picture-in-picture" tabindex="-1"></iframe>
       </div>
       <div class="hero__shade"></div>
     </div>
+    <script>(function(){var f=document.getElementById('gateFrame'),r=document.getElementById('reel'),i=document.getElementById('reelFrame');if(!f||!r||!i)return;var b=f.getBoundingClientRect(),R=16/9;r.style.left=b.left+'px';r.style.top=b.top+'px';r.style.width=b.width+'px';r.style.height=b.height+'px';i.style.width=Math.max(b.width,b.height*R)+'px';i.style.height=Math.max(b.height,b.width/R)+'px';i.src='https://player.vimeo.com/video/1182382291?h=4d10b0f514&background=1&autoplay=1&muted=1&loop=1&playsinline=1&autopause=0&dnt=1';})();</script>
     <div class="hero__copy wrap">
       <h1 class="hero__name" id="heroName"></h1>
       <div class="hero__row">
@@ -283,11 +284,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="https://player.vimeo.com/api/player.js"></script>
-<script src="data.js"></script>
-<script src="content.js"></script>
-<script src="bg.js"></script>
-<script src="app.js"></script>
-<script src="navspy.js"></script>
+<script src="data.js?v=202611181149"></script>
+<script src="content.js?v=202611181149"></script>
+<script src="bg.js?v=202611181149"></script>
+<script src="app.js?v=202611181149"></script>
+<script src="navspy.js?v=202611181149"></script>
 <script>
 // the accessibility widget loads once the page has settled, so it never competes with the first paint
 addEventListener('load', function(){ setTimeout(function(){ var s = document.createElement('script'); s.setAttribute('data-account', 'yZwFbWSvDL'); s.setAttribute('data-trigger', 'userwayTrigger'); s.setAttribute('src', 'https://cdn.userway.org/widget.js'); s.defer = true; document.body.appendChild(s); }, 1200); });

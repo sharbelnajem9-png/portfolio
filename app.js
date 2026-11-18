@@ -898,7 +898,13 @@ function startGate(){
   var endW = Math.min(640, innerWidth * (innerWidth < 700 ? .86 : .56));
   if (rf.getAttribute('src') !== REEL) rf.src = REEL;   // השואוריל כבר נטען מה-HTML; לא טוענים אותו שוב
   var ready = new Promise(function(res){
-    if (window.Vimeo && Vimeo.Player) { try { var rp = new Vimeo.Player(rf); rp.on('play', function(){ res(); }); rp.getPaused().then(function(p){ if (!p) res(); }, function(){}); } catch (e) {} }
+    if (window.Vimeo && Vimeo.Player) { try {
+      var rp = new Vimeo.Player(rf); rp.on('play', function(){ res(); }); rp.getPaused().then(function(p){ if (!p) res(); }, function(){});
+      var nudges = 0, nudge = setInterval(function(){
+        if (++nudges > 14 || root.classList.contains('userway-s13')) { clearInterval(nudge); return; }
+        rp.getPaused().then(function(p){ if (p) rp.play().catch(function(){}); else clearInterval(nudge); }, function(){});
+      }, 700);
+    } catch (e) {} }
     else rf.addEventListener('load', function(){ setTimeout(res, 900); }, { once: true });
     setTimeout(res, 2200);
   });
