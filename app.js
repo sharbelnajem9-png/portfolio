@@ -185,7 +185,7 @@ function typeset(el, text, mask, only, byWord){
       var p = byWord ? (words.length > 1 ? wi / (words.length - 1) : 0) : (n > 1 ? i / (n - 1) : 0); i++;
       var w = tsWeight(f, byWord ? .125 + .75 * p : p), g = tsGlyph(ch, f, w), dy = 0;   // במילים: 200, 500, 800 - בלי קו שערה
       if (TS_MARK.test(ch)) { dy = ref.y0 - g.y0; g = tsGlyph(ch, f, w, dy); }   // הגרש יורד לקו העליון של האותיות
-      return { ch: ch, p: p, w: w, g: g, dy: dy, m: null };
+      return { ch: ch, p: p, w: w, g: g, dy: dy, m: null, ix: i - 1 };
     });
     for (var k = 0; k < it.length - 1; k++) {
       var a = it[k], b = it[k + 1], vl = rtl ? b : a, vr = rtl ? a : b;   // בעברית האות הבאה נמצאת משמאל
@@ -193,7 +193,7 @@ function typeset(el, text, mask, only, byWord){
       a.m = (gap - (vl.g.adv + vr.g.il - vl.g.ir)) / S;
     }
     var inner = it.map(function(x){
-      return '<span class="tl" data-p="' + x.p.toFixed(3) + '" style="color:' + tsMix(x.p, stops) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
+      return '<span class="tl" data-p="' + x.p.toFixed(3) + '" style="--i:' + x.ix + ';color:' + tsMix(x.p, stops) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
     }).join('');
     return mask ? '<span class="mask"><span class="tw">' + inner + '</span></span>' : '<span class="tw">' + inner + '</span>';
   }).join(' ');
@@ -202,13 +202,14 @@ function typeset(el, text, mask, only, byWord){
 }
 // כותרת תמיד בשורה אחת: אם היא רחבה מהמקום, מקטינים אותה בדיוק כמה שצריך במקום לרדת שורה
 function tsFit(el){
-  el.style.fontSize = ''; var avail = el.clientWidth, need = el.scrollWidth;
+  el.classList.add('ts-m'); el.style.fontSize = ''; var avail = el.clientWidth, need = el.scrollWidth;   // ts-m: מודדים את הכותרת במצב הסופי שלה, לא באמצע אפקט הכניסה
   if (avail > 0 && need > avail + 1) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * avail / need * .985).toFixed(2) + 'px';
+  el.classList.remove('ts-m');
 }
 var tsFitT; addEventListener('resize', function(){ clearTimeout(tsFitT); tsFitT = setTimeout(function(){ $$('.ts').forEach(tsFit); }, 200); });
 function tsHeads(){
   typeset($('#heroName'), L().heroName.join(' '), true);
-  $$('.h2, .group-head__title').forEach(function(el){ typeset(el, el.textContent); });
+  $$('.h2, .group-head__title').forEach(function(el){ typeset(el, el.textContent, !!el.closest('#testimonials')); });   // בהמלצות המילים עולות מתוך מסכה
   var th = $('#thTitle'); if (th && th.textContent) typeset(th, th.textContent);
   renderDream();
 }
@@ -817,13 +818,35 @@ $$('[data-go]').forEach(function(a){ a.addEventListener('click', function(e){
 }); });
 
 /* ---------- reveal: an IntersectionObserver adds .in, so nothing can stay hidden if a scroll trigger fires late ---------- */
-var revIO = ('IntersectionObserver' in window) ? new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); revIO.unobserve(e.target); } }); }, { rootMargin: '0px 0px -6% 0px', threshold: .01 }) : null;
+var revIO = ('IntersectionObserver' in window) ? new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { if (e.target._kids) openKids(e.target); else e.target.classList.add('in'); revIO.unobserve(e.target); } }); }, { rootMargin: '0px 0px -6% 0px', threshold: .01 }) : null;
+// כל אזור נכנס בדרך משלו: הכותרת לפי data-fx (ראו "כניסות" ב-app.css), והתוכן בתנועה שמתאימה לו. שום דבר לא חוזר פעמיים
+var FX = { about: 'fill', services: 'blur', highlights: 'drop', campaigns: 'wipe', projects: 'type', brands: 'flip', testimonials: 'rise' };
+// אזור שהתוכן שלו נפתח מתוך clip-path סגור: הדפדפן לא רואה אותו, אז עוקבים אחרי האזור ופותחים את מה שבתוכו.
+// אחרי הכניסה מורידים את מחלקת האנימציה, כדי שהריחוף והתנועה הרגילים יחזרו להיות מיידיים
+function openKids(b){
+  var ks = $$(b._kids, b); ks.forEach(function(k){ k.classList.add('in'); });
+  setTimeout(function(){ ks.forEach(function(k){ k.classList.remove(b._cls); }); }, 2800);
+}
 function armReveal(){
   if (!revIO || reduce) return;
   var arm = function(sel, cls){ $$(sel).forEach(function(el, i){ if (el.classList.contains('in')) return; el.classList.add(cls); el.style.setProperty('--d', (i % 6) * 70 + 'ms'); revIO.observe(el); }); };
-  arm('.sec__head .label, .sec__head .h2, .sec__head .sec__sub, #about .h2, .about__p, .group-head > *, .contact .label, .contact__l1, .contact__l2, .contact__foot > *, .strip-ctrls', 'rv');
-  arm('.svc, .card, .rule__num, .rule__name', 'rvo');
+  var box = function(sel, kids, cls){
+    var b = $(sel); if (!b) return; var ks = $$(kids, b); if (!ks.length || ks[0].classList.contains('in')) return;
+    ks.forEach(function(k, i){ k.classList.add(cls); k.style.setProperty('--k', i); }); b._kids = kids; b._cls = cls; revIO.observe(b);
+  };
+  Object.keys(FX).forEach(function(id){ var h = $('#' + id + ' .sec__head') || ($('#' + id + ' .h2') || {}).parentNode; if (h && h.nodeType === 1 && !h.classList.contains('in')) { h.dataset.fx = FX[id]; revIO.observe(h); } });
+  var gh = $('.group-head'); if (gh && !gh.classList.contains('in')) { gh.dataset.fx = 'slide'; revIO.observe(gh); }
+  arm('.about__p, .contact .label, .contact__foot > *, .strip-ctrls', 'rv');
+  arm('.rule__num, .rule__name', 'rvo');
   arm('.contact__rule', 'rvx');
+  box('#about', '#aboutPhoto', 'rv-iris');       // מי אני: התמונה נפתחת מעיגול קטן, כמו צמצם של מצלמה
+  box('#svcGrid', '.svc', 'rv-deal');            // שירותים: הכרטיסים מחולקים כמו קלפים
+  box('#highlights', '.feat__vp', 'rv-cin');     // מה עשיתי לאחרונה: הרצועה נפתחת מהמרכז, כמו מסך קולנוע
+  box('#campaigns', '#deck', 'rv-focus');        // קמפיינים: החפיסה נכנסת לפוקוס
+  box('#projMain', '.card', 'rv-cur');           // פרויקטים: כל כרטיס נחשף מלמטה כמו וילון
+  box('#projStrat', '.card', 'rv-cur');
+  box('#brandRows', '.marquee', 'rv-slide');     // לקוחות: שתי השורות נכנסות מצדדים מנוגדים
+  box('#testimonials', '#quoteRows', 'rv-tilt'); // המלצות: הרצועה מתרוממת מהשכיבה לעמידה
 }
 /* 3D tilt toward the pointer, with a light that follows it */
 function tilt(el, deg){
@@ -845,6 +868,10 @@ function setupScenes(){
   // the reel stays whole and still while scrolling (no scale/tilt/rounding: that clipped the video at its corner); only the copy drifts up and fades
   add(gsap.to('.hero__copy', { yPercent: -20, opacity: 0, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } }));
   add(gsap.to('#aboutLead .wd', { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: '#aboutLead', start: 'top 85%', end: 'bottom 55%', scrub: true } }));
+  // בואו נדבר: שתי השורות הגדולות נכנסות מצדדים מנוגדים עם הגלילה ונפגשות במקום
+  var cs = lang === 'he' ? 1 : -1;
+  add(gsap.fromTo('.contact__l1', { xPercent: cs * 28, opacity: .08 }, { xPercent: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: '#contact', start: 'top 92%', end: 'top 30%', scrub: true } }));
+  add(gsap.fromTo('.contact__l2', { xPercent: -cs * 28, opacity: .08 }, { xPercent: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: '#contact', start: 'top 88%', end: 'top 25%', scrub: true } }));
   // Dream / Create / Share / Sell: the letters flip up out of the line one by one, the words close in from wide spacing,
   // and each word grows into its own weight (light, medium, heavy)
   if (!root._dreamIO) {

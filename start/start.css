@@ -175,38 +175,8 @@ section[id]{scroll-margin-top:84px}
 }
 
 /* =================== תנועה: לכל אזור כניסה משלו =================== */
-html{--ie:1}html[dir="rtl"]{--ie:-1}   /* כיוון סוף השורה על הציר: 1 = ימינה (אנגלית), -1 = שמאלה (עברית) */
 html[lang] .ts.ts-he{font-family:'Noto Sans Hebrew',var(--f-he)!important;font-stretch:62.5%}   /* מילה בעברית גם כשהדף באנגלית (מסך השפה) */
-
-/* --- כותרות: data-fx על האזור קובע איך הכותרת שלו נכנסת. ts-m = רגע המדידה של הכותרת, אז היא במצב הסופי --- */
 .lp-head.rv{opacity:1;transform:none}
-[data-fx].in .ts .tl{transition:opacity .7s var(--ease) calc(var(--i,0) * var(--st,26ms)),transform 1s var(--ease) calc(var(--i,0) * var(--st,26ms)),filter .9s var(--ease) calc(var(--i,0) * var(--st,26ms))}
-/* הבעיה: מטשטוש לחד */
-[data-fx="blur"]{--st:32ms}
-[data-fx="blur"]:not(.in) .ts:not(.ts-m) .tl{opacity:0;filter:blur(14px);transform:translateY(.12em)}
-/* מי אני: האור עובר על השם אות אחרי אות, מעמום למלא */
-[data-fx="fill"]{--st:70ms}
-[data-fx="fill"]:not(.in) .ts:not(.ts-m) .tl{opacity:.1}
-/* התהליך: האותיות נופלות למקום */
-[data-fx="drop"]{--st:38ms}
-[data-fx="drop"]:not(.in) .ts:not(.ts-m) .tl{opacity:0;transform:translateY(-.85em)}
-/* מה מקבלים: הכותרת נחשפת מתחילת השורה */
-[data-fx="wipe"]:not(.in) .ts:not(.ts-m){clip-path:inset(-.25em -.25em -.25em 100%)}
-html[dir="ltr"] [data-fx="wipe"]:not(.in) .ts:not(.ts-m){clip-path:inset(-.25em 100% -.25em -.25em)}
-[data-fx="wipe"].in .ts{clip-path:inset(-.25em);transition:clip-path 1.25s cubic-bezier(.76,0,.24,1)}
-/* תוצאות: נכתבת אות אחרי אות, כמו מכונת כתיבה */
-[data-fx="type"]{--st:45ms}
-[data-fx="type"]:not(.in) .ts:not(.ts-m) .tl{opacity:0}
-[data-fx="type"].in .ts .tl{transition-duration:.05s}
-/* המלצות: האותיות מתהפכות למעלה */
-[data-fx="flip"] .ts{perspective:700px}
-[data-fx="flip"]:not(.in) .ts:not(.ts-m) .tl{opacity:0;transform:translateY(.42em) rotateX(-75deg);transform-origin:50% 100%}
-/* בואו נדבר: המילים עולות מתוך מסכה */
-[data-fx="rise"]:not(.in) .ts:not(.ts-m) .mask>.tw{transform:translateY(112%)}
-[data-fx="rise"].in .ts .mask>.tw{transition:transform 1.15s var(--ease)}
-[data-fx="rise"].in .ts .mask:nth-child(2)>.tw{transition-delay:.1s}
-[data-fx="rise"].in .ts .mask:nth-child(3)>.tw{transition-delay:.2s}
-[data-fx="rise"].in .ts .mask:nth-child(4)>.tw{transition-delay:.3s}
 
 /* --- הבעיה: המספר מתגלגל כמו מונה, הכותרת נחשפת מהצד, ההסבר מופיע אחריה --- */
 .lp-prob.rv{opacity:1;transform:none}

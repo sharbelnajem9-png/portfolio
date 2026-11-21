@@ -548,3 +548,74 @@ html[dir="rtl"] .sheet a.is-active{box-shadow:inset -3px 0 0 var(--blue)}
 .nav.glass,.sheet.glass{background:linear-gradient(135deg,rgba(22,24,29,.82),rgba(22,24,29,.66));border-color:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 12px 40px rgba(0,0,0,.3)}
 .nav a.nav__link,.nav__btn,.sheet a{color:rgba(255,255,255,.82)}
 .nav a.nav__link.is-active,.nav a.nav__link:hover,.nav__btn:hover,.sheet a:hover,.sheet a.is-active{color:#fff}
+
+/* =================== כניסות בגלילה: לכל אזור תנועה משלו (בתיק העבודות ובדף הנחיתה) =================== */
+html{--ie:1}html[dir="rtl"]{--ie:-1}   /* כיוון סוף השורה על הציר: 1 = ימינה (אנגלית), -1 = שמאלה (עברית) */
+
+/* --- כותרות: data-fx על האזור קובע איך הכותרת שלו נכנסת. ts-m = רגע המדידה של הכותרת, אז היא במצב הסופי --- */
+[data-fx].in .ts .tl{transition:opacity .7s var(--ease) calc(var(--i,0) * var(--st,26ms)),transform 1s var(--ease) calc(var(--i,0) * var(--st,26ms)),filter .9s var(--ease) calc(var(--i,0) * var(--st,26ms))}
+/* הבעיה: מטשטוש לחד */
+[data-fx="blur"]{--st:32ms}
+[data-fx="blur"]:not(.in) .ts:not(.ts-m) .tl{opacity:0;filter:blur(14px);transform:translateY(.12em)}
+/* מי אני: האור עובר על השם אות אחרי אות, מעמום למלא */
+[data-fx="fill"]{--st:70ms}
+[data-fx="fill"]:not(.in) .ts:not(.ts-m) .tl{opacity:.1}
+/* התהליך: האותיות נופלות למקום */
+[data-fx="drop"]{--st:38ms}
+[data-fx="drop"]:not(.in) .ts:not(.ts-m) .tl{opacity:0;transform:translateY(-.85em)}
+/* מה מקבלים: הכותרת נחשפת מתחילת השורה */
+[data-fx="wipe"]:not(.in) .ts:not(.ts-m){clip-path:inset(-.25em -.25em -.25em 100%)}
+html[dir="ltr"] [data-fx="wipe"]:not(.in) .ts:not(.ts-m){clip-path:inset(-.25em 100% -.25em -.25em)}
+[data-fx="wipe"].in .ts{clip-path:inset(-.25em);transition:clip-path 1.25s cubic-bezier(.76,0,.24,1)}
+/* תוצאות: נכתבת אות אחרי אות, כמו מכונת כתיבה */
+[data-fx="type"]{--st:45ms}
+[data-fx="type"]:not(.in) .ts:not(.ts-m) .tl{opacity:0}
+[data-fx="type"].in .ts .tl{transition-duration:.05s}
+/* המלצות: האותיות מתהפכות למעלה */
+[data-fx="flip"] .ts{perspective:700px}
+[data-fx="flip"]:not(.in) .ts:not(.ts-m) .tl{opacity:0;transform:translateY(.42em) rotateX(-75deg);transform-origin:50% 100%}
+/* בואו נדבר: המילים עולות מתוך מסכה */
+[data-fx="rise"]:not(.in) .ts:not(.ts-m) .mask>.tw{transform:translateY(112%)}
+[data-fx="rise"].in .ts .mask>.tw{transition:transform 1.15s var(--ease)}
+[data-fx="rise"].in .ts .mask:nth-child(2)>.tw{transition-delay:.1s}
+[data-fx="rise"].in .ts .mask:nth-child(3)>.tw{transition-delay:.2s}
+[data-fx="rise"].in .ts .mask:nth-child(4)>.tw{transition-delay:.3s}
+
+/* תת-פרק באותו אזור: האותיות מחליקות מתחילת השורה */
+[data-fx="slide"]{--st:30ms}
+[data-fx="slide"]:not(.in) .ts:not(.ts-m) .tl{opacity:0;transform:translateX(calc(var(--ie) * -.6em))}
+/* בתיק העבודות: התווית נכנסת מהצד, ושורת ההסבר מתחדדת מטשטוש אחרי הכותרת */
+[data-fx] .label,[data-fx] .sec__sub,[data-fx] .group-head__sub{transition:opacity .8s var(--ease),transform .9s var(--ease),filter 1s var(--ease)}
+[data-fx]:not(.in) .label{opacity:0;transform:translateX(calc(var(--ie) * -26px))}
+[data-fx]:not(.in) .sec__sub,[data-fx]:not(.in) .group-head__sub{opacity:0;filter:blur(8px)}
+[data-fx].in .sec__sub,[data-fx].in .group-head__sub{transition-delay:.45s}
+
+/* --- התוכן של כל אזור (נוסף ב-JS רק כשיש תנועה; אחרי הכניסה המחלקה יורדת) --- */
+/* מי אני: התמונה נפתחת מעיגול קטן במרכז, כמו צמצם של מצלמה */
+.rv-iris{transition:clip-path 1.7s var(--ease)}
+.rv-iris img{transition:transform 2.2s var(--ease)}
+.rv-iris:not(.in){clip-path:circle(7% at 50% 45%)}
+.rv-iris:not(.in) img{transform:scale(1.3)}
+.rv-iris.in{clip-path:circle(80% at 50% 45%)}
+/* שירותים: הכרטיסים מחולקים כמו קלפים - עולים מלמטה בזווית ומתיישרים, אחד אחרי השני */
+.rv-deal{transition:opacity .7s var(--ease) calc(var(--k) * 90ms),transform 1.15s var(--ease) calc(var(--k) * 90ms)}
+.rv-deal:not(.in){opacity:0;transform:translateY(90px) rotate(5deg)}
+.rv-deal:nth-child(even):not(.in){transform:translateY(90px) rotate(-5deg)}
+/* מה עשיתי לאחרונה: הרצועה נפתחת מהמרכז לצדדים, כמו מסך קולנוע */
+.rv-cin{transition:clip-path 1.5s cubic-bezier(.76,0,.24,1)}
+.rv-cin:not(.in){clip-path:inset(0 50% 0 50%)}
+.rv-cin.in{clip-path:inset(0)}
+/* קמפיינים: החפיסה נכנסת לפוקוס, כמו מצלמה שמכוונת */
+.rv-focus{transition:opacity 1s var(--ease),filter 1.5s var(--ease),transform 1.5s var(--ease)}
+.rv-focus:not(.in){opacity:0;filter:blur(20px);transform:scale(.86)}
+/* פרויקטים: כל כרטיס נחשף מלמטה כמו וילון */
+.rv-cur{transition:clip-path 1.25s cubic-bezier(.76,0,.24,1) calc(min(var(--k), 6) * 85ms)}
+.rv-cur:not(.in){clip-path:inset(100% -40px -90px -40px)}
+.rv-cur.in{clip-path:inset(-40px -40px -90px -40px)}   /* מעבר לגבולות הכרטיס, כדי שהצל שלו לא ייחתך */
+/* לקוחות: שתי שורות הלוגואים נכנסות מצדדים מנוגדים */
+.rv-slide{transition:opacity 1s var(--ease),transform 1.6s var(--ease)}
+.rv-slide:not(.in){opacity:0;transform:translateX(24vw)}
+.rv-slide.rev:not(.in){transform:translateX(-24vw)}
+/* המלצות: הרצועה מתרוממת מהשכיבה לעמידה, בתלת-ממד */
+.rv-tilt{transform-origin:50% 100%;transition:opacity 1s var(--ease),transform 1.5s var(--ease)}
+.rv-tilt:not(.in){opacity:0;transform:perspective(1200px) rotateX(40deg) translateY(60px)}
