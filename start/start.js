@@ -13,7 +13,7 @@ function store(k, v){ try { if (v === undefined) return localStorage.getItem(k);
 /* ---------- התוכן ---------- */
 var T = {
   he: {
-    nav: ['הבעיה', 'הפתרון', 'התהליך', 'מה מקבלים', 'תוצאות'], navCta: 'בואו נדבר',
+    nav: ['הבעיה', 'הפתרון', 'מי אני', 'התהליך', 'מה מקבלים', 'תוצאות'], navCta: 'בואו נדבר',
     heroLabel: 'אסטרטגיה והפקת תוכן לבעלי עסקים',
     h1a: 'פחות תדמית.', h1b: 'יותר אמת.',
     heroSub: 'אני בונה לעסק שלכם אסטרטגיה מהשורש ומפיק את התוכן שמספר אותה - כדי שהקהל הנכון יבין מי אתם, יבחר בכם, וישלם על זה.',
@@ -25,6 +25,10 @@ var T = {
     solLabel: 'הפתרון', s1: 'קודם למה.', s2: 'אחר כך איך.',
     solText: 'שותף אחד לשני הצדדים. קודם אני מבין לעומק מי אתם, מה אתם מוכרים ולמי, ובונה מזה אסטרטגיה ובנק מסרים. אחר כך אני מפיק את התוכן בעצמי: תסריט, צילום ועריכה. בלי רפרנסים ובלי תבניות - DNA אחד, שלכם.',
     eq: ['אסטרטגיה', 'הפקה', 'תוכן שמביא את הקהל הנכון'],
+    abTitle: 'שרבל נג׳ם', abRole: 'אסטרטג שיווק, יוצר תוכן ומומחה לסטוריטלינג.',
+    ab1: 'צלם מקצועי ויוצר תוכן שיווקי ומסחרי, מתמחה בהפקת וידאו ברמה גבוהה בתחומי הסושיאל, לייף סטייל, תיירות ותוכן מותגי. עם ניסיון מוכח בפרויקטים עשירים ויזואלית, כל אחד בנוי סביב מטרה אסטרטגית ברורה.',
+    ab2: 'כל פרויקט מתחיל מהבנה מעמיקה של המותג - הזהות שלו, קהל היעד והמטרות. מכיוון קריאייטיבי ותסריט ועד לעריכה הסופית, כל פרט מעוצב כדי להגיע לקהל הנכון ולייצר אימפקט מדיד.',
+    abWho: 'עובד עם יזמים, יוצרים, בעלי שליחות ועסקי תיירות.',
     stepsLabel: 'התהליך', stepsTitle: 'ארבעה שלבים',
     steps: [['אפיון', 'שני מפגשי עומק, אישי ועסקי, שמוציאים את ה-DNA שלכם: מי אתם, מה אתם מציעים, ולמי.'],
             ['אסטרטגיה', 'תוכנית שיווקית, מסרי על, ערוצים ובנק מסרים בטון שהוא שלכם.'],
@@ -41,7 +45,7 @@ var T = {
             { big: '×3', txt: 'המכירות שולשו, בזכות מיתוג אישי מדויק וסרטונים אורגניים.', who: 'נאדנד' },
             { big: 'סולד אאוט', txt: 'קמפיין בכמה לוקיישנים, והכרטיסים נגמרו תוך זמן קצר מאוד.', who: 'עמותת זמן גליל מערבי' },
             { big: '35+', txt: 'סרטונים, לצד תכנון שיווקי מחדש ומיתוג אישי.', who: 'בלנדר' }],
-    quotesLabel: 'מה אומרים הלקוחות', brandsLabel: 'עבדתי עם',
+    quotesTitle: 'המלצות', quotesLabel: 'מה אומרים הלקוחות', brandsLabel: 'עבדתי עם',
     ctLabel: 'בואו נדבר', ctTitle: 'רוצים להיות הבאים?',
     ctText: 'אני עובד עם 2 עסקים בחודש בלבד. ספרו לי על העסק שלכם, ואחזור אליכם בוואטסאפ תוך 24 שעות.', wa: 'מעדיפים לדבר עכשיו? וואטסאפ',
     fName: 'שם מלא', fPhone: 'וואטסאפ', fEmail: 'מייל (אופציונלי)', fAbout: 'על העסק. מה אתם עושים ולמי?',
@@ -53,7 +57,7 @@ var T = {
     lang: 'EN', langLabel: 'Switch to English', themeLabel: 'מצב בהיר או כהה', close: 'סגירה'
   },
   en: {
-    nav: ['Problem', 'Solution', 'Process', 'Offer', 'Results'], navCta: "Let's Talk",
+    nav: ['Problem', 'Solution', 'About', 'Process', 'Offer', 'Results'], navCta: "Let's Talk",
     heroLabel: 'Strategy & content production for business owners',
     h1a: 'Less image.', h1b: 'More truth.',
     heroSub: 'I build your business a strategy from the roots and produce the content that tells it - so the right audience understands who you are, chooses you, and pays for it.',
@@ -65,6 +69,10 @@ var T = {
     solLabel: 'The Solution', s1: 'Why first.', s2: 'Then how.',
     solText: 'One partner for both sides. First I get to know, in depth, who you are, what you sell and to whom, and turn it into a strategy and a message bank. Then I produce the content myself: script, shoot and edit. No references, no templates - one DNA, yours.',
     eq: ['Strategy', 'Production', 'Content that brings the right audience'],
+    abTitle: 'Sharbel Najem', abRole: 'Marketing strategist, content creator and storytelling specialist.',
+    ab1: 'A professional filmmaker and commercial content creator, focused on producing high-end video content across social media, lifestyle, tourism, and brand storytelling. With a proven track record in visually rich projects, each one built around a clear strategic objective.',
+    ab2: 'Every project begins with a deep understanding of the brand - its identity, audience, and goals. From creative direction and scripting to the final edit, every detail is crafted to connect with the right audience and deliver measurable impact.',
+    abWho: 'I work with entrepreneurs, creators, mission-driven people and tourism businesses.',
     stepsLabel: 'The Process', stepsTitle: 'Four Steps',
     steps: [['Discovery', 'Two deep sessions, personal and business, that bring out your DNA: who you are, what you offer, and to whom.'],
             ['Strategy', 'A marketing plan, core messages, channels and a message bank in a voice that is yours.'],
@@ -81,7 +89,7 @@ var T = {
             { big: '×3', txt: 'Sales tripled, through precise personal branding and organic videos.', who: 'Naadned' },
             { big: 'Sold Out', txt: 'A multi-location campaign, and the tickets sold out very quickly.', who: 'Western Galilee Time' },
             { big: '35+', txt: 'Videos, alongside a marketing redesign and personal branding.', who: 'Blendar' }],
-    quotesLabel: 'What Clients Say', brandsLabel: 'Trusted By',
+    quotesTitle: 'Testimonials', quotesLabel: 'What Clients Say', brandsLabel: 'Trusted By',
     ctLabel: "Let's Talk", ctTitle: 'Want to Be Next?',
     ctText: "I work with only 2 businesses a month. Tell me about your business and I'll get back to you on WhatsApp within 24 hours.", wa: 'Rather talk now? WhatsApp',
     fName: 'Full name', fPhone: 'WhatsApp', fEmail: 'Email (optional)', fAbout: 'About the business. What do you do, and for whom?',
@@ -107,7 +115,7 @@ var tsCv = document.createElement('canvas'); tsCv.width = TS.W; tsCv.height = TS
 var tsCx = tsCv.getContext('2d', { willReadFrequently: true });
 var TS_MARK = /[׳״'"]/;
 var TS_STOPS = [[201, 207, 217], [226, 228, 232], [242, 242, 240]], TS_LIGHT = [[111, 127, 151], [62, 68, 80], [20, 21, 24]];
-function tsStops(){ return root.dataset.theme === 'light' ? TS_LIGHT : TS_STOPS; }
+function tsStops(el){ return root.dataset.theme === 'light' && !(el && el.closest('.lp-hero')) ? TS_LIGHT : TS_STOPS; }
 function tsMix(p, st){ var a = p < .5 ? st[0] : st[1], b = p < .5 ? st[1] : st[2], t = p < .5 ? p * 2 : (p - .5) * 2; return 'rgb(' + a.map(function(c, i){ return Math.round(c + (b[i] - c) * t); }).join(',') + ')'; }
 function tsFont(only){ return (only || lang) === 'he' ? { fam: 'Noto Sans Hebrew', st: 'extra-condensed', lo: 100, hi: 900, ref: 'ה' } : { fam: 'Georama', st: 'extra-condensed', lo: 100, hi: 900, ref: 'H' }; }
 function tsWeight(f, p){ return Math.round(f.lo + (f.hi - f.lo) * p); }
@@ -134,7 +142,7 @@ function tsGap(A, B, band, Tt, D, clear){
 function typeset(el, text, mask, byWord, only){
   if (!el) return; text = String(text).trim();
   if (!TS.ready) { el.innerHTML = text.split(' ').map(function(w){ return mask ? '<span class="mask"><span>' + esc(w) + '</span></span>' : esc(w); }).join(' '); return; }
-  var stops = tsStops(), f = tsFont(only), rtl = (only || lang) === 'he', S = TS.S, ref = tsGlyph(f.ref, f, tsWeight(f, .5)), band = [ref.y0, TS.B];
+  var stops = tsStops(el), f = tsFont(only), rtl = (only || lang) === 'he', S = TS.S, ref = tsGlyph(f.ref, f, tsWeight(f, .5)), band = [ref.y0, TS.B];
   if (!rtl) text = text.toUpperCase();
   var words = text.split(/\s+/).filter(Boolean).map(function(w){ return Array.from(w); });
   var n = words.reduce(function(a, w){ return a + w.length; }, 0), i = 0;
@@ -180,22 +188,21 @@ function render(){
   $$('[data-t]').forEach(function(el){ var v = t[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
   $$('[data-th]').forEach(function(el){ el.innerHTML = t[el.dataset.th]; });
   $$('[data-nav]').forEach(function(el){ el.textContent = t.nav[+el.dataset.nav]; });
-  $('#probs').innerHTML = t.probs.map(function(p, i){ return '<div class="lp-prob rvx"><span class="lp-prob__n">0' + (i + 1) + '</span><h3 class="lp-prob__t">' + esc(p[0]) + '<i aria-hidden="true"></i></h3><p class="lp-prob__d">' + esc(p[1]) + '</p></div>'; }).join('');
-  $('#eq').innerHTML = '<span class="lp-pill glass">' + esc(t.eq[0]) + '</span><span class="lp-op">+</span><span class="lp-pill glass">' + esc(t.eq[1]) + '</span><span class="lp-op">=</span><span class="lp-pill lp-pill--hi">' + esc(t.eq[2]) + '</span>';
-  $('#steps').innerHTML = t.steps.map(function(s, i){ return '<div class="lp-step glass rv" style="--d:' + i * 90 + 'ms"><span class="lp-step__n">0' + (i + 1) + '</span><h3>' + esc(s[0]) + '</h3><p>' + esc(s[1]) + '</p></div>'; }).join('');
+  $('#probs').innerHTML = t.probs.map(function(p, i){ return '<div class="lp-prob rv" style="--d:' + i * 90 + 'ms"><span class="lp-prob__n">0' + (i + 1) + '</span><h3 class="lp-prob__t">' + esc(p[0]) + '</h3><p class="lp-prob__d">' + esc(p[1]) + '</p></div>'; }).join('');
+  $('#eq').innerHTML = '<span class="lp-pill">' + esc(t.eq[0]) + '</span><span class="lp-op">+</span><span class="lp-pill">' + esc(t.eq[1]) + '</span><span class="lp-op">=</span><span class="lp-pill lp-pill--hi">' + esc(t.eq[2]) + '</span>';
+  $('#steps').innerHTML = t.steps.map(function(s, i){ return '<div class="lp-step rv" style="--d:' + i * 90 + 'ms"><span class="lp-step__n">0' + (i + 1) + '</span><h3>' + esc(s[0]) + '</h3><p>' + esc(s[1]) + '</p></div>'; }).join('');
   $('#offers').innerHTML = t.offers.map(function(o, i){
-    return '<div class="lp-offer glass rv' + (o.hi ? ' lp-offer--hi' : '') + '" style="--d:' + i * 90 + 'ms">' + (o.hi ? '<span class="lp-offer__chip">' + esc(t.chip) + '</span>' : '') +
+    return '<div class="lp-offer rv' + (o.hi ? ' lp-offer--hi' : '') + '" style="--d:' + i * 90 + 'ms">' + (o.hi ? '<span class="lp-offer__chip">' + esc(t.chip) + '</span>' : '') +
       '<h3>' + esc(o.t) + '</h3><p class="lp-offer__tag">' + esc(o.tag) + '</p><ul>' + o.items.map(function(x){ return '<li>' + CHECK + '<span>' + esc(x) + '</span></li>'; }).join('') + '</ul><p class="lp-offer__for">' + esc(o.for) + '</p></div>';
   }).join('');
-  $('#fit').innerHTML = t.fit.map(function(x, i){ return '<li class="glass rv" style="--d:' + i * 90 + 'ms">' + CHECK + '<span>' + esc(x) + '</span></li>'; }).join('');
+  $('#fit').innerHTML = t.fit.map(function(x, i){ return '<li class="rv" style="--d:' + i * 90 + 'ms">' + CHECK + '<span>' + esc(x) + '</span></li>'; }).join('');
   $('#cases').innerHTML = t.cases.map(function(c, i){
     var m = CASES[i];
     return '<button type="button" class="lp-case rv" style="--d:' + i * 90 + 'ms" data-case="' + i + '" aria-label="' + esc(t.watch + ': ' + c.who) + '"><img src="' + m.poster + '" alt="" loading="lazy" decoding="async"><span class="lp-case__play" aria-hidden="true">' + PLAY + '</span>' +
       '<span class="lp-case__body"><span class="lp-case__big' + (/[֐-׿]/.test(c.big) ? ' he">' + esc(c.big) : '"><bdi dir="ltr">' + esc(c.big) + '</bdi>') + '</span><span class="lp-case__txt">' + esc(c.txt) + '</span><span class="lp-case__who">' + esc(c.who) + '</span></span></button>';
   }).join('');
   // המלצות ולוגואים: רצועות שתמיד זזות, בעברית ימינה ובאנגלית שמאלה
-  var qs = (C.quotes || []).map(function(q){ return '<figure class="lp-q glass" dir="' + (he ? 'rtl' : 'ltr') + '"><span aria-hidden="true">★★★★★</span><p>' + esc(he ? q.he : q.en) + '</p><b>' + esc(he ? q.whoHe : q.whoEn) + '</b></figure>'; }).join('');
-  $('#quotes').innerHTML = '<div class="marquee' + (he ? ' rev' : '') + '" dir="ltr"><div class="marquee__row" style="--dur:110s">' + qs + qs + '</div></div>';
+  renderQuotes();
   var lg = C.logos || [], half = Math.ceil(lg.length / 2);
   $('#logos').innerHTML = [lg.slice(0, half), lg.slice(half)].map(function(r, k){
     var items = r.map(function(src){ return '<span class="logo-item"><img src="../' + src + '" alt="" loading="lazy"></span>'; }).join('');
@@ -205,6 +212,77 @@ function render(){
   $('#themeBtn').setAttribute('aria-label', t.themeLabel);
   tsHeads(); armReveal(); window.navSpyRefresh && navSpyRefresh();
 }
+
+/* ---------- המלצות: אותה רצועה כמו בתיק העבודות - כרטיסים שווים, הטקסט ממלא כל כרטיס, הכרטיס שמגיע למרכז
+   יוצא קדימה בתלת-ממד והכוכבים שלו נדלקים אחד אחד. הרצועה זזה כל הזמן; הקשה או גרירה מחליקות ומיד ממשיכות ---------- */
+var isPhone = function(){ return innerWidth <= 760; };
+var Q = { x: 0, tx: null, w: 0, vw: 0, cx: [], cards: [], row: null, inV: false, hold: 0, drag: null, last: 0, running: false };
+function renderQuotes(){
+  var d = lang === 'he' ? 'rtl' : 'ltr', stars = '<i>★</i><i>★</i><i>★</i><i>★</i><i>★</i>';
+  var cards = (C.quotes || []).map(function(q){
+    return '<figure class="quote" dir="' + d + '"><span class="quote__stars" aria-hidden="true">' + stars + '</span><p>' + esc(lang === 'he' ? q.he : q.en) + '</p><figcaption class="quote__who">' + esc(lang === 'he' ? q.whoHe : q.whoEn) + '</figcaption></figure>';
+  }).join('');
+  $('#quoteRows').innerHTML = '<div class="qrib" id="qRib" dir="ltr"><div class="qrib__row" id="qRow">' + cards + cards + '</div></div>';
+  Q.row = $('#qRow'); Q.cards = $$('.quote', Q.row); Q.x = 0; Q.fresh = true;
+  requestAnimationFrame(function(){ quotesLayout(); });
+  if (!Q.running) { Q.running = true; requestAnimationFrame(quotesTick); }
+}
+function quotesLayout(force){
+  if (!Q.cards.length) return;
+  var n = Q.cards.length / 2, fit = force === true || Q.fitFor !== Q.row || Q.fitW !== innerWidth;
+  Q.fitFor = Q.row; Q.fitW = innerWidth;
+  if (fit) for (var k = 0; k < n; k++) {
+    var c = Q.cards[k], p = c.querySelector('p'), lo = 12, hi = isPhone() ? 16.5 : 18.5;
+    while (hi - lo > .25) { var mid = (lo + hi) / 2; p.style.fontSize = mid + 'px'; if (c.scrollHeight > c.clientHeight + 1) hi = mid; else lo = mid; }
+    p.style.fontSize = lo + 'px'; Q.cards[k + n].querySelector('p').style.fontSize = lo + 'px';
+  }
+  var was = Q.p ? Math.round((Q.o - Q.x) / Q.p) : null;
+  Q.vw = $('#qRib').clientWidth; Q.w = Q.cards[n].offsetLeft - Q.cards[0].offsetLeft; Q.n = n;
+  Q.cx = Q.cards.map(function(c){ return c.offsetLeft + c.offsetWidth / 2; });
+  Q.p = Q.cx[1] - Q.cx[0]; Q.o = Q.vw / 2 - Q.cx[0]; Q.kmin = Math.ceil((Q.vw / 2 - Q.cx[0]) / Q.p) + 1;
+  var k = was === null || Q.fresh ? Q.kmin : ((was - Q.kmin) % n + n) % n + Q.kmin; Q.fresh = false;
+  Q.x = Q.o - k * Q.p; Q.tx = null;
+  quotes3D();
+}
+function quotesGo(k){ Q.tx = Q.o - k * Q.p; Q.hold = Date.now() + 900; }
+function quotes3D(){
+  var half = Q.vw / 2, ph = isPhone();
+  Q.row.style.transform = 'translate3d(' + Q.x.toFixed(2) + 'px,0,0)';
+  Q.cards.forEach(function(c, i){
+    var d = (Q.x + Q.cx[i] - half) / half;
+    if (Math.abs(d) > 1.7) return;
+    var a = Math.min(1.2, Math.abs(d)), f = Math.max(0, 1 - Math.abs(d) * (ph ? 1.6 : 2.4));
+    c.style.transform = 'perspective(1100px) translateZ(' + (f * 50 - a * (ph ? 90 : 160)).toFixed(1) + 'px) rotateY(' + (d * (ph ? 28 : 36)).toFixed(2) + 'deg)';
+    c.style.opacity = (1 - Math.min(1, a) * .55).toFixed(3);
+    c.style.setProperty('--c', f.toFixed(3));
+  });
+}
+function quotesTick(t){
+  var dt = Math.min(50, t - (Q.last || t)); Q.last = t;
+  if (Q.row && Q.p && (Q.inV || Q.drag)) {
+    if (Q.tx !== null && !Q.drag) { Q.x += (Q.tx - Q.x) * (reduce ? 1 : 1 - Math.exp(-dt / 210)); if (Math.abs(Q.tx - Q.x) < .5) { Q.x = Q.tx; Q.tx = null; } }
+    else if (!Q.drag && !document.hidden && Date.now() > Q.hold) Q.x -= dt * (isPhone() ? .042 : .06);
+    var lo = Q.o - (Q.kmin + Q.n - .5) * Q.p, hi = Q.o - (Q.kmin - .5) * Q.p, s = Q.x < lo ? Q.w : Q.x > hi ? -Q.w : 0;
+    if (s) { Q.x += s; if (Q.tx !== null) Q.tx += s; if (Q.drag) Q.drag.q += s; }
+    quotes3D();
+  }
+  requestAnimationFrame(quotesTick);
+}
+(function(){
+  var box = $('#quoteRows');
+  new IntersectionObserver(function(es){ Q.inV = es[0].isIntersecting; }, { threshold: .05 }).observe(box);
+  box.addEventListener('pointerdown', function(e){ Q.drag = { x: e.clientX, q: Q.x, moved: false }; });
+  addEventListener('pointermove', function(e){ if (!Q.drag) return; var dx = e.clientX - Q.drag.x; if (Math.abs(dx) > 6) Q.drag.moved = true; Q.x = Q.drag.q + dx; });
+  var end = function(e){
+    if (!Q.drag) return; var dd = Q.drag; Q.drag = null;
+    if (dd.moved) { Q.hold = Date.now() + 600; return; }
+    var c = e && e.target && e.target.closest && e.target.closest('.quote');
+    if (c) quotesGo(Q.cards.indexOf(c));
+  };
+  addEventListener('pointerup', end); addEventListener('pointercancel', function(){ end(null); });
+  addEventListener('resize', function(){ clearTimeout(Q.rt); Q.rt = setTimeout(function(){ quotesLayout(); }, 250); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ quotesLayout(true); });
+})();
 
 /* ---------- נחשף כשמגיעים: כרטיסים עולים, קו המחיקה נמתח על כל בעיה, הקו של התהליך נמתח ---------- */
 var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -10% 0px', threshold: .05 }) : null;
@@ -336,6 +414,17 @@ async function submitForm(e){
 }
 $('#leadForm').addEventListener('submit', submitForm);
 (function(){ var cb = $('#consent'), btn = $('.submit-btn'); function sync(){ btn.disabled = !cb.checked; } cb.addEventListener('change', sync); sync(); })();
+
+/* ---------- השואוריל ברקע הפתיחה: נחשף בהתמזגות רכה רק כשהוא באמת מתנגן ---------- */
+(function(){
+  var box = $('#lpReel'), f = $('#lpReelFrame'); if (!box || !f) return;
+  // הסרטון ממלא את כל הפתיחה בכל גודל מסך (בלי פסים): נמדד לפי הפתיחה עצמה
+  var cover = function(){ var W = box.clientWidth, H = box.clientHeight, R = 16 / 9; f.style.width = Math.ceil(Math.max(W, H * R)) + 'px'; f.style.height = Math.ceil(Math.max(H, W / R)) + 'px'; };
+  cover(); addEventListener('resize', cover); setTimeout(cover, 600);
+  var on = function(){ box.classList.add('is-playing'); };
+  if (window.Vimeo && Vimeo.Player) { try { var pl = new Vimeo.Player(f); pl.on('play', on); pl.on('timeupdate', function(d){ if (d && d.seconds > 0) on(); }); } catch (e) { on(); } }
+  else f.addEventListener('load', function(){ setTimeout(on, 1200); }, { once: true });
+})();
 
 /* ---------- כניסה: הקווים של הציור נמתחים, והכותרת עולה ---------- */
 render();
