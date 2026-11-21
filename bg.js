@@ -93,10 +93,11 @@
     .map(function(p){ return [].concat.apply([], p.map(function(h){ return [1, 3, 5].map(function(i){ return parseInt(h.substr(i, 2), 16) / 255; }); })); });
   var pi = Math.floor(Math.random() * PALS.length);
   if (BURST) { try { var lp = localStorage.getItem('sn-pal'); pi = lp === null ? pi : (+lp + 1) % PALS.length; localStorage.setItem('sn-pal', String(pi)); } catch (e) {} }
-  var PAL = PALS[pi], SUB = 0;   // SUB: 0 = המלבנים של הציור כמו שהם (לא מחלקים אותם לגושים קטנים)   // התפרצות הצבעים רק בפתיחה של האתר, לא בדף הנחיתה
+  var PAL = PALS[pi], SUB = 0, SNAP = false;   // SNAP: ההחלפה הבאה של בהיר/כהה מיידית, בלי גל (artFX.snap)   // SUB: 0 = המלבנים של הציור כמו שהם (לא מחלקים אותם לגושים קטנים)   // התפרצות הצבעים רק בפתיחה של האתר, לא בדף הנחיתה
   var nextWave = 35 + Math.random() * 15;   // מדי פעם (כל 40-75 שניות) גל מהיר עובר על הציור, כמו בכניסה - לא כל הזמן
   window.artFX = {
     origin: function(x, y){ OX = x; OY = y; },
+    snap: function(){ SNAP = true; },
     flip: function(dir){ if (still) return; LA = LB = cur; T0 = now; TM = dir; },
     build: function(){ if (B0 === -1) B0 = now || performance.now() / 1000; },
     palette: function(a){ PAL = a; },
@@ -115,7 +116,7 @@
     requestAnimationFrame(loop);
     now = t / 1000;
     var lt = root.dataset.theme === 'light' ? 1 : 0;
-    if (lt !== cur) { if (still) LA = LB = lt; else { LA = cur; LB = lt; T0 = now; TM = 0; } cur = lt; }
+    if (lt !== cur) { if (still || SNAP) LA = LB = lt; else { LA = cur; LB = lt; T0 = now; TM = 0; } cur = lt; SNAP = false; }
     if (covered()) return;
     if (!still && B0 === null && now > nextWave) {
       if (now - T0 > 5) { var m = Math.random(); TM = m < .35 ? 1 : m < .7 ? -1 : 0; if (!TM) { OX = innerWidth * (.15 + .7 * Math.random()); OY = innerHeight * (.15 + .7 * Math.random()); } LA = LB = cur; T0 = now; }

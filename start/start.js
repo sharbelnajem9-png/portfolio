@@ -101,7 +101,10 @@ var T = {
     lang: 'עב', langLabel: 'עברו לעברית', themeLabel: 'Light or dark mode', close: 'Close'
   }
 };
-var lang = store('sn-lang') === 'en' ? 'en' : 'he';
+// ?lang=he / ?lang=en בכתובת (למודעות): נכנסים ישר בשפה הזו, בלי מסך הבחירה
+var QS = (location.search.match(/[?&]lang=(he|en)\b/) || [])[1];
+var lang = QS || (store('sn-lang') === 'en' ? 'en' : 'he');
+if (QS) store('sn-lang', QS);
 var L = function(){ return T[lang]; };
 // הסרטונים מאחורי התוצאות (מהאתר): קריית התקשוב, נאדנד, זמן גליל מערבי, בלנדר
 var CASES = [{ v: '1181259173', h: 'ecb3db2a7b', o: 'l', poster: '../media/p1181259173.jpg' }, { v: '1181225482', h: 'b027619c83', o: 'p', poster: '../media/p1181225482.jpg' },
@@ -115,7 +118,11 @@ var tsCv = document.createElement('canvas'); tsCv.width = TS.W; tsCv.height = TS
 var tsCx = tsCv.getContext('2d', { willReadFrequently: true });
 var TS_MARK = /[׳״'"]/;
 var TS_STOPS = [[201, 207, 217], [226, 228, 232], [242, 242, 240]], TS_LIGHT = [[111, 127, 151], [62, 68, 80], [20, 21, 24]];
-function tsStops(el){ return root.dataset.theme === 'light' && !(el && el.closest('.lp-hero')) ? TS_LIGHT : TS_STOPS; }
+// data-tsc על משטח צבע קובע את הדיו (ink = כהה על בהיר, paper = בהיר על כהה); הפתיחה ומסך השפה תמיד כהים
+function tsStops(el){
+  var c = el && el.closest('[data-tsc]'); if (c) return c.dataset.tsc === 'ink' ? TS_LIGHT : TS_STOPS;
+  return root.dataset.theme === 'light' && !(el && el.closest('.lp-hero, .lp-gate')) ? TS_LIGHT : TS_STOPS;
+}
 function tsMix(p, st){ var a = p < .5 ? st[0] : st[1], b = p < .5 ? st[1] : st[2], t = p < .5 ? p * 2 : (p - .5) * 2; return 'rgb(' + a.map(function(c, i){ return Math.round(c + (b[i] - c) * t); }).join(',') + ')'; }
 function tsFont(only){ return (only || lang) === 'he' ? { fam: 'Noto Sans Hebrew', st: 'extra-condensed', lo: 100, hi: 900, ref: 'ה' } : { fam: 'Georama', st: 'extra-condensed', lo: 100, hi: 900, ref: 'H' }; }
 function tsWeight(f, p){ return Math.round(f.lo + (f.hi - f.lo) * p); }
@@ -145,13 +152,13 @@ function typeset(el, text, mask, byWord, only){
   var stops = tsStops(el), f = tsFont(only), rtl = (only || lang) === 'he', S = TS.S, ref = tsGlyph(f.ref, f, tsWeight(f, .5)), band = [ref.y0, TS.B];
   if (!rtl) text = text.toUpperCase();
   var words = text.split(/\s+/).filter(Boolean).map(function(w){ return Array.from(w); });
-  var n = words.reduce(function(a, w){ return a + w.length; }, 0), i = 0;
+  var n = words.reduce(function(a, w){ return a + w.length; }, 0), i = 0, ps = [];
   el.innerHTML = words.map(function(wd, wi){
     var it = wd.map(function(ch){
       var p = byWord ? (words.length > 1 ? wi / (words.length - 1) : 0) : (n > 1 ? i / (n - 1) : 0); i++;
       var w = tsWeight(f, byWord ? .125 + .75 * p : p), g = tsGlyph(ch, f, w), dy = 0;
       if (TS_MARK.test(ch)) { dy = ref.y0 - g.y0; g = tsGlyph(ch, f, w, dy); }
-      return { ch: ch, p: p, w: w, g: g, dy: dy, m: null, ix: i - 1 };
+      ps.push(p); return { ch: ch, p: p, w: w, g: g, dy: dy, m: null, ix: i - 1 };
     });
     for (var k = 0; k < it.length - 1; k++) {
       var a = it[k], b = it[k + 1], vl = rtl ? b : a, vr = rtl ? a : b;
@@ -159,22 +166,26 @@ function typeset(el, text, mask, byWord, only){
       a.m = (gap - (vl.g.adv + vr.g.il - vl.g.ir)) / S;
     }
     var inner = it.map(function(x){
-      return '<span class="tl" style="--i:' + x.ix + ';color:' + tsMix(x.p, stops) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
+      return '<span class="tl" style="--i:' + x.ix + ';--o:' + (x.ix - (n - 1) / 2).toFixed(1) + ';color:' + tsMix(x.p, stops) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
     }).join('');
     return mask ? '<span class="mask"><span class="tw">' + inner + '</span></span>' : '<span class="tw">' + inner + '</span>';
   }).join(' ');
-  el.classList.add('ts'); el.classList.toggle('ts-en', only === 'en'); tsFit(el);
+  el._tsp = ps; el.classList.add('ts'); el.classList.toggle('ts-en', only === 'en'); el.classList.toggle('ts-he', only === 'he'); tsFit(el);
 }
+// בהיר/כהה: הצבע של כל אות מתחלף במקום (בלי לבנות מחדש), כך שהוא נמזג יחד עם הגל של הציור
+function tsRecolor(){ $$('.ts').forEach(function(el){ var ps = el._tsp, st = tsStops(el); if (ps) $$('.tl', el).forEach(function(s, k){ if (ps[k] != null) s.style.color = tsMix(ps[k], st); }); }); }
 function tsFit(el){
-  el.style.fontSize = ''; var avail = el.clientWidth, need = el.scrollWidth;
+  el.classList.add('ts-m'); el.style.fontSize = ''; var avail = el.clientWidth, need = el.scrollWidth;   // ts-m: מודדים את הכותרת במצב הסופי שלה, לא באמצע אפקט הכניסה
   if (avail > 0 && need > avail + 1) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * avail / need * .985).toFixed(2) + 'px';
+  el.classList.remove('ts-m');
 }
 var tsFitT; addEventListener('resize', function(){ clearTimeout(tsFitT); tsFitT = setTimeout(function(){ $$('.ts').forEach(tsFit); }, 200); });
 function tsHeads(){
   var t = L();
   typeset($('#h1a'), t.h1a, true); typeset($('#h1b'), t.h1b, true);
   typeset($('#s1'), t.s1); typeset($('#s2'), t.s2);
-  $$('.h2').forEach(function(el){ typeset(el, t[el.dataset.t] || el.textContent); });
+  $$('.h2').forEach(function(el){ typeset(el, t[el.dataset.t] || el.textContent, !!el.closest('[data-fx="rise"]')); });
+  $$('[data-ts]').forEach(function(el){ typeset(el, el.dataset.ts, false, false, el.dataset.tso); });   // מסך השפה, הכותרות במונדריאן, "מתאים לכם אם"
   typeset($('#motto'), 'Dream Create Share Sell', false, true, 'en');   // המוטו: ארבע מילים, כל אחת עבה מהקודמת
 }
 var fontsReady = Promise.all([100, 300, 500, 700, 900].map(function(w){ return document.fonts.load('extra-condensed ' + w + ' 40px "Georama"', 'LESSIMAGE'); })
@@ -188,16 +199,27 @@ function render(){
   $$('[data-t]').forEach(function(el){ var v = t[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
   $$('[data-th]').forEach(function(el){ el.innerHTML = t[el.dataset.th]; });
   $$('[data-nav]').forEach(function(el){ el.textContent = t.nav[+el.dataset.nav]; });
-  $('#probs').innerHTML = t.probs.map(function(p, i){ return '<div class="lp-prob rv" style="--d:' + i * 90 + 'ms"><span class="lp-prob__n">0' + (i + 1) + '</span><h3 class="lp-prob__t">' + esc(p[0]) + '</h3><p class="lp-prob__d">' + esc(p[1]) + '</p></div>'; }).join('');
+  // הבעיה: המספר מתגלגל כמו מונה, הכותרת נחשפת מהצד
+  $('#probs').innerHTML = t.probs.map(function(p, i){ return '<div class="lp-prob rv" style="--d:' + i * 160 + 'ms"><span class="lp-prob__n"><span class="sr">0' + (i + 1) + '</span>' + odo('0' + (i + 1)) + '</span><h3 class="lp-prob__t">' + esc(p[0]) + '</h3><p class="lp-prob__d">' + esc(p[1]) + '</p></div>'; }).join('');
   $('#eq').innerHTML = '<span class="lp-pill">' + esc(t.eq[0]) + '</span><span class="lp-op">+</span><span class="lp-pill">' + esc(t.eq[1]) + '</span><span class="lp-op">=</span><span class="lp-pill lp-pill--hi">' + esc(t.eq[2]) + '</span>';
-  $('#steps').innerHTML = t.steps.map(function(s, i){ return '<div class="lp-step rv" style="--d:' + i * 90 + 'ms"><span class="lp-step__n">0' + (i + 1) + '</span><h3>' + esc(s[0]) + '</h3><p>' + esc(s[1]) + '</p></div>'; }).join('');
-  // מה מקבלים: קומפוזיציה של מונדריאן - שלושה משטחי צבע וקווים שחורים עבים. נבנית כשמגיעים אליה (הקווים נמתחים, הצבע נשפך)
-  $('#offers').innerHTML = '<div class="lp-mond rvm">' + t.offers.map(function(o, i){
-    return '<div class="lp-pan lp-pan--' + 'abc'[i] + (o.hi ? ' lp-pan--hi' : '') + '" style="--k:' + i + '"><div class="lp-pan__in">' + (o.hi ? '<span class="lp-pan__chip">' + esc(t.chip) + '</span>' : '') +
-      '<h3>' + esc(o.t) + '</h3><p class="lp-pan__tag">' + esc(o.tag) + '</p><ul>' + o.items.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul><p class="lp-pan__for">' + esc(o.for) + '</p></div></div>';
+  // התהליך: השלבים נדלקים אחד אחרי השני לפי הגלילה (scrollTick)
+  $('#steps').innerHTML = t.steps.map(function(s, i){ return '<div class="lp-step"><span class="lp-step__n">0' + (i + 1) + '</span><h3>' + esc(s[0]) + '</h3><p>' + esc(s[1]) + '</p></div>'; }).join('');
+  STEPS = $$('.lp-step'); lastSY = -1;
+  // מה מקבלים: שלושה לוחות שבולטים מאותו קיר של הציור ברקע, בצבעים של האתר. הסדר מספר את הסיפור:
+  // אפיון, הפקה, ואז שניהם יחד (01+02) - התהליך המלא, בלכה כחולה של קליין שנשפכת עליו אחרון
+  $('#offers').innerHTML = '<div class="lp-pk">' + [0, 2, 1].map(function(k, i){
+    var o = t.offers[k];
+    return '<div class="lp-pk__row' + (o.hi ? ' lp-pk__row--hi" data-tsc="paper' : '') + '" style="--k:' + i + '">' +
+      '<span class="lp-pk__n" dir="ltr">' + (o.hi ? '01<i>+</i>02' : '0' + (i + 1)) + '</span>' +
+      '<div class="lp-pk__name"><h3 data-ts="' + esc(o.t) + '">' + esc(o.t) + '</h3><p class="lp-pk__tag">' + esc(o.tag) + '</p></div>' +
+      '<ul class="lp-pk__items">' + o.items.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
+      '<div class="lp-pk__side">' + (o.hi ? '<span class="lp-pk__chip">' + esc(t.chip) + '</span>' : '') + '<p>' + esc(o.for) + '</p></div></div>';
   }).join('') + '</div>';
-  // מתאים לכם אם: משפטים גדולים שנכתבים מילה אחרי מילה עם הגלילה
-  $('#fit').innerHTML = t.fit.map(function(x){ return '<li class="lp-words">' + x.split(' ').map(function(w){ return '<span class="wd">' + esc(w) + '</span>'; }).join(' ') + '</li>'; }).join('');
+  // מתאים לכם אם: כל משפט בפונט רגיל (לא הצר של הכותרות), המילים מתעבות לאורך המשפט, ופס בצבעי האתר עובר עליו וחושף אותו
+  $('#fit').innerHTML = t.fit.map(function(x, i){
+    var ws = x.split(' '), n = ws.length;
+    return '<li class="lp-fitl" style="--k:' + i + '"><span class="lp-fitl__t">' + ws.map(function(w, j){ return '<span style="font-weight:' + Math.round(300 + 500 * (n > 1 ? j / (n - 1) : 1)) + '">' + esc(w) + '</span>'; }).join(' ') + '</span></li>';
+  }).join('');
   $('#cases').innerHTML = t.cases.map(function(c, i){
     var m = CASES[i];
     return '<button type="button" class="lp-case rv" style="--d:' + i * 90 + 'ms" data-case="' + i + '" aria-label="' + esc(t.watch + ': ' + c.who) + '"><img src="' + m.poster + '" alt="" loading="lazy" decoding="async"><span class="lp-case__play" aria-hidden="true">' + PLAY + '</span>' +
@@ -287,9 +309,13 @@ function quotesTick(t){
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ quotesLayout(true); });
 })();
 
-/* ---------- נחשף כשמגיעים: כרטיסים עולים, קו המחיקה נמתח על כל בעיה, הקו של התהליך נמתח ---------- */
+/* ---------- נחשף כשמגיעים: לכל אזור תנועה משלו (הכותרות לפי data-fx, ראו start.css) ---------- */
 // אלמנט שנפתח מתוך clip-path סגור לא נחשב גלוי לדפדפן - לכן עוקבים אחרי האזור שמכיל אותו ופותחים את מה שבתוכו
-var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { if (e.target._kids) $$(e.target._kids, e.target).forEach(function(k){ k.classList.add('in'); }); else e.target.classList.add('in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -10% 0px', threshold: .05 }) : null;
+function openKids(box){
+  var ks = $$(box._kids, box); ks.forEach(function(k){ k.classList.add('in'); });
+  if (box.id === 'cases') setTimeout(function(){ ks.forEach(function(k){ k.classList.add('done'); }); }, reduce ? 0 : 1900);   // אחרי שהכרטיסים התהפכו, הריחוף חוזר להיות מהיר
+}
+var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { if (e.target._kids) openKids(e.target); else e.target.classList.add('in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -10% 0px', threshold: .05 }) : null;
 // מספר גדול בתוצאה (2 / ×3 / 35+) סופר מאפס כשהכרטיס נפתח
 function bigNum(s){ return esc(s).replace(/\d+/, function(n){ return '<span class="cnt" data-to="' + n + '">' + n + '</span>'; }); }
 function countUp(el){
@@ -298,21 +324,46 @@ function countUp(el){
   (function step(now){ var p = Math.min(1, (now - t0) / 1300), e = 1 - Math.pow(1 - p, 3); el.textContent = String(Math.round(to * e)); if (p < 1) requestAnimationFrame(step); })(t0);
 }
 var cio = ('IntersectionObserver' in window) ? new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { countUp(e.target); cio.unobserve(e.target); } }); }, { threshold: .6 }) : null;
-// מילים שמתמלאות לפי הגלילה (כמו בתיק העבודות)
-function wordsTick(){
-  requestAnimationFrame(wordsTick);
+// מונה: כל ספרה היא עמודה של 0-9 פעמיים ועוד הספרה הנכונה, והעמודה מתגלגלת עד אליה
+function odo(n){
+  return '<span class="lp-odo" dir="ltr" aria-hidden="true">' + n.split('').map(function(d, j){
+    var st = ''; for (var k = 0; k < 20; k++) st += '<i>' + (k % 10) + '</i>';
+    return '<span class="odo-c"><span class="odo-s" style="--j:' + j + '">' + st + '<i>' + d + '</i></span></span>';
+  }).join('') + '</span>';
+}
+/* ---------- תנועה שקשורה לגלילה: המילים מתמלאות, השלבים נדלקים, "קודם למה / אחר כך איך" נכנסות מהצדדים ---------- */
+var STEPS = [], lastSY = -1, lastVH = 0;
+function scrollTick(){
+  requestAnimationFrame(scrollTick);
+  var vh = innerHeight; if (scrollY === lastSY && vh === lastVH) return; lastSY = scrollY; lastVH = vh;
   $$('.lp-words').forEach(function(el){
-    var r = el.getBoundingClientRect(); if (r.bottom < -50 || r.top > innerHeight + 50) return;
-    var p = reduce ? 1 : Math.min(1, Math.max(0, (innerHeight * .9 - r.top) / (innerHeight * .45 + r.height)));
+    var r = el.getBoundingClientRect(); if (r.bottom < -50 || r.top > vh + 50) return;
+    var p = reduce ? 1 : Math.min(1, Math.max(0, (vh * .9 - r.top) / (vh * .45 + r.height)));
     var ws = el._ws || (el._ws = el.querySelectorAll('.wd')), n = ws.length, on = Math.round(p * n);
     if (el._on === on) return; el._on = on;
     for (var i = 0; i < n; i++) ws[i].classList.toggle('on', i < on);
   });
+  // השלבים: כל שלב נדלק כשהוא עובר קו בגובה המסך; שלבים באותה שורה נדלקים אחד אחרי השני מימין לשמאל (או משמאל לימין)
+  if (STEPS.length) {
+    var tops = STEPS.map(function(el){ return el.getBoundingClientRect().top; }), cnt = 0;
+    tops.forEach(function(tp, k){ var col = 0; for (var j = k - 1; j >= 0 && Math.abs(tops[j] - tp) < 4; j--) col++; if (reduce || tp < vh * (.84 - col * .09)) cnt = k + 1; });
+    STEPS.forEach(function(el, k){ el.classList.toggle('on', k < cnt); el.classList.toggle('cur', k === cnt - 1); });
+  }
+  var sl = $('.lp-sol__lines'), s1 = $('#s1'), s2 = $('#s2');
+  if (sl && s1 && s2) {
+    var r = sl.getBoundingClientRect();
+    if (r.bottom > -100 && r.top < vh + 100) {
+      var p = reduce ? 1 : Math.min(1, Math.max(0, (vh * .98 - r.top) / (vh * .5))), e = 1 - Math.pow(1 - p, 3), sg = lang === 'he' ? 1 : -1, x = (1 - e) * 16;
+      s1.style.transform = 'translateX(' + (sg * x).toFixed(2) + 'vw)'; s2.style.transform = 'translateX(' + (-sg * x).toFixed(2) + 'vw)';
+      s1.style.opacity = s2.style.opacity = (.08 + .92 * e).toFixed(3);
+    }
+  }
 }
-requestAnimationFrame(wordsTick);
+requestAnimationFrame(scrollTick);
+addEventListener('resize', function(){ lastSY = -1; });
 function armReveal(){
-  $$('.rv:not(.lp-case), #steps, #eq, .lp-about, .lp-contact').forEach(function(el){ if (!io || reduce) el.classList.add('in'); else if (!el.classList.contains('in')) io.observe(el); });
-  [['#cases', '.lp-case'], ['#offers', '.lp-mond']].forEach(function(z){ var box = $(z[0]); box._kids = z[1]; if (!io || reduce) $$(z[1], box).forEach(function(k){ k.classList.add('in'); }); else io.observe(box); });
+  $$('.rv:not(.lp-case), #eq, .lp-about, .lp-contact').forEach(function(el){ if (!io || reduce) el.classList.add('in'); else if (!el.classList.contains('in')) io.observe(el); });
+  [['#cases', '.lp-case'], ['#offers', '.lp-pk__row'], ['#fit', '.lp-fitl']].forEach(function(z){ var box = $(z[0]); box._kids = z[1]; if (!io || reduce) openKids(box); else io.observe(box); });
   $$('.cnt').forEach(function(el){ el._done = false; if (cio && !reduce) cio.observe(el); });
   $$('.lp-head').forEach(function(h){ h.classList.add('rv'); if (!io || reduce) h.classList.add('in'); else io.observe(h); });
 }
@@ -323,17 +374,29 @@ function manualTheme(){ try { var s = JSON.parse(store('sn-theme') || 'null'); i
 var themeT;
 function applyTheme(t, anim, o){
   if (root.dataset.theme === t) return;
+  // המעבר הרך: כל הדף במצב החדש נחשף בעיגול גדול עם קצה רך שמתרחב מהכפתור, הכל יחד (View Transitions). בלי התמיכה - המעבר הישן למטה
+  if (anim && !reduce && document.startViewTransition) {
+    // העיגול גדל עד שהחלק המלא שלו מכסה את הפינה הרחוקה ביותר מהכפתור - כך הוא מתפשט בקצב קבוע על כל המסך
+    var vx = o ? o[0] : innerWidth / 2, vy = o ? o[1] : 0, W = innerWidth, H = innerHeight;
+    var far = Math.max(Math.hypot(vx, vy), Math.hypot(W - vx, vy), Math.hypot(vx, H - vy), Math.hypot(W - vx, H - vy));
+    root.style.setProperty('--vx', vx + 'px'); root.style.setProperty('--vy', vy + 'px'); root.style.setProperty('--vs', Math.ceil(far * 4.4) + 'px');
+    window.artFX && artFX.snap && artFX.snap();
+    root.classList.add('theme-vt');
+    var vt = document.startViewTransition(function(){ root.dataset.theme = t; tsRecolor(); });
+    vt.finished.then(function(){ root.classList.remove('theme-vt'); }, function(){ root.classList.remove('theme-vt'); });
+    return;
+  }
   var fx = !!(window.artFX && anim && !reduce), late = 0, blocks = $$('#nav, main > *');
   if (fx) {
     artFX.origin(o ? o[0] : innerWidth / 2, o ? o[1] : 0);
     blocks.forEach(function(el){
-      var r = el.getBoundingClientRect(), y = Math.max(0, Math.min(innerHeight, r.top + Math.min(r.height, innerHeight) / 2));
+      // הגל מגיע לכל אזור לפי מרכז החלק שלו שנראה על המסך
+      var r = el.getBoundingClientRect(), a = Math.max(0, r.top), b = Math.min(innerHeight, r.bottom), y = b > a ? (a + b) / 2 : Math.max(0, Math.min(innerHeight, r.top));
       var d = Math.max(0, artFX.waveAt(r.left + r.width / 2, y) - .4); late = Math.max(late, d); el.style.setProperty('--td', d.toFixed(2) + 's');
     });
   }
   if (anim && !reduce) { root.classList.add('theme-anim'); clearTimeout(themeT); themeT = setTimeout(function(){ root.classList.remove('theme-anim'); blocks.forEach(function(el){ el.style.removeProperty('--td'); }); }, 950 + late * 1000); }
-  root.dataset.theme = t;
-  if (fx) setTimeout(tsHeads, 420); else tsHeads();
+  root.dataset.theme = t; tsRecolor();
 }
 $('#themeBtn').addEventListener('click', function(){
   var t = root.dataset.theme === 'light' ? 'dark' : 'light', r = this.getBoundingClientRect();
@@ -359,6 +422,11 @@ $('#navLang').addEventListener('click', function(){
       if (p < 1) requestAnimationFrame(step); else { m.classList.remove('sweep'); m.style.removeProperty('--sw'); m.style.transition = ''; }
     })(t0);
   }, 290);
+});
+
+/* ---------- מה מקבלים: אור רך שעוקב אחרי העכבר על הלוחות, כמו הזרקור של הציור ברקע ---------- */
+$('#offers').addEventListener('pointermove', function(e){
+  $$('.lp-pk__row', this).forEach(function(r){ var b = r.getBoundingClientRect(); r.style.setProperty('--mx', (e.clientX - b.left).toFixed(0) + 'px'); r.style.setProperty('--my', (e.clientY - b.top).toFixed(0) + 'px'); });
 });
 
 /* ---------- ניווט ---------- */
@@ -452,9 +520,31 @@ $('#leadForm').addEventListener('submit', submitForm);
   else f.addEventListener('load', function(){ setTimeout(on, 1200); }, { once: true });
 })();
 
-/* ---------- כניסה: הקווים של הציור נמתחים, והכותרת עולה ---------- */
+/* ---------- כניסה: בוחרים שפה, הדלתות נפתחות לצדדים, הקווים של הציור נמתחים והכותרת עולה ---------- */
 render();
-$('#nav').classList.add('is-on');
-window.artFX && artFX.build();
-Promise.race([fontsReady, new Promise(function(r){ setTimeout(r, 1400); })]).then(function(){ requestAnimationFrame(function(){ $('.lp-hero').classList.add('in'); }); });
+var entered = false;
+function enter(){
+  if (entered) return; entered = true;
+  $('#nav').classList.add('is-on');
+  window.artFX && artFX.build();
+  Promise.race([fontsReady, new Promise(function(r){ setTimeout(r, 1400); })]).then(function(){ requestAnimationFrame(function(){ $('.lp-hero').classList.add('in'); }); });
+}
+(function(){
+  var gate = $('#lpGate');
+  if (!gate || QS) { if (gate) gate.remove(); enter(); return; }
+  root.classList.add('is-locked');
+  var pick = function(l){
+    if (gate.classList.contains('go')) return;
+    store('sn-lang', l);
+    if (l !== lang) { lang = l; render(); }
+    $$('.lp-gate__door', gate).forEach(function(d){ d.classList.toggle('pick', d.dataset.lang === l); });
+    gate.classList.add('go'); root.classList.remove('is-locked');
+    setTimeout(enter, reduce ? 0 : 260);
+    setTimeout(function(){ gate.remove(); }, reduce ? 0 : 1350);
+  };
+  $$('.lp-gate__door', gate).forEach(function(d){ d.addEventListener('click', function(){ pick(d.dataset.lang); }); });
+  addEventListener('keydown', function(e){ if (e.key === 'Escape' && gate.isConnected) pick(lang); });
+  gate.focus({ preventScroll: true });
+  Promise.race([fontsReady, new Promise(function(r){ setTimeout(r, 900); })]).then(function(){ requestAnimationFrame(function(){ gate.classList.add('in'); }); });
+})();
 })();

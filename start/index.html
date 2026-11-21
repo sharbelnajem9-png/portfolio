@@ -25,13 +25,20 @@
 })(document);
 </script>
 <script src="../assets/sn-crypto.js" defer></script>
-<link rel="stylesheet" href="../app.css?v=202611211820">
-<link rel="stylesheet" href="start.css?v=202611211820">
+<link rel="stylesheet" href="../app.css?v=202611211913">
+<link rel="stylesheet" href="start.css?v=202611211913">
 <script>document.documentElement.classList.add('js');
 (function(){var t=new Date().getHours(),m=t>=7&&t<19?'light':'dark';try{var s=JSON.parse(localStorage.getItem('sn-theme')||'null');if(s&&s.d===new Date().toDateString())m=s.t;}catch(e){}document.documentElement.dataset.theme=m;
-try{if(localStorage.getItem('sn-lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}}catch(e){}})();</script>
+var q=(location.search.match(/[?&]lang=(he|en)\b/)||[])[1],l=q;if(q)document.documentElement.classList.add('gate-skip');try{l=l||localStorage.getItem('sn-lang');}catch(e){}if(l==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}})();</script>
 </head>
 <body>
+
+<!-- כניסה: בחירת שפה. שתי דלתות מעל השואוריל, וכשבוחרים הן נפתחות לצדדים. ?lang=he או ?lang=en בכתובת מדלגים על המסך (למודעות) -->
+<div class="lp-gate" id="lpGate" role="dialog" aria-modal="true" aria-label="בחירת שפה · Choose language" tabindex="-1" dir="ltr">
+  <button type="button" class="lp-gate__door lp-gate__door--en" data-lang="en" lang="en"><span class="lp-gate__word"><span>English</span></span><span class="lp-gate__sub">Continue in English</span></button>
+  <button type="button" class="lp-gate__door lp-gate__door--he" data-lang="he" lang="he" dir="rtl"><span class="lp-gate__word"><span>עברית</span></span><span class="lp-gate__sub">המשך בעברית</span></button>
+  <span class="lp-gate__mid" aria-hidden="true"><img src="../logo-240.png" alt=""></span>
+</div>
 
 <nav class="nav glass" id="nav" aria-label="Main">
   <a class="nav__logo" href="../" aria-label="Sharbel Najem"><img src="../logo-240.png" alt=""></a>
@@ -75,12 +82,12 @@ try{if(localStorage.getItem('sn-lang')==='en'){document.documentElement.lang='en
   </section>
 
   <section class="lp-sec wrap" id="problem">
-    <div class="lp-head"><h2 class="h2" data-t="probTitle"></h2></div>
+    <div class="lp-head" data-fx="blur"><h2 class="h2" data-t="probTitle"></h2></div>
     <div class="lp-probs" id="probs"></div>
   </section>
 
   <section class="lp-sec wrap" id="solution">
-    <div class="lp-head">
+    <div class="lp-head" data-fx="scrub">
       <div class="lp-sol__lines"><span class="lp-line" id="s1"></span><span class="lp-line" id="s2"></span></div>
       <p class="lp-lead" data-t="solText"></p>
     </div>
@@ -88,7 +95,7 @@ try{if(localStorage.getItem('sn-lang')==='en'){document.documentElement.lang='en
   </section>
 
   <section class="lp-sec wrap" id="about">
-    <div class="lp-about">
+    <div class="lp-about" data-fx="fill">
       <figure class="lp-about__photo rv"><img src="../about-bw.jpg" alt="Sharbel Najem" loading="lazy" decoding="async"></figure>
       <div class="lp-about__txt rv">
         <h2 class="h2" data-t="abTitle"></h2>
@@ -101,27 +108,27 @@ try{if(localStorage.getItem('sn-lang')==='en'){document.documentElement.lang='en
   </section>
 
   <section class="lp-sec wrap" id="process">
-    <div class="lp-head"><h2 class="h2" data-t="stepsTitle"></h2></div>
+    <div class="lp-head" data-fx="drop"><h2 class="h2" data-t="stepsTitle"></h2></div>
     <div class="lp-steps" id="steps"></div>
   </section>
 
   <section class="lp-sec wrap" id="offer">
-    <div class="lp-head"><h2 class="h2" data-t="offTitle"></h2></div>
+    <div class="lp-head" data-fx="wipe"><h2 class="h2" data-t="offTitle"></h2></div>
     <div class="lp-offers" id="offers"></div>
     <div class="lp-fit"><h3 data-t="fitTitle"></h3><ul id="fit"></ul></div>
   </section>
 
   <section class="lp-sec" id="results">
-    <div class="lp-head wrap"><h2 class="h2" data-t="resTitle"></h2></div>
+    <div class="lp-head wrap" data-fx="type"><h2 class="h2" data-t="resTitle"></h2></div>
     <div class="lp-cases wrap" id="cases"></div>
-    <div class="lp-head wrap lp-qhead"><h2 class="h2" data-t="quotesTitle"></h2></div>
+    <div class="lp-head wrap lp-qhead" data-fx="flip"><h2 class="h2" data-t="quotesTitle"></h2></div>
     <div class="quotes" id="quoteRows"></div>
     <div class="lp-logos"><div class="brands" id="logos"></div></div>
     <div class="lp-all wrap"><a class="btn btn--glass glass" href="../" data-t="allWork"></a></div>
   </section>
 
   <section class="lp-sec wrap" id="contact">
-    <div class="lp-contact">
+    <div class="lp-contact" data-fx="rise">
       <div class="lp-contact__copy">
         <h2 class="h2" data-t="ctTitle"></h2>
         <p data-t="ctText"></p>
@@ -283,9 +290,9 @@ try{if(localStorage.getItem('sn-lang')==='en'){document.documentElement.lang='en
 </div>
 
 <script src="https://player.vimeo.com/api/player.js"></script>
-<script src="../content.js?v=202611211820"></script>
-<script src="../bg.js?v=202611211820"></script>
-<script src="start.js?v=202611211820"></script>
-<script src="../navspy.js?v=202611211820"></script>
+<script src="../content.js?v=202611211913"></script>
+<script src="../bg.js?v=202611211913"></script>
+<script src="start.js?v=202611211913"></script>
+<script src="../navspy.js?v=202611211913"></script>
 </body>
 </html>

@@ -751,6 +751,17 @@ var themeT;
 // המעבר הוא של הציור: המלבנים ברקע מתהפכים בגל שיוצא מהכפתור (bg.js), וכל אזור באתר מחליף צבע בדיוק כשהגל מגיע אליו
 function applyTheme(t, anim, o){
   if (root.dataset.theme === t) return;
+  // המעבר הרך (כמו בדף הנחיתה): כל הדף במצב החדש נחשף בעיגול גדול עם קצה רך שמתרחב מהכפתור, הכל יחד. בלי התמיכה - הגל הישן למטה
+  if (anim && !reduce && document.startViewTransition) {
+    var vx = o ? o[0] : innerWidth / 2, vy = o ? o[1] : 0, W = innerWidth, H = innerHeight;
+    var far = Math.max(Math.hypot(vx, vy), Math.hypot(W - vx, vy), Math.hypot(vx, H - vy), Math.hypot(W - vx, H - vy));
+    root.style.setProperty('--vx', vx + 'px'); root.style.setProperty('--vy', vy + 'px'); root.style.setProperty('--vs', Math.ceil(far * 4.4) + 'px');
+    window.artFX && artFX.snap && artFX.snap();
+    root.classList.add('theme-vt');
+    var vt = document.startViewTransition(function(){ root.dataset.theme = t; tsHeads(); });
+    vt.finished.then(function(){ root.classList.remove('theme-vt'); }, function(){ root.classList.remove('theme-vt'); });
+    return;
+  }
   var fx = !!(window.artFX && anim && !reduce), late = 0;
   if (fx) {
     artFX.origin(o ? o[0] : innerWidth / 2, o ? o[1] : 0);

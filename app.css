@@ -41,6 +41,14 @@ html[data-theme="light"]{
 }
 /* מעבר רך בין המצבים */
 html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:background-color .8s var(--ease) var(--td,0s),color .8s var(--ease) var(--td,0s),border-color .8s var(--ease) var(--td,0s),box-shadow .8s var(--ease) var(--td,0s)!important}
+/* בהיר/כהה: המצב החדש נחשף בעיגול רך שמתרחב מהכפתור (View Transitions). הקצה מטושטש לגמרי, אז אין קו חד - הכל נמזג.
+   --vs (מחושב ב-JS) = קוטר העיגול בסוף: החלק המלא מגיע בדיוק לפינה הרחוקה, והקצה הרך כבר מחוץ למסך */
+html.theme-vt::view-transition-old(root){animation:none}
+html.theme-vt::view-transition-new(root){animation:snThemeIn 1.7s cubic-bezier(.33,0,.25,1) both;-webkit-mask-image:radial-gradient(closest-side,#000 45%,rgba(0,0,0,.55) 68%,transparent);mask-image:radial-gradient(closest-side,#000 45%,rgba(0,0,0,.55) 68%,transparent);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+@keyframes snThemeIn{
+  from{-webkit-mask-size:0 0;mask-size:0 0;-webkit-mask-position:var(--vx) var(--vy);mask-position:var(--vx) var(--vy)}
+  to{-webkit-mask-size:var(--vs) var(--vs);mask-size:var(--vs) var(--vs);-webkit-mask-position:calc(var(--vx) - var(--vs) / 2) calc(var(--vy) - var(--vs) / 2);mask-position:calc(var(--vx) - var(--vs) / 2) calc(var(--vy) - var(--vs) / 2)}
+}
 /* החלפת שפה: התוכן החדש נחשף בכיוון הקריאה, יחד עם הגל של המלבנים ברקע */
 main.sweep{-webkit-mask-image:linear-gradient(var(--sd,to right),#000 calc(var(--sw,0) * 140% - 40%),transparent calc(var(--sw,0) * 140%));mask-image:linear-gradient(var(--sd,to right),#000 calc(var(--sw,0) * 140% - 40%),transparent calc(var(--sw,0) * 140%))}
 .nav__theme .i-moon{display:none}
