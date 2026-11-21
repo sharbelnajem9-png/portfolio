@@ -14,7 +14,7 @@ function store(k, v){ try { if (v === undefined) return localStorage.getItem(k);
 var T = {
   he: {
     nav: ['הבעיה', 'הפתרון', 'מי אני', 'התהליך', 'מה מקבלים', 'תוצאות'], navCta: 'בואו נדבר',
-    heroLabel: 'אסטרטגיה והפקת תוכן לבעלי עסקים',
+    heroLabel: 'אסטרטגיה והפקת תוכן לבעלי עסקים, ארגונים וחברות',
     h1a: 'פחות תדמית.', h1b: 'יותר אמת.',
     heroSub: 'אני בונה לעסק שלכם אסטרטגיה מהשורש ומפיק את התוכן שמספר אותה - כדי שהקהל הנכון יבין מי אתם, יבחר בכם, וישלם על זה.',
     heroBtn: 'בואו נדבר', heroBtn2: 'לראות תוצאות', heroNote: 'אני עובד עם <b>2 עסקים בחודש</b> בלבד.',
@@ -39,7 +39,7 @@ var T = {
              { t: 'התהליך המלא', tag: 'מהלמה ועד המסך', items: ['האפיון והאסטרטגיה', 'תסריטים, צילום ועריכה', '8 סרטונים מוכנים', 'ליווי וחידוד'], for: 'כשאתם רוצים שהכל יקרה במקום אחד, מאותו ראש.', hi: true },
              { t: 'הפקה', tag: 'הביצוע', items: ['תסריטים', 'יום צילום', 'עריכה', '8 סרטונים מוכנים'], for: 'כשהמסר ברור, וחסר מי שיביא אותו למסך.' }],
     fitTitle: 'מתאים לכם אם',
-    fit: ['יש לכם עסק מבוסס ומוצר טוב', 'אתם הפנים של העסק - מאמנים, יועצים, מומחים, יזמים או עסקי תיירות', 'אתם רוצים להתבדל, לא להיות עוד אחד בפיד'],
+    fit: ['יש לכם עסק מבוסס, ארגון או חברה עם מוצר טוב.', 'אתם רוצים שהקהל יבין מי אתם ולמה לבחור בכם.', 'אתם רוצים להתבדל, לא להיות עוד אחד בפיד.'],
     resLabel: 'תוצאות', resTitle: 'תוצאות, במילים שלהם', watch: 'צפייה', allWork: 'לכל העבודות',
     cases: [{ big: '2 ימים', txt: 'פרויקט תדמית ענק, עם תוצאה שנראית כמו חודשים של צוות שלם.', who: 'חיל התקשוב · קריית התקשוב' },
             { big: '×3', txt: 'המכירות שולשו, בזכות מיתוג אישי מדויק וסרטונים אורגניים.', who: 'נאדנד' },
@@ -58,7 +58,7 @@ var T = {
   },
   en: {
     nav: ['Problem', 'Solution', 'About', 'Process', 'Offer', 'Results'], navCta: "Let's Talk",
-    heroLabel: 'Strategy & content production for business owners',
+    heroLabel: 'Strategy & content production for business owners, organizations and companies',
     h1a: 'Less image.', h1b: 'More truth.',
     heroSub: 'I build your business a strategy from the roots and produce the content that tells it - so the right audience understands who you are, chooses you, and pays for it.',
     heroBtn: "Let's Talk", heroBtn2: 'See Results', heroNote: 'I work with only <b>2 businesses a month</b>.',
@@ -83,7 +83,7 @@ var T = {
              { t: 'The Full Process', tag: 'From why to screen', items: ['Discovery and strategy', 'Scripts, shoot and edit', '8 ready-to-publish videos', 'Follow-through and refinement'], for: 'When you want it all in one place, from one mind.', hi: true },
              { t: 'Production', tag: 'The execution', items: ['Scripts', 'A shoot day', 'Editing', '8 ready-to-publish videos'], for: 'When the message is clear, and you need someone to bring it to the screen.' }],
     fitTitle: "It's for you if",
-    fit: ['You run an established business with a great product', 'You are the face of the business - coach, consultant, expert, entrepreneur or tourism business', 'You want to stand out, not be one more in the feed'],
+    fit: ['You run an established business, organization or company with a great product.', 'You want your audience to understand who you are and why to choose you.', 'You want to stand out, not be one more in the feed.'],
     resLabel: 'Results', resTitle: 'Results, in Their Words', watch: 'Watch', allWork: 'See all my work',
     cases: [{ big: '2 Days', txt: "A huge brand project, with a result that looks like months of a full team's work.", who: 'ICT Corps · ICT Campus' },
             { big: '×3', txt: 'Sales tripled, through precise personal branding and organic videos.', who: 'Naadned' },
@@ -151,7 +151,7 @@ function typeset(el, text, mask, byWord, only){
       var p = byWord ? (words.length > 1 ? wi / (words.length - 1) : 0) : (n > 1 ? i / (n - 1) : 0); i++;
       var w = tsWeight(f, byWord ? .125 + .75 * p : p), g = tsGlyph(ch, f, w), dy = 0;
       if (TS_MARK.test(ch)) { dy = ref.y0 - g.y0; g = tsGlyph(ch, f, w, dy); }
-      return { ch: ch, p: p, w: w, g: g, dy: dy, m: null };
+      return { ch: ch, p: p, w: w, g: g, dy: dy, m: null, ix: i - 1 };
     });
     for (var k = 0; k < it.length - 1; k++) {
       var a = it[k], b = it[k + 1], vl = rtl ? b : a, vr = rtl ? a : b;
@@ -159,7 +159,7 @@ function typeset(el, text, mask, byWord, only){
       a.m = (gap - (vl.g.adv + vr.g.il - vl.g.ir)) / S;
     }
     var inner = it.map(function(x){
-      return '<span class="tl" style="color:' + tsMix(x.p, stops) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
+      return '<span class="tl" style="--i:' + x.ix + ';color:' + tsMix(x.p, stops) + ';font-weight:' + x.w + (x.m === null ? '' : ';margin-inline-end:calc(' + x.m.toFixed(4) + 'em + var(--br))') + (x.dy ? ';top:' + (x.dy / S).toFixed(4) + 'em' : '') + '">' + esc(x.ch) + '</span>';
     }).join('');
     return mask ? '<span class="mask"><span class="tw">' + inner + '</span></span>' : '<span class="tw">' + inner + '</span>';
   }).join(' ');
@@ -191,15 +191,17 @@ function render(){
   $('#probs').innerHTML = t.probs.map(function(p, i){ return '<div class="lp-prob rv" style="--d:' + i * 90 + 'ms"><span class="lp-prob__n">0' + (i + 1) + '</span><h3 class="lp-prob__t">' + esc(p[0]) + '</h3><p class="lp-prob__d">' + esc(p[1]) + '</p></div>'; }).join('');
   $('#eq').innerHTML = '<span class="lp-pill">' + esc(t.eq[0]) + '</span><span class="lp-op">+</span><span class="lp-pill">' + esc(t.eq[1]) + '</span><span class="lp-op">=</span><span class="lp-pill lp-pill--hi">' + esc(t.eq[2]) + '</span>';
   $('#steps').innerHTML = t.steps.map(function(s, i){ return '<div class="lp-step rv" style="--d:' + i * 90 + 'ms"><span class="lp-step__n">0' + (i + 1) + '</span><h3>' + esc(s[0]) + '</h3><p>' + esc(s[1]) + '</p></div>'; }).join('');
-  $('#offers').innerHTML = t.offers.map(function(o, i){
-    return '<div class="lp-offer rv' + (o.hi ? ' lp-offer--hi' : '') + '" style="--d:' + i * 90 + 'ms">' + (o.hi ? '<span class="lp-offer__chip">' + esc(t.chip) + '</span>' : '') +
-      '<h3>' + esc(o.t) + '</h3><p class="lp-offer__tag">' + esc(o.tag) + '</p><ul>' + o.items.map(function(x){ return '<li>' + CHECK + '<span>' + esc(x) + '</span></li>'; }).join('') + '</ul><p class="lp-offer__for">' + esc(o.for) + '</p></div>';
-  }).join('');
-  $('#fit').innerHTML = t.fit.map(function(x, i){ return '<li class="rv" style="--d:' + i * 90 + 'ms">' + CHECK + '<span>' + esc(x) + '</span></li>'; }).join('');
+  // מה מקבלים: קומפוזיציה של מונדריאן - שלושה משטחי צבע וקווים שחורים עבים. נבנית כשמגיעים אליה (הקווים נמתחים, הצבע נשפך)
+  $('#offers').innerHTML = '<div class="lp-mond rvm">' + t.offers.map(function(o, i){
+    return '<div class="lp-pan lp-pan--' + 'abc'[i] + (o.hi ? ' lp-pan--hi' : '') + '" style="--k:' + i + '"><div class="lp-pan__in">' + (o.hi ? '<span class="lp-pan__chip">' + esc(t.chip) + '</span>' : '') +
+      '<h3>' + esc(o.t) + '</h3><p class="lp-pan__tag">' + esc(o.tag) + '</p><ul>' + o.items.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul><p class="lp-pan__for">' + esc(o.for) + '</p></div></div>';
+  }).join('') + '</div>';
+  // מתאים לכם אם: משפטים גדולים שנכתבים מילה אחרי מילה עם הגלילה
+  $('#fit').innerHTML = t.fit.map(function(x){ return '<li class="lp-words">' + x.split(' ').map(function(w){ return '<span class="wd">' + esc(w) + '</span>'; }).join(' ') + '</li>'; }).join('');
   $('#cases').innerHTML = t.cases.map(function(c, i){
     var m = CASES[i];
     return '<button type="button" class="lp-case rv" style="--d:' + i * 90 + 'ms" data-case="' + i + '" aria-label="' + esc(t.watch + ': ' + c.who) + '"><img src="' + m.poster + '" alt="" loading="lazy" decoding="async"><span class="lp-case__play" aria-hidden="true">' + PLAY + '</span>' +
-      '<span class="lp-case__body"><span class="lp-case__big' + (/[֐-׿]/.test(c.big) ? ' he">' + esc(c.big) : '"><bdi dir="ltr">' + esc(c.big) + '</bdi>') + '</span><span class="lp-case__txt">' + esc(c.txt) + '</span><span class="lp-case__who">' + esc(c.who) + '</span></span></button>';
+      '<span class="lp-case__body"><span class="lp-case__big' + (/[֐-׿]/.test(c.big) ? ' he">' + bigNum(c.big) : '"><bdi dir="ltr">' + bigNum(c.big) + '</bdi>') + '</span><span class="lp-case__txt">' + esc(c.txt) + '</span><span class="lp-case__who">' + esc(c.who) + '</span></span></button>';
   }).join('');
   // המלצות ולוגואים: רצועות שתמיד זזות, בעברית ימינה ובאנגלית שמאלה
   renderQuotes();
@@ -208,6 +210,7 @@ function render(){
     var items = r.map(function(src){ return '<span class="logo-item"><img src="../' + src + '" alt="" loading="lazy"></span>'; }).join('');
     return '<div class="marquee' + (k ? ' rev' : '') + '" dir="ltr"><div class="marquee__row" style="--dur:' + (40 + k * 8) + 's">' + items + items + '</div></div>';
   }).join('');
+  var sl = $('.lp-lead'); sl.classList.add('lp-words'); sl.innerHTML = t.solText.split(' ').map(function(w){ return '<span class="wd">' + esc(w) + '</span>'; }).join(' ');
   var nl = $('#navLang'); nl.textContent = t.lang; nl.setAttribute('aria-label', t.langLabel);
   $('#themeBtn').setAttribute('aria-label', t.themeLabel);
   tsHeads(); armReveal(); window.navSpyRefresh && navSpyRefresh();
@@ -285,9 +288,32 @@ function quotesTick(t){
 })();
 
 /* ---------- נחשף כשמגיעים: כרטיסים עולים, קו המחיקה נמתח על כל בעיה, הקו של התהליך נמתח ---------- */
-var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -10% 0px', threshold: .05 }) : null;
+// אלמנט שנפתח מתוך clip-path סגור לא נחשב גלוי לדפדפן - לכן עוקבים אחרי האזור שמכיל אותו ופותחים את מה שבתוכו
+var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { if (e.target._kids) $$(e.target._kids, e.target).forEach(function(k){ k.classList.add('in'); }); else e.target.classList.add('in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -10% 0px', threshold: .05 }) : null;
+// מספר גדול בתוצאה (2 / ×3 / 35+) סופר מאפס כשהכרטיס נפתח
+function bigNum(s){ return esc(s).replace(/\d+/, function(n){ return '<span class="cnt" data-to="' + n + '">' + n + '</span>'; }); }
+function countUp(el){
+  if (el._done) return; el._done = true; var to = +el.dataset.to, t0 = performance.now();
+  if (reduce) return; el.textContent = '0';
+  (function step(now){ var p = Math.min(1, (now - t0) / 1300), e = 1 - Math.pow(1 - p, 3); el.textContent = String(Math.round(to * e)); if (p < 1) requestAnimationFrame(step); })(t0);
+}
+var cio = ('IntersectionObserver' in window) ? new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { countUp(e.target); cio.unobserve(e.target); } }); }, { threshold: .6 }) : null;
+// מילים שמתמלאות לפי הגלילה (כמו בתיק העבודות)
+function wordsTick(){
+  requestAnimationFrame(wordsTick);
+  $$('.lp-words').forEach(function(el){
+    var r = el.getBoundingClientRect(); if (r.bottom < -50 || r.top > innerHeight + 50) return;
+    var p = reduce ? 1 : Math.min(1, Math.max(0, (innerHeight * .9 - r.top) / (innerHeight * .45 + r.height)));
+    var ws = el._ws || (el._ws = el.querySelectorAll('.wd')), n = ws.length, on = Math.round(p * n);
+    if (el._on === on) return; el._on = on;
+    for (var i = 0; i < n; i++) ws[i].classList.toggle('on', i < on);
+  });
+}
+requestAnimationFrame(wordsTick);
 function armReveal(){
-  $$('.rv, .rvx, #steps').forEach(function(el){ if (!io || reduce) el.classList.add('in'); else if (!el.classList.contains('in')) io.observe(el); });
+  $$('.rv:not(.lp-case), #steps, #eq, .lp-about, .lp-contact').forEach(function(el){ if (!io || reduce) el.classList.add('in'); else if (!el.classList.contains('in')) io.observe(el); });
+  [['#cases', '.lp-case'], ['#offers', '.lp-mond']].forEach(function(z){ var box = $(z[0]); box._kids = z[1]; if (!io || reduce) $$(z[1], box).forEach(function(k){ k.classList.add('in'); }); else io.observe(box); });
+  $$('.cnt').forEach(function(el){ el._done = false; if (cio && !reduce) cio.observe(el); });
   $$('.lp-head').forEach(function(h){ h.classList.add('rv'); if (!io || reduce) h.classList.add('in'); else io.observe(h); });
 }
 

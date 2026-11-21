@@ -51,25 +51,6 @@ html:not([data-theme="light"]) .lp-pill--hi{color:#8d9cff}
 .lp-step h3{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(24px,2vw,30px);line-height:1.15}
 .lp-step p{margin:0;max-width:28ch;font-size:17px;line-height:1.6;color:var(--ink-2);text-wrap:balance}
 
-/* ---------- מה מקבלים: שלוש דרכים, האמצעית מודגשת ---------- */
-.lp-offers{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,1.6vw,22px);align-items:stretch}
-.lp-offer{position:relative;padding:20px 12px;display:flex;flex-direction:column;gap:14px;text-align:center;align-items:center}
-.lp-offer--hi::before{content:"";position:absolute;inset:-12% -10%;z-index:-1;pointer-events:none;background:radial-gradient(closest-side,rgba(77,99,240,.16),transparent)}
-.lp-offer--hi h3{font-size:clamp(28px,2.4vw,36px)}
-.lp-offer__chip{font-size:16px;font-weight:700;color:var(--blue)}
-html:not([data-theme="light"]) .lp-offer__chip{color:#8d9cff}
-.lp-offer h3{margin:6px 0 0;font-family:var(--display);font-weight:800;font-size:clamp(24px,2vw,30px);line-height:1.15}
-.lp-offer__tag{margin:0;font-size:17px;color:var(--gold);font-weight:600}
-.lp-offer ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;width:100%}
-.lp-offer li{display:flex;align-items:center;justify-content:center;gap:10px;font-size:16.5px;line-height:1.45}
-.lp-offer li svg{flex:none;width:17px;height:17px;color:var(--blue)}
-.lp-offer__for{margin:auto 0 0;padding-top:10px;width:100%;font-size:16px;line-height:1.55;color:var(--ink-3);text-wrap:balance}
-.lp-fit{max-width:1100px;margin:clamp(40px,7vh,72px) auto 0;display:flex;flex-direction:column;align-items:center;gap:18px}
-.lp-fit h3{margin:0;font-size:clamp(20px,1.7vw,24px);font-weight:800}
-.lp-fit ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%}
-.lp-fit li{display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 12px;font-size:17px;line-height:1.5;text-align:center;text-wrap:balance}
-.lp-fit li svg{flex:none;width:18px;height:18px;color:var(--gold)}
-
 /* ---------- תוצאות: ארבעה מקרים שווים, התוצאה גדולה, הסרטון מאחור ---------- */
 .lp-cases{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,1.4vw,20px)}
 .lp-case{position:relative;aspect-ratio:4/5;border-radius:24px;overflow:hidden;border:0;padding:0;cursor:pointer;text-align:start;color:#f2f2f0;background:#0d0f12;isolation:isolate;transition:transform .6s var(--ease),box-shadow .6s var(--ease);box-shadow:0 22px 60px rgba(0,0,0,.35)}
@@ -138,9 +119,6 @@ html[lang="he"] .lp-case__big.he{font-family:'Noto Sans Hebrew',var(--f-he)}
 @media (max-width:860px){
   .lp-prob{grid-template-columns:44px minmax(0,1fr);row-gap:8px}
   .lp-prob__d{grid-column:2}
-  .lp-offers{grid-template-columns:1fr;max-width:520px}
-  .lp-offer--hi{transform:none;order:-1}
-  .lp-fit ul{grid-template-columns:1fr;max-width:520px}
   .lp-contact{grid-template-columns:1fr}
   .lp-contact__copy{align-items:center;text-align:center}
   .lp-contact__copy p{margin-inline:auto}
@@ -190,4 +168,83 @@ section[id]{scroll-margin-top:84px}
   .lp-about{grid-template-columns:1fr;max-width:520px}
   .lp-about__photo{max-width:420px;width:100%;margin-inline:auto}
   .lp-about__txt{align-items:center;text-align:center}
+}
+
+/* =================== תנועה: הדברים נפתחים כשמגיעים אליהם =================== */
+/* כותרות נבנות אות אחרי אות */
+.lp-head.rv{opacity:1;transform:none}
+.lp-head .ts,.lp-about__txt .ts,.lp-contact__copy .ts{perspective:700px}
+.lp-head .ts .tl,.lp-about__txt .ts .tl,.lp-contact__copy .ts .tl{opacity:0;transform:translateY(.42em) rotateX(-75deg);transform-origin:50% 100%}
+.lp-head.in .ts .tl,.lp-about.in .ts .tl,.lp-contact.in .ts .tl{opacity:1;transform:none;transition:opacity .7s var(--ease) calc(var(--i,0) * 26ms),transform 1s var(--ease) calc(var(--i,0) * 26ms)}
+/* הבעיות והשלבים: המספר, הכותרת והטקסט עולים אחד אחרי השני */
+.lp-prob.rv,.lp-step.rv{opacity:1;transform:none}
+.lp-prob>*,.lp-step>*{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .95s var(--ease)}
+.lp-prob.in>*,.lp-step.in>*{opacity:1;transform:none}
+.lp-prob.in>:nth-child(1),.lp-step.in>:nth-child(1){transition-delay:var(--d,0ms)}
+.lp-prob.in>:nth-child(2),.lp-step.in>:nth-child(2){transition-delay:calc(var(--d,0ms) + 130ms)}
+.lp-prob.in>:nth-child(3),.lp-step.in>:nth-child(3){transition-delay:calc(var(--d,0ms) + 260ms)}
+/* הפתרון: אסטרטגיה והפקה מתחברות מהצדדים, ואז נפתחת התוצאה */
+#eq>*{opacity:0;transition:opacity .7s var(--ease),transform .95s var(--ease)}
+html[dir="rtl"] #eq>:nth-child(1),html[dir="ltr"] #eq>:nth-child(3){transform:translateX(70px)}
+html[dir="ltr"] #eq>:nth-child(1),html[dir="rtl"] #eq>:nth-child(3){transform:translateX(-70px)}
+#eq>:nth-child(2),#eq>:nth-child(4){transform:scale(.3)}
+#eq>:nth-child(5){transform:translateY(18px)}
+html[dir] #eq.in>*{opacity:1;transform:none}
+#eq.in>:nth-child(2){transition-delay:.45s}#eq.in>:nth-child(4){transition-delay:.7s}#eq.in>:nth-child(5){transition-delay:.85s}
+/* מילים שמתמלאות עם הגלילה */
+.lp-words .wd{opacity:.16;transition:opacity .35s ease}
+.lp-words .wd.on{opacity:1}
+/* מי אני: התמונה נפתחת כמו מסך, הטקסט עולה */
+.lp-about .rv{opacity:1;transform:none}
+.lp-about .lp-about__photo{clip-path:inset(12% 12% 12% 12% round 28px);transition:clip-path 1.5s var(--ease)}
+.lp-about .lp-about__photo img{transform:scale(1.18);transition:transform 1.9s var(--ease)}
+.lp-about.in .lp-about__photo{clip-path:inset(0 round 28px)}
+.lp-about.in .lp-about__photo img{transform:none}
+.lp-about__txt>*{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .9s var(--ease)}
+.lp-about.in .lp-about__txt>*{opacity:1;transform:none}
+.lp-about.in .lp-about__txt>:nth-child(2){transition-delay:.35s}.lp-about.in .lp-about__txt>:nth-child(3){transition-delay:.5s}
+.lp-about.in .lp-about__txt>:nth-child(4){transition-delay:.62s}.lp-about.in .lp-about__txt>:nth-child(5){transition-delay:.74s}
+/* תוצאות: הכרטיסים נפתחים מלמטה, המספרים סופרים */
+.lp-case.rv{opacity:1;transform:none;clip-path:inset(100% 0 0 0 round 24px);transition:clip-path 1.15s var(--ease) var(--d,0ms),transform .6s var(--ease),box-shadow .6s var(--ease)}
+.lp-case.rv img{transform:scale(1.2)}
+.lp-case.in{clip-path:inset(0 round 24px)}
+.lp-case.in img{transform:none;transition:transform 1.6s var(--ease) var(--d,0ms)}
+.lp-case.in:hover img{transform:scale(1.05);transition-delay:0s}
+.cnt{font-variant-numeric:tabular-nums}
+/* בואו נדבר: הכותרת נבנית, השדות נכנסים אחד אחרי השני */
+.lp-contact__copy>*,.lp-form form>*{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .8s var(--ease)}
+.lp-contact.in .lp-contact__copy>*,.lp-contact.in .lp-form form>*{opacity:1;transform:none}
+.lp-contact.in .lp-form form>:nth-child(2){transition-delay:.08s}.lp-contact.in .lp-form form>:nth-child(3){transition-delay:.16s}.lp-contact.in .lp-form form>:nth-child(4){transition-delay:.24s}
+.lp-contact.in .lp-form form>:nth-child(5){transition-delay:.32s}.lp-contact.in .lp-form form>:nth-child(6){transition-delay:.4s}.lp-contact.in .lp-form form>:nth-child(7){transition-delay:.48s}
+
+/* =================== מה מקבלים: ציור מונדריאן - שלושה משטחי צבע וקווים שחורים עבים =================== */
+.lp-mond{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.32fr) minmax(0,1fr);gap:12px;padding:12px;background:#0a0a0c;clip-path:inset(0 50% 0 50%);transition:clip-path 1.25s var(--ease);box-shadow:0 40px 100px -40px rgba(0,0,0,.6)}
+.lp-mond.rvm{opacity:1}
+.lp-mond.in{clip-path:inset(0 0 0 0)}
+.lp-pan{position:relative;isolation:isolate;display:flex;min-height:clamp(400px,38vw,540px)}
+.lp-pan::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--pc);transform:scaleY(0);transform-origin:50% 100%;transition:transform 1.05s var(--ease) calc(.55s + var(--k) * .2s)}
+.lp-mond.in .lp-pan::before{transform:none}
+.lp-pan--a{--pc:#ece6d9;--pt:#141518;--pm:#5b5f68}
+.lp-pan--b{--pc:#2f47d6;--pt:#ffffff;--pm:rgba(255,255,255,.78)}
+.lp-pan--c{--pc:#cfd5de;--pt:#141518;--pm:#4a505b}
+.lp-pan__in{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding:clamp(24px,2.8vw,44px);color:var(--pt);opacity:0;transform:translateY(16px);transition:opacity .8s var(--ease) calc(1.05s + var(--k) * .2s),transform .9s var(--ease) calc(1.05s + var(--k) * .2s)}
+.lp-mond.in .lp-pan__in{opacity:1;transform:none}
+.lp-pan h3{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(26px,2.3vw,36px);line-height:1.08;letter-spacing:-.01em}
+.lp-pan--hi h3{font-size:clamp(32px,3vw,48px)}
+.lp-pan__tag{margin:0;font-size:clamp(17px,1.3vw,19px);font-weight:600;color:var(--pm)}
+.lp-pan ul{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}
+.lp-pan li{position:relative;padding-inline-start:20px;font-size:clamp(17px,1.3vw,19px);line-height:1.45;font-weight:500}
+.lp-pan li::before{content:"";position:absolute;inset-inline-start:0;top:.55em;width:8px;height:8px;background:currentColor;opacity:.55}
+.lp-pan__for{margin:auto 0 0;padding-top:18px;font-size:16px;line-height:1.55;color:var(--pm)}
+/* "מומלץ": גוש צהוב קטן בפינה של המשטח הכחול, כמו אצל מונדריאן */
+.lp-pan__chip{position:absolute;top:0;inset-inline-end:0;padding:10px 18px;background:#f2c300;color:#111;font-size:15px;font-weight:800}
+.lp-fit{display:flex;flex-direction:column;align-items:center;max-width:1100px;margin:clamp(56px,9vh,96px) auto 0}
+.lp-fit h3{margin:0 0 8px;font-size:clamp(20px,1.6vw,24px);font-weight:800;color:var(--gold)}
+.lp-fit ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:clamp(8px,1.4vh,16px)}
+.lp-fit li{font-family:var(--display);font-weight:800;font-size:clamp(26px,3.2vw,48px);line-height:1.15;letter-spacing:-.01em;text-align:center;max-width:24ch;text-wrap:balance}
+@media (max-width:860px){
+  .lp-mond{grid-template-columns:1fr;max-width:520px;clip-path:inset(0 0 100% 0)}
+  .lp-mond.in{clip-path:inset(0 0 0 0)}
+  .lp-pan{min-height:0}
+  .lp-pan--hi{order:-1}
 }
