@@ -372,20 +372,23 @@ function armReveal(){
 function autoTheme(){ var h = new Date().getHours(); return h >= 7 && h < 19 ? 'light' : 'dark'; }
 function manualTheme(){ try { var s = JSON.parse(store('sn-theme') || 'null'); if (s && s.d === new Date().toDateString()) return s.t; } catch (e) {} return null; }
 var themeT;
+// מעבר רך (בהיר/כהה ושפה): כל הדף במצב החדש נחשף בעיגול גדול עם קצה רך שמתרחב מהכפתור, הכל יחד (View Transitions, ראו theme-vt ב-app.css).
+// מחזיר false כשהדפדפן לא תומך או כשמבקשים פחות תנועה - ואז מחליפים בדרך הישנה
+function softSwap(o, fn){
+  if (reduce || !document.startViewTransition) return false;
+  var vx = o ? o[0] : innerWidth / 2, vy = o ? o[1] : 0, W = innerWidth, H = innerHeight;
+  var far = Math.max(Math.hypot(vx, vy), Math.hypot(W - vx, vy), Math.hypot(vx, H - vy), Math.hypot(W - vx, H - vy));
+  root.style.setProperty('--vx', vx + 'px'); root.style.setProperty('--vy', vy + 'px'); root.style.setProperty('--vs', Math.ceil(far * 4.4) + 'px');
+  root.classList.add('theme-vt');
+  var vt = document.startViewTransition(fn), done = function(){ root.classList.remove('theme-vt'); };
+  vt.finished.then(done, done);
+  return true;
+}
+function btnCenter(b){ var r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
 function applyTheme(t, anim, o){
   if (root.dataset.theme === t) return;
-  // המעבר הרך: כל הדף במצב החדש נחשף בעיגול גדול עם קצה רך שמתרחב מהכפתור, הכל יחד (View Transitions). בלי התמיכה - המעבר הישן למטה
-  if (anim && !reduce && document.startViewTransition) {
-    // העיגול גדל עד שהחלק המלא שלו מכסה את הפינה הרחוקה ביותר מהכפתור - כך הוא מתפשט בקצב קבוע על כל המסך
-    var vx = o ? o[0] : innerWidth / 2, vy = o ? o[1] : 0, W = innerWidth, H = innerHeight;
-    var far = Math.max(Math.hypot(vx, vy), Math.hypot(W - vx, vy), Math.hypot(vx, H - vy), Math.hypot(W - vx, H - vy));
-    root.style.setProperty('--vx', vx + 'px'); root.style.setProperty('--vy', vy + 'px'); root.style.setProperty('--vs', Math.ceil(far * 4.4) + 'px');
-    window.artFX && artFX.snap && artFX.snap();
-    root.classList.add('theme-vt');
-    var vt = document.startViewTransition(function(){ root.dataset.theme = t; tsRecolor(); });
-    vt.finished.then(function(){ root.classList.remove('theme-vt'); }, function(){ root.classList.remove('theme-vt'); });
-    return;
-  }
+  if (anim && window.artFX && artFX.snap && !reduce && document.startViewTransition) artFX.snap();   // הציור מתחלף מיד - העיגול עושה את המעבר
+  if (anim && softSwap(o, function(){ root.dataset.theme = t; tsRecolor(); })) return;
   var fx = !!(window.artFX && anim && !reduce), late = 0, blocks = $$('#nav, main > *');
   if (fx) {
     artFX.origin(o ? o[0] : innerWidth / 2, o ? o[1] : 0);
@@ -404,11 +407,12 @@ $('#themeBtn').addEventListener('click', function(){
 });
 setInterval(function(){ applyTheme(manualTheme() || autoTheme(), true); }, 60000);
 
-/* ---------- שפה: הציור מתהפך בכיוון הקריאה של השפה החדשה, והתוכן נחשף באותו כיוון. נשארים באותו מקום בדף ---------- */
+/* ---------- שפה: העיגול הרך מכפתור השפה (softSwap); בדפדפן בלי תמיכה - הציור מתהפך בכיוון הקריאה והתוכן נחשף באותו כיוון. נשארים באותו מקום בדף ---------- */
 $('#navLang').addEventListener('click', function(){
   var to = lang === 'he' ? 'en' : 'he', m = $('main');
   var mid = document.elementFromPoint(innerWidth / 2, innerHeight / 2), sec = mid && mid.closest('section, footer'), off = sec ? sec.getBoundingClientRect().top : 0;
   var swap = function(){ lang = to; store('sn-lang', to); render(); if (sec) scrollTo(0, scrollY + sec.getBoundingClientRect().top - off); };
+  if (softSwap(btnCenter(this), swap)) return;   // אותו עיגול רך כמו בהיר/כהה, מכפתור השפה
   if (reduce) { swap(); return; }
   window.artFX && artFX.flip(to === 'he' ? -1 : 1);
   m.style.transition = 'opacity .28s ease-in'; m.style.opacity = '0';
