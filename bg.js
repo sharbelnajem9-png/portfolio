@@ -66,9 +66,9 @@
     'vec2 nn=vec2(1.+floor(hash(cc.yz+cc.w+41.)*(1.+uSub)),1.+floor(hash(cc.yz+cc.w+43.)*(1.+.7*uSub)));vec2 sc=floor(lp*nn),sf=fract(lp*nn);',
     'vec2 sdd=min(sf,1.-sf)*pw/nn;float subL=1.-smoothstep(2.,4.,min(nn.x>1.?sdd.x:1e4,nn.y>1.?sdd.y:1e4));',
     'vec2 scc=pb.xz+(sc+.5)/nn*pw-vec2(0.,uScroll);float hb=hash(cc.yz*2.3+cc.w*1.7+sc*7.1+13.);',
-    'float st=.05+length(scc-uRes*.5)/uRes.y*.45+hash(sc+cc.yz+cc.w+21.)*.2;float pop=smoothstep(st,st+.14,uB);',
-    'float dr=uDS+hash(sc*1.3+cc.yz+cc.w+31.)*.35;float a=pop*(1.-smoothstep(dr,dr+.45,uB))*uVB;float fl=pop*(1.-smoothstep(st+.08,st+.45,uB));',
-    'vec3 vc=vivid(hb)*(.84+.26*diff)*(1.+.35*fl);float aL=smoothstep(.05,.3,uB)*(1.-smoothstep(uDS+.1,uDS+.75,uB))*uVB;',
+    'float st=.05+length(scc-uRes*.5)/uRes.y*.45+hash(sc+cc.yz+cc.w+21.)*.2;float pop=smoothstep(st,st+.42,uB);',
+    'float dr=uDS+hash(sc*1.3+cc.yz+cc.w+31.)*.35;float a=pop*(1.-smoothstep(dr,dr+.7,uB))*uVB;float fl=pop*(1.-smoothstep(st+.08,st+.45,uB));',
+    'vec3 vc=vivid(hb)*(.84+.26*diff)*(1.+.1*fl);float aL=smoothstep(.05,.3,uB)*(1.-smoothstep(uDS+.1,uDS+.75,uB))*uVB;',
     'float lmB=max(1.-smoothstep(LW*.5+3.,LW*.5+5.,cc.x),subL*pop);fc=mix(fc,vc,a*(1.-lmB));fc=mix(fc,vec3(.035,.035,.045),aL*lmB*.94);}',
     'gl_FragColor=vec4(fc,1.);}'
   ].join('\n');
@@ -93,17 +93,19 @@
     .map(function(p){ return [].concat.apply([], p.map(function(h){ return [1, 3, 5].map(function(i){ return parseInt(h.substr(i, 2), 16) / 255; }); })); });
   var pi = Math.floor(Math.random() * PALS.length);
   if (BURST) { try { var lp = localStorage.getItem('sn-pal'); pi = lp === null ? pi : (+lp + 1) % PALS.length; localStorage.setItem('sn-pal', String(pi)); } catch (e) {} }
+  // שעון הבנייה (BT): מתקדם לכל היותר 40ms בפריים, כך שאם הדפדפן נתקע לרגע (טעינה, מדידת אותיות) הציור לא קופץ קדימה - רק ממתין
+  var BT = 0, LASTT = 0, PEND = 0, SMOOTH = 0;
   var PAL = PALS[pi], SUB = 0, SNAP = false;   // SNAP: ההחלפה הבאה של בהיר/כהה מיידית, בלי גל (artFX.snap)   // SUB: 0 = המלבנים של הציור כמו שהם (לא מחלקים אותם לגושים קטנים)   // התפרצות הצבעים רק בפתיחה של האתר, לא בדף הנחיתה
   var nextWave = 35 + Math.random() * 15;   // מדי פעם (כל 40-75 שניות) גל מהיר עובר על הציור, כמו בכניסה - לא כל הזמן
   window.artFX = {
     origin: function(x, y){ OX = x; OY = y; },
     snap: function(){ SNAP = true; },
     flip: function(dir){ if (still) return; LA = LB = cur; T0 = now; TM = dir; },
-    build: function(){ if (B0 === -1) B0 = now || performance.now() / 1000; },
+    build: function(){ if (B0 === -1) { B0 = -2; PEND = now || performance.now() / 1000; SMOOTH = 0; } },   // -2 = מחכה שהדף יירגע, ואז מתחיל
     palette: function(a){ PAL = a; },
     density: function(v){ SUB = v; },
-    replay: function(){ B0 = now; DS = 99; },
-    settle: function(){ if (B0 !== null && B0 >= 0 && DS > 50) DS = Math.max(.6, now - B0); },   // הצבעים נרגעים לצבעי האתר (כשהספירה מגיעה ל-100)
+    replay: function(){ B0 = now; BT = 0; DS = 99; },
+    settle: function(){ if (B0 !== null && B0 >= 0 && DS > 50) DS = Math.max(.6, BT); },   // הצבעים נרגעים לצבעי האתר (כשהספירה מגיעה ל-100)
     wave: function(){ nextWave = 0; T0 = Math.min(T0, now - 6); },   // גל עכשיו (לבדיקה)
     waveAt: function(x, y){ return Math.hypot(x - OX, y - OY) / 1500 + .06 + .375; }   // מתי הגל הופך את המקום הזה (שניות)
   };
@@ -125,7 +127,11 @@
     if (coarse && (frame++ & 1)) return;   // בטלפון 30 פריימים בשנייה
     if (!still && t - lastMove > 4000) { tx = innerWidth * (.5 + .34 * Math.sin(t * .00012)); ty = innerHeight * (.38 + .22 * Math.cos(t * .0001)); }
     mx += (tx - mx) * .045; my += (ty - my) * .045;
-    var ub = B0 === null ? 99 : B0 < 0 ? -1 : now - B0;
+    var raw = LASTT ? now - LASTT : 1; LASTT = now;
+    // הפתיחה מתחילה רק כשהדף נרגע (כמה פריימים חלקים ברצף, או אחרי 0.8 שניות), ולא באמצע הטעינה
+    if (B0 === -2) { SMOOTH = raw < (coarse ? .045 : .026) ? SMOOTH + 1 : 0; if (SMOOTH >= 4 || now - PEND > .8) { B0 = now; BT = 0; } }
+    else if (B0 !== null && B0 >= 0) BT += Math.min(raw, .04);
+    var ub = B0 === null ? 99 : B0 < 0 ? -1 : BT;
     if (B0 !== null && B0 >= 0 && DS > 50 && ub > 2.6) DS = 2.6;   // ליתר ביטחון: גם אם הספירה מתעכבת, הצבעים נרגעים
     if (B0 !== null && B0 >= 0 && ub > Math.max(4.2, DS + 1.4)) { B0 = null; ub = 99; }
     // הקומפוזיציה תמיד זזה; רק כשמבקשים פחות תנועה מציירים רק כשמשהו השתנה

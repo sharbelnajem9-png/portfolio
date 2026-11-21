@@ -208,10 +208,13 @@ function tsFit(el){
 }
 var tsFitT; addEventListener('resize', function(){ clearTimeout(tsFitT); tsFitT = setTimeout(function(){ $$('.ts').forEach(tsFit); }, 200); });
 function tsHeads(){
-  typeset($('#heroName'), L().heroName.join(' '), true);
-  $$('.h2, .group-head__title').forEach(function(el){ typeset(el, el.textContent, !!el.closest('#testimonials')); });   // בהמלצות המילים עולות מתוך מסכה
-  var th = $('#thTitle'); if (th && th.textContent) typeset(th, th.textContent);
-  renderDream();
+  var jobs = [function(){ typeset($('#heroName'), L().heroName.join(' '), true); }], gen = tsHeads.gen = (tsHeads.gen || 0) + 1;
+  $$('.h2, .group-head__title').forEach(function(el){ jobs.push(function(){ typeset(el, el.textContent, !!el.closest('#testimonials')); }); });   // בהמלצות המילים עולות מתוך מסכה
+  jobs.push(function(){ var th = $('#thTitle'); if (th && th.textContent) typeset(th, th.textContent); }, renderDream);
+  if (!root.classList.contains('gating')) { jobs.forEach(function(f){ f(); }); return; }
+  // בזמן הפתיחה: כמה כותרות בכל פריים (מדידת האותיות כבדה), כדי שהציור והספירה ימשיכו לזוז חלק
+  var k = 0;
+  (function next(){ if (gen !== tsHeads.gen) return; var t0 = performance.now(); while (k < jobs.length && performance.now() - t0 < 5) jobs[k++](); if (k < jobs.length) requestAnimationFrame(next); })();
 }
 (function(){
   var loads = [100, 300, 500, 700, 900].map(function(w){ return document.fonts.load('extra-condensed ' + w + ' 40px "Georama"', 'SHARBELNAJEM'); })
@@ -924,6 +927,7 @@ function enterSite(){
   // the site always opens at its top, whatever the browser remembered from a previous visit
   scrollTo(0, 0); lenis && lenis.scrollTo(0, { immediate: true, force: true });
   coverReel(); gate.remove(); $('#gateBg').remove(); root.classList.remove('is-locked', 'gating'); lenis && lenis.start();
+  if (hasGsap) gsap.ticker.lagSmoothing(lenis ? 0 : 500, 33);   // אחרי הפתיחה: חזרה להגדרה של הגלילה החלקה
   $('#nav').classList.add('is-on');
   setupScenes(); hasGsap && ScrollTrigger.refresh();
   // כניסת השם והכפתורים. מי שביקש בתפריט הנגישות לעצור אנימציות מקבל אותם מיד, ובכל מקרה אחרי 2.6 שניות הם גלויים במלואם
@@ -935,6 +939,7 @@ function enterSite(){
 }
 function startGate(){
   root.classList.add('gating');   // בזמן הפתיחה רואים רק את הרקע ואת השואוריל שבמסגרת
+  if (hasGsap) gsap.ticker.lagSmoothing(40, 16);   // אם הדפדפן נתקע לרגע בזמן הפתיחה, האנימציה ממתינה במקום לקפוץ קדימה
   window.artFX && artFX.build();   // הקנבס ריק, והקווים של הציור נמתחים אחד אחד בזמן הספירה
   var langs = $('#gateLangs'), count = $('#gateCount'), btns = $$('.gate__lang');
   var last = store('sn-lang'); var pre = btns.filter(function(b){ return b.dataset.lang === last; })[0];
