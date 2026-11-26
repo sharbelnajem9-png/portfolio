@@ -51,7 +51,8 @@ var T = {
     fName: 'שם מלא', fPhone: 'וואטסאפ', fEmail: 'מייל (אופציונלי)', fAbout: 'על העסק. מה אתם עושים ולמי?',
     consent: 'קראתי את <a data-legal="privacy">מדיניות הפרטיות</a> ומסכים/ה לשמירת הפרטים שלי לצורך יצירת קשר חוזר.',
     send: 'שלח', consentAlert: 'יש לאשר את מדיניות הפרטיות לפני שליחה',
-    privacyNote: 'הפרטים שלך נשמרים במערכת ניהול הלידים שלי ונשלחים אליי במייל. <a data-legal="privacy">פרטים מלאים במדיניות הפרטיות</a>.',
+    mkt: 'אשמח לקבל מדי פעם תוכן ועדכונים בוואטסאפ או במייל. לא חובה, ואפשר להסיר בכל רגע.',
+    privacyNote: 'הפרטים נשלחים אליי במייל ונשמרים מוצפנים בלוח הלידים שלי. <a data-legal="privacy">כל הפרטים במדיניות הפרטיות</a>.',
     tyTitle: 'נשלח, תודה!', tyText: 'קיבלתי את הפרטים. חוזר אליכם בוואטסאפ תוך 24 שעות. בינתיים מוזמנים לצפות בעבודות שלי, או לפנות אליי ישירות:', tyWork: 'לתיק העבודות', tyWa: 'שלח וואטסאפ',
     copyright: '© 2026 שרבל נג׳ם. כל הזכויות שמורות.', lAccess: 'נגישות', lPrivacy: 'מדיניות פרטיות', lTerms: 'תנאי שימוש',
     lang: 'EN', langLabel: 'Switch to English', themeLabel: 'מצב בהיר או כהה', close: 'סגירה'
@@ -95,7 +96,8 @@ var T = {
     fName: 'Full name', fPhone: 'WhatsApp', fEmail: 'Email (optional)', fAbout: 'About the business. What do you do, and for whom?',
     consent: 'I have read the <a data-legal="privacy">privacy policy</a> and agree to my details being stored for the purpose of follow-up contact.',
     send: 'Send', consentAlert: 'Please accept the privacy policy before sending',
-    privacyNote: 'Your details are stored in my lead management system and sent to me by email. <a data-legal="privacy">Full details in the privacy policy</a>.',
+    mkt: 'Send me occasional content and updates on WhatsApp or email. Optional, and you can unsubscribe anytime.',
+    privacyNote: 'Your details are emailed to me and stored encrypted in my lead board. <a data-legal="privacy">Full details in the privacy policy</a>.',
     tyTitle: 'Sent. Thanks!', tyText: "Got your details. I'll reach out on WhatsApp within 24 hours. Meanwhile, feel free to browse my work, or reach me directly:", tyWork: 'My portfolio', tyWa: 'Send a WhatsApp',
     copyright: '© 2026 Sharbel Najem. All rights reserved.', lAccess: 'Accessibility', lPrivacy: 'Privacy Policy', lTerms: 'Terms of Use',
     lang: 'עב', langLabel: 'עברו לעברית', themeLabel: 'Light or dark mode', close: 'Close'
@@ -286,7 +288,7 @@ function quotesTick(t){
   var dt = Math.min(50, t - (Q.last || t)); Q.last = t;
   if (Q.row && Q.p && (Q.inV || Q.drag)) {
     if (Q.tx !== null && !Q.drag) { Q.x += (Q.tx - Q.x) * (reduce ? 1 : 1 - Math.exp(-dt / 210)); if (Math.abs(Q.tx - Q.x) < .5) { Q.x = Q.tx; Q.tx = null; } }
-    else if (!Q.drag && !document.hidden && Date.now() > Q.hold) Q.x -= dt * (isPhone() ? .042 : .06);
+    else if (!Q.drag && !document.hidden && Date.now() > Q.hold && !(window.snCalm && snCalm())) Q.x -= dt * (isPhone() ? .042 : .06);
     var lo = Q.o - (Q.kmin + Q.n - .5) * Q.p, hi = Q.o - (Q.kmin - .5) * Q.p, s = Q.x < lo ? Q.w : Q.x > hi ? -Q.w : 0;
     if (s) { Q.x += s; if (Q.tx !== null) Q.tx += s; if (Q.drag) Q.drag.q += s; }
     quotes3D();
@@ -456,6 +458,33 @@ window.closeLegal = function(){ $$('.legal-modal-overlay.open').forEach(function
 document.addEventListener('click', function(e){ var a = e.target.closest('[data-legal]'); if (a) { e.preventDefault(); openLegal(a.dataset.legal); } });
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape') { closeLegal(); if (!vm.hidden) closeVideo(); } });
 
+/* ---------- מטא פיקסל: כבוי עד שמדביקים מזהה. נטען רק אחרי שהגולש אישר עוגיות שיווק (legal.js מציג את החלונית).
+   מודד כניסה לדף ושליחת טופס (Lead), בלי תוכן הפנייה. Automatic Advanced Matching חייב להיות כבוי במטא - אחרת המדיניות לא נכונה ---------- */
+var PIXEL_ID = '';
+function loadPixel(){
+  if (!PIXEL_ID || window.fbq) return;
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', PIXEL_ID);
+  fbq('track', 'PageView');
+}
+if (PIXEL_ID && window.SNConsent) {
+  SNConsent.need();
+  if (SNConsent.ads()) loadPixel();
+  addEventListener('sn-consent', function(e){ if (e.detail.ads) loadPixel(); else if (window.fbq) fbq('consent', 'revoke'); });
+}
+
+/* ---------- מקור הליד: פרמטרי utm מהמודעה נשמרים לסשן וצמודים לליד (מוצגים בלוח הלידים) ---------- */
+var ATTR_LABEL = (function(){
+  var o = {}, k = 'sn_attr';
+  try {
+    var p = new URLSearchParams(location.search);
+    ['utm_source', 'utm_campaign', 'utm_content'].forEach(function(n){ if (p.get(n)) o[n] = String(p.get(n)).slice(0, 60); });
+    if (Object.keys(o).length) sessionStorage.setItem(k, JSON.stringify(o)); else o = JSON.parse(sessionStorage.getItem(k) || '{}');
+  } catch (e) {}
+  var parts = [o.utm_source, o.utm_campaign, o.utm_content].filter(Boolean);
+  return parts.length ? parts.join(' · ') : 'ישיר';
+})();
+
 /* ---------- הטופס: שמירה במכשיר, בענן (Pantry, מוצפן כשאפשר) ושליחה במייל (Web3Forms) - בדיוק כמו בדף הקודם ---------- */
 var WEB3FORMS_KEY = '7e9b87a8-9683-474a-a95c-d804549dbc61';
 var PANTRY_ID = '8978df43-3859-46c3-be39-905e7a54e68b';
@@ -473,8 +502,9 @@ async function fetchPublicKey(){
 }
 async function saveLeadToCloud(lead){
   try {
-    var outbound = lead, publicKey = await fetchPublicKey();
-    if (publicKey) { try { outbound = await SNCrypto.encryptLead(lead, publicKey); } catch (e) { console.warn('encryption failed, sending plaintext', e); } }
+    // רק מוצפן: הענן הזה נגיש לכל מי שיודע את הכתובת. בלי מפתח ציבורי (או אם ההצפנה נכשלה) לא שולחים לשם בכלל - הפנייה עדיין מגיעה במייל
+    var publicKey = await fetchPublicKey(); if (!publicKey) { console.warn('no public key - lead not stored in the cloud (email still sent)'); return; }
+    var outbound; try { outbound = await SNCrypto.encryptLead(lead, publicKey); } catch (e) { console.warn('encryption failed - lead not stored in the cloud', e); return; }
     var res = await fetch(PANTRY_URL), leads = [];
     if (res.ok) { var data = await res.json(); leads = Array.isArray(data.leads) ? data.leads : []; }
     leads.unshift(outbound);
@@ -490,8 +520,8 @@ async function submitForm(e){
   var data = new FormData(form);
   var lead = {
     id: Date.now(), name: data.get('name') || '', phone: data.get('phone') || '', email: (data.get('email') || '').trim(), about: data.get('about') || '',
-    budget: '—', date: new Date().toISOString(), status: 'new', notes: '',
-    consent: { given: true, ts: new Date().toISOString(), policy_version: '2026-05-25' }
+    budget: '—', source: ATTR_LABEL, date: new Date().toISOString(), status: 'new', notes: '',
+    consent: { given: true, marketing: !!data.get('mkt'), ts: new Date().toISOString(), policy_version: '2026-11-25' }
   };
   try { var existing = JSON.parse(localStorage.getItem(LEADS_KEY) || '[]'); existing.unshift(lead); localStorage.setItem(LEADS_KEY, JSON.stringify(existing)); } catch (err) { console.warn('localStorage save failed', err); }
   saveLeadToCloud(lead);
@@ -501,12 +531,13 @@ async function submitForm(e){
       body: JSON.stringify({
         access_key: WEB3FORMS_KEY, subject: '🔥 ליד חדש: ' + lead.name, from_name: 'Sharbel Najem · Lead Intake',
         replyto: lead.email || (lead.phone ? lead.phone + '@noreply.local' : undefined),
-        'שם מלא': lead.name, 'וואטסאפ': lead.phone, 'מייל': lead.email || '—', 'על העסק': lead.about,
+        'שם מלא': lead.name, 'וואטסאפ': lead.phone, 'מייל': lead.email || '—', 'על העסק': lead.about, 'מקור': lead.source, 'מאשר/ת תוכן ועדכונים': lead.consent.marketing ? 'כן' : 'לא',
         'נשלח בתאריך': new Date().toLocaleString('he-IL'),
         'קישור וואטסאפ ישיר': lead.phone ? 'https://wa.me/' + (lead.phone.replace(/[^\d]/g, '').replace(/^0/, '972')) : '—'
       })
     });
   } catch (err) { console.warn('Web3Forms send failed (lead still saved locally)', err); }
+  try { if (window.fbq) fbq('track', 'Lead'); } catch (err) {}
   $('#leadForm').style.display = 'none';
   var ty = $('#thankYou'); ty.classList.add('show'); ty.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -520,7 +551,12 @@ $('#leadForm').addEventListener('submit', submitForm);
   var cover = function(){ var W = box.clientWidth, H = box.clientHeight, R = 16 / 9; f.style.width = Math.ceil(Math.max(W, H * R)) + 'px'; f.style.height = Math.ceil(Math.max(H, W / R)) + 'px'; };
   cover(); addEventListener('resize', cover); setTimeout(cover, 600);
   var on = function(){ box.classList.add('is-playing'); };
-  if (window.Vimeo && Vimeo.Player) { try { var pl = new Vimeo.Player(f); pl.on('play', on); pl.on('timeupdate', function(d){ if (d && d.seconds > 0) on(); }); } catch (e) { on(); } }
+  if (window.Vimeo && Vimeo.Player) { try {
+    var pl = new Vimeo.Player(f); pl.on('play', on); pl.on('timeupdate', function(d){ if (d && d.seconds > 0) on(); });
+    // עצירת אנימציות בתפריט הנגישות (או הפחתת תנועה): השואוריל נעצר, וממשיך כשמבטלים
+    var calm = function(){ if (window.snCalm && snCalm()) pl.pause().catch(function(){}); else pl.play().catch(function(){}); };
+    addEventListener('sn-calm', calm); pl.ready().then(function(){ if (window.snCalm && snCalm()) calm(); });
+  } catch (e) { on(); } }
   else f.addEventListener('load', function(){ setTimeout(on, 1200); }, { once: true });
 })();
 

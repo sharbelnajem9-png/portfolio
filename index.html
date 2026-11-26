@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&family=Georama:wdth,wght@62.5,100..900&family=Noto+Sans+Hebrew:wdth,wght@62.5,100..900&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="app.css?v=202611211934">
+<link rel="stylesheet" href="app.css?v=202611261056">
 <script>document.documentElement.classList.add('js','is-locked');if('scrollRestoration' in history)history.scrollRestoration='manual';
 (function(){var t=new Date().getHours(),m=t>=7&&t<19?'light':'dark';try{var s=JSON.parse(localStorage.getItem('sn-theme')||'null');if(s&&s.d===new Date().toDateString())m=s.t;}catch(e){}document.documentElement.dataset.theme=m;})();</script>
 </head>
@@ -176,7 +176,8 @@
     <div class="footer__legal">
       <a href="#" data-legal="access" data-t="lAccess"></a><span aria-hidden="true">|</span>
       <a href="#" data-legal="privacy" data-t="lPrivacy"></a><span aria-hidden="true">|</span>
-      <a href="#" data-legal="terms" data-t="lTerms"></a>
+      <a href="#" data-legal="terms" data-t="lTerms"></a><span aria-hidden="true">|</span>
+      <a href="#" class="js-cookies"></a>
     </div>
     <div class="footer__socials">
       <a href="https://www.instagram.com/sharbel.najem" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
@@ -186,54 +187,10 @@
   </footer>
 </main>
 
-<div class="legal-modal-overlay" id="modal-access" onclick="if(event.target===this)closeLegal()">
-  <div class="legal-modal">
-    <div class="legal-modal-header">
-      <h3 data-en="Accessibility Statement" data-he="הצהרת נגישות">הצהרת נגישות</h3>
-      <button class="legal-modal-close" onclick="closeLegal()">&times;</button>
-    </div>
-    <p>אתר זה מותאם לנגישות ברמת AA בהתאם לתקן הישראלי ת"י 5568 ו-WCAG 2.0. אנו מחויבים להנגשת התוכן לכלל המשתמשים, לרבות אנשים עם מוגבלויות.</p>
-    <h4>אמצעי נגישות באתר</h4>
-    <ul>
-      <li>תוסף נגישות UserWay המותקן באתר מאפשר לגולשים להתאים את תצוגת האתר לצרכיהם - שינוי גודל טקסט, ניגודיות, הדגשת קישורים ועוד.</li>
-      <li>ניתן לעצור סרטונים המתנגנים אוטומטית כדי למנוע עומס חושי.</li>
-      <li>האתר תומך בניווט באמצעות מקלדת בלבד.</li>
-      <li>האתר תואם לקוראי מסך (Screen Readers).</li>
-      <li>כל התמונות כוללות תיאור חלופי (Alt Text).</li>
-    </ul>
-    <h4>יצירת קשר בנושא נגישות</h4>
-    <p>נתקלתם בבעיית נגישות? אנא צרו קשר עם רכז הנגישות:<br><strong>[שרבל נג'ם | sharbelnajem9@gmail.com]</strong></p>
-    <p class="legal-note">הצהרה זו עודכנה לאחרונה: 2026</p>
-  </div>
-</div>
-<div class="legal-modal-overlay" id="modal-privacy" onclick="if(event.target===this)closeLegal()">
-  <div class="legal-modal">
-    <div class="legal-modal-header">
-      <h3 data-en="Privacy Policy" data-he="מדיניות פרטיות">מדיניות פרטיות</h3>
-      <button class="legal-modal-close" onclick="closeLegal()">&times;</button>
-    </div>
-    <p>אתר זה פועל בהתאם לחוק הגנת הפרטיות, התשמ"א-1981 ותקנותיו.</p>
-    <p><strong>האתר אינו אוסף, אינו אוגר ואינו משתף שום מידע אישי</strong> אודות גולשיו. האתר משמש לתצוגת תיק עבודות בלבד ואינו כולל טפסי הרשמה, מנגנוני מעקב, קובצי Cookie או כל צורה אחרת של איסוף מידע.</p>
-    <p>כל פנייה אלינו מתבצעת דרך אפיקים חיצוניים - WhatsApp או דואר אלקטרוני פרטי. מידע שתבחרו לשתף בפנייה ישירה אינו עובר עיבוד או אחסון על שרתי האתר.</p>
-    <p>פרטיותכם נשמרת לחלוטין בעת שימוש באתר זה.</p>
-    <p class="legal-note">עדכון אחרון: 2026</p>
-  </div>
-</div>
-<div class="legal-modal-overlay" id="modal-terms" onclick="if(event.target===this)closeLegal()">
-  <div class="legal-modal">
-    <div class="legal-modal-header">
-      <h3 data-en="Terms of Use" data-he="תנאי שימוש">תנאי שימוש</h3>
-      <button class="legal-modal-close" onclick="closeLegal()">&times;</button>
-    </div>
-    <h4>קניין רוחני וזכויות יוצרים</h4>
-    <p>כל התכנים המוצגים באתר זה - לרבות הפקות הווידאו, צילומים, עריכות, תסריטים, עיצובים, טקסטים ולוגואים - הינם קניין רוחני בלעדי של שרבל נג'ם ומוגנים על-פי חוק זכות יוצרים, התשס"ח-2007.</p>
-    <p><strong>חל איסור מוחלט</strong> להעתיק, לשכפל, להוריד, להפיץ, לשדר, לפרסם בפומבי, לעבד, למכור או לעשות כל שימוש מסחרי או אחר בכל חלק מהתכנים ללא אישור בכתב ומראש.</p>
-    <h4>הגבלת אחריות</h4>
-    <p>האתר מוצג "כפי שהוא" (AS IS). בעל האתר לא יישא בכל אחריות לנזק ישיר, עקיף, מקרי או תוצאתי שייגרם כתוצאה משימוש באתר או הסתמכות על תכניו.</p>
-    <p>לבירורים ורישיונות: <strong>sharbelnajem9@gmail.com</strong></p>
-    <p class="legal-note">עדכון אחרון: 2026</p>
-  </div>
-</div>
+<!-- המסמכים המשפטיים: התוכן נבנה מ-legal.js (מקור אחד לתיק העבודות ולדף הנחיתה, בעברית ובאנגלית) -->
+<div class="legal-modal-overlay" id="modal-privacy" onclick="if(event.target===this)closeLegal()"><div class="legal-modal"></div></div>
+<div class="legal-modal-overlay" id="modal-access" onclick="if(event.target===this)closeLegal()"><div class="legal-modal"></div></div>
+<div class="legal-modal-overlay" id="modal-terms" onclick="if(event.target===this)closeLegal()"><div class="legal-modal"></div></div>
 
 <div class="theater" id="theater" role="dialog" aria-modal="true" aria-labelledby="thTitle" hidden>
   <div class="theater__scroll" id="thScroll" data-lenis-prevent>
@@ -284,11 +241,12 @@
 <script src="assets/vendor/ScrollTrigger-3.12.5.min.js"></script>
 <script src="assets/vendor/lenis-1.1.13.min.js"></script>
 <script src="https://player.vimeo.com/api/player.js"></script>
-<script src="data.js?v=202611211934"></script>
-<script src="content.js?v=202611211934"></script>
-<script src="bg.js?v=202611211934"></script>
-<script src="app.js?v=202611211934"></script>
-<script src="navspy.js?v=202611211934"></script>
+<script src="legal.js?v=202611261056"></script>
+<script src="data.js?v=202611261056"></script>
+<script src="content.js?v=202611261056"></script>
+<script src="bg.js?v=202611261056"></script>
+<script src="app.js?v=202611261056"></script>
+<script src="navspy.js?v=202611261056"></script>
 <script>
 // the accessibility widget loads once the page has settled, so it never competes with the first paint
 addEventListener('load', function(){ setTimeout(function(){ var s = document.createElement('script'); s.setAttribute('data-account', 'yZwFbWSvDL'); s.setAttribute('data-trigger', 'userwayTrigger'); s.setAttribute('src', 'https://cdn.userway.org/widget.js'); s.defer = true; document.body.appendChild(s); }, 1200); });

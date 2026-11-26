@@ -9,6 +9,14 @@
 (function(){
   var c = document.createElement('canvas'); c.id = 'artBg'; c.setAttribute('aria-hidden', 'true');
   var gl = c.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' });
+  // עצירת תנועה: "הפחתת תנועה" במכשיר, או "עצירת אנימציות" בתפריט הנגישות (UserWay מוסיף userway-s13).
+  // app.js ו-start.js שואלים כאן, ומקבלים אירוע sn-calm כשזה משתנה (כדי לעצור סרטונים ורצועות)
+  (function(){
+    var r = document.documentElement, rm = matchMedia('(prefers-reduced-motion: reduce)'), was = null;
+    window.snCalm = function(){ return rm.matches || r.classList.contains('userway-s13'); };
+    var check = function(){ var c = window.snCalm(); if (c !== was) { was = c; dispatchEvent(new CustomEvent('sn-calm', { detail: { calm: c } })); } };
+    new MutationObserver(check).observe(r, { attributes: true, attributeFilter: ['class'] }); check();
+  })();
   if (!gl) return;   // בלי WebGL האתר נשאר על הרקע הכהה הרגיל
   var coarse = matchMedia('(pointer: coarse)').matches, still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var Q = coarse ? .5 : Math.min(.75, 1 / (window.devicePixelRatio || 1) + .25);
@@ -94,7 +102,7 @@
   var pi = Math.floor(Math.random() * PALS.length);
   if (BURST) { try { var lp = localStorage.getItem('sn-pal'); pi = lp === null ? pi : (+lp + 1) % PALS.length; localStorage.setItem('sn-pal', String(pi)); } catch (e) {} }
   // שעון הבנייה (BT): מתקדם לכל היותר 40ms בפריים, כך שאם הדפדפן נתקע לרגע (טעינה, מדידת אותיות) הציור לא קופץ קדימה - רק ממתין
-  var BT = 0, LASTT = 0, PEND = 0, SMOOTH = 0;
+  var BT = 0, LASTT = 0, PEND = 0, SMOOTH = 0, FROZEN = null;
   var PAL = PALS[pi], SUB = 0, SNAP = false;   // SNAP: ההחלפה הבאה של בהיר/כהה מיידית, בלי גל (artFX.snap)   // SUB: 0 = המלבנים של הציור כמו שהם (לא מחלקים אותם לגושים קטנים)   // התפרצות הצבעים רק בפתיחה של האתר, לא בדף הנחיתה
   var nextWave = 35 + Math.random() * 15;   // מדי פעם (כל 40-75 שניות) גל מהיר עובר על הציור, כמו בכניסה - לא כל הזמן
   window.artFX = {
@@ -118,14 +126,16 @@
     requestAnimationFrame(loop);
     now = t / 1000;
     var lt = root.dataset.theme === 'light' ? 1 : 0;
-    if (lt !== cur) { if (still || SNAP) LA = LB = lt; else { LA = cur; LB = lt; T0 = now; TM = 0; } cur = lt; SNAP = false; }
+    var calm = still || window.snCalm(), tt = calm ? (FROZEN === null ? (FROZEN = now) : FROZEN) : (FROZEN = null, now);   // בעצירה הציור קופא במקום, בלי קפיצה
+    if (lt !== cur) { if (calm || SNAP) LA = LB = lt; else { LA = cur; LB = lt; T0 = now; TM = 0; } cur = lt; SNAP = false; }
+    if (calm) LA = LB = cur;   // גל שהיה באמצע נגמר מיד, לא קופא חצי הפוך
     if (covered()) return;
-    if (!still && B0 === null && now > nextWave) {
+    if (!calm && B0 === null && now > nextWave) {
       if (now - T0 > 5) { var m = Math.random(); TM = m < .35 ? 1 : m < .7 ? -1 : 0; if (!TM) { OX = innerWidth * (.15 + .7 * Math.random()); OY = innerHeight * (.15 + .7 * Math.random()); } LA = LB = cur; T0 = now; }
       nextWave = now + 40 + Math.random() * 35;
     }
     if (coarse && (frame++ & 1)) return;   // בטלפון 30 פריימים בשנייה
-    if (!still && t - lastMove > 4000) { tx = innerWidth * (.5 + .34 * Math.sin(t * .00012)); ty = innerHeight * (.38 + .22 * Math.cos(t * .0001)); }
+    if (!calm && t - lastMove > 4000) { tx = innerWidth * (.5 + .34 * Math.sin(t * .00012)); ty = innerHeight * (.38 + .22 * Math.cos(t * .0001)); }
     mx += (tx - mx) * .045; my += (ty - my) * .045;
     var raw = LASTT ? now - LASTT : 1; LASTT = now;
     // הפתיחה מתחילה רק כשהדף נרגע (כמה פריימים חלקים ברצף, או אחרי 0.8 שניות), ולא באמצע הטעינה
@@ -135,9 +145,9 @@
     if (B0 !== null && B0 >= 0 && DS > 50 && ub > 2.6) DS = 2.6;   // ליתר ביטחון: גם אם הספירה מתעכבת, הצבעים נרגעים
     if (B0 !== null && B0 >= 0 && ub > Math.max(4.2, DS + 1.4)) { B0 = null; ub = 99; }
     // הקומפוזיציה תמיד זזה; רק כשמבקשים פחות תנועה מציירים רק כשמשהו השתנה
-    if (still && Math.abs(scrollY - lastY) < .5 && Math.abs(mx - lastMx) < .05 && Math.abs(my - lastMy) < .05 && now - T0 > 4) return;
+    if (calm && Math.abs(scrollY - lastY) < .5 && Math.abs(mx - lastMx) < .05 && Math.abs(my - lastMy) < .05 && now - T0 > 4) return;
     lastY = scrollY; lastMx = mx; lastMy = my;
-    gl.uniform1f(U.uTime, still ? 0 : now); gl.uniform2f(U.uRes, innerWidth, innerHeight); gl.uniform1f(U.uScroll, scrollY); gl.uniform2f(U.uMouse, mx, my); gl.uniform1f(U.uQ, Q);
+    gl.uniform1f(U.uTime, still ? 0 : tt); gl.uniform2f(U.uRes, innerWidth, innerHeight); gl.uniform1f(U.uScroll, scrollY); gl.uniform2f(U.uMouse, mx, my); gl.uniform1f(U.uQ, Q);
     gl.uniform1f(U.uLA, LA); gl.uniform1f(U.uLB, LB); gl.uniform1f(U.uT0, still ? -100 : T0); gl.uniform1f(U.uTM, TM); gl.uniform2f(U.uO, OX, OY);
     gl.uniform1f(U.uB, ub); gl.uniform1f(U.uTI, B0 === null ? 1 : Math.max(0, Math.min(1, (ub - Math.min(DS, 2.6) - .1) / .7))); gl.uniform1f(U.uVB, BURST); gl.uniform1f(U.uDS, DS); gl.uniform3fv(U.uPal, PAL); gl.uniform1f(U.uSub, SUB);
     gl.drawArrays(gl.TRIANGLES, 0, 6);

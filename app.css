@@ -384,9 +384,9 @@ html[dir="rtl"] .flip-x{transform:scaleX(-1)}
 .footer__socials svg{width:18px;height:18px}
 @media (max-width:760px){.footer{flex-direction:column;justify-content:center;text-align:center;gap:14px}.footer__legal{justify-content:center;flex-wrap:wrap}}
 @media (max-width:860px){.about__photo{max-width:420px;margin-inline:auto}}
-.legal-modal-overlay{position:fixed;inset:0;z-index:95;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.legal-modal-overlay{position:fixed;inset:0;z-index:140;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .legal-modal-overlay.open{display:flex}
-.legal-modal{direction:rtl;text-align:right;width:min(720px,100%);max-height:84vh;overflow:auto;border-radius:24px;padding:28px 30px;background:var(--bg-2);border:1px solid var(--line-2);font-family:var(--f-he);font-size:16px;line-height:1.7;color:var(--ink-2)}
+.legal-modal{text-align:start;width:min(720px,100%);max-height:84vh;overflow:auto;border-radius:24px;padding:28px 30px;background:var(--bg-2);border:1px solid var(--line-2);font-family:var(--f-he);font-size:16px;line-height:1.7;color:var(--ink-2)}
 .legal-modal-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:10px}
 .legal-modal-header h3{margin:0;color:var(--ink);font-size:24px}
 .legal-modal h4{color:var(--ink);margin:20px 0 6px}
@@ -619,3 +619,21 @@ html[dir="ltr"] [data-fx="wipe"]:not(.in) .ts:not(.ts-m){clip-path:inset(-.25em 
 /* המלצות: הרצועה מתרוממת מהשכיבה לעמידה, בתלת-ממד */
 .rv-tilt{transform-origin:50% 100%;transition:opacity 1s var(--ease),transform 1.5s var(--ease)}
 .rv-tilt:not(.in){opacity:0;transform:perspective(1200px) rotateX(40deg) translateY(60px)}
+
+/* המסמכים המשפטיים (legal.js): כיוון הכתיבה לפי השפה של המסמך */
+.legal-modal[lang="en"]{font-family:var(--f-en)}
+.legal-modal ul{margin:6px 0;padding-inline-start:22px}
+.legal-modal li{margin:4px 0}
+.legal-modal a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+/* חלונית העוגיות (legal.js): בתחתית, זכוכית, שני כפתורים שווים - בלי לדחוף לבחירה אחת */
+.cookie-bar{position:fixed;z-index:85;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(760px,calc(100% - 24px));display:flex;align-items:center;gap:14px 20px;padding:16px 18px;border-radius:22px;color:var(--ink);transform:translate(-50%,24px);opacity:0;transition:transform .5s var(--ease),opacity .5s var(--ease)}
+.cookie-bar.is-on{transform:translate(-50%,0);opacity:1}
+.cookie-bar p{margin:0;flex:1;font-size:15px;line-height:1.55;color:var(--ink-2)}
+.cookie-bar p a{color:var(--ink);text-decoration:underline;cursor:pointer}
+.cookie-bar__btns{display:flex;gap:8px;flex:none}
+.cookie-bar__btn{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--line-2);background:rgba(var(--fg),.06);color:var(--ink);font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:background .3s}
+.cookie-bar__btn:hover{background:rgba(var(--fg),.13)}
+.cookie-bar__btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media (max-width:640px){.cookie-bar{flex-direction:column;align-items:stretch}.cookie-bar__btns>*{flex:1}}
+/* עצירת אנימציות בתפריט הנגישות (UserWay מוסיף userway-s13): כל מה שזז לבד נעצר. החלק שב-JS - ב-bg.js, app.js ו-start.js */
+html.userway-s13 .marquee__row,html.userway-s13 .ts,html.userway-s13 .lp-scroll{animation-play-state:paused!important}

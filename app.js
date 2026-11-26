@@ -89,7 +89,7 @@ function isPhone(){ return innerWidth <= 760; }
 var NC = navigator.connection, SLOWNET = !!(NC && (NC.saveData || /2g|3g/.test(NC.effectiveType || '')));   // אינטרנט חלש: בלי תצוגות מקדימות שרצות ברקע
 // phones show posters only; a video plays when the viewer taps it
 function live(box){
-  if (!box || box._live || isPhone() || SLOWNET) return;
+  if (!box || box._live || isPhone() || SLOWNET || (window.snCalm && snCalm())) return;   // בעצירת אנימציות: רק תמונה, בלי תצוגה מקדימה שרצה
   if (stage === 'lb' || (stage === 'theater') !== !!box.closest('#theater')) return;
   box._live = true;
   var m = MEDIA[+box.dataset.m], el;
@@ -120,6 +120,8 @@ function live(box){
     } catch (e) {} }
   }
 }
+// עצירת אנימציות בתפריט הנגישות (או הפחתת תנועה): התצוגות המקדימות שרצות נעצרות ומוחלפות בתמונה
+addEventListener('sn-calm', function(e){ if (e.detail.calm) $$('.media').forEach(function(b){ if (b._live) dead(b); }); });
 function dead(box){
   if (!box || !box._live) return; box._live = false; box.classList.remove('is-live');
   var li = LIVE_IF.indexOf(box); if (li > -1) LIVE_IF.splice(li, 1);
@@ -249,7 +251,7 @@ function autoStrip(vp, sel, ms){
   ['pointerdown', 'touchstart', 'wheel'].forEach(function(ev){ vp.addEventListener(ev, hold, { passive: true }); });
   vp.addEventListener('mouseenter', onEnter); vp.addEventListener('mouseleave', onLeave);
   var io = new IntersectionObserver(function(es){ inV = es[0].isIntersecting; }, { threshold: .3 }); io.observe(vp);
-  var t = setInterval(function(){ if (!inV || hover || reduce || document.hidden || Date.now() - pause < 6000) return; go(nearest() + 1); }, ms);
+  var t = setInterval(function(){ if (!inV || hover || reduce || (window.snCalm && snCalm()) || document.hidden || Date.now() - pause < 6000) return; go(nearest() + 1); }, ms);
   return { step: function(d){ hold(); go(nearest() + d); }, stop: function(){ clearInterval(t); io.disconnect(); ['pointerdown', 'touchstart', 'wheel'].forEach(function(ev){ vp.removeEventListener(ev, hold); }); vp.removeEventListener('mouseenter', onEnter); vp.removeEventListener('mouseleave', onLeave); } };
 }
 
@@ -314,7 +316,7 @@ function featTick(tm){
   var dt = Math.min(50, tm - (FE.last || tm)); FE.last = tm;
   if (stage === 'main' && FE.seg && (FE.near || FE.drag)) {
     if (FE.tx !== null && !FE.drag) { FE.x += (FE.tx - FE.x) * (1 - Math.exp(-dt / 170)); if (Math.abs(FE.tx - FE.x) < .5) { FE.x = FE.tx; FE.tx = null; } }
-    else if (!FE.drag && !document.hidden && Date.now() > FE.hold) FE.x += featDir() * dt * (isPhone() ? .05 : .08);
+    else if (!FE.drag && !document.hidden && Date.now() > FE.hold && !(window.snCalm && snCalm())) FE.x += featDir() * dt * (isPhone() ? .05 : .08);
     featWrap(); featApply();
     if (++FE.tick % 8 === 0) featPick();
   }
@@ -406,7 +408,7 @@ function quotesTick(t){
   var dt = Math.min(50, t - (Q.last || t)); Q.last = t;
   if (stage === 'main' && Q.row && Q.p && (Q.inV || Q.drag)) {
     if (Q.tx !== null && !Q.drag) { Q.x += (Q.tx - Q.x) * (reduce ? 1 : 1 - Math.exp(-dt / 210)); if (Math.abs(Q.tx - Q.x) < .5) { Q.x = Q.tx; Q.tx = null; } }
-    else if (!Q.drag && !document.hidden && Date.now() > Q.hold) Q.x -= dt * (isPhone() ? .042 : .06);
+    else if (!Q.drag && !document.hidden && Date.now() > Q.hold && !(window.snCalm && snCalm())) Q.x -= dt * (isPhone() ? .042 : .06);
     var lo = Q.o - (Q.kmin + Q.n - .5) * Q.p, hi = Q.o - (Q.kmin - .5) * Q.p, s = Q.x < lo ? Q.w : Q.x > hi ? -Q.w : 0;
     if (s) { Q.x += s; if (Q.tx !== null) Q.tx += s; if (Q.drag) Q.drag.q += s; }
     quotes3D();
@@ -949,7 +951,9 @@ function startGate(){
   var ready = new Promise(function(res){
     if (window.Vimeo && Vimeo.Player) { try {
       var playing = function(){ reel.classList.add('is-playing'); res(); };
-      var rp = new Vimeo.Player(rf); rp.on('play', playing); rp.on('timeupdate', function(d){ if (d && d.seconds > 0) playing(); }); rp.getPaused().then(function(p){ if (!p) playing(); }, function(){});
+      var rp = new Vimeo.Player(rf); rp.on('play', playing);
+      // עצירת אנימציות: השואוריל נעצר, וממשיך כשמבטלים
+      addEventListener('sn-calm', function(e){ if (e.detail.calm) rp.pause().catch(function(){}); else rp.play().catch(function(){}); }); rp.on('timeupdate', function(d){ if (d && d.seconds > 0) playing(); }); rp.getPaused().then(function(p){ if (!p) playing(); }, function(){});
       var nudges = 0, nudge = setInterval(function(){
         if (++nudges > 14 || root.classList.contains('userway-s13')) { clearInterval(nudge); return; }
         rp.getPaused().then(function(p){ if (p) rp.play().catch(function(){}); else clearInterval(nudge); }, function(){});

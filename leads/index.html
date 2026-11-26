@@ -472,6 +472,7 @@ body::before {
       <button class="btn primary" onclick="openAdd()">+ הוסף ליד</button>
       <button class="btn" onclick="exportJSON()">ייצא JSON</button>
       <button class="btn" onclick="exportCSV()">ייצא CSV</button>
+      <button class="btn ghost" onclick="recoverWithOldVault()" title="פתיחת לידים שהוצפנו בכספת קודמת, עם קובץ הגיבוי שלה. הכספת הנוכחית לא משתנה">🔓 שחזור מגיבוי</button>
       <button class="btn ghost" onclick="exportVaultBackup()" title="הורד גיבוי של מפתח ההצפנה — שמור במקום בטוח, חיוני לגישה ממכשיר אחר">🔐 גיבוי כספת</button>
       <button class="btn ghost" onclick="logout()">יציאה</button>
     </div>
@@ -614,6 +615,14 @@ async function unlockOrSetupVault(vaultPassphrase) {
         if (r.ok) { const j = await r.json(); if (j && j.publicJwk) { _snPublicJwk = j.publicJwk; localStorage.setItem(PUBKEY_CACHE, JSON.stringify(_snPublicJwk)); } }
       } catch(e) {}
     }
+    // הענן (Pantry) מוחק נתונים שלא נגעו בהם זמן מה. אם המפתח הציבורי נעלם משם - מפרסמים אותו שוב,
+    // אחרת דף הנחיתה לא שומר לידים בענן (הוא שולח לשם רק מוצפן)
+    if (_snPublicJwk) {
+      try {
+        const r = await fetch(PUBKEY_URL), j = r.ok ? await r.json() : null;
+        if (!j || !j.publicJwk) await fetch(PUBKEY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ publicJwk: _snPublicJwk, created: new Date().toISOString() }) });
+      } catch(e) { console.warn('republish pubkey failed', e); }
+    }
     return;
   }
   // No local v2 vault → check if there's an existing vault in the cloud (from another device with v2)
@@ -677,6 +686,52 @@ async function promptImportVault(passphrase) {
   });
 }
 
+// שחזור: לידים שהוצפנו בכספת קודמת נפתחים עם קובץ הגיבוי שלה (למשל sn-vault-backup-2026-05-25 מהדרייב).
+// המפתח הישן נשאר רק בזיכרון לרגע; הכספת הנוכחית לא משתנה, והלידים שנפתחו נשמרים מעכשיו במפתח הנוכחי
+function askPassphrase(title){
+  return new Promise(resolve => {
+    const o = document.createElement('div');
+    o.style.cssText = 'position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6)';
+    o.innerHTML = '<form style="background:#16181d;border:1px solid #333;border-radius:18px;padding:24px;width:min(420px,92vw);display:flex;flex-direction:column;gap:12px;direction:rtl">' +
+      '<b style="font-size:18px">' + title + '</b><input type="password" autocomplete="off" placeholder="סיסמת הכספת של הגיבוי" style="font:inherit;font-size:17px;padding:12px;border-radius:12px;border:1px solid #444;background:#0e0f12;color:#fff">' +
+      '<div style="display:flex;gap:8px"><button class="btn primary" type="submit">המשך</button><button class="btn" type="button" data-x>ביטול</button></div></form>';
+    document.body.appendChild(o);
+    const f = o.querySelector('form'), i = o.querySelector('input'); i.focus();
+    const done = v => { o.remove(); resolve(v); };
+    f.onsubmit = e => { e.preventDefault(); done(i.value); };
+    o.querySelector('[data-x]').onclick = () => done(null);
+  });
+}
+async function recoverWithOldVault() {
+  if (!window.SNCrypto || !SNCrypto.available) { alert('הדפדפן הזה לא תומך בהצפנה'); return; }
+  const leads = loadLeads(), bad = leads.filter(l => l._decryptError);
+  if (!bad.length) { alert('אין לידים שצריך לשחזר'); return; }
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/json,.json';
+  inp.onchange = async (e) => {
+    let data;
+    try { data = JSON.parse(await e.target.files[0].text()); if (!data || !data.encryptedPrivate) throw new Error(); }
+    catch (err) { alert('זה לא קובץ גיבוי של כספת'); return; }
+    const pass = await askPassphrase('שחזור ' + bad.length + ' לידים מהגיבוי'); if (!pass) return;
+    let oldKey;
+    try { oldKey = await SNCrypto.unlockVault(data.encryptedPrivate, pass); }
+    catch (err) { alert('הסיסמה לא פותחת את הגיבוי הזה'); return; }
+    let ok = 0;
+    for (let i = 0; i < leads.length; i++) {
+      const l = leads[i]; if (!l._decryptError) continue;
+      const { _wasEncrypted, _decryptError, name, phone, about, ...raw } = l;
+      try {
+        const dec = await SNCrypto.decryptLead(raw, oldKey);
+        leads[i] = Object.assign(dec, { status: l.status || dec.status, notes: l.notes || dec.notes || '', _wasEncrypted: true });
+        ok++;
+      } catch (err) {}
+    }
+    localStorage.setItem(LEADS_KEY, JSON.stringify(leads)); renderAll();
+    if (ok) pushToCloud(leads);
+    alert(ok ? '✅ שוחזרו ' + ok + ' מתוך ' + bad.length + ' לידים' : 'הגיבוי הזה לא פותח את הלידים. כנראה שהם הוצפנו בכספת אחרת.');
+  };
+  inp.click();
+}
+
 function exportVaultBackup() {
   const stored = localStorage.getItem(VAULT_KEY);
   const pub = localStorage.getItem(PUBKEY_CACHE);
@@ -732,6 +787,11 @@ async function pushToCloud(leads) {
     }
     const outbound = [];
     for (const l of leads) {
+      // ליד שלא נפתח (הוצפן בכספת קודמת) נשמר כמו שהוא - עם ההצפנה המקורית שלו. אם מצפינים אותו מחדש, התוכן המקורי נמחק לתמיד
+      if (l._decryptError) {
+        const { _wasEncrypted, _decryptError, name, phone, about, ...raw } = l;
+        outbound.push(raw); continue;
+      }
       if (l._wasEncrypted && publicKey) {
         const { _wasEncrypted, ...clean } = l;
         try { outbound.push(await SNCrypto.encryptLead(clean, publicKey)); }
@@ -862,6 +922,8 @@ function renderCard(l) {
       <div class="lc-meta">
         ${l.phone ? `<a href="https://wa.me/${waLink}" target="_blank" onclick="event.stopPropagation()">📱 ${escapeHtml(l.phone)}</a>` : ''}
         ${l.email ? `<a href="mailto:${escapeHtml(l.email)}" onclick="event.stopPropagation()">✉️ ${escapeHtml(l.email)}</a>` : ''}
+        ${l.source && l.source !== 'ישיר' ? `<span class="budget">📣 ${escapeHtml(l.source)}</span>` : ''}
+        ${l.consent && l.consent.marketing ? `<span class="budget" title="אישר/ה לקבל תוכן ועדכונים">✅ מאשר/ת תוכן</span>` : ''}
       </div>
       ${l.about ? `<div class="lc-about">${escapeHtml(l.about)}</div>` : ''}
       <textarea class="lc-notes" placeholder="הערות..." onchange="updateNotes(${l.id}, this.value)" onclick="event.stopPropagation()" onpointerdown="event.stopPropagation()">${escapeHtml(l.notes||'')}</textarea>
@@ -956,9 +1018,10 @@ function exportJSON() {
 }
 function exportCSV() {
   const leads = loadLeads();
-  const headers = ['date','name','phone','about','budget','status','notes'];
+  const headers = ['date','name','phone','about','budget','status','notes','source','marketing'];
   const rows = [headers.join(',')];
-  leads.forEach(l => rows.push(headers.map(h => csvCell(l[h])).join(',')));
+  // marketing = אישר/ה לקבל תוכן ועדכונים (רק למי שכתוב "כן" מותר לשלוח דיוור)
+  leads.forEach(l => rows.push(headers.map(h => csvCell(h === 'marketing' ? (l.consent && l.consent.marketing ? 'כן' : '') : l[h])).join(',')));
   downloadBlob(new Blob(['﻿' + rows.join('\n')], {type:'text/csv;charset=utf-8'}), 'leads-' + dateStamp() + '.csv');
 }
 function csvCell(v) {

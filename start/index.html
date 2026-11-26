@@ -25,8 +25,8 @@
 })(document);
 </script>
 <script src="../assets/sn-crypto.js" defer></script>
-<link rel="stylesheet" href="../app.css?v=202611211934">
-<link rel="stylesheet" href="start.css?v=202611211934">
+<link rel="stylesheet" href="../app.css?v=202611261056">
+<link rel="stylesheet" href="start.css?v=202611261056">
 <script>document.documentElement.classList.add('js');
 (function(){var t=new Date().getHours(),m=t>=7&&t<19?'light':'dark';try{var s=JSON.parse(localStorage.getItem('sn-theme')||'null');if(s&&s.d===new Date().toDateString())m=s.t;}catch(e){}document.documentElement.dataset.theme=m;
 var q=(location.search.match(/[?&]lang=(he|en)\b/)||[])[1],l=q;if(q)document.documentElement.classList.add('gate-skip');try{l=l||localStorage.getItem('sn-lang');}catch(e){}if(l==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}})();</script>
@@ -141,6 +141,7 @@ var q=(location.search.match(/[?&]lang=(he|en)\b/)||[])[1],l=q;if(q)document.doc
           <div class="field"><label for="fEmail" data-t="fEmail"></label><input id="fEmail" type="email" name="email" autocomplete="email" inputmode="email"></div>
           <div class="field"><label for="fAbout" data-t="fAbout"></label><textarea id="fAbout" name="about" required></textarea></div>
           <div class="consent-row"><input type="checkbox" id="consent" name="consent" required><label for="consent" data-th="consent"></label></div>
+          <div class="consent-row"><input type="checkbox" id="mkt" name="mkt"><label for="mkt" data-t="mkt"></label></div>
           <button class="submit-btn" type="submit" disabled data-t="send"></button>
           <p class="privacy-note" data-th="privacyNote"></p>
         </form>
@@ -164,7 +165,8 @@ var q=(location.search.match(/[?&]lang=(he|en)\b/)||[])[1],l=q;if(q)document.doc
     <div class="footer__legal">
       <a href="#" data-legal="access" data-t="lAccess"></a><span aria-hidden="true">|</span>
       <a href="#" data-legal="privacy" data-t="lPrivacy"></a><span aria-hidden="true">|</span>
-      <a href="#" data-legal="terms" data-t="lTerms"></a>
+      <a href="#" data-legal="terms" data-t="lTerms"></a><span aria-hidden="true">|</span>
+      <a href="#" class="js-cookies"></a>
     </div>
     <div class="footer__socials">
       <a href="https://www.instagram.com/sharbel.najem" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
@@ -174,115 +176,10 @@ var q=(location.search.match(/[?&]lang=(he|en)\b/)||[])[1],l=q;if(q)document.doc
   </footer>
 </main>
 
-<!-- ── LEGAL MODALS ── -->
-<div class="legal-modal-overlay" id="modal-privacy" onclick="if(event.target===this)closeLegal()">
-  <div class="legal-modal">
-    <div class="legal-modal-header">
-      <h3 data-he="מדיניות פרטיות" data-en="Privacy Policy">מדיניות פרטיות</h3>
-      <button class="legal-modal-close" onclick="closeLegal()" aria-label="סגור">×</button>
-    </div>
-    <p>דף זה פועל בהתאם ל<strong>חוק הגנת הפרטיות, התשמ"א-1981</strong> ותקנותיו.</p>
-
-    <h4>איזה מידע נאסף</h4>
-    <p>בעת מילוי טופס יצירת הקשר נאספים: <strong>שם מלא, מספר טלפון/וואטסאפ, ותיאור קצר של העסק שלך.</strong> בנוסף, אם תבחר/י למלא — <strong>כתובת מייל (אופציונלי).</strong></p>
-
-    <h4>למה אנחנו אוספים את המידע</h4>
-    <p>המידע משמש <strong>רק</strong> כדי לחזור אליך עם הצעת מחיר או תיאום שיחה לגבי הפנייה שלך. אין שימוש שיווקי, אין דיוור אוטומטי, אין מכירה של המידע לצדדים שלישיים.</p>
-
-    <h4>היכן המידע נשמר ועם מי הוא משותף</h4>
-    <p>המידע מועבר ונשמר בשירותים חיצוניים הנדרשים לקליטה ולניהול הפניות:</p>
-    <ul>
-      <li><strong>Web3Forms</strong> (ארה"ב) — שירות לשליחת ההודעה אל המייל שלי.</li>
-      <li><strong>Pantry (getpantry.cloud)</strong> (ארה"ב) — שירות אחסון ענן שמאפשר לי לראות את הפנייה בלוח ניהול הלידים הפרטי שלי גם ממכשיר אחר.</li>
-      <li><strong>localStorage של הדפדפן שלך</strong> — גיבוי מקומי במכשיר ממנו שלחת, אינו עובר לאף שרת.</li>
-    </ul>
-    <p>שירותים אלו מטפלים במידע אך ורק לצורך הספקת השירות הטכני (העברת הודעה, אחסון) ואינם רשאים להשתמש בו לצרכים אחרים.</p>
-
-    <h4>משך השמירה</h4>
-    <p>הפרטים נשמרים כל עוד הם רלוונטיים ליצירת קשר עסקי, או עד <strong>7 שנים</strong> במידה והפכנו ללקוחות (לפי דרישות חוק חשבונאות). לאחר מכן הם נמחקים.</p>
-
-    <h4>הזכויות שלך</h4>
-    <p>לפי <strong>סעיפים 13 ו-14 לחוק הגנת הפרטיות</strong> מגיע לך:</p>
-    <ul>
-      <li><strong>זכות עיון</strong> — לבקש לראות את המידע שמור עליך אצלי.</li>
-      <li><strong>זכות תיקון</strong> — לבקש לעדכן מידע לא נכון.</li>
-      <li><strong>זכות מחיקה</strong> — לבקש למחוק את הפרטים מהמערכת.</li>
-    </ul>
-    <p>לכל בקשה — שלח/י מייל ל: <a href="mailto:sharbelnajem9@gmail.com">sharbelnajem9@gmail.com</a><br>הבקשה תטופל תוך <strong>30 ימים</strong> ממועד קבלתה.</p>
-
-    <h4>אבטחת מידע</h4>
-    <p>המידע מועבר בחיבור מוצפן (HTTPS). הגישה ללוח הניהול הפרטי שלי מוגנת בסיסמה. אני נוקט באמצעי אבטחה סבירים, אך אין באפשרותי להבטיח אבטחה מוחלטת.</p>
-
-    <h4>קוקיז ומעקב</h4>
-    <p>האתר לא משתמש בעוגיות מעקב (cookies). יש שימוש ב-localStorage <strong>רק</strong> לגיבוי מקומי של הטופס במכשיר שלך, ולשמירת העדפות נגישות.</p>
-
-    <h4>שינויים במדיניות</h4>
-    <p>שינויים יפורסמו בעמוד זה. השימוש המתמשך בשירות לאחר עדכון מהווה הסכמה למדיניות המעודכנת.</p>
-
-    <p class="legal-note">עדכון אחרון: 25.05.2026 · באחריות שרבל נג'ם · sharbelnajem9@gmail.com</p>
-  </div>
-</div>
-
-<div class="legal-modal-overlay" id="modal-access" onclick="if(event.target===this)closeLegal()">
-  <div class="legal-modal">
-    <div class="legal-modal-header">
-      <h3 data-he="הצהרת נגישות" data-en="Accessibility Statement">הצהרת נגישות</h3>
-      <button class="legal-modal-close" onclick="closeLegal()" aria-label="סגור">×</button>
-    </div>
-    <p>אתר זה פועל בהתאם ל<strong>תקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), התשע"ג-2013</strong>, ומותאם לרמת AA לפי <strong>התקן הישראלי ת"י 5568</strong> המבוסס על הנחיות WCAG 2.0.</p>
-
-    <h4>אמצעי הנגישות באתר</h4>
-    <ul>
-      <li>תוסף נגישות <strong>UserWay</strong> מותקן באתר ומאפשר התאמות אישיות (הגדלת טקסט, ניגודיות, הדגשת קישורים, עצירת אנימציות ועוד).</li>
-      <li>האתר תומך בניווט באמצעות מקלדת בלבד.</li>
-      <li>האתר תואם לקוראי מסך (Screen Readers).</li>
-      <li>כל התמונות כוללות תיאור חלופי (Alt Text).</li>
-      <li>הוידאו הראשי אינו כולל סאונד אוטומטי שעלול להפריע.</li>
-      <li>ניתן לעצור את הסרטון המתנגן אוטומטית.</li>
-    </ul>
-
-    <h4>שירותים פטורים / חריגים ידועים</h4>
-    <p>אנו פועלים באופן שוטף לשיפור הנגישות. במקרים בהם נמצא רכיב שאינו נגיש במלואו — אנא צרו קשר ואנו נטפל בזה במהירות.</p>
-
-    <h4>פרטי רכז הנגישות</h4>
-    <p><strong>שרבל נג'ם</strong><br>
-    מייל: <a href="mailto:sharbelnajem9@gmail.com">sharbelnajem9@gmail.com</a><br>
-    וואטסאפ: <a href="https://wa.me/972543466880" target="_blank">054-346-6880</a></p>
-    <p>אם נתקלת בקושי בגישה לתוכן או בתפעול האתר — אנא צור קשר עם רכז הנגישות לקבלת מענה.</p>
-
-    <p class="legal-note">עדכון אחרון: 25.05.2026</p>
-  </div>
-</div>
-
-<div class="legal-modal-overlay" id="modal-terms" onclick="if(event.target===this)closeLegal()">
-  <div class="legal-modal">
-    <div class="legal-modal-header">
-      <h3 data-he="תנאי שימוש" data-en="Terms of Use">תנאי שימוש</h3>
-      <button class="legal-modal-close" onclick="closeLegal()" aria-label="סגור">×</button>
-    </div>
-
-    <h4>קניין רוחני</h4>
-    <p>כל התכנים בדף זה — לרבות העיצוב, הטקסטים, הצילומים, סרטוני הוידאו והלוגואים — הם <strong>קניין רוחני בלעדי של שרבל נג'ם</strong>, ומוגנים על-פי חוק זכות יוצרים, התשס"ח-2007. אסור להעתיק, לשכפל או להפיץ ללא אישור בכתב.</p>
-
-    <h4>שימוש בטופס יצירת הקשר</h4>
-    <p>הטופס נועד לפניות עסקיות בלבד. אסור להשתמש בו לצרכי ספאם, פרסום, או הפצת תוכן בלתי חוקי. פניות לא רלוונטיות לא יקבלו מענה.</p>
-    <p>בלחיצה על "שלח" אתה/את מאשר/ת שהפרטים שמסרת נכונים וכי אתה/את הבעלים שלהם (או הסכמת הבעלים).</p>
-
-    <h4>אין התחייבות לתוצאה</h4>
-    <p>שליחת הטופס היא פנייה ראשונית. היא אינה מהווה חוזה. כל התקשרות עסקית בפועל תיעשה בנפרד באמצעות חוזה כתוב וחתום.</p>
-
-    <h4>הגבלת אחריות</h4>
-    <p>השירות מוצג "כפי שהוא" (AS IS). שרבל נג'ם לא יישא באחריות לנזק ישיר/עקיף שייגרם משימוש בדף, מתקלות טכניות זמניות, או מהסתמכות על המידע המוצג.</p>
-
-    <h4>סמכות שיפוט</h4>
-    <p>על תנאים אלו יחולו דיני מדינת ישראל. סמכות השיפוט הבלעדית — בתי המשפט המוסמכים במחוז תל אביב.</p>
-
-    <h4>יצירת קשר</h4>
-    <p>לבירורים: <a href="mailto:sharbelnajem9@gmail.com">sharbelnajem9@gmail.com</a></p>
-
-    <p class="legal-note">עדכון אחרון: 25.05.2026</p>
-  </div>
-</div>
+<!-- המסמכים המשפטיים: התוכן נבנה מ-legal.js (מקור אחד לתיק העבודות ולדף הנחיתה, בעברית ובאנגלית) -->
+<div class="legal-modal-overlay" id="modal-privacy" onclick="if(event.target===this)closeLegal()"><div class="legal-modal"></div></div>
+<div class="legal-modal-overlay" id="modal-access" onclick="if(event.target===this)closeLegal()"><div class="legal-modal"></div></div>
+<div class="legal-modal-overlay" id="modal-terms" onclick="if(event.target===this)closeLegal()"><div class="legal-modal"></div></div>
 
 <div class="vm" id="vm" role="dialog" aria-modal="true" hidden>
   <button type="button" class="vm__x glass" id="vmClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr" data-t="close"></span></button>
@@ -290,9 +187,10 @@ var q=(location.search.match(/[?&]lang=(he|en)\b/)||[])[1],l=q;if(q)document.doc
 </div>
 
 <script src="https://player.vimeo.com/api/player.js"></script>
-<script src="../content.js?v=202611211934"></script>
-<script src="../bg.js?v=202611211934"></script>
-<script src="start.js?v=202611211934"></script>
-<script src="../navspy.js?v=202611211934"></script>
+<script src="../legal.js?v=202611261056"></script>
+<script src="../content.js?v=202611261056"></script>
+<script src="../bg.js?v=202611261056"></script>
+<script src="start.js?v=202611261056"></script>
+<script src="../navspy.js?v=202611261056"></script>
 </body>
 </html>

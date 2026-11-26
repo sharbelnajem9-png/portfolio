@@ -244,7 +244,7 @@ html:not([data-theme="light"]) .lp-step.cur .lp-step__n{color:#8d9cff}
 .lp-contact.in .lp-form form>:nth-child(1){transition-delay:.35s}.lp-contact.in .lp-form form>:nth-child(2){transition-delay:.43s}
 .lp-contact.in .lp-form form>:nth-child(3){transition-delay:.51s}.lp-contact.in .lp-form form>:nth-child(4){transition-delay:.59s}
 .lp-contact.in .lp-form form>:nth-child(5){transition-delay:.67s}.lp-contact.in .lp-form form>:nth-child(6){transition-delay:.75s}
-.lp-contact.in .lp-form form>:nth-child(7){transition-delay:.83s}
+.lp-contact.in .lp-form form>:nth-child(7){transition-delay:.83s}.lp-contact.in .lp-form form>:nth-child(8){transition-delay:.91s}
 
 /* =================== מה מקבלים: שלושה לוחות שבולטים מהקיר של הציור ברקע =================== */
 /* אותו חומר כמו הרקע: שחור על שחור בכהה, נייר-גבס בבהיר, עם חריצים משופעים ביניהם. התהליך המלא - בלכה של קליין, כמו המלבנים הצבועים בציור.
