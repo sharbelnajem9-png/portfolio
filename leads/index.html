@@ -440,7 +440,7 @@ body::before {
 .modal textarea { min-height: 80px; resize: vertical; }
 .modal .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 </style>
-<script src="../assets/sn-crypto.js"></script>
+<script src="../assets/sn-crypto.js?v=202611261110"></script>
 </head>
 <body>
 
@@ -614,6 +614,11 @@ async function unlockOrSetupVault(vaultPassphrase) {
         const r = await fetch(PUBKEY_URL);
         if (r.ok) { const j = await r.json(); if (j && j.publicJwk) { _snPublicJwk = j.publicJwk; localStorage.setItem(PUBKEY_CACHE, JSON.stringify(_snPublicJwk)); } }
       } catch(e) {}
+    }
+    // אין עותק של המפתח הציבורי לא במכשיר ולא בענן: מחשבים אותו מהכספת עצמה (עם הסיסמה שהוקלדה עכשיו)
+    if (!_snPublicJwk && SNCrypto.publicJwkFromVault) {
+      try { _snPublicJwk = await SNCrypto.publicJwkFromVault(stored, vaultPassphrase); localStorage.setItem(PUBKEY_CACHE, JSON.stringify(_snPublicJwk)); }
+      catch(e) { console.warn('derive pubkey failed', e); }
     }
     // הענן (Pantry) מוחק נתונים שלא נגעו בהם זמן מה. אם המפתח הציבורי נעלם משם - מפרסמים אותו שוב,
     // אחרת דף הנחיתה לא שומר לידים בענן (הוא שולח לשם רק מוצפן)

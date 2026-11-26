@@ -148,10 +148,22 @@
     return await decryptPrivateWithPassphrase(encryptedPrivate, passphrase);
   }
 
+  // המפתח הציבורי מתוך הכספת, כשהעותק השמור שלו אבד: פותחים את המפתח הפרטי לרגע, ולוקחים ממנו רק את החלק הציבורי (n, e).
+  // המפתח הפרטי לא נשמר ולא יוצא החוצה
+  async function publicJwkFromVault(blob, passphrase) {
+    const salt = new Uint8Array(fromB64(blob.salt)), iv = new Uint8Array(fromB64(blob.iv));
+    const key = await deriveKeyFromPassphrase(passphrase, salt);
+    const pkcs8 = await subtle.decrypt({ name: 'AES-GCM', iv }, key, fromB64(blob.ct));
+    const k = await subtle.importKey('pkcs8', pkcs8, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, ['decrypt']);
+    const j = await subtle.exportKey('jwk', k);
+    return { kty: 'RSA', n: j.n, e: j.e, alg: 'RSA-OAEP-256', ext: true, key_ops: ['encrypt'] };
+  }
+
   global.SNCrypto = {
     available: !!subtle,
     setupNewVault,
     unlockVault,
+    publicJwkFromVault,
     importPublicKey,
     encryptLead,
     decryptLead,
