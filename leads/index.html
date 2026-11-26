@@ -620,14 +620,7 @@ async function unlockOrSetupVault(vaultPassphrase) {
       try { _snPublicJwk = await SNCrypto.publicJwkFromVault(stored, vaultPassphrase); localStorage.setItem(PUBKEY_CACHE, JSON.stringify(_snPublicJwk)); }
       catch(e) { console.warn('derive pubkey failed', e); }
     }
-    // הענן (Pantry) מוחק נתונים שלא נגעו בהם זמן מה. אם המפתח הציבורי נעלם משם - מפרסמים אותו שוב,
-    // אחרת דף הנחיתה לא שומר לידים בענן (הוא שולח לשם רק מוצפן)
-    if (_snPublicJwk) {
-      try {
-        const r = await fetch(PUBKEY_URL), j = r.ok ? await r.json() : null;
-        if (!j || !j.publicJwk) await fetch(PUBKEY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ publicJwk: _snPublicJwk, created: new Date().toISOString() }) });
-      } catch(e) { console.warn('republish pubkey failed', e); }
-    }
+    await ensurePubkey();
     return;
   }
   // No local v2 vault → check if there's an existing vault in the cloud (from another device with v2)
@@ -763,8 +756,10 @@ function showApp() {
   initKanban();
   renderAll();
   // Sync from cloud on load + every 20s
+  // Pantry חוסם כשפונים אליו הרבה (שירות חינמי): מסנכרנים פעם בדקה, ורק כשהלשונית מול העיניים
   syncFromCloud();
-  setInterval(syncFromCloud, 20000);
+  setInterval(function(){ if (!document.hidden) syncFromCloud(); }, 60000);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) syncFromCloud(); });
 }
 // Note: we intentionally do NOT auto-restore sessions across page reloads.
 // The vault private key lives only in memory, so we must re-enter the password
@@ -782,14 +777,29 @@ function saveLeads(leads) {
   // Then push to cloud (fire-and-forget)
   pushToCloud(leads);
 }
+// הענן (Pantry) מוחק נתונים שלא נגעו בהם זמן מה, ולפעמים חוסם לכמה דקות (429). אם המפתח הציבורי נעלם משם, הלוח מפרסם אותו שוב -
+// בכניסה ובכל סנכרון, עד שזה מצליח. בלי המפתח בענן, דף הנחיתה לא שומר לידים בענן (הוא שולח לשם רק מוצפן) והם מגיעים רק במייל
+let _pubkeyOk = false;
+async function ensurePubkey() {
+  if (_pubkeyOk || !_snPublicJwk) return;
+  try {
+    const r = await fetch(PUBKEY_URL);
+    if (r.status === 429) return;   // חסום כרגע - ננסה בסנכרון הבא
+    const j = r.ok ? await r.json() : null;
+    if (j && j.publicJwk) { _pubkeyOk = true; return; }   // כבר שם (לא דורסים מפתח קיים)
+    const w = await fetch(PUBKEY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ publicJwk: _snPublicJwk, created: new Date().toISOString() }) });
+    if (w.ok) _pubkeyOk = true;
+  } catch(e) { console.warn('republish pubkey failed', e); }
+}
 async function pushToCloud(leads) {
   try {
-    // Re-encrypt leads that were originally encrypted (marked _wasEncrypted) before pushing.
-    // Plaintext leads stay plaintext. We need a public key to encrypt.
+    // כל ליד מוצפן לפני שהוא עולה. צריך מפתח ציבורי כדי להצפין
     let publicKey = null;
     if (window.SNCrypto && SNCrypto.available && _snPublicJwk) {
       try { publicKey = await SNCrypto.importPublicKey(_snPublicJwk); } catch(e) {}
     }
+    // לענן עולה רק מידע מוצפן: בלי מפתח ציבורי לא שולחים לשם בכלל (הלידים נשארים במכשיר ובמייל)
+    if (!publicKey) { console.warn('no public key - not pushing to the cloud'); return; }
     const outbound = [];
     for (const l of leads) {
       // ליד שלא נפתח (הוצפן בכספת קודמת) נשמר כמו שהוא - עם ההצפנה המקורית שלו. אם מצפינים אותו מחדש, התוכן המקורי נמחק לתמיד
@@ -797,14 +807,10 @@ async function pushToCloud(leads) {
         const { _wasEncrypted, _decryptError, name, phone, about, ...raw } = l;
         outbound.push(raw); continue;
       }
-      if (l._wasEncrypted && publicKey) {
-        const { _wasEncrypted, ...clean } = l;
-        try { outbound.push(await SNCrypto.encryptLead(clean, publicKey)); }
-        catch(e) { console.warn('re-encrypt failed for lead', l.id, e); outbound.push(l); }
-      } else {
-        const { _wasEncrypted, ...clean } = l;
-        outbound.push(clean);
-      }
+      // כל ליד מוצפן לפני שהוא עולה - גם ישנים שנשמרו פעם בלי הצפנה. אם ההצפנה נכשלה, הליד הזה לא עולה
+      const { _wasEncrypted, ...clean } = l;
+      try { outbound.push(await SNCrypto.encryptLead(clean, publicKey)); }
+      catch(e) { console.warn('encrypt failed for lead - not pushed', l.id, e); }
     }
     await fetch(PANTRY_URL, {
       method: 'POST',
@@ -816,6 +822,7 @@ async function pushToCloud(leads) {
 async function syncFromCloud() {
   if (cloudSyncInFlight) return;
   cloudSyncInFlight = true;
+  await ensurePubkey();
   try {
     const res = await fetch(PANTRY_URL);
     if (res.ok) {
